@@ -1,6 +1,6 @@
 # SEO Keyword Map
 
-Primary keyword mapping for canonical indexable URLs. This map is the anti-cannibalization reference for metadata and content updates.
+Primary keyword mapping for canonical indexable URLs. This is the anti-cannibalization source of truth for metadata and content planning.
 
 | URL | Cluster | Primary keyword | Secondary keywords |
 | --- | --- | --- | --- |
@@ -48,3 +48,6 @@ Primary keyword mapping for canonical indexable URLs. This map is the anti-canni
 - URL pattern: `/blog/[slug]`
 - Primary keyword: one intent keyword per article.
 - Required linking: at least one service page and one related post link per article.
+- Naming style rule in authored content:
+  - use `Dr. Christopher B. Wong` or `Christopher B. Wong, DDS`
+  - do not use `Dr. ... DDS` in the same line

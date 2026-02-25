@@ -1,106 +1,93 @@
-# Chris Wong DDS Website (Next.js Migration)
+# Christopher B. Wong, DDS Website (Next.js + Vercel)
 
-This repository is the Next.js + Vercel rebuild of the Dr. Christopher Wong dental practice website, migrated from the previous Vite + Express architecture.
+Production web app for Christopher B. Wong, DDS in Palo Alto, built on Next.js App Router with API route handlers, SEO automation, and CI quality gates.
 
-## Current architecture (in-flight migration)
+## Architecture
 
-- **Frontend**: Next.js App Router in `app/`
-- **UI + existing React components**: `client/src/`
-- **API routes**: Next.js route handlers in `app/api/*`
-- **Shared types/contracts**: `shared/`
-- **Storage abstraction**: `server/storage/*` with Drizzle-compatible repository entrypoint
-- **Canonical redirects**: handled in `middleware.ts` + `vercel.json`
-- **SEO**: generated metadata + `app/sitemap.ts` and `app/robots.ts`
+- Runtime: Next.js 14 App Router
+- UI: React + Tailwind + shadcn/ui primitives
+- API: Next route handlers under `/app/api/*`
+- Shared contracts and SEO map: `/shared/*`
+- Data/repository layer: `/server/storage/*`
+- Legacy compatibility: catch-all route + redirect mapping
+- Deploy target: Vercel
 
-## Route strategy
+## Repository map
 
-The migration uses two layers:
-
-1. **Explicit routes** (high-traffic, SEO-critical paths) render through a unified page shell and dedicated page components.
-2. A **catch-all route** (`app/[...slug]/page.tsx`) covers legacy/long-tail paths and dynamic blog/article handling while preserving compatibility.
-
-### Route surface implemented
-
-See the following canonical paths from `shared/seo.ts` now implemented with explicit `app/<path>/page.tsx` files:
-
-- `/`, `/about`, `/services`, `/preventive-dentistry`, `/restorative-dentistry`, `/pediatric-dentistry`
-- `/patient-resources`, `/testimonials`, `/patient-stories`, `/blog`, `/blog/[slug]`
-- `/contact`, `/schedule`, `/invisalign`, `/invisalign/resources`
-- `/emergency-dental`, `/zoom-whitening`, `/zoom-whitening/schedule`
-- `/teeth-whitening-palo-alto`, `/dental-cleaning-palo-alto`, `/cavity-fillings-palo-alto`, `/crowns-palo-alto`, `/pediatric-dentist-palo-alto`
-- `/dentist-menlo-park`, `/dentist-stanford`, `/dentist-mountain-view`, `/dentist-los-altos`, `/dentist-los-altos-hills`, `/dentist-sunnyvale`, `/dentist-cupertino`, `/dentist-redwood-city`, `/dentist-atherton`, `/dentist-redwood-shores`
-- `/locations`, `/dental-implants`, `/dental-veneers`
-- `/accessibility`, `/hipaa`, `/privacy-policy`, `/terms`, `/thank-you`, `/analytics`, `/ga-test`
-
-Legacy path normalization is still supported by `shared/redirects.ts` and `app/route-utils.ts`.
+- `/app`: route segments, metadata, sitemap, robots, API handlers
+- `/client/src`: reusable components, pages, hooks, UI utilities
+- `/server`: storage/repository and data-access utilities
+- `/shared`: shared schema, redirects, SEO definitions
+- `/scripts`: automated checks and test gates
+- `/docs`: operations, performance, SEO, and release specs
 
 ## Quick start
 
-### Prerequisites
-
-- Node.js 18.18+
-- pnpm 8.7+ (or project `packageManager` requirement)
-
-### Setup
+1. Install dependencies.
 
 ```bash
 pnpm install
+```
+
+2. Create local env file.
+
+```bash
 cp .env.example .env
 ```
 
-### Development
+3. Start local dev.
 
 ```bash
 pnpm run dev
 ```
 
-Default dev server:
-- Next app at `http://localhost:3000`.
+Dev port behavior:
+- If `PORT` is set in `.env`, Next uses that.
+- If not set, Next defaults to `3000`.
 
-### Production
+## Environment variables
 
-```bash
-pnpm run build
-pnpm run start
-```
+Required in production:
+- `DATABASE_URL` for Postgres/Neon persistence.
 
-### Perf benchmark harness (isolated build output)
+SEO/Search tooling:
+- `GOOGLE_SITE_VERIFICATION` or `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` for Search Console verification.
 
-Use the dedicated perf dist to avoid `.next` conflicts with normal dev/prod loops.
+Perf/SEO script overrides:
+- `SEO_AUDIT_BASE_URL` for runtime SEO audits.
+- `PERF_BASE_URL` for perf smoke checks.
+- `LIGHTHOUSE_BASE_URL` and `LIGHTHOUSE_RUNS` for Lighthouse gating.
 
-```bash
-pnpm run build:perf
-PORT=3101 pnpm run start:perf
-```
+## Commands
 
-In a separate shell:
-
-```bash
-PERF_BASE_URL=http://localhost:3101 pnpm run perf:smoke
-LIGHTHOUSE_BASE_URL=http://localhost:3101 LIGHTHOUSE_RUNS=3 pnpm run perf:lighthouse
-```
-
-### Validation commands
-
+Core:
+- `pnpm run dev`
+- `pnpm run build`
+- `pnpm run start`
 - `pnpm run check`
-- `pnpm run test:bundle`
+
+API/route/SEO:
 - `pnpm run test:api`
+- `pnpm run test:routes`
 - `pnpm run test:seo`
 - `pnpm run test:seo:onpage`
 - `pnpm run test:seo:links`
 - `pnpm run test:seo:schema`
 - `pnpm run test:seo:all`
-- `pnpm run test:routes`
+
+Design/perf/images:
 - `pnpm run test:design-system`
 - `pnpm run test:images`
-- `pnpm run test:production`
-- `pnpm run check:business-info`
-- `pnpm run check:seo-regression`
-- `pnpm exec tsx scripts/og-meta-check.ts`
-- `pnpm run check:lighthouse-budget`
-- `LIGHTHOUSE_BASE_URL=http://localhost:3101 pnpm run check:lighthouse-budget`
+- `pnpm run test:bundle`
+- `pnpm run build:perf`
+- `pnpm run start:perf`
+- `pnpm run perf:smoke`
+- `pnpm run perf:lighthouse`
 
-## API endpoints (Next route handlers)
+Aggregate release gate:
+- `pnpm run test:production`
+
+## API endpoints
 
 - `GET /api/services`
 - `GET /api/services/:slug`
@@ -113,43 +100,37 @@ LIGHTHOUSE_BASE_URL=http://localhost:3101 LIGHTHOUSE_RUNS=3 pnpm run perf:lighth
 - `GET /api/appointments`
 - `GET /api/contact`
 
-All endpoints preserve existing contract/validation behavior from `server/routes.ts` and shared schemas in `shared/schema.ts`.
+## SEO and canonical behavior
 
-## SEO / deployment
-
-- Metadata generation is centralized in route handlers and shared SEO data (`shared/seo.ts`).
-- Search Console verification can be configured with `GOOGLE_SITE_VERIFICATION` (or `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`).
-- `app/sitemap.ts` emits canonical static pages + blog slugs.
-- `app/robots.ts` excludes noindex routes and `/api/`.
-- `middleware.ts` enforces legacy redirect rules and canonical host behavior (`www.chriswongdds.com`).
-- `vercel.json` currently enforces canonical host normalization for Vercel deployments.
-- Runtime SEO audits are in:
-  - `scripts/seo-onpage-audit.ts`
-  - `scripts/seo-links-audit.ts`
-  - `scripts/seo-structured-data-audit.ts`
+- Canonical host: `https://www.chriswongdds.com`
+- Redirect mapping: `/shared/redirects.ts`
+- Metadata source of truth: `/shared/seo.ts` + Next metadata API
+- Sitemap: `/app/sitemap.ts`
+- Robots: `/app/robots.ts`
+- Canonical host redirect: `/vercel.json` + middleware behavior
 
 ## Vercel deployment
 
-- Production URL: https://chris-nextjs-6y17azx9u-enzo-design-prisms-projects.vercel.app
-- Live deploy command: `vercel deploy --prod --yes`
-- Local production verification: `pnpm run build` followed by `pnpm run start`
-- Repository link: https://github.com/enzo-prism/chris-nexjs
+1. Connect repo to Vercel.
+2. Set env vars (`DATABASE_URL`, verification/analytics values).
+3. Build command: `pnpm run build`.
+4. Start command: `pnpm run start`.
+5. Validate preview with SEO and route checks before promoting.
 
-## Storage
+## Content/style rule (important)
 
-Storage abstraction now routes through `server/storage/` and repository layer. Seed values remain compatible with existing shared seed data so behavior can be preserved while enabling persistence with PostgreSQL/Neon.
+Doctor name format must follow one of these:
+- `Dr. Christopher B. Wong`
+- `Christopher B. Wong, DDS`
 
-## Useful scripts location map
+Do not combine `Dr.` and `DDS` in the same line.
 
-- app migration + route logic: `app/`
-- server repository/API compatibility: `server/`
-- SEO + redirects metadata: `shared/`
-- migration/tests/docs: `scripts/`, `LOCAL_DEV.md`, `docs/performance.md`
-- SEO planning and keyword mapping: `docs/seo-growth-plan.md`, `docs/seo-keyword-map.md`
-- production readiness spec: `docs/production-readiness-spec.md`
+## Documentation index
 
-## Contributing notes
-
-- Keep canonical SEO path list and route list in sync (`shared/seo.ts` and explicit `app/*/page.tsx` files).
-- Keep legacy compatibility for unimplemented paths through `app/[...slug]/page.tsx` until fully migrated.
-- Prefer keeping global shell behavior in route shell wrappers to avoid duplicate header/footer/analytics wiring.
+- Local workflow: `/Users/enzo/chris-nextjs/LOCAL_DEV.md`
+- Testing matrix: `/Users/enzo/chris-nextjs/docs/testing.md`
+- Deployment runbook: `/Users/enzo/chris-nextjs/docs/deployment.md`
+- Performance workflow: `/Users/enzo/chris-nextjs/docs/performance.md`
+- Production readiness: `/Users/enzo/chris-nextjs/docs/production-readiness-spec.md`
+- SEO growth program: `/Users/enzo/chris-nextjs/docs/seo-growth-plan.md`
+- SEO keyword mapping: `/Users/enzo/chris-nextjs/docs/seo-keyword-map.md`

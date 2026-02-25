@@ -1,64 +1,87 @@
-# Local Development with pnpm (Next.js)
+# Local Development Guide
 
-A reliable local setup for the migrated Next.js version. Use this during development and testing.
+Use this guide for reliable local setup, iteration, and pre-push verification.
 
-## 1. Prerequisites
+## Prerequisites
 
-- Node.js **18.18+**
-- pnpm **8.7+** (`npm install -g pnpm` if needed)
-- Optional: PostgreSQL/Neon `DATABASE_URL` for persistence tests
+- Node.js `18.18+`
+- pnpm `8.7+`
 
-## 2. Install and configure
+## Setup
 
-1. Install dependencies
+1. Install dependencies.
 
 ```bash
 pnpm install
 ```
 
-2. Copy environment template
+2. Create local env file.
 
 ```bash
 cp .env.example .env
 ```
 
-3. Set values used by the app (especially in Vercel-style env mode)
-- `DATABASE_URL` (optional while validating in-memory fallback)
-- `NODE_ENV`
-- any analytics/test IDs already used by your runtime
+3. Update env values as needed.
 
-## 3. Run
+Recommended:
+- `PORT` if you do not want the default port.
+- `DATABASE_URL` when testing Postgres-backed persistence.
+- `GOOGLE_SITE_VERIFICATION` for local metadata verification tests.
+
+## Run local app
 
 ```bash
 pnpm run dev
 ```
 
-The Next.js app serves on `http://localhost:3000`.
+Port behavior:
+- Uses `.env` `PORT` if present.
+- Otherwise defaults to `3000`.
 
-If you run into port conflicts, ensure nothing else is bound to 3000.
-
-## 4. Verification commands
-
-Run these before pushing a change:
-
-- `pnpm run check`
-- `pnpm run test:api`
-- `pnpm run test:seo`
-- `pnpm exec tsx scripts/og-meta-check.ts`
-- `pnpm exec tsx client/src/lib/analytics.test.ts` (legacy smoke check)
-
-## 5. Production preview
+## Local production smoke
 
 ```bash
 pnpm run build
 pnpm run start
 ```
 
-Open the production-equivalent runtime to spot SSR, route, and metadata regressions.
+## Verification before push
 
-## 6. Troubleshooting
+Fast path:
 
-- **Build includes old caches**: remove stale artifacts
-  - `rm -rf .next`
-- **Redirect confusion while debugging**: middleware/`vercel.json` are authoritative for canonicalization in production.
-- **SEO route metadata mismatch**: validate with `pnpm run test:seo` and `scripts/og-meta-check.ts`.
+```bash
+pnpm run check
+pnpm run test:api
+pnpm run test:routes
+pnpm run test:seo:all
+```
+
+Extended path:
+
+```bash
+pnpm run test:design-system
+pnpm run test:images
+pnpm run test:bundle
+pnpm run test:production
+```
+
+## Runtime SEO audits
+
+If your app is running on a non-default host/port:
+
+```bash
+SEO_AUDIT_BASE_URL=http://localhost:5000 pnpm run test:seo:onpage
+SEO_AUDIT_BASE_URL=http://localhost:5000 pnpm run test:seo:links
+SEO_AUDIT_BASE_URL=http://localhost:5000 pnpm run test:seo:schema
+```
+
+## Troubleshooting
+
+- Stale build artifacts:
+  - `rm -rf .next .next-perf`
+- Port already in use:
+  - change `PORT` in `.env` or stop the existing process.
+- Redirect/canonical confusion:
+  - verify `/vercel.json`, middleware, and `/shared/redirects.ts` are aligned.
+- Metadata mismatch:
+  - run `pnpm run test:seo` and `pnpm exec tsx scripts/og-meta-check.ts`.

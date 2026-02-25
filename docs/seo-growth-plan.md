@@ -1,26 +1,26 @@
 # SEO Growth Program (Local Lead Focus)
 
-This document operationalizes the SEO implementation in this repository so delivery can be tracked as product work, not one-off fixes.
+Operational SEO plan for sustainable local lead growth while protecting technical quality in CI.
 
-## Objectives
+## 90-day objectives
 
-1. Increase non-brand local organic clicks by 25% in 90 days.
-2. Increase organic CTR on core service/location pages by 15%.
-3. Increase organic conversions (calls + form submissions) by 20%.
+1. Increase non-brand local organic clicks by 25%.
+2. Increase organic CTR on primary service/location pages by 15%.
+3. Increase organic conversions (calls + forms) by 20%.
 
-## Technical Success Criteria
+## Technical success criteria
 
-1. All indexable routes from `getIndexablePaths()` are crawlable and self-canonical.
-2. No noindex route appears in sitemap output.
-3. At least 95% of indexable routes have title lengths in target bounds.
-4. At least 95% of indexable routes have description lengths in target bounds.
-5. Every indexable route has exactly one `<h1>`.
-6. Zero orphan indexable routes in internal crawl.
-7. JSON-LD blocks parse successfully with no page-type schema regressions.
+1. All indexable routes from `getIndexablePaths()` are reachable and self-canonical.
+2. No noindex routes leak into sitemap output.
+3. At least 95% title-length compliance on indexable pages.
+4. At least 95% description-length compliance on indexable pages.
+5. Exactly one `<h1>` on each indexable page.
+6. Zero orphan indexable pages from root crawl.
+7. JSON-LD parses cleanly across audited routes.
 
-## Test Gates
+## Enforced SEO gates
 
-Run all SEO gates together:
+Run all:
 
 ```bash
 pnpm run test:seo:all
@@ -35,35 +35,46 @@ pnpm run test:seo:links
 pnpm run test:seo:schema
 ```
 
-`test:seo:onpage`, `test:seo:links`, and `test:seo:schema` require a running app URL. By default they use:
-
-- `SEO_AUDIT_BASE_URL=http://localhost:3000`
-
-Override in CI/preview:
+Runtime audit base URL:
+- default: `SEO_AUDIT_BASE_URL=http://localhost:3000`
+- preview override:
 
 ```bash
 SEO_AUDIT_BASE_URL=https://preview-domain.vercel.app pnpm run test:seo:all
 ```
 
-## CI Policy
+## CI policy
 
-CI should fail if any SEO test gate fails. The current CI workflow runs:
+CI must fail if any SEO gate fails.
 
-1. Static checks (`test:seo`).
-2. Runtime audits (`test:seo:onpage`, `test:seo:links`, `test:seo:schema`) against a built app.
+Current pipeline includes:
+1. Static SEO regression check.
+2. Runtime on-page audit.
+3. Runtime link-graph audit.
+4. Runtime structured-data audit.
 
-## Content + Local Operations Cadence
+## Content operations cadence
 
-1. Publish 2-4 intent-driven posts monthly.
+1. Publish 2-4 high-intent posts monthly.
 2. Refresh top service/location pages every 6-8 weeks.
 3. Weekly Search Console review:
-   - Coverage/indexing changes
-   - Query opportunities
-   - CTR drops on priority pages
+- coverage/indexing drift
+- query opportunity mining
+- CTR drops by landing page
 4. Weekly Google Business Profile updates aligned to service taxonomy.
+
+## Editorial guardrails
+
+1. Doctor naming style:
+- `Dr. Christopher B. Wong` or `Christopher B. Wong, DDS`
+- never `Dr. ... DDS` in the same line
+2. Every new blog article must include:
+- one internal service-page link
+- one related-post link
+- intent-aligned title/H1 and structured summary
 
 ## Ownership
 
-1. Engineering owns metadata/canonical/schema/link integrity and CI gates.
-2. Marketing/content owns copy freshness, FAQ expansion, and query-driven edits.
-3. Operations owns Search Console + GBP cadence and monthly performance readouts.
+1. Engineering: metadata/canonical/schema/link integrity and gate maintenance.
+2. Marketing/content: content refreshes, FAQ updates, intent coverage.
+3. Operations: Search Console and GBP workflow plus monthly reporting.
