@@ -1,28 +1,42 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { CheckCircle, ArrowRight, Shield, Clock, Star, Users, Smile, MapPin, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "wouter";
-import MetaTags from "@/components/common/MetaTags";
+import Link from "next/link";
 import StructuredData from "@/components/seo/StructuredData";
-import { motion } from "framer-motion";
-import OptimizedImage from "@/components/seo/OptimizedImage";
-import TestimonialQuote from "@/components/testimonials/TestimonialQuote";
+import { motion } from "@/lib/motion-lite";
 import { getTestimonialsByNames } from "@/lib/testimonials";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
-import FAQSection from "@/components/common/FAQSection";
-import RelatedServices, {
-  type RelatedServiceLink,
-} from "@/components/common/RelatedServices";
+import type { RelatedServiceLink } from "@/components/common/RelatedServices";
 import {  buildBreadcrumbSchema,
   buildHowToSchema,
   buildFAQSchema,
   buildServiceSchema,
   type FAQEntry,
 } from "@/lib/structuredData";
-import RelatedServicePosts from "@/components/blog/RelatedServicePosts";
-import { pageDescriptions, pageTitles } from "@/lib/metaContent";
 import { doctorInfo, officeInfo } from "@/lib/data";
+
+const TestimonialQuote = dynamic(
+  () => import("@/components/testimonials/TestimonialQuote"),
+  { ssr: false, loading: () => null },
+);
+const FAQSection = dynamic(
+  () => import("@/components/common/FAQSection"),
+  { ssr: false, loading: () => null },
+);
+const RelatedServices = dynamic(
+  () => import("@/components/common/RelatedServices"),
+  { ssr: false, loading: () => null },
+);
+const RelatedServicePosts = dynamic(
+  () => import("@/components/blog/RelatedServicePosts"),
+  { ssr: false, loading: () => null },
+);
+const OptimizedImage = dynamic(
+  () => import("@/components/seo/OptimizedImage"),
+  { ssr: false, loading: () => null },
+);
 
 const invisalignFaqs: FAQEntry[] = [
   {
@@ -279,10 +293,6 @@ const Invisalign = () => {
 
   return (
     <>
-      <MetaTags 
-        title={pageTitles.invisalign}
-        description={pageDescriptions.invisalign}
-      />
       <StructuredData data={pageSchemas} />
       <PageBreadcrumbs items={breadcrumbItems} />
 

@@ -64,15 +64,41 @@ pnpm run build
 pnpm run start
 ```
 
+### Perf benchmark harness (isolated build output)
+
+Use the dedicated perf dist to avoid `.next` conflicts with normal dev/prod loops.
+
+```bash
+pnpm run build:perf
+PORT=3101 pnpm run start:perf
+```
+
+In a separate shell:
+
+```bash
+PERF_BASE_URL=http://localhost:3101 pnpm run perf:smoke
+LIGHTHOUSE_BASE_URL=http://localhost:3101 LIGHTHOUSE_RUNS=3 pnpm run perf:lighthouse
+```
+
 ### Validation commands
 
 - `pnpm run check`
+- `pnpm run test:bundle`
 - `pnpm run test:api`
 - `pnpm run test:seo`
+- `pnpm run test:seo:onpage`
+- `pnpm run test:seo:links`
+- `pnpm run test:seo:schema`
+- `pnpm run test:seo:all`
+- `pnpm run test:routes`
+- `pnpm run test:design-system`
+- `pnpm run test:images`
+- `pnpm run test:production`
 - `pnpm run check:business-info`
 - `pnpm run check:seo-regression`
 - `pnpm exec tsx scripts/og-meta-check.ts`
 - `pnpm run check:lighthouse-budget`
+- `LIGHTHOUSE_BASE_URL=http://localhost:3101 pnpm run check:lighthouse-budget`
 
 ## API endpoints (Next route handlers)
 
@@ -92,10 +118,15 @@ All endpoints preserve existing contract/validation behavior from `server/routes
 ## SEO / deployment
 
 - Metadata generation is centralized in route handlers and shared SEO data (`shared/seo.ts`).
+- Search Console verification can be configured with `GOOGLE_SITE_VERIFICATION` (or `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`).
 - `app/sitemap.ts` emits canonical static pages + blog slugs.
 - `app/robots.ts` excludes noindex routes and `/api/`.
 - `middleware.ts` enforces legacy redirect rules and canonical host behavior (`www.chriswongdds.com`).
 - `vercel.json` currently enforces canonical host normalization for Vercel deployments.
+- Runtime SEO audits are in:
+  - `scripts/seo-onpage-audit.ts`
+  - `scripts/seo-links-audit.ts`
+  - `scripts/seo-structured-data-audit.ts`
 
 ## Vercel deployment
 
@@ -113,7 +144,9 @@ Storage abstraction now routes through `server/storage/` and repository layer. S
 - app migration + route logic: `app/`
 - server repository/API compatibility: `server/`
 - SEO + redirects metadata: `shared/`
-- migration/tests/docs: `scripts/`, `LOCAL_DEV.md`
+- migration/tests/docs: `scripts/`, `LOCAL_DEV.md`, `docs/performance.md`
+- SEO planning and keyword mapping: `docs/seo-growth-plan.md`, `docs/seo-keyword-map.md`
+- production readiness spec: `docs/production-readiness-spec.md`
 
 ## Contributing notes
 

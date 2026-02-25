@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { RouteComponentProps, useLocation } from "wouter";
+import Link from "next/link";
 import { useBlogPosts } from "@/hooks/useBlogPosts";
 import MetaTags from "@/components/common/MetaTags";
 import { pageDescriptions, pageTitles } from "@/lib/metaContent";
@@ -117,6 +118,10 @@ const BlogPost = ({ params }: RouteComponentProps<Params>) => {
   const post = useMemo(() => {
     return posts.find((candidate) => candidate.slug === slug);
   }, [posts, slug]);
+  const relatedPosts = useMemo(() => {
+    if (!post) return [];
+    return posts.filter((candidate) => candidate.slug !== post.slug).slice(0, 3);
+  }, [post, posts]);
 
   const pageTitle = post ? `${post.title} | Christopher B. Wong, DDS` : pageTitles.blog;
   const pageDescription = post?.content
@@ -135,7 +140,7 @@ const BlogPost = ({ params }: RouteComponentProps<Params>) => {
         dateModified: post.date,
         author: {
           "@type": "Person",
-          name: "Dr. Christopher B. Wong, DDS",
+          name: "Christopher B. Wong, DDS",
         },
         publisher: {
           "@type": "Organization",
@@ -508,6 +513,38 @@ const BlogPost = ({ params }: RouteComponentProps<Params>) => {
         subtitle="Explore treatments that complement this topic."
         className="bg-[#F5F9FC]"
       />
+      {relatedPosts.length > 0 ? (
+        <section className="bg-white py-12">
+          <div className="max-w-5xl mx-auto px-4">
+            <h2 className="text-2xl font-heading font-bold text-[#1F2933] mb-2">
+              Related articles
+            </h2>
+            <p className="text-slate-600 mb-6">
+              Continue learning with other patient-friendly guides from our team.
+            </p>
+            <div className="grid gap-4 md:grid-cols-3">
+              {relatedPosts.map((relatedPost) => (
+                <Link
+                  key={relatedPost.id}
+                  href={`/blog/${relatedPost.slug}`}
+                  className="group rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md"
+                >
+                  <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+                    Related post
+                  </p>
+                  <h3 className="mt-2 text-base font-semibold text-slate-900 group-hover:text-primary">
+                    {relatedPost.title}
+                  </h3>
+                  <p className="mt-3 inline-flex items-center text-sm font-semibold text-primary">
+                    Read article
+                    <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
     </>
   );
 };

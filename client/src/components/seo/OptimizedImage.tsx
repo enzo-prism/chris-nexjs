@@ -1,4 +1,12 @@
-import { useState, type CSSProperties, type SyntheticEvent } from 'react';
+"use client";
+
+import {
+  useMemo,
+  useState,
+  type CSSProperties,
+  type SyntheticEvent,
+} from "react";
+import Image from "next/image";
 
 interface OptimizedImageProps {
   src: string;
@@ -17,31 +25,53 @@ interface OptimizedImageProps {
   fetchPriority?: "high" | "low" | "auto";
 }
 
-const OptimizedImage = ({ 
-  src, 
-  alt, 
+const FALLBACK_PLACEHOLDER =
+  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+";
+
+const DEFAULT_SIZES =
+  "(max-width: 640px) 100vw, (max-width: 1024px) 70vw, 1200px";
+
+const OptimizedImage = ({
+  src,
+  alt,
   srcSet,
   sizes,
-  className = '', 
-  width, 
-  height, 
+  className = "",
+  width,
+  height,
   priority = false,
-  placeholder = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+',
+  placeholder = FALLBACK_PLACEHOLDER,
   fit = "cover",
   style,
   useIntrinsicAspect = false,
   objectPosition = "center",
-  fetchPriority
+  fetchPriority,
 }: OptimizedImageProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [aspectRatio, setAspectRatio] = useState<number | null>(null);
 
+  const resolvedWidth = width ?? 1200;
+  const resolvedHeight = height ?? 900;
+
+  const wrapperStyle: CSSProperties = useMemo(
+    () => ({
+      ...style,
+      ...(useIntrinsicAspect && aspectRatio ? { aspectRatio: `${aspectRatio}` } : {}),
+      ...(useIntrinsicAspect && !aspectRatio ? { minHeight: 200 } : {}),
+    }),
+    [aspectRatio, style, useIntrinsicAspect],
+  );
+
+  const objectClass = fit === "contain" ? "object-contain" : "object-cover";
+  const heightClass =
+    useIntrinsicAspect ? "h-full" : fit === "contain" ? "h-auto" : "h-full";
+
   const handleLoad = (event: SyntheticEvent<HTMLImageElement, Event>) => {
     if (useIntrinsicAspect) {
-      const { naturalWidth, naturalHeight } = event.currentTarget;
-      if (naturalWidth && naturalHeight) {
-        setAspectRatio(naturalWidth / naturalHeight);
+      const target = event.currentTarget;
+      if (target.naturalWidth && target.naturalHeight) {
+        setAspectRatio(target.naturalWidth / target.naturalHeight);
       }
     }
     setIsLoaded(true);
@@ -59,16 +89,8 @@ const OptimizedImage = ({
     );
   }
 
-  const wrapperStyle: CSSProperties = {
-    ...style,
-    ...(useIntrinsicAspect && aspectRatio ? { aspectRatio: `${aspectRatio}` } : {}),
-    ...(useIntrinsicAspect && !aspectRatio ? { minHeight: 200 } : {}),
-  };
-
-  const objectClass =
-    fit === "contain" ? "object-contain" : "object-cover";
-  const heightClass =
-    useIntrinsicAspect ? "h-full" : fit === "contain" ? "h-auto" : "h-full";
+  const canUseNextImage = !srcSet;
+  const shouldUseBlur = placeholder.startsWith("data:image");
 
   return (
     <div className={`relative overflow-hidden ${className}`} style={wrapperStyle}>
@@ -76,30 +98,53 @@ const OptimizedImage = ({
         <img
           src={placeholder}
           alt=""
-          width={width ?? 1200}
-          height={height ?? 900}
+          width={resolvedWidth}
+          height={resolvedHeight}
           className="absolute inset-0 w-full h-full object-cover blur-sm"
           style={{ objectPosition }}
           aria-hidden="true"
         />
       )}
-      <img
-        src={src}
-        alt={alt}
-        srcSet={srcSet}
-        sizes={sizes}
-        width={width ?? 1200}
-        height={height ?? 900}
-        loading={priority ? 'eager' : 'lazy'}
-        decoding={priority ? 'sync' : 'async'}
-        {...(fetchPriority ? ({ fetchpriority: fetchPriority } as any) : {})}
-        onLoad={handleLoad}
-        onError={handleError}
-        className={`w-full ${heightClass} ${objectClass} transition-opacity duration-300 ${
-          isLoaded ? 'opacity-100' : 'opacity-0'
-        }`}
-        style={{ objectPosition }}
-      />
+
+      {canUseNextImage ? (
+        <Image
+          src={src}
+          alt={alt}
+          width={resolvedWidth}
+          height={resolvedHeight}
+          sizes={sizes ?? DEFAULT_SIZES}
+          priority={priority}
+          fetchPriority={fetchPriority}
+          loading={priority ? undefined : "lazy"}
+          decoding={priority ? "sync" : "async"}
+          placeholder={shouldUseBlur ? "blur" : "empty"}
+          blurDataURL={shouldUseBlur ? placeholder : undefined}
+          onLoad={handleLoad}
+          onError={handleError}
+          className={`w-full ${heightClass} ${objectClass} transition-opacity duration-300 ${
+            isLoaded ? "opacity-100" : "opacity-0"
+          }`}
+          style={{ objectPosition }}
+        />
+      ) : (
+        <img
+          src={src}
+          alt={alt}
+          srcSet={srcSet}
+          sizes={sizes}
+          width={resolvedWidth}
+          height={resolvedHeight}
+          loading={priority ? "eager" : "lazy"}
+          decoding={priority ? "sync" : "async"}
+          fetchPriority={fetchPriority}
+          onLoad={handleLoad}
+          onError={handleError}
+          className={`w-full ${heightClass} ${objectClass} transition-opacity duration-300 ${
+            isLoaded ? "opacity-100" : "opacity-0"
+          }`}
+          style={{ objectPosition }}
+        />
+      )}
     </div>
   );
 };

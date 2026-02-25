@@ -11,7 +11,7 @@ const AboutDoctorSection: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-            About Dr. Christopher B. Wong, DDS
+            About Dr. Christopher B. Wong
           </h2>
           <div className="w-24 h-1 bg-primary mx-auto"></div>
         </div>
@@ -20,11 +20,11 @@ const AboutDoctorSection: React.FC = () => {
           <div className="md:w-1/3 mb-8 md:mb-0">
             <OptimizedImage
               src={drWongImages.drWongPortrait1}
-              alt="Dr. Christopher B. Wong, DDS portrait"
+              alt="Dr. Christopher B. Wong portrait"
               className="w-full max-w-sm aspect-[4/5] object-cover rounded-lg shadow-xl mx-auto"
             />
             <div className="text-center mt-4">
-              <h3 className="font-bold text-lg">Dr. Christopher B. Wong, DDS</h3>
+              <h3 className="font-bold text-lg">Dr. Christopher B. Wong</h3>
               <p className="text-primary font-medium">Lead Dentist</p>
             </div>
           </div>

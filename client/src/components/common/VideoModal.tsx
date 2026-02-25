@@ -1,6 +1,7 @@
 import React from "react";
 import { X } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface VideoModalProps {
   isOpen: boolean;
@@ -24,13 +25,16 @@ const VideoModal: React.FC<VideoModalProps> = ({ isOpen, onClose, videoUrl }) =>
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-4xl p-0 bg-transparent border-none shadow-none">
         <div className="relative w-full aspect-video rounded-lg overflow-hidden">
-          <button 
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
             onClick={onClose} 
-            className="absolute top-2 right-2 z-50 bg-black bg-opacity-60 rounded-full p-1.5 text-white hover:bg-opacity-80 transition-all"
+            className="absolute right-2 top-2 z-50 rounded-full bg-black/60 p-1.5 text-white transition-all hover:bg-black/80 hover:text-white"
             aria-label="Close video"
           >
             <X className="h-6 w-6" />
-          </button>
+          </Button>
           <iframe
             src={embedUrl}
             title="Video player"

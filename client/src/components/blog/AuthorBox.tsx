@@ -14,7 +14,7 @@ const AuthorBox = () => {
             <div className="w-full sm:w-40 shrink-0">
               <OptimizedImage
                 src={drWongImages.drWongPortrait1}
-                alt="Dr. Christopher B. Wong, DDS"
+                alt="Dr. Christopher B. Wong"
                 className="w-full aspect-[4/5] rounded-2xl object-cover"
                 priority={false}
               />
@@ -55,4 +55,3 @@ const AuthorBox = () => {
 };
 
 export default AuthorBox;
-

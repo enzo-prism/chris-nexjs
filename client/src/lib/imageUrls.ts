@@ -17,5 +17,5 @@ export const drWongImages = {
   heroImage: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1762989226/Post-11_nohz6f.webp",
   teamPhoto: "https://i.imgur.com/ypt5eZ7.png",
   officeEntrance: "https://i.imgur.com/wt7peyr.png",
-  treatmentRoom: "https://i.imgur.com/hO02YQ0.png",
+  treatmentRoom: "/images/hero-office-960.webp",
 };

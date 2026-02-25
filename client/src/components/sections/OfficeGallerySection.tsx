@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ArrowLeft, ArrowRight, X, ImageIcon, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import OptimizedImage from '@/components/seo/OptimizedImage';
+import { Button } from "@/components/ui/button";
 
 const OfficeGallerySection = () => {
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
@@ -208,31 +209,40 @@ const OfficeGallerySection = () => {
             onTouchEnd={onTouchEnd}
           >
             {/* Close button with better positioning */}
-            <button 
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
               className="absolute top-4 right-4 text-white/70 hover:text-white p-2 z-10 transition-colors"
               onClick={closeModal}
               aria-label="Close gallery"
             >
               <X className="h-6 w-6" />
-            </button>
+            </Button>
             
             {/* Navigation buttons with consistent styling */}
             <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between items-center px-4 md:px-8">
-              <button 
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
                 className="hidden sm:flex bg-white/10 hover:bg-white/20 p-3 rounded-full text-white/80 hover:text-white transition-colors"
                 onClick={handlePrevious}
                 aria-label="Previous image"
               >
                 <ArrowLeft className="h-5 w-5" />
-              </button>
+              </Button>
               
-              <button 
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
                 className="hidden sm:flex bg-white/10 hover:bg-white/20 p-3 rounded-full text-white/80 hover:text-white transition-colors"
                 onClick={handleNext}
                 aria-label="Next image"
               >
                 <ArrowRight className="h-5 w-5" />
-              </button>
+              </Button>
             </div>
             
             {/* Image and caption container with improved animation */}

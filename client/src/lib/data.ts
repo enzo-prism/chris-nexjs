@@ -12,7 +12,7 @@ export const doctorInfo = {
     "Christopher B. Wong, DDS",
     "Dr. Wong",
     "Wong dentist in Palo Alto",
-    "Dr. Wong, DDS",
+    "Christopher Wong, DDS",
   ],
   profileUrl: "/about",
   image: drWongImages.drWongPortrait1,

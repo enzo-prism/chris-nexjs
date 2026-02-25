@@ -11,6 +11,12 @@ export type SeoDefinition = {
   changefreq: "daily" | "weekly" | "monthly";
   lastmod?: string;
   schemaType?: "WebPage" | "Service" | "Article" | "LocalBusiness";
+  primaryKeyword?: string;
+  secondaryKeywords?: string[];
+  seoCluster?: "service" | "location" | "blog" | "trust" | "legal";
+  titleMaxLen?: number;
+  descriptionMinLen?: number;
+  descriptionMaxLen?: number;
 };
 
 type SeoDefinitionInput = Omit<
@@ -33,9 +39,15 @@ export const NOINDEX_ROBOTS = "noindex, nofollow, noarchive";
 const DEFAULT_OG_IMAGE = "/images/dr_wong_polaroids.png";
 const DEFAULT_PRIORITY = 0.7;
 const DEFAULT_CHANGEFREQ: SitemapEntry["changefreq"] = "monthly";
+const DEFAULT_TITLE_MIN_LEN = 45;
+const DEFAULT_TITLE_MAX_LEN = 60;
+const DEFAULT_DESCRIPTION_MIN_LEN = 120;
+const DEFAULT_DESCRIPTION_MAX_LEN = 160;
+const DESCRIPTION_EXTENSION = ` Call ${officeInfo.phone} to schedule your visit.`;
 
 export function normalizePathname(pathname: string): string {
   const trimmed = pathname.split(/[?#]/)[0] || "/";
+  if (!trimmed) return "/";
   if (trimmed.length > 1 && trimmed.endsWith("/")) {
     return trimmed.slice(0, -1);
   }
@@ -47,14 +59,14 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     title:
       "Palo Alto Dentist | Christopher B. Wong, DDS | Cosmetic & Family Dentistry",
     description:
-      "Palo Alto dentist Dr. Christopher B. Wong, DDS provides family, cosmetic & restorative dentistry, Invisalign, implants, and emergency care. Book online.",
+      "Palo Alto dentist Christopher B. Wong, DDS provides family, cosmetic & restorative dentistry, Invisalign, implants, and emergency care. Book online.",
     canonicalPath: "/",
     ogImage: "https://i.imgur.com/BeX3mhS.png",
   },
   "/about": {
     title: "Christopher B. Wong, DDS | Palo Alto Dentist",
     description:
-      "Learn about Dr. Wong, DDS, a Palo Alto dentist focused on conservative care, Invisalign, and implant restoration. Looking for a Wong dentist in Palo Alto? Meet the team and our approach.",
+      "Learn about Dr. Wong, a Palo Alto dentist focused on conservative care, Invisalign, and implant restoration. Looking for a Wong dentist in Palo Alto? Meet the team and our approach.",
     canonicalPath: "/about",
     ogImage: "https://i.imgur.com/iqBXT9y.png",
   },
@@ -398,6 +410,135 @@ function resolveIndexable(entry: SeoDefinitionInput): boolean {
   return !robotsDirective.includes("noindex");
 }
 
+function normalizeMetaText(value: string): string {
+  return value.replace(/\s+/g, " ").trim();
+}
+
+function trimToWordBoundary(value: string, limit: number): string {
+  if (value.length <= limit) return value;
+  const truncated = value.slice(0, Math.max(limit - 1, 0)).trimEnd();
+  const lastSpace = truncated.lastIndexOf(" ");
+  const trimmed =
+    lastSpace >= Math.floor(limit * 0.6) ? truncated.slice(0, lastSpace) : truncated;
+  return `${trimmed.trimEnd()}…`;
+}
+
+function resolveSeoCluster(pathname: string): NonNullable<SeoDefinition["seoCluster"]> {
+  if (pathname === "/blog" || pathname.startsWith("/blog/")) return "blog";
+  if (
+    pathname === "/about" ||
+    pathname === "/testimonials" ||
+    pathname === "/patient-stories" ||
+    pathname === "/patient-resources" ||
+    pathname === "/contact" ||
+    pathname === "/schedule"
+  ) {
+    return "trust";
+  }
+  if (
+    pathname === "/privacy-policy" ||
+    pathname === "/terms" ||
+    pathname === "/hipaa" ||
+    pathname === "/accessibility"
+  ) {
+    return "legal";
+  }
+  if (pathname === "/locations" || pathname.startsWith("/dentist-")) {
+    return "location";
+  }
+  return "service";
+}
+
+function inferPrimaryKeyword(
+  pathname: string,
+  title: string,
+  cluster: NonNullable<SeoDefinition["seoCluster"]>,
+): string {
+  if (pathname === "/") return "palo alto dentist";
+  if (pathname.startsWith("/dentist-")) {
+    return pathname
+      .replace("/dentist-", "dentist ")
+      .replace(/-/g, " ")
+      .trim()
+      .toLowerCase();
+  }
+  if (pathname.startsWith("/blog/")) {
+    return title.split("|")[0]?.trim().toLowerCase() || "dental blog";
+  }
+  if (cluster === "service") {
+    return pathname.replace(/^\//, "").replace(/-/g, " ").trim().toLowerCase();
+  }
+  if (cluster === "location") return "palo alto family dentist";
+  if (cluster === "legal") return "dental privacy policy";
+  return title.split("|")[0]?.trim().toLowerCase() || "palo alto dental care";
+}
+
+function inferSecondaryKeywords(
+  cluster: NonNullable<SeoDefinition["seoCluster"]>,
+): string[] {
+  if (cluster === "service") {
+    return ["cosmetic dentistry palo alto", "family dental care palo alto"];
+  }
+  if (cluster === "location") {
+    return ["nearby dentist palo alto", "dental office near me palo alto"];
+  }
+  if (cluster === "blog") {
+    return ["dental health tips", "oral health education"];
+  }
+  if (cluster === "legal") {
+    return ["hipaa dental office", "privacy statement"];
+  }
+  return ["trusted palo alto dentist", "new patient dentist palo alto"];
+}
+
+function enforceTitleLength(
+  title: string,
+  minLen: number,
+  maxLen: number,
+  cluster: NonNullable<SeoDefinition["seoCluster"]>,
+): string {
+  let resolved = normalizeMetaText(title);
+  if (resolved.length > maxLen) {
+    resolved = trimToWordBoundary(resolved, maxLen);
+  }
+  if (resolved.length >= minLen) {
+    return resolved;
+  }
+
+  const suffix =
+    cluster === "location"
+      ? " | Palo Alto Dentist"
+      : cluster === "service"
+        ? " | Palo Alto Dental Care"
+        : " | Christopher B. Wong, DDS";
+  const expanded = normalizeMetaText(`${resolved}${suffix}`);
+  if (expanded.length <= maxLen) {
+    return expanded;
+  }
+
+  return trimToWordBoundary(expanded, maxLen);
+}
+
+function enforceDescriptionLength(
+  description: string,
+  minLen: number,
+  maxLen: number,
+): string {
+  let resolved = normalizeMetaText(description);
+  if (resolved.length < minLen) {
+    const base = resolved.endsWith(".") ? resolved : `${resolved}.`;
+    resolved = `${base}${DESCRIPTION_EXTENSION}`;
+  }
+  if (resolved.length > maxLen) {
+    resolved = trimToWordBoundary(resolved, maxLen);
+  }
+  if (resolved.length < minLen) {
+    const expanded = `${resolved} New patients welcome.`;
+    resolved = trimToWordBoundary(expanded, maxLen);
+  }
+  return resolved;
+}
+
 function resolveSchemaType(pathname: string): SeoDefinition["schemaType"] {
   if (pathname.startsWith("/blog/")) return "Article";
   if (
@@ -423,18 +564,53 @@ function resolveSchemaType(pathname: string): SeoDefinition["schemaType"] {
 
 export const seoByPath: Record<string, SeoDefinition> = Object.fromEntries(
   Object.entries(seoByPathSource).map(([path, entry]) => {
+    const canonicalPath = normalizePathname(entry.canonicalPath || path);
     const indexable = resolveIndexable(entry);
+    const seoCluster = entry.seoCluster ?? resolveSeoCluster(canonicalPath);
+    const titleMaxLen = entry.titleMaxLen ?? DEFAULT_TITLE_MAX_LEN;
+    const descriptionMinLen =
+      entry.descriptionMinLen ?? DEFAULT_DESCRIPTION_MIN_LEN;
+    const descriptionMaxLen =
+      entry.descriptionMaxLen ?? DEFAULT_DESCRIPTION_MAX_LEN;
+    const title = indexable
+      ? enforceTitleLength(
+          entry.title,
+          DEFAULT_TITLE_MIN_LEN,
+          titleMaxLen,
+          seoCluster,
+        )
+      : normalizeMetaText(entry.title);
+    const description = indexable
+      ? enforceDescriptionLength(
+          entry.description,
+          descriptionMinLen,
+          descriptionMaxLen,
+        )
+      : trimToWordBoundary(normalizeMetaText(entry.description), descriptionMaxLen);
+
     return [
       path,
       {
         ...entry,
+        title,
+        description,
+        canonicalPath,
         robots: entry.robots ?? (indexable ? DEFAULT_ROBOTS : NOINDEX_ROBOTS),
         indexable,
         priority: entry.priority ?? PRIORITY_OVERRIDES[path] ?? DEFAULT_PRIORITY,
         changefreq:
           entry.changefreq ?? CHANGEFREQ_OVERRIDES[path] ?? DEFAULT_CHANGEFREQ,
         lastmod: entry.lastmod ?? LASTMOD_OVERRIDES[path],
-        schemaType: entry.schemaType ?? resolveSchemaType(path),
+        schemaType: entry.schemaType ?? resolveSchemaType(canonicalPath),
+        seoCluster,
+        primaryKeyword:
+          entry.primaryKeyword ??
+          inferPrimaryKeyword(canonicalPath, title, seoCluster),
+        secondaryKeywords:
+          entry.secondaryKeywords ?? inferSecondaryKeywords(seoCluster),
+        titleMaxLen,
+        descriptionMinLen,
+        descriptionMaxLen,
       },
     ];
   }),
@@ -450,6 +626,12 @@ const DEFAULT_SEO: SeoDefinition = {
   priority: PRIORITY_OVERRIDES["/"] ?? DEFAULT_PRIORITY,
   changefreq: CHANGEFREQ_OVERRIDES["/"] ?? DEFAULT_CHANGEFREQ,
   schemaType: "WebPage",
+  seoCluster: "service",
+  primaryKeyword: "palo alto dentist",
+  secondaryKeywords: ["family dentist palo alto", "cosmetic dentist palo alto"],
+  titleMaxLen: DEFAULT_TITLE_MAX_LEN,
+  descriptionMinLen: DEFAULT_DESCRIPTION_MIN_LEN,
+  descriptionMaxLen: DEFAULT_DESCRIPTION_MAX_LEN,
 };
 
 export function getSeoForPath(pathname: string): SeoDefinition {
@@ -463,6 +645,12 @@ export function getSeoForPath(pathname: string): SeoDefinition {
     ...DEFAULT_SEO,
     canonicalPath: normalized,
     schemaType: resolveSchemaType(normalized),
+    seoCluster: resolveSeoCluster(normalized),
+    primaryKeyword: inferPrimaryKeyword(
+      normalized,
+      DEFAULT_SEO.title,
+      resolveSeoCluster(normalized),
+    ),
   };
 }
 

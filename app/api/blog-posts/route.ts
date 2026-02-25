@@ -12,7 +12,12 @@ export async function GET(request: NextRequest) {
       ? await storage.getBlogPostsByServiceSlug(serviceFilter)
       : await storage.getBlogPosts();
 
-    return NextResponse.json(blogPosts, { status: 200 });
+    return NextResponse.json(blogPosts, {
+      status: 200,
+      headers: {
+        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=1800",
+      },
+    });
   } catch {
     return NextResponse.json(
       { message: "Failed to fetch blog posts" },

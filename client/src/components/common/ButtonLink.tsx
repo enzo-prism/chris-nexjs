@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Link } from "wouter";
+import Link from "next/link";
 import { type VariantProps } from "class-variance-authority";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -21,10 +21,8 @@ export default function ButtonLink({
   ...props
 }: ButtonLinkProps): JSX.Element {
   return (
-    <Link href={href} asChild>
-      <a className={cn(buttonVariants({ variant, size, className }))} {...props}>
-        {children}
-      </a>
+    <Link href={href} className={cn(buttonVariants({ variant, size, className }))} {...props}>
+      {children}
     </Link>
   );
 }

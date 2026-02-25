@@ -9,7 +9,11 @@ export const generateMetadata = async () =>
 
 export default function InvisalignPage() {
   return (
-    <RouteShell ssrPath="/invisalign">
+    <RouteShell
+      ssrPath="/invisalign"
+      enableQueryClient={true}
+      enableHelmet={false}
+    >
       <Invisalign />
     </RouteShell>
   );

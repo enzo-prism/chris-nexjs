@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import { getSeoForPath } from "@/lib/seo";
 import "./globals.css";
 
+const googleSiteVerification =
+  process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ??
+  process.env.GOOGLE_SITE_VERIFICATION;
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.chriswongdds.com"),
-  title: {
-    default: getSeoForPath("/").title,
-    template: "%s | Christopher B. Wong, DDS",
-  },
+  title: getSeoForPath("/").title,
   description: getSeoForPath("/").description,
   icons: {
     icon: [
@@ -26,6 +27,11 @@ export const metadata: Metadata = {
       follow: true,
     },
   },
+  verification: googleSiteVerification
+    ? {
+        google: googleSiteVerification,
+      }
+    : undefined,
 };
 
 export default function RootLayout({

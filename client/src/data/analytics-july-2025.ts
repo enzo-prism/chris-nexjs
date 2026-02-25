@@ -1,4 +1,4 @@
-// July 2025 Analytics Data for Dr. Christopher Wong DDS
+// July 2025 Analytics Data for Christopher B. Wong, DDS
 export const julyAnalyticsData = {
   schema_version: 3,
   period: { 

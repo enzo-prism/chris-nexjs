@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ArrowRight, CalendarCheck, CalendarClock, X } from "lucide-react";
 import { holidayHours } from "@/lib/data";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 type HolidayEntry = {
@@ -226,14 +227,16 @@ const HolidayHoursNotice = ({
           )}
         </div>
 
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon"
           onClick={handleDismiss}
-          className="self-start rounded-full p-1.5 text-slate-500 hover:text-slate-800 hover:bg-white/70 transition"
+          className="self-start rounded-full text-slate-500 transition hover:bg-white/70 hover:text-slate-800"
           aria-label="Dismiss holiday hours notice"
         >
           <X className="h-4 w-4" aria-hidden="true" />
-        </button>
+        </Button>
       </div>
     </div>
   );

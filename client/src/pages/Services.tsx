@@ -3,10 +3,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight } from "lucide-react";
 import ButtonLink from "@/components/common/ButtonLink";
-import { Link } from "wouter";
+import Link from "next/link";
 import ServiceCard from "@/components/common/ServiceCard";
-import MetaTags from "@/components/common/MetaTags";
-import { pageTitles, pageDescriptions } from "@/lib/metaContent";
 import { Service } from "@shared/schema";
 import OptimizedImage from "@/components/seo/OptimizedImage";
 import StructuredData from "@/components/seo/StructuredData";
@@ -102,6 +100,16 @@ const Services = () => {
       description: "Gentle care for kids and teens in a family-friendly setting.",
     },
     {
+      href: "/restorative-dentistry",
+      title: "Restorative dentistry in Palo Alto",
+      description: "Fillings, crowns, bridges, and implant restorations to rebuild function.",
+    },
+    {
+      href: "/pediatric-dentistry",
+      title: "Pediatric dentistry in Palo Alto",
+      description: "Family-centered preventive care for infants, children, and teens.",
+    },
+    {
       href: "/dentist-menlo-park",
       title: "Menlo Park family dentist",
       description: "Convenient care nearby in our Palo Alto office.",
@@ -155,10 +163,6 @@ const Services = () => {
 
   return (
     <>
-      <MetaTags 
-        title={pageTitles.services}
-        description={pageDescriptions.services}
-      />
       <StructuredData data={servicesSchemas} />
       <PageBreadcrumbs items={breadcrumbItems} />
       {/* Services List */}
@@ -211,17 +215,19 @@ const Services = () => {
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {localServiceLinks.map((link) => (
-              <Link key={link.href} href={link.href}>
-                <div className="group h-full rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
-                  <h3 className="text-lg font-semibold text-slate-900 group-hover:text-primary">
-                    {link.title}
-                  </h3>
-                  <p className="mt-2 text-sm text-slate-600">{link.description}</p>
-                  <span className="mt-4 inline-flex items-center text-sm font-semibold text-primary">
-                    Learn more
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </span>
-                </div>
+              <Link
+                key={link.href}
+                href={link.href}
+                className="group block h-full rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md"
+              >
+                <h3 className="text-lg font-semibold text-slate-900 group-hover:text-primary">
+                  {link.title}
+                </h3>
+                <p className="mt-2 text-sm text-slate-600">{link.description}</p>
+                <span className="mt-4 inline-flex items-center text-sm font-semibold text-primary">
+                  Learn more
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </span>
               </Link>
             ))}
           </div>
@@ -259,7 +265,7 @@ const Services = () => {
             </div>
             <div className="md:w-1/2 md:pl-12">
               <OptimizedImage
-                src="https://imgur.com/hO02YQ0.jpg"
+                src="/images/hero-office-960.webp"
                 alt="Payment processing with mobile device"
                 className="w-full aspect-[4/3] object-cover rounded-lg shadow-xl"
               />

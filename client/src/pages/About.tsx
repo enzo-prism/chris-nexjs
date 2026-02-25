@@ -1,19 +1,17 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { CheckCircle, Award, UserCheck, Shield, Play, Sparkles, X, ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "wouter";
-import OfficeGallerySection from "@/components/sections/OfficeGallerySection";
+import Link from "next/link";
 import { drWongImages } from "@/lib/imageUrls";
-import { pageTitles, pageDescriptions } from "@/lib/metaContent";
 import * as data from "@/lib/data";
-import MetaTags from "@/components/common/MetaTags";
 import StructuredData from "@/components/seo/StructuredData";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import { useState } from "react";
 import VideoModal from "@/components/common/VideoModal";
 import OptimizedImage from "@/components/seo/OptimizedImage";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "@/lib/motion-lite";
 import TestimonialQuote from "@/components/testimonials/TestimonialQuote";
 import {
   Carousel,
@@ -26,6 +24,11 @@ import { getTestimonialsByNames } from "@/lib/testimonials";
 import {
   buildBreadcrumbSchema,
 } from "@/lib/structuredData";
+
+const OfficeGallerySection = dynamic(
+  () => import("@/components/sections/OfficeGallerySection"),
+  { ssr: false, loading: () => null },
+);
 
 const weddingCarouselImages = [
   { src: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1764193096/IMG_8193_wcxrms.webp", alt: "Dr. Wong and Dr. Michelle celebrating with the team" },
@@ -106,10 +109,6 @@ const About = () => {
 
   return (
     <>
-      <MetaTags 
-        title={pageTitles.about}
-        description={pageDescriptions.about}
-      />
       <StructuredData data={aboutSchema} />
       <PageBreadcrumbs items={breadcrumbItems} />
       {/* Hero Section - Mobile First */}
@@ -117,10 +116,10 @@ const About = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-heading text-[#333333] mb-4 sm:mb-6 leading-tight">
-              About Dr. Christopher B. Wong, DDS
+              About Dr. Christopher B. Wong
             </h1>
             <p className="text-lg sm:text-xl text-[#333333] max-w-3xl mx-auto leading-relaxed">
-              Get to know Dr. Wong, DDS, and the dedicated dental team committed to providing exceptional care
+              Get to know Dr. Wong and the dedicated dental team committed to providing exceptional care
               in Palo Alto. Looking for a Wong dentist in Palo Alto? We are here to help.
             </p>
           </div>
@@ -128,16 +127,16 @@ const About = () => {
       </section>
 
       {/* Wedding Celebration Carousel */}
-      <section className="py-10 sm:py-14 md:py-16 bg-white overflow-hidden">
+      <section className="bg-white py-10 sm:py-14 md:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="rounded-3xl bg-gradient-to-r from-[#FCE7F3] via-white to-[#E0F2FE] border border-white shadow-[0_24px_70px_-32px_rgba(15,23,42,0.28)] overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_1.2fr] gap-6 sm:gap-8 items-center p-6 sm:p-8 lg:p-10">
-              <div className="space-y-4 sm:space-y-5 w-full max-w-xl text-pretty min-w-0 break-words">
-                <div className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-[11px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-primary shadow-sm">
+          <div className="rounded-[2rem] border border-slate-200/80 bg-gradient-to-r from-[#f7edf3] via-[#f8f6fb] to-[#eaf5ff] shadow-[0_28px_70px_-36px_rgba(15,23,42,0.35)] p-5 sm:p-7 lg:p-9">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.25fr] gap-6 sm:gap-8 items-center">
+              <div className="space-y-4 sm:space-y-5 w-full max-w-xl min-w-0">
+                <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white/80 px-4 py-2 text-[11px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-primary shadow-sm">
                   <Sparkles className="h-4 w-4" />
                   <span>Team celebration</span>
                 </div>
-                <h2 className="text-2xl sm:text-3xl font-bold font-heading text-[#1F2933] leading-tight">
+                <h2 className="text-2xl sm:text-3xl font-bold font-heading text-[#1F2933] leading-tight text-balance">
                   Congratulations Dr. Christopher Wong & Dr. Michelle 💍
                 </h2>
                 <p className="text-sm sm:text-base text-[#374151] leading-relaxed">
@@ -150,47 +149,53 @@ const About = () => {
                   >
                     Dr. Michelle Fong
                   </a>{" "}
-                  (also a dentist), and our dental family joined them at the wedding—enjoy a few favorite moments.
+                  (also a dentist), and our dental family joined them at the wedding. Browse a few favorite moments below.
+                </p>
+                <p className="text-xs sm:text-sm text-slate-500">
+                  Tip: Swipe on mobile or use the arrows to move through photos.
                 </p>
               </div>
-              <div className="relative w-full">
-                <div className="rounded-2xl bg-white/85 backdrop-blur-sm border border-white/70 shadow-lg w-full overflow-hidden">
+
+              <div className="w-full min-w-0">
+                <div className="rounded-3xl border border-slate-200/70 bg-white/85 p-3 sm:p-4 shadow-xl backdrop-blur-sm">
                   <Carousel
-                    opts={{ align: "start", loop: true, dragFree: true, containScroll: "trimSnaps" }}
+                    opts={{ align: "start", loop: true }}
                     className="w-full"
                   >
-                    <CarouselContent className="ml-0 gap-3 sm:gap-4 px-1 sm:px-2">
+                    <CarouselContent className="-ml-2 sm:-ml-3">
                       {weddingCarouselImages.map((image, index) => (
                         <CarouselItem
                           key={image.src}
-                          className="basis-full sm:basis-5/6 md:basis-3/4 lg:basis-2/3 xl:basis-1/2 flex justify-center pl-0"
+                          className="pl-2 sm:pl-3 basis-[88%] sm:basis-[68%] lg:basis-[56%]"
                         >
                           <button
                             type="button"
                             onClick={() => openWeddingModal(index)}
-                            className="h-full w-full text-left group box-border"
+                            className="h-full w-full text-left group"
                           >
-                            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white via-white to-white/60 border border-white/60 shadow-md h-full max-w-3xl w-full mx-auto p-3 sm:p-4">
+                            <div className="relative h-full overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-2 sm:p-3 shadow-md">
                               <OptimizedImage
                                 src={image.src}
                                 alt={image.alt}
-                                className="w-full h-full"
+                                className="w-full h-full rounded-xl"
                                 fit="cover"
                                 useIntrinsicAspect
                                 objectPosition="50% 45%"
                                 style={{ maxHeight: 520 }}
                                 priority={index < 2}
                               />
-                              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
-                                <div className="w-full px-4 pb-3 text-white/90 text-xs sm:text-sm">Tap to view larger</div>
+                              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-black/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex items-end">
+                                <div className="w-full px-4 pb-3 text-white/90 text-xs sm:text-sm">
+                                  Tap to view larger
+                                </div>
                               </div>
                             </div>
                           </button>
                         </CarouselItem>
                       ))}
                     </CarouselContent>
-                    <CarouselPrevious className="hidden sm:flex bg-white/90 text-primary border-primary/30 shadow-md -left-3 sm:-left-4" />
-                    <CarouselNext className="hidden sm:flex bg-white/90 text-primary border-primary/30 shadow-md -right-3 sm:-right-4" />
+                    <CarouselPrevious className="left-2 sm:left-3 h-9 w-9 sm:h-10 sm:w-10 border-slate-200 bg-white/95 text-slate-700 shadow-lg hover:bg-white" />
+                    <CarouselNext className="right-2 sm:right-3 h-9 w-9 sm:h-10 sm:w-10 border-slate-200 bg-white/95 text-slate-700 shadow-lg hover:bg-white" />
                   </Carousel>
                 </div>
               </div>
@@ -270,7 +275,7 @@ const About = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8 sm:mb-12">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold font-heading text-[#333333] mb-3 leading-tight">
-              Dr. Christopher B. Wong, DDS
+              Dr. Christopher B. Wong
             </h2>
             <div className="w-16 sm:w-24 h-1 bg-primary mx-auto"></div>
           </div>
@@ -295,7 +300,7 @@ const About = () => {
                   <div className="relative rounded-[28px] bg-white/70 backdrop-blur-sm shadow-xl border border-white/60 p-4 sm:p-6 flex items-center justify-center">
                     <OptimizedImage
                       src="https://cdn.prod.website-files.com/6647633c9b317c62a46de335/67e986d38336152373ca94ad_Frame%201-min.png"
-                      alt="Dr. Christopher B. Wong, DDS portrait"
+                      alt="Dr. Christopher B. Wong portrait"
                       className="w-full h-full object-contain max-h-[520px]"
                     />
                   </div>
@@ -311,10 +316,10 @@ const About = () => {
               >
                 <div className="space-y-4 text-left">
                   <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-4 py-1 text-xs sm:text-sm font-semibold tracking-wide">
-                    <span>Meet Dr. Christopher Wong, DDS</span>
+                    <span>Meet Dr. Christopher B. Wong</span>
                   </div>
                   <p className="text-sm text-slate-600">
-                    Dr. Wong, DDS · Palo Alto dentist
+                    Dr. Wong · Palo Alto dentist
                   </p>
                   <p className="text-[#333333] leading-relaxed text-sm sm:text-base">
                     {data.doctorInfo.bio}

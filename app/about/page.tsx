@@ -9,7 +9,11 @@ export const generateMetadata = async () =>
 
 export default function AboutPage() {
   return (
-    <RouteShell ssrPath="/about">
+    <RouteShell
+      ssrPath="/about"
+      enableQueryClient={false}
+      enableHelmet={false}
+    >
       <About />
     </RouteShell>
   );

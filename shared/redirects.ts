@@ -28,7 +28,6 @@ const staticLegacyRedirects: Record<string, string> = {
   "/dental-cleaning": "/dental-cleaning-palo-alto",
   "/cavity-fillings": "/cavity-fillings-palo-alto",
   "/crowns": "/crowns-palo-alto",
-  "/pediatric-dentistry": "/pediatric-dentist-palo-alto",
 } as const;
 
 const serviceSlugRedirects: Record<string, string> = {

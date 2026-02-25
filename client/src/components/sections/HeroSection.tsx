@@ -1,6 +1,6 @@
 import { ArrowRight, Calendar, CheckCircle, MapPin } from "lucide-react";
 import ButtonLink from "@/components/common/ButtonLink";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion-lite";
 import { officeInfo } from "@/lib/data";
 
 const HeroSection = () => {
@@ -56,11 +56,11 @@ const HeroSection = () => {
               Palo Alto, CA
             </div>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-white leading-tight mb-4">
-              Dentist in Palo Alto — Dr. Christopher B. Wong, DDS
+              Dentist in Palo Alto — Christopher B. Wong, DDS
             </h1>
             
             <p className="text-lg text-white/80 leading-relaxed mb-6 max-w-md">
-              Modern, conservative care from Dr. Wong, DDS, your Palo Alto dentist—covering checkups, cleanings,
+              Modern, conservative care from Dr. Wong, your Palo Alto dentist—covering checkups, cleanings,
               Invisalign, cosmetic dentistry, and restorations.
             </p>
 
@@ -146,7 +146,7 @@ const HeroSection = () => {
                   height={720}
                   loading="eager"
                   decoding="async"
-                  fetchpriority="high"
+                  fetchPriority="high"
                   alt="Dr. Wong's modern Palo Alto dental office"
                   className="w-full h-auto object-cover rounded-2xl aspect-[4/3]"
                 />

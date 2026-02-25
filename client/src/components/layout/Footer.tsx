@@ -1,10 +1,7 @@
 import { Link } from "wouter";
-import { Phone, MapPin, ExternalLink } from "lucide-react";
+import { Phone, MapPin, ExternalLink, Instagram } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button"; 
-import NewsletterForm from "@/components/forms/NewsletterForm";
-import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
 import { officeInfo } from "@/lib/data";
 
 const Footer = () => {
@@ -13,7 +10,7 @@ const Footer = () => {
   // Footer link sections
   const quickLinks = [
     { href: "/", label: "Home" },
-    { href: "/about", label: "Dr. Wong, DDS" },
+    { href: "/about", label: "Dr. Wong" },
     { href: "/services", label: "Services" },
     { href: "/patient-resources", label: "Patient Resources" },
     { href: "/patient-stories", label: "Patient Stories" },
@@ -51,7 +48,7 @@ const Footer = () => {
 
   // Social media links
   const socialMedia = [
-    { icon: <FaInstagram className="h-4 w-4" />, href: officeInfo.socialMedia.instagram, label: "Instagram", rel: "noopener noreferrer" }
+    { icon: <Instagram className="h-4 w-4" />, href: officeInfo.socialMedia.instagram, label: "Instagram", rel: "noopener noreferrer" }
   ];
 
   const businessUrl = "https://www.chriswongdds.com";

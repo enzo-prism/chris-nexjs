@@ -1,57 +1,59 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import dynamic from "next/dynamic";
 import HeroSection from "@/components/sections/HeroSection";
-import FeaturesSection from "@/components/sections/FeaturesSection";
-import AboutDoctorSection from "@/components/sections/AboutDoctorSection";
-import ServiceCard from "@/components/common/ServiceCard";
-import TestimonialCard from "@/components/common/TestimonialCard";
-import TypeFormEmbed from "@/components/forms/TypeFormEmbed";
-import MetaTags from "@/components/common/MetaTags";
-import FAQSection from "@/components/common/FAQSection";
 import StructuredData from "@/components/seo/StructuredData";
 import ButtonLink from "@/components/common/ButtonLink";
 import { ArrowRight, BadgePercent, CheckCircle, Gift, Phone } from "lucide-react";
-import { Link } from "wouter";
+import Link from "next/link";
 import { Service, Testimonial } from "@shared/schema";
-import { motion } from "framer-motion";
-import { pageTitles, pageDescriptions } from "@/lib/metaContent";
-import { buildInsertTestimonial, testimonialSeedData } from "@shared/testimonialsData";
 import { officeInfo } from "@/lib/data";
 import {
   buildFAQSchema,
   type FAQEntry,
 } from "@/lib/structuredData";
 
-const Home = () => {
+const FeaturesSection = dynamic(
+  () => import("@/components/sections/FeaturesSection"),
+  { ssr: false, loading: () => null },
+);
+const AboutDoctorSection = dynamic(
+  () => import("@/components/sections/AboutDoctorSection"),
+  { ssr: false, loading: () => null },
+);
+const TypeFormEmbed = dynamic(
+  () => import("@/components/forms/TypeFormEmbed"),
+  { ssr: false, loading: () => null },
+);
+const FAQSection = dynamic(
+  () => import("@/components/common/FAQSection"),
+  { ssr: false, loading: () => null },
+);
+const ServiceCard = dynamic(
+  () => import("@/components/common/ServiceCard"),
+  { ssr: false, loading: () => null },
+);
+const TestimonialCard = dynamic(
+  () => import("@/components/common/TestimonialCard"),
+  { ssr: false, loading: () => null },
+);
 
-  
-  // Fetch services
-  const { data: services, isLoading: isLoadingServices } = useQuery<Service[]>({
-    queryKey: ["/api/services"],
-  });
+type HomeProps = {
+  initialServices?: Service[];
+  initialTestimonials?: Testimonial[];
+};
 
-  // Fetch testimonials
-  const { data: testimonials } = useQuery<Testimonial[]>({
-    queryKey: ["/api/testimonials"],
-  });
-
-  const fallbackTestimonials = useMemo<Testimonial[]>(() => {
-    return testimonialSeedData.map((seed, index) => ({
-      id: index + 1,
-      ...buildInsertTestimonial(seed, index),
-    }));
-  }, []);
-
-  const apiCount = testimonials?.length ?? 0;
-  const fallbackCount = fallbackTestimonials.length;
-  const shouldUseApiData = apiCount >= fallbackCount && apiCount > 0;
-  const testimonialsData = shouldUseApiData ? testimonials! : fallbackTestimonials;
-  const testimonialsToShow = testimonialsData.slice(0, 4);
+const Home = (props: any) => {
+  const {
+    initialServices = [],
+    initialTestimonials = [],
+  } = (props ?? {}) as HomeProps;
+  const testimonialsToShow = initialTestimonials.slice(0, 4);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
 
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
+    if (testimonialsToShow.length === 0) return;
     const container = event.currentTarget;
     const cardWidth = container.firstElementChild?.clientWidth ?? 1;
     const scrollLeft = container.scrollLeft;
@@ -99,10 +101,6 @@ const Home = () => {
 
 	  return (
 	    <>
-	      <MetaTags 
-        title={pageTitles.home}
-        description={pageDescriptions.home}
-      />
       <StructuredData data={schemaNodes} />
       <HeroSection />
 
@@ -124,6 +122,17 @@ const Home = () => {
                 From checkups and cleanings to Invisalign, cosmetic veneers, and
                 restorative care, we’ll explain what we see and help you choose
                 a plan that fits your goals and schedule.
+              </p>
+              <p className="text-lg text-slate-700 leading-relaxed">
+                Explore focused treatments including{" "}
+                <Link href="/restorative-dentistry" className="text-primary font-semibold hover:underline">
+                  restorative dentistry
+                </Link>{" "}
+                and{" "}
+                <Link href="/pediatric-dentistry" className="text-primary font-semibold hover:underline">
+                  pediatric dentistry
+                </Link>{" "}
+                for children, teens, and adults.
               </p>
               <p className="text-lg text-slate-700 leading-relaxed">
                 Our Palo Alto dental office is located at {officeInfo.address.line1},{" "}
@@ -389,23 +398,11 @@ const Home = () => {
       {/* Patient Testimonials Spotlight */}
       <section className="py-16 md:py-20 bg-gradient-to-b from-white via-[#F5F9FC] to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-12"
-          >
+          <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold font-heading text-[#1F2933]">Loved by our patients</h2>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="w-full"
-          >
+          <div className="w-full">
             <div
               className="-mx-4 flex snap-x snap-mandatory gap-6 overflow-x-auto pb-6 sm:hidden"
               onScroll={handleScroll}
@@ -437,15 +434,9 @@ const Home = () => {
                 <TestimonialCard key={`${testimonial.id}-${index}`} testimonial={testimonial} index={index} />
               ))}
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="mt-12 flex justify-center"
-          >
+          <div className="mt-12 flex justify-center">
             <ButtonLink
               href="/testimonials"
               className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-medium text-white shadow-sm transition-[transform,box-shadow,background-color] hover:scale-105 hover:bg-primary/90 hover:shadow-md"
@@ -453,7 +444,7 @@ const Home = () => {
               Read more patient stories
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </ButtonLink>
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -489,31 +480,13 @@ const Home = () => {
           </div>
 
           {/* Services Grid - Responsive: 1 column on mobile, 3 columns on desktop */}
-          {isLoadingServices ? (
-            <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 md:gap-8 lg:grid-cols-3">
-              {[...Array(3)].map((_, index) => (
-                <div
-                  key={index}
-                  className="animate-pulse overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
-                >
-                  <div className="h-48 w-full bg-gray-200 md:h-56" />
-                  <div className="p-6 md:p-8">
-                    <div className="mb-3 h-6 w-3/4 rounded bg-gray-200" />
-                    <div className="mb-2 h-4 w-full rounded bg-gray-200" />
-                    <div className="h-4 w-2/3 rounded bg-gray-200" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 md:gap-8 lg:grid-cols-3">
-              {services?.slice(0, 3).map((service) => (
-                <div key={service.id} className="h-full">
-                  <ServiceCard service={service} />
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 md:gap-8 lg:grid-cols-3">
+            {initialServices.slice(0, 3).map((service) => (
+              <div key={service.id} className="h-full">
+                <ServiceCard service={service} />
+              </div>
+            ))}
+          </div>
 
           {/* CTA Button */}
           <div className="mt-16 text-center">
