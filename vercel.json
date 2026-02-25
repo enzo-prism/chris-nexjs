@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "chriswongdds.com"
+        }
+      ],
+      "destination": "https://www.chriswongdds.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "protocol",
+          "value": "http"
+        }
+      ],
+      "destination": "https://www.chriswongdds.com/:path*",
+      "permanent": true
+    }
+  ]
+}

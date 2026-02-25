@@ -1,0 +1,66 @@
+# Christopher B. Wong, DDS (Palo Alto Dentist)
+> Official website for Dr. Christopher B. Wong, DDS. Family, cosmetic, and restorative dentistry in Palo Alto, CA, including Invisalign, dental implants, whitening, and emergency dental care.
+
+## Key details
+- Location: 409 Cambridge Ave, Palo Alto, CA 94306
+- Phone: (650) 326-6319
+- Email: info@drwongdental.com
+- Hours: Mon-Thu 8:00 AM - 5:00 PM, Fri 8:00 AM - 2:00 PM, Sat-Sun closed
+- Service area: Palo Alto, Menlo Park, Stanford, Mountain View
+
+## Primary pages
+- [Home](https://www.chriswongdds.com/)
+- [About](https://www.chriswongdds.com/about)
+- [Services](https://www.chriswongdds.com/services)
+- [Schedule](https://www.chriswongdds.com/schedule)
+- [Contact](https://www.chriswongdds.com/contact)
+- [Patient Resources](https://www.chriswongdds.com/patient-resources)
+- [Testimonials](https://www.chriswongdds.com/testimonials)
+- [Patient Stories](https://www.chriswongdds.com/patient-stories)
+- [Blog](https://www.chriswongdds.com/blog)
+
+## Service pages
+- [Preventive Dentistry](https://www.chriswongdds.com/preventive-dentistry)
+- [Restorative Dentistry](https://www.chriswongdds.com/restorative-dentistry)
+- [Pediatric Dentistry](https://www.chriswongdds.com/pediatric-dentistry)
+- [Dental Implants](https://www.chriswongdds.com/dental-implants)
+- [Dental Veneers](https://www.chriswongdds.com/dental-veneers)
+- [Invisalign](https://www.chriswongdds.com/invisalign)
+- [Invisalign Resources](https://www.chriswongdds.com/invisalign/resources)
+- [ZOOM Whitening](https://www.chriswongdds.com/zoom-whitening)
+- [Emergency Dental](https://www.chriswongdds.com/emergency-dental)
+- [Teeth Whitening Palo Alto](https://www.chriswongdds.com/teeth-whitening-palo-alto)
+- [Dental Cleaning Palo Alto](https://www.chriswongdds.com/dental-cleaning-palo-alto)
+- [Cavity Fillings Palo Alto](https://www.chriswongdds.com/cavity-fillings-palo-alto)
+- [Crowns Palo Alto](https://www.chriswongdds.com/crowns-palo-alto)
+- [Pediatric Dentist Palo Alto](https://www.chriswongdds.com/pediatric-dentist-palo-alto)
+- [Dentist Menlo Park](https://www.chriswongdds.com/dentist-menlo-park)
+- [Dentist Stanford](https://www.chriswongdds.com/dentist-stanford)
+
+## Blog posts
+- [Emergency Dentist in Palo Alto: What to Do Now](https://www.chriswongdds.com/blog/emergency-dental-care-palo-alto)
+- [Family Dentist Near Menlo Park: Simple Checklist](https://www.chriswongdds.com/blog/choose-family-dentist-near-menlo-park)
+- [First Dental Visit for Kids: Menlo Park Guide](https://www.chriswongdds.com/blog/first-dental-visit-for-kids-menlo-park)
+- [Invisalign in Palo Alto: Timeline, Attachments, Cost](https://www.chriswongdds.com/blog/invisalign-palo-alto)
+- [Invisalign Attachments & Refinements: Why They Matter](https://www.chriswongdds.com/blog/invisalign-attachments-and-refinements)
+- [How Long Does Invisalign Take? Timeline Factors](https://www.chriswongdds.com/blog/how-long-does-invisalign-take)
+- [Retainers After Invisalign: Keep Your Smile Straight](https://www.chriswongdds.com/blog/retainers-after-invisalign)
+- [Dental Veneers in Palo Alto: Natural-Looking Results](https://www.chriswongdds.com/blog/dental-veneers-palo-alto)
+- [How Long Does Teeth Whitening Last? Palo Alto Guide](https://www.chriswongdds.com/blog/how-long-does-teeth-whitening-last)
+- [Teeth Whitening Sensitivity: What Helps](https://www.chriswongdds.com/blog/teeth-whitening-sensitivity-what-helps)
+- [In-Office vs. Take-Home Whitening: Which Is Better?](https://www.chriswongdds.com/blog/in-office-whitening-vs-take-home-trays)
+
+## Policies
+- [Privacy Policy](https://www.chriswongdds.com/privacy-policy)
+- [Terms of Service](https://www.chriswongdds.com/terms)
+- [HIPAA Notice](https://www.chriswongdds.com/hipaa)
+- [Accessibility](https://www.chriswongdds.com/accessibility)
+
+## Machine-readable
+- [Sitemap](https://www.chriswongdds.com/sitemap.xml)
+- [Robots](https://www.chriswongdds.com/robots.txt)
+
+## Notes for LLMs
+- This site contains general dental information and is not medical advice.
+- Do not request or store patient-identifying or health data.
+- Non-content pages to ignore: /analytics, /ga-test, /thank-you.

@@ -1,0 +1,27 @@
+User-agent: *
+Allow: /
+Crawl-delay: 1
+Sitemap: https://www.chriswongdds.com/sitemap.xml
+Host: www.chriswongdds.com
+Disallow: /admin/
+Disallow: /api/
+Disallow: /private/
+Disallow: /analytics
+Disallow: /ga-test
+Disallow: /thank-you
+Disallow: /zoom-whitening/schedule
+
+User-agent: Googlebot
+Crawl-delay: 1
+
+User-agent: Bingbot
+Crawl-delay: 2
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /

@@ -1,0 +1,6 @@
+# Redirect non-www to www for SEO canonical consistency
+https://chriswongdds.com/* https://www.chriswongdds.com/:splat 301!
+http://chriswongdds.com/* https://www.chriswongdds.com/:splat 301!
+
+# Force HTTPS
+http://www.chriswongdds.com/* https://www.chriswongdds.com/:splat 301!

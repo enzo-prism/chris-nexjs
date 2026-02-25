@@ -1,0 +1,172 @@
+Love it—this is exactly where Prism can shine: show the hard numbers + show the “we shipped real stuff” story. Here’s an updated, client‑ready spec for Chris Wong DDS — July 2025 /analytics that maximizes perceived and real value.
+
+/analytics — July 2025 (Spec)
+
+1) Executive summary (top hero strip)
+	•	New users: 916
+	•	Returning users: 127
+	•	Active users: 946
+	•	Mobile share: 62%
+	•	Avg session: 4:35 · Pages/Session: 2.7 · Bounce: 39.9%
+	•	Last updated: Aug 1, 2025
+Small caption: “Key drivers this month: direct & organic search; About/Team pages; Instagram assists. Conversions not yet tracked—instrumentation underway.”
+
+2) Acquisition (how people found you)
+	•	Donut (First‑time users): Direct 36.8% · Organic 24.7% · Organic Social 19.7% · Paid 15.1% · Other 3.8%
+	•	Bar (Sessions by source): google 402 · Instagram 160 · LinkedIn 51 · Yelp 21 · YouTube 21 · Bing 13
+	•	Top cities: San Jose · Mountain View · San Francisco · Los Angeles (list top 6–7)
+
+3) On‑site behavior & UX (what they did)
+	•	Behavior tiles: Avg session 4:35 · Pages/Session 2.7 · Bounce 39.9% · Avg scroll 51%
+	•	Top pages (sessions): Home 74 · About 64 · Contact 24 · Services 22 · Schedule 22
+	•	Top clicks (sessions): About 41 · Meet Our Team 24 · Contact 23 · Book Appointment 14
+	•	Friction: Rage clicks 0; minor console warning seen in 3 sessions
+
+Insight chip: Trust pages (About/Team) are the traffic magnets—add strong “Call / Schedule” CTAs there, especially on mobile.
+
+4) Search visibility (are we being discovered?)
+	•	Landing pages by impressions: / 1.5K; /our-services 175; /dr-kris-hamamoto 137; /?page_id=7 70; /dr-chris-wong 36; /about-us 31
+	•	Queries by clicks: “chris wong dds” 7; “christopher wong dds” 6; “kris hamamoto” 3; “dentist near me” 1
+
+Insight chip: Brand searches dominate. Next step: service + city pages to grow non‑brand discovery.
+
+5) Conversions (leads, calls, bookings)
+	•	Qualified leads (tracked): 0
+	•	Converted leads (tracked): 0
+Badge: Action required — “Instrument GA4 events for form_submit, tel_click, book_appointment_click + scheduler completion. Add UTMs to social links.”
+
+6) Reputation & social proof (reviews)
+
+Why it matters: lifts conversion rates on every traffic channel.
+	•	New reviews in July: 1 (Yelp, 7/1)
+	•	New reviews in Aug (preview): 1 (Yelp 8/2), 1 (Google ~8/2) — not counted in July but visible below
+	•	Themes detected (July+recent): gentle & thorough hygiene (Angelisa/Helen), professional & conservative care (no upsell), attentive front office, reliable scheduling
+	•	Highlighted quotes (short, recent):
+	•	“Been going… eight years… gentle and thorough.” — Yelp, 7/1
+	•	“Highly recommended… high standards and professionalism… staff helpful.” — Yelp, 8/2 (Aug preview)
+	•	“Best dental in the area… decades.” — Google, 6/24 (context)
+
+Widget ideas
+	•	Ratings row: Google ★★★★★ (count, MoM) · Yelp ★★★★★ (count, MoM)
+	•	New this month: # of reviews + avg stars
+	•	Review carousel: 2–3 short quotes with staff mentions highlighted
+	•	CTA: “Request more reviews” button → opens pre‑filled SMS/email template for happy patients
+
+Insight chip: Reviews strongly reinforce the trust pages; surface 2–3 best quotes on About, Team & Schedule pages.
+
+7) Shipped this month (Prism Highlights) — “Proof of Work”
+
+A bite‑sized, brag‑worthy list with What we did → Why it matters → Evidence.
+	•	SEMrush analytics integrated
+Improves SEO diagnostics & keyword tracking → faster fixes, better rankings.
+Evidence: Site Audit initialized; health score baseline captured; keyword tracking list created.
+	•	AI stack upgrade: Claude Opus 4.1 + GPT‑5
+Higher‑quality copy, faster content outlines, smarter SEO briefs & on‑site microcopy.
+Evidence: content briefs for service pages; on‑page copy refresh proposals.
+	•	Hotjar rollout
+Validates UX on mobile; pinpoints where to place CTAs for more bookings.
+Evidence: July heatmaps recorded; Book CTA interactions (14 sessions) identified.
+	•	/analytics dashboard (this page) v1
+Always‑on visibility; reduces status emails; single source of truth.
+Evidence: static latest.json snapshot; standardized layout for monthly updates.
+	•	Feno partnership — in progress
+Potential referral channel / co‑marketing (pipeline lift & LTV).
+Evidence: introductions + partnership brief drafted (status: negotiating terms).
+
+(Optional little “view proof” links on each item: GA4, Semrush, Hotjar heatmap IDs, doc links.)
+
+8) Targets for August (so clients feel momentum)
+	•	Instrument conversions (phone, form, booking) + UTMs for Instagram/LinkedIn
+	•	Mobile CTA upgrades (sticky call/schedule; mid‑page CTAs on About/Team)
+	•	Local SEO build: publish 1–2 Service + City pages (e.g., “Dental Implants in Palo Alto”)
+	•	Review flywheel: add in‑office QR + thank‑you SMS template; track new/month
+	•	Hotjar funnel: Home → About/Team → Schedule → Thank‑you; add 1‑question exit poll on Schedule
+
+⸻
+
+Data schema extension (so the page can render all of this)
+
+Add these sections to latest.json:
+
+{
+  "schema_version": 3,
+  "period": { "start": "2025-07-01", "end": "2025-07-31" },
+  "stack": {
+    "analytics": ["GA4", "GSC", "Hotjar", "SEMrush"],
+    "ai_models": ["Claude Opus 4.1", "GPT-5"],
+    "notes": "Models used for briefs, copy suggestions, insights."
+  },
+  "highlights": [
+    {
+      "date": "2025-07-10",
+      "title": "SEMrush analytics integrated",
+      "impact": "SEO diagnostics & tracking improved",
+      "evidence": ["semrush:site_audit_baseline", "semrush:keyword_set_v1"]
+    },
+    {
+      "date": "2025-07-15",
+      "title": "AI stack upgrade (Opus 4.1 + GPT-5)",
+      "impact": "Faster, higher‑quality content & insights",
+      "evidence": ["doc:service_page_brief_implants", "doc:onpage_copy_proposals"]
+    },
+    {
+      "date": "2025-07-18",
+      "title": "Hotjar deployed",
+      "impact": "Validated mobile UX; identified CTA placements",
+      "evidence": ["hotjar:heatmap_home_mobile_july", "hotjar:events_book_clicks_14"]
+    },
+    {
+      "date": "2025-07-25",
+      "title": "/analytics dashboard v1",
+      "impact": "Always‑on visibility; fewer status emails",
+      "evidence": ["repo:latest.json@2025-07", "loom:walkthrough"]
+    },
+    {
+      "date": "2025-07-29",
+      "title": "Feno partnership (in progress)",
+      "impact": "Potential referral pipeline",
+      "status": "Negotiating terms",
+      "evidence": ["doc:feno_brief", "crm:intro_call_notes"]
+    }
+  ],
+  "reputation": {
+    "july": {
+      "new_reviews_count": 1,
+      "platform_breakdown": { "google": 0, "yelp": 1 },
+      "avg_rating_new": 5.0,
+      "top_quotes": [
+        {
+          "source": "yelp",
+          "date": "2025-07-01",
+          "excerpt": "Been going… eight years… gentle and thorough."
+        }
+      ],
+      "themes": ["gentle", "thorough hygiene", "professional", "helpful staff", "reliable scheduling"]
+    },
+    "preview_aug": {
+      "new_reviews_count": 2,
+      "platform_breakdown": { "google": 1, "yelp": 1 }
+    }
+  },
+  "actions_next_month": [
+    "Instrument GA4 conversions for phone, form, booking; add UTMs to social links.",
+    "Add sticky mobile CTA and mid‑page CTAs on About/Team.",
+    "Publish 1–2 Service+City pages for non‑brand search.",
+    "Launch review request flow; track new reviews & average stars.",
+    "Create Hotjar funnel and 1‑question exit poll on Schedule."
+  ]
+}
+
+
+⸻
+
+Why this layout works
+	•	Proof of impact (numbers) + proof of effort (highlights) = trust and retention.
+	•	Reputation module ties reviews directly to conversion (and gives you a reason to ask for more).
+	•	Targets make the client feel momentum and show you’re steering the ship.
+	•	Standardized schema means updating the page each month is a drop‑in swap of latest.json.
+
+If you want, I can also:
+	•	add a small “Performance vs Prior Month” band (once we have June baselines),
+	•	wire a reviews ingestor (CSV → count, themes via quick AI keywords),
+	•	and drop in the React components (Recharts + simple tables) so this ships quickly on Replit/Lovable.

@@ -1,0 +1,8 @@
+# Redirect non-www to www for SEO canonical consistency
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^chriswongdds\.com$ [NC]
+RewriteRule ^(.*)$ https://www.chriswongdds.com/$1 [R=301,L]
+
+# Force HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
