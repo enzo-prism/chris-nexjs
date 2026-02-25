@@ -11,17 +11,6 @@
       ],
       "destination": "https://www.chriswongdds.com/:path*",
       "permanent": true
-    },
-    {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "protocol",
-          "value": "http"
-        }
-      ],
-      "destination": "https://www.chriswongdds.com/:path*",
-      "permanent": true
     }
   ]
 }

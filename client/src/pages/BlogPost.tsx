@@ -1,3 +1,5 @@
+"use client";
+
 import { useMemo } from "react";
 import { RouteComponentProps, useLocation } from "wouter";
 import { useBlogPosts } from "@/hooks/useBlogPosts";

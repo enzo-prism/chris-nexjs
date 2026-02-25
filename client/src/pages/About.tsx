@@ -1,3 +1,5 @@
+"use client";
+
 import { CheckCircle, Award, UserCheck, Shield, Play, Sparkles, X, ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";

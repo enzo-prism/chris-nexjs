@@ -1,3 +1,5 @@
+"use client";
+
 import MetaTags from "@/components/common/MetaTags";
 import { officeInfo } from "@/lib/data";
 

@@ -1,3 +1,5 @@
+"use client";
+
 import { Phone, Clock, AlertTriangle, CheckCircle, ArrowRight, Shield, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";

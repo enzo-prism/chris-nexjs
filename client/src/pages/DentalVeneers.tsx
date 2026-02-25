@@ -1,3 +1,5 @@
+"use client";
+
 import { CheckCircle, ArrowRight, Shield, Clock, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";

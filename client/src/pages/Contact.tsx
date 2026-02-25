@@ -1,3 +1,5 @@
+"use client";
+
 import { ArrowRight } from "lucide-react";
 import AppointmentSection from "@/components/sections/AppointmentSection";
 import OfficeVisitSection from "@/components/sections/OfficeVisitSection";

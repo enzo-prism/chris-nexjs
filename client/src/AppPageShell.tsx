@@ -3,7 +3,7 @@
 import { type ReactNode, useEffect } from "react";
 import { HelmetProvider } from "@/lib/helmet";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { WouterRouter, useLocation } from "wouter";
+import { Router as WouterRouter, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import GoogleAnalytics from "@/components/common/GoogleAnalytics";

@@ -1,3 +1,5 @@
+"use client";
+
 import { useMemo } from "react";
 import { Link } from "wouter";
 import { ArrowRight, BookOpen, Sparkles } from "lucide-react";

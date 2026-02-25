@@ -1,3 +1,5 @@
+"use client";
+
 import MetaTags from "@/components/common/MetaTags";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import RelatedServices, { type RelatedServiceLink } from "@/components/common/RelatedServices";

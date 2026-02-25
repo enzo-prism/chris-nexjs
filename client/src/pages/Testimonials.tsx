@@ -1,3 +1,5 @@
+"use client";
+
 import { Quote, Star, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";

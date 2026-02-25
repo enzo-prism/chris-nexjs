@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import MetaTags from "@/components/common/MetaTags";
 import StructuredData from "@/components/seo/StructuredData";

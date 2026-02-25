@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Tag, Clock, Calendar, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";

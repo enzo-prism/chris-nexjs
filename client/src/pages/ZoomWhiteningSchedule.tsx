@@ -1,3 +1,5 @@
+"use client";
+
 import { useRef, useState } from "react";
 import { CalendarDays, Camera, CheckCircle, Clock, Sparkles } from "lucide-react";
 import { Link } from "wouter";

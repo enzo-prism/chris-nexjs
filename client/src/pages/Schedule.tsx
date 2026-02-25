@@ -1,3 +1,5 @@
+"use client";
+
 import AppointmentSection from "@/components/sections/AppointmentSection";
 import OfficeVisitSection from "@/components/sections/OfficeVisitSection";
 import InsuranceInfoSection from "@/components/sections/InsuranceInfoSection";

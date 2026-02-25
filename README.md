@@ -95,7 +95,14 @@ All endpoints preserve existing contract/validation behavior from `server/routes
 - `app/sitemap.ts` emits canonical static pages + blog slugs.
 - `app/robots.ts` excludes noindex routes and `/api/`.
 - `middleware.ts` enforces legacy redirect rules and canonical host behavior (`www.chriswongdds.com`).
-- `vercel.json` includes protocol/host redirects for Vercel.
+- `vercel.json` currently enforces canonical host normalization for Vercel deployments.
+
+## Vercel deployment
+
+- Production URL: https://chris-nextjs-6y17azx9u-enzo-design-prisms-projects.vercel.app
+- Live deploy command: `vercel deploy --prod --yes`
+- Local production verification: `pnpm run build` followed by `pnpm run start`
+- Repository link: https://github.com/enzo-prism/chris-nexjs
 
 ## Storage
 
