@@ -40,6 +40,7 @@
   }
 
   html {
+    --header-height: 110px;
     scroll-behavior: smooth;
     -webkit-tap-highlight-color: rgba(15, 23, 42, 0.08);
   }
@@ -81,13 +82,31 @@
   }
 
   main [id] {
-    scroll-margin-top: calc(var(--header-height, 136px) + 1rem);
+    scroll-margin-top: calc(var(--header-height, 110px) + 1rem);
   }
 }
 
 @layer components {
   .skip-link {
-    @apply sr-only absolute left-4 top-4 z-[200] rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground focus:not-sr-only focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+    @apply sr-only absolute left-4 top-4 z-[200] rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+    position: absolute;
+  }
+
+  .skip-link:focus,
+  .skip-link:focus-visible {
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+    position: absolute;
+    clip-path: none;
+  }
+
+  .skip-link:focus {
+    width: auto;
+    height: auto;
   }
 }
 

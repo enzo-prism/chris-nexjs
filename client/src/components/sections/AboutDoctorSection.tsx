@@ -70,7 +70,7 @@ const AboutDoctorSection: React.FC = () => {
             
             <div className="mt-8">
               <Link href="/about">
-                <Button className="bg-primary text-white font-semibold px-6 py-3 rounded-md hover:bg-blue-700">
+                <Button className="bg-primary text-white font-semibold px-6 py-3 rounded-md hover:bg-primary/90 active:bg-primary/80">
                   Meet Dr. Christopher Wong
                 </Button>
               </Link>

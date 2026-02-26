@@ -30,7 +30,7 @@ const VideoModal: React.FC<VideoModalProps> = ({ isOpen, onClose, videoUrl }) =>
             variant="ghost"
             size="icon"
             onClick={onClose} 
-            className="absolute right-2 top-2 z-50 rounded-full bg-black/60 p-1.5 text-white transition-all hover:bg-black/80 hover:text-white"
+            className="absolute right-2 top-2 z-50 rounded-full bg-black/60 p-1.5 text-white transition-[background-color,color] hover:bg-black/80 hover:text-white"
             aria-label="Close video"
           >
             <X className="h-6 w-6" />

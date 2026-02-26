@@ -95,10 +95,10 @@ const PatientResources = () => {
 	              <div className="grid grid-cols-1 min-[420px]:grid-cols-2 gap-3 max-w-sm mx-auto">
                 <button
                   onClick={() => setActiveTab("forms")}
-                  className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all ${
+                  className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-[0.99] ${
                     activeTab === "forms" 
                       ? "border-primary bg-primary text-white shadow-md" 
-                      : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                      : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-slate-50"
                   }`}
                 >
                   <FileText className="h-6 w-6 mb-2" />
@@ -107,10 +107,10 @@ const PatientResources = () => {
                 
                 <button
                   onClick={() => setActiveTab("insurance")}
-                  className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all ${
+                  className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-[0.99] ${
                     activeTab === "insurance" 
                       ? "border-primary bg-primary text-white shadow-md" 
-                      : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                      : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-slate-50"
                   }`}
                 >
                   <CreditCard className="h-6 w-6 mb-2" />
@@ -119,10 +119,10 @@ const PatientResources = () => {
                 
                 <button
                   onClick={() => setActiveTab("faq")}
-                  className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all ${
+                  className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-[0.99] ${
                     activeTab === "faq" 
                       ? "border-primary bg-primary text-white shadow-md" 
-                      : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                      : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-slate-50"
                   }`}
                 >
                   <HelpCircle className="h-6 w-6 mb-2" />
@@ -131,10 +131,10 @@ const PatientResources = () => {
                 
                 <button
                   onClick={() => setActiveTab("first-visit")}
-                  className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all ${
+                  className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-[0.99] ${
                     activeTab === "first-visit" 
                       ? "border-primary bg-primary text-white shadow-md" 
-                      : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                      : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-slate-50"
                   }`}
                 >
                   <Calendar className="h-6 w-6 mb-2" />
@@ -282,7 +282,7 @@ const PatientResources = () => {
               <div className="mt-8 text-center">
                 <p className="text-[#333333] mb-4">Don't see your question here? Feel free to contact us!</p>
                 <Link href="/contact">
-                  <Button className="bg-primary text-white font-semibold hover:bg-blue-700">
+                  <Button className="bg-primary text-white font-semibold hover:bg-primary/90 active:bg-primary/80">
                     Contact Us
                   </Button>
                 </Link>
@@ -368,7 +368,7 @@ const PatientResources = () => {
                   </div>
                   
                   <Link href="/schedule#appointment">
-                    <Button className="w-full bg-primary text-white font-semibold hover:bg-blue-700">
+                    <Button className="w-full bg-primary text-white font-semibold hover:bg-primary/90 active:bg-primary/80">
                       Schedule Your First Visit
                     </Button>
                   </Link>
@@ -409,7 +409,7 @@ const PatientResources = () => {
                 </div>
                 <div className="mt-8">
                   <Link href="/contact">
-                    <Button className="bg-primary text-white font-semibold hover:bg-blue-700">
+                    <Button className="bg-primary text-white font-semibold hover:bg-primary/90 active:bg-primary/80">
                       Contact Us
                     </Button>
                   </Link>

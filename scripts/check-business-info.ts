@@ -24,6 +24,7 @@ const ignoredPaths = new Set(
   [
     path.join(workspaceRoot, "shared", "officeInfo.ts"),
     path.join(workspaceRoot, "server", "storage.ts"), // marketing copy may include NAP
+    path.join(workspaceRoot, "client", "src", "data", "changelog.ts"), // generated commit history can include historical literals
   ].map((entry) => path.normalize(entry)),
 );
 
@@ -81,4 +82,3 @@ function main(): void {
 }
 
 main();
-

@@ -1,25 +1,36 @@
 # Christopher B. Wong, DDS Website (Next.js + Vercel)
 
-Production web app for Christopher B. Wong, DDS in Palo Alto, built on Next.js App Router with API route handlers, SEO automation, and CI quality gates.
+Production website for Christopher B. Wong, DDS in Palo Alto.  
+The app runs on Next.js App Router with API route handlers, centralized SEO metadata, automated quality gates, and Vercel deployment.
 
-## Architecture
+## Current product scope
 
-- Runtime: Next.js 14 App Router
-- UI: React + Tailwind + shadcn/ui primitives
-- API: Next route handlers under `/app/api/*`
-- Shared contracts and SEO map: `/shared/*`
-- Data/repository layer: `/server/storage/*`
-- Legacy compatibility: catch-all route + redirect mapping
-- Deploy target: Vercel
+- Marketing pages, location pages, services, and blog content.
+- Interactive lead flows: appointment request, contact form, newsletter.
+- `/gallery` media showcase with hero video, click-to-play clips, and fullscreen lightbox.
+- `/changelog` page that merges update history from current and legacy repositories.
+
+## Architecture at a glance
+
+- Runtime: Next.js 14 App Router.
+- UI stack: React 18, TypeScript, Tailwind, shadcn/ui primitives.
+- Routing strategy: explicit App Router pages plus catch-all compatibility route.
+- API layer: Next route handlers under `app/api/*`.
+- Data layer: repository pattern under `server/storage/*`.
+- Storage mode:
+  - Uses Neon/Postgres when `DATABASE_URL` is set.
+  - Falls back to in-memory storage when DB is unavailable.
+- SEO source of truth: `shared/seo.ts`, `shared/redirects.ts`, Next metadata APIs.
+- Deployment target: Vercel.
 
 ## Repository map
 
-- `/app`: route segments, metadata, sitemap, robots, API handlers
-- `/client/src`: reusable components, pages, hooks, UI utilities
-- `/server`: storage/repository and data-access utilities
-- `/shared`: shared schema, redirects, SEO definitions
-- `/scripts`: automated checks and test gates
-- `/docs`: operations, performance, SEO, and release specs
+- `app/`: route segments, metadata, sitemap, robots, API handlers.
+- `client/src/`: page components, UI components, hooks, and data modules.
+- `server/`: storage contract + DB/memory implementations.
+- `shared/`: schemas, redirects, office info, SEO definitions.
+- `scripts/`: test gates and operational audit scripts.
+- `docs/`: runbooks, quality specs, SEO/perf plans, feature docs.
 
 ## Quick start
 
@@ -29,34 +40,40 @@ Production web app for Christopher B. Wong, DDS in Palo Alto, built on Next.js A
 pnpm install
 ```
 
-2. Create local env file.
+2. Create local environment file.
 
 ```bash
 cp .env.example .env
 ```
 
-3. Start local dev.
+3. Start development server.
 
 ```bash
 pnpm run dev
 ```
 
-Dev port behavior:
-- If `PORT` is set in `.env`, Next uses that.
-- If not set, Next defaults to `3000`.
+Port behavior:
+- `.env.example` sets `PORT=5000`, so local dev will run on `http://localhost:5000` unless changed.
+- If `PORT` is removed, Next defaults to `3000`.
 
 ## Environment variables
 
-Required in production:
-- `DATABASE_URL` for Postgres/Neon persistence.
+Core:
+- `DATABASE_URL` (required for Postgres/Neon mode).
 
-SEO/Search tooling:
-- `GOOGLE_SITE_VERIFICATION` or `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` for Search Console verification.
+Metadata/SEO:
+- `GOOGLE_SITE_VERIFICATION` or `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`.
 
-Perf/SEO script overrides:
-- `SEO_AUDIT_BASE_URL` for runtime SEO audits.
-- `PERF_BASE_URL` for perf smoke checks.
-- `LIGHTHOUSE_BASE_URL` and `LIGHTHOUSE_RUNS` for Lighthouse gating.
+Script URL overrides:
+- `SEO_AUDIT_BASE_URL` for runtime SEO scripts.
+- `IMAGE_AUDIT_BASE_URL` for image runtime audit.
+- `PERF_BASE_URL` for perf smoke.
+- `LIGHTHOUSE_BASE_URL`, `LIGHTHOUSE_RUNS`, `LIGHTHOUSE_SKIP_PRECHECK` for Lighthouse runs.
+
+Changelog generation:
+- `CHANGELOG_REPOS` to override default repo/branch sources.
+- `CHANGELOG_LIMIT` to cap entries.
+- `CHANGELOG_OUTPUT` to customize output path.
 
 ## Commands
 
@@ -66,71 +83,86 @@ Core:
 - `pnpm run start`
 - `pnpm run check`
 
-API/route/SEO:
+Contract and quality checks:
 - `pnpm run test:api`
 - `pnpm run test:routes`
+- `pnpm run test:design-system`
+- `pnpm run test:images`
+- `pnpm run test:gallery`
+
+SEO checks:
 - `pnpm run test:seo`
 - `pnpm run test:seo:onpage`
 - `pnpm run test:seo:links`
 - `pnpm run test:seo:schema`
 - `pnpm run test:seo:all`
 
-Design/perf/images:
-- `pnpm run test:design-system`
-- `pnpm run test:images`
-- `pnpm run test:bundle`
+Performance checks:
 - `pnpm run build:perf`
 - `pnpm run start:perf`
 - `pnpm run perf:smoke`
+- `pnpm run test:bundle`
 - `pnpm run perf:lighthouse`
 
-Aggregate release gate:
+Release convenience gate:
 - `pnpm run test:production`
 
-## API endpoints
+Utility:
+- `pnpm run changelog:generate`
 
+## API surface
+
+Read endpoints:
 - `GET /api/services`
 - `GET /api/services/:slug`
 - `GET /api/blog-posts`
+- `GET /api/blog-posts?service=<service-slug>`
 - `GET /api/blog-posts/:slug`
-- `GET /api/search`
+- `GET /api/testimonials`
+- `GET /api/search?query=<term>`
+- `GET /api/appointments`
+- `GET /api/contact`
+- `GET /api/rss.xml`
+
+Write endpoints:
 - `POST /api/appointments`
 - `POST /api/contact`
 - `POST /api/newsletter`
-- `GET /api/appointments`
-- `GET /api/contact`
 
 ## SEO and canonical behavior
 
-- Canonical host: `https://www.chriswongdds.com`
-- Redirect mapping: `/shared/redirects.ts`
-- Metadata source of truth: `/shared/seo.ts` + Next metadata API
-- Sitemap: `/app/sitemap.ts`
-- Robots: `/app/robots.ts`
-- Canonical host redirect: `/vercel.json` + middleware behavior
+- Canonical host: `https://www.chriswongdds.com`.
+- Canonical host redirect:
+  - Host redirect in `vercel.json`.
+  - Legacy + protocol/canonical handling in `middleware.ts`.
+- Metadata source:
+  - `shared/seo.ts`
+  - `app/[...slug]/page.tsx` `generateMetadata`
+  - `app/layout.tsx` global metadata
+- SEO files:
+  - `app/sitemap.ts`
+  - `app/robots.ts`
+- Current SEO map totals:
+  - 44 total canonical definitions
+  - 40 indexable
+  - 4 noindex (`/zoom-whitening/schedule`, `/thank-you`, `/analytics`, `/ga-test`)
 
-## Vercel deployment
+## Naming rule (editorial and compliance)
 
-1. Connect repo to Vercel.
-2. Set env vars (`DATABASE_URL`, verification/analytics values).
-3. Build command: `pnpm run build`.
-4. Start command: `pnpm run start`.
-5. Validate preview with SEO and route checks before promoting.
-
-## Content/style rule (important)
-
-Doctor name format must follow one of these:
+Doctor name format must be one of:
 - `Dr. Christopher B. Wong`
 - `Christopher B. Wong, DDS`
 
-Do not combine `Dr.` and `DDS` in the same line.
+Never combine `Dr.` and `DDS` in the same line.
 
 ## Documentation index
 
-- Local workflow: `/Users/enzo/chris-nextjs/LOCAL_DEV.md`
-- Testing matrix: `/Users/enzo/chris-nextjs/docs/testing.md`
+- Local development: `/Users/enzo/chris-nextjs/LOCAL_DEV.md`
 - Deployment runbook: `/Users/enzo/chris-nextjs/docs/deployment.md`
+- Testing guide: `/Users/enzo/chris-nextjs/docs/testing.md`
 - Performance workflow: `/Users/enzo/chris-nextjs/docs/performance.md`
-- Production readiness: `/Users/enzo/chris-nextjs/docs/production-readiness-spec.md`
-- SEO growth program: `/Users/enzo/chris-nextjs/docs/seo-growth-plan.md`
-- SEO keyword mapping: `/Users/enzo/chris-nextjs/docs/seo-keyword-map.md`
+- Production readiness spec: `/Users/enzo/chris-nextjs/docs/production-readiness-spec.md`
+- SEO growth plan: `/Users/enzo/chris-nextjs/docs/seo-growth-plan.md`
+- SEO keyword map: `/Users/enzo/chris-nextjs/docs/seo-keyword-map.md`
+- Gallery feature guide: `/Users/enzo/chris-nextjs/docs/gallery.md`
+- Changelog operations guide: `/Users/enzo/chris-nextjs/docs/changelog.md`

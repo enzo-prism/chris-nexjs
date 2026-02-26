@@ -24,11 +24,13 @@
     "test:routes": "tsx scripts/route-contract.test.ts",
     "test:design-system": "tsx scripts/design-system.test.ts",
     "test:images": "tsx scripts/image-audit.test.ts",
+    "test:gallery": "tsx scripts/gallery-media.test.ts",
     "test:bundle": "node scripts/bundle-budget.test.mjs",
     "perf:smoke": "node scripts/perf-smoke.mjs",
     "perf:lighthouse": "node scripts/lighthouse-budget.mjs",
     "test:production": "pnpm run check && pnpm run test:bundle && pnpm run test:api && pnpm run test:routes && pnpm run test:design-system && pnpm run test:images && pnpm run test:seo:all",
     "check:business-info": "tsx scripts/check-business-info.ts",
+    "changelog:generate": "node scripts/generate-changelog.mjs",
     "check:seo-regression": "tsx scripts/seo-regression.ts",
     "check:lighthouse-budget": "node scripts/lighthouse-budget.mjs",
     "db:push": "drizzle-kit push"

@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Star, Quote } from "lucide-react";
 import { Testimonial } from "@shared/schema";
 import { motion } from "framer-motion";
+import OptimizedImage from "@/components/seo/OptimizedImage";
 
 interface TestimonialCardProps {
   testimonial: Testimonial;
@@ -21,10 +22,10 @@ const TestimonialCard = ({ testimonial, index = 0, disableAnimation = false }: T
   const hasImage = Boolean(image && image.trim().length > 0);
 
   const content = (
-    <Card className="h-full border-0 shadow-sm hover:shadow-xl transition-all duration-300 relative overflow-hidden">
+    <Card className="h-full border-0 shadow-sm hover:shadow-xl transition-[box-shadow] duration-300 relative overflow-hidden">
       <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass}`} aria-hidden="true" />
       <div className="absolute -top-8 -right-8 text-primary/5">
-        <Quote className="w-28 h-28" strokeWidth={1} />
+        <Quote className="w-28 h-28" strokeWidth={1} aria-hidden="true" />
       </div>
 
       <CardContent className="p-6 sm:p-7 relative z-10">
@@ -35,6 +36,7 @@ const TestimonialCard = ({ testimonial, index = 0, disableAnimation = false }: T
               className="h-4 w-4 ml-0.5"
               fill={i < rating ? "currentColor" : "none"}
               strokeWidth={1.5}
+              aria-hidden="true"
             />
           ))}
         </div>
@@ -45,14 +47,13 @@ const TestimonialCard = ({ testimonial, index = 0, disableAnimation = false }: T
 
         <div className="flex items-center">
           {hasImage ? (
-            <img
+            <OptimizedImage
               src={image}
               alt={name}
               width={48}
               height={48}
               className="w-12 h-12 rounded-full object-cover mr-3 border border-white/60 shadow-sm"
-              loading="lazy"
-              decoding="async"
+              sizes="48px"
             />
           ) : (
             <div

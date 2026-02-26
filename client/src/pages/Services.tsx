@@ -258,7 +258,7 @@ const Services = () => {
               
               <ButtonLink
                 href="/patient-resources#insurance"
-                className="rounded-md bg-primary px-6 py-3 font-semibold text-white hover:bg-blue-700"
+                className="rounded-md bg-primary px-6 py-3 font-semibold text-white hover:bg-primary/90 active:bg-primary/80"
               >
                 Learn More About Insurance
               </ButtonLink>

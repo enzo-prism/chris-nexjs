@@ -187,7 +187,7 @@ const PatientForm = () => {
 
         <Button 
           type="submit" 
-          className="w-full bg-primary hover:bg-blue-700 text-white font-semibold py-3"
+          className="w-full bg-primary hover:bg-primary/90 active:bg-primary/80 text-white font-semibold py-3"
           disabled={isSubmitting}
         >
           {isSubmitting ? "Submitting..." : "Submit Form"}

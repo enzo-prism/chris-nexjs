@@ -1,105 +1,152 @@
 # Production Readiness Spec (Next.js + Vercel)
 
-Defines release quality for this repository and the exact gates that must pass before production promotion.
+Release quality standard for this repository.
 
-## Product goals
+## Core release objectives
 
-- Preserve route and API behavior during Next.js migration.
-- Maintain SEO correctness and crawlability.
-- Keep UI consistency with shadcn-based component standards.
-- Keep performance, accessibility, and safety checks measurable.
+- Preserve route and API compatibility.
+- Keep metadata, canonical behavior, and crawlability correct.
+- Maintain design-system consistency and media integrity.
+- Protect runtime performance on primary marketing routes.
+- Keep operational runbooks accurate with the current implementation.
 
-## Release criteria
+## Readiness criteria and gates
 
-1. Routing and redirects:
-- Canonical paths resolve with correct metadata and canonical URL.
-- Legacy aliases resolve to canonical destinations in one hop when applicable.
-- Blog routes resolve correctly for seeded post slugs.
+### 1. Routing and redirect integrity
 
-Required gate:
+Must pass:
+- canonical routes return expected metadata and canonical URL
+- legacy aliases map correctly
+- dynamic blog metadata works for seeded slugs
+
+Gate:
 - `pnpm run test:routes`
 
-2. API contract stability:
-- Endpoint status codes and validation behavior stay contract-compatible.
-- Error payloads remain stable for invalid input and missing entities.
+### 2. API contract stability
 
-Required gate:
+Must pass:
+- endpoint status code behavior remains stable
+- validation and error semantics remain stable
+- read and write handlers for lead flows are operational
+
+Gate:
 - `pnpm run test:api`
 
-3. SEO integrity:
-- Sitemap and robots align with `shared/seo.ts` indexable/noindex definitions.
-- Indexable pages remain indexable.
-- Noindex pages stay out of sitemap.
+### 3. Gallery/media contract stability
 
-Required gates:
+Must pass:
+- media inventory is valid
+- no duplicate IDs/URLs
+- all media URLs are HTTPS
+- required metadata fields exist for accessibility and SEO
+
+Gate:
+- `pnpm run test:gallery`
+
+### 4. SEO integrity
+
+Must pass:
+- sitemap and robots align with `shared/seo.ts`
+- indexable pages remain indexable
+- noindex routes remain excluded from sitemap
+
+Gates:
 - `pnpm run test:seo`
 - `pnpm run test:seo:onpage`
 - `pnpm run test:seo:links`
 - `pnpm run test:seo:schema`
 
-4. Design-system guard:
-- Shared UI avoids raw primitive drift where shadcn wrappers exist.
+### 5. Design-system and UI guardrails
 
-Required gate:
+Must pass:
+- shared component layers keep design-system consistency
+
+Gate:
 - `pnpm run test:design-system`
 
-5. Image integrity:
-- Local image references resolve.
-- Runtime image URLs return valid image responses.
+### 6. Image/runtime media integrity
 
-Required gate:
+Must pass:
+- source image references resolve
+- runtime image URLs respond correctly
+- key page image budgets remain within thresholds
+
+Gate:
 - `pnpm run test:images`
 
-6. Type and safety baseline:
-- TypeScript compiles.
-- Business-info safety checks pass.
-- Production build succeeds.
+### 7. Type and safety baseline
 
-Required gates:
+Must pass:
+- TypeScript compiles
+- business-info hardcoding guard passes
+- production build succeeds
+
+Gates:
 - `pnpm run check`
 - `pnpm run build`
 
-7. Performance gate:
-- Route bundle budgets pass.
-- Perf smoke routes pass before Lighthouse.
-- Lighthouse budget passes for target routes.
+### 8. Performance baseline
 
-Required gates:
+Must pass:
+- perf build starts correctly
+- bundle budgets pass
+- perf smoke route health passes
+- Lighthouse budget passes
+
+Gates:
 - `pnpm run build:perf`
 - `pnpm run test:bundle`
 - `pnpm run perf:smoke`
 - `pnpm run perf:lighthouse`
 
-8. Aggregate gate:
-- Full release gate passes in sequence.
+### 9. Convenience aggregate gate
 
-Required gate:
+Current script coverage:
 - `pnpm run test:production`
+
+Note:
+- `test:production` is a convenience gate and does not replace full perf/build verification.
+
+## Recommended release command sequence
+
+```bash
+pnpm run check
+pnpm run test:api
+pnpm run test:routes
+pnpm run test:gallery
+pnpm run test:design-system
+pnpm run test:images
+pnpm run test:seo:all
+pnpm run build
+pnpm run build:perf
+NEXT_DIST_DIR=.next-perf pnpm run test:bundle
+```
+
+Start perf server in a separate terminal:
+
+```bash
+PORT=3101 pnpm run start:perf
+```
+
+Then run:
+
+```bash
+PERF_BASE_URL=http://localhost:3101 pnpm run perf:smoke
+LIGHTHOUSE_BASE_URL=http://localhost:3101 LIGHTHOUSE_RUNS=3 pnpm run perf:lighthouse
+```
 
 ## Editorial consistency rule
 
-Doctor name formatting must follow one of:
+Doctor name format must be one of:
 - `Dr. Christopher B. Wong`
 - `Christopher B. Wong, DDS`
 
 Never combine `Dr.` and `DDS` in the same line.
 
-## Operational recommendations
+## Operational sync requirement
 
-- Run `pnpm run test:production` before merging to `main`.
-- Run Lighthouse against preview URL before production promotion.
-- Keep route metadata, redirects, and canonical config synchronized across:
-  - `shared/seo.ts`
-  - `shared/redirects.ts`
-  - `vercel.json`
-  - middleware behavior
-
-## References
-
-- [Next.js App Router migration](https://nextjs.org/docs/app/guides/migrating/app-router-migration)
-- [Next.js Metadata API](https://nextjs.org/docs/app/building-your-application/optimizing/metadata)
-- [Next.js metadata conventions](https://nextjs.org/docs/app/api-reference/file-conventions/metadata)
-- [Vercel redirects](https://vercel.com/docs/redirects)
-- [shadcn/ui docs](https://ui.shadcn.com/docs)
-- [WCAG 2.2 quick reference](https://www.w3.org/WAI/WCAG22/quickref/)
-- [Core Web Vitals](https://web.dev/articles/vitals)
+Keep route and canonical configuration aligned across:
+- `shared/seo.ts`
+- `shared/redirects.ts`
+- `middleware.ts`
+- `vercel.json`

@@ -16,12 +16,12 @@ const BlogPostCard = ({ post }: BlogPostCardProps) => {
   // Function to truncate content for preview
   const truncateContent = (content: string, maxLength: number = 120) => {
     if (content.length <= maxLength) return content;
-    return content.slice(0, maxLength) + '...';
+    return content.slice(0, maxLength) + "…";
   };
 
   return (
     <Card 
-      className="h-full bg-white rounded-xl border-0 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group" 
+      className="h-full bg-white rounded-xl border-0 shadow-sm hover:shadow-md transition-[box-shadow] duration-300 flex flex-col group" 
       id={post.slug}
     >
       {/* Image container with responsive height */}
@@ -44,14 +44,14 @@ const BlogPostCard = ({ post }: BlogPostCardProps) => {
       <CardContent className="p-5 flex-grow">
         {/* Date and reading time with subtle styling */}
         <div className="flex items-center text-xs text-gray-500 mb-3">
-          <Calendar className="h-3 w-3 mr-1.5 text-gray-400" />
+          <Calendar className="h-3 w-3 mr-1.5 text-gray-400" aria-hidden="true" />
           <span>{post.date}</span>
           
           {/* Optional reading time */}
           {post.readTime && (
             <>
               <span className="mx-2 text-gray-300">•</span>
-              <Clock className="h-3 w-3 mr-1.5 text-gray-400" />
+              <Clock className="h-3 w-3 mr-1.5 text-gray-400" aria-hidden="true" />
               <span>{post.readTime} min read</span>
             </>
           )}
@@ -68,11 +68,15 @@ const BlogPostCard = ({ post }: BlogPostCardProps) => {
         </p>
 
         {/* Read more link */}
-        <Link href={`/blog/${post.slug}`}>
-          <div className="inline-flex items-center text-sm font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer group/link">
-            <span>Read article</span>
-            <ArrowRight className="h-3.5 w-3.5 ml-1 transition-transform group-hover/link:translate-x-0.5" />
-          </div>
+        <Link
+          href={`/blog/${post.slug}`}
+          className="inline-flex items-center text-sm font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer group/link"
+        >
+          <span>Read article</span>
+          <ArrowRight
+            className="h-3.5 w-3.5 ml-1 transition-transform group-hover/link:translate-x-0.5"
+            aria-hidden="true"
+          />
         </Link>
       </CardContent>
     </Card>

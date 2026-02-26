@@ -14,6 +14,8 @@ Primary keyword mapping for canonical indexable URLs. This is the anti-cannibali
 | `/testimonials` | trust | palo alto dentist reviews | patient stories dentist, dental testimonials palo alto |
 | `/patient-stories` | trust | dental smile transformations palo alto | invisalign results palo alto, cosmetic dentistry cases |
 | `/blog` | blog | palo alto dental blog | oral health tips, family dentistry education |
+| `/gallery` | trust | palo alto dental office gallery | dentist office photos palo alto, dental office video tour |
+| `/changelog` | trust | christopher b wong dds website updates | dental website changelog, practice site updates |
 | `/contact` | trust | contact palo alto dentist | dentist phone number palo alto, dentist address |
 | `/schedule` | trust | schedule dentist appointment palo alto | book dental visit palo alto, new patient appointment |
 | `/invisalign` | service | invisalign palo alto | clear aligners palo alto, invisalign dentist near me |

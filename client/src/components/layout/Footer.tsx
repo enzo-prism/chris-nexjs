@@ -14,6 +14,7 @@ const Footer = () => {
     { href: "/services", label: "Services" },
     { href: "/patient-resources", label: "Patient Resources" },
     { href: "/patient-stories", label: "Patient Stories" },
+    { href: "/gallery", label: "Gallery" },
     { href: "/blog", label: "Blog" },
     { href: "/dentist-menlo-park", label: "Menlo Park Families" },
     { href: "/dentist-stanford", label: "Stanford Patients" },
@@ -28,6 +29,8 @@ const Footer = () => {
     { href: "/locations", label: "All Locations" },
     { href: "/contact", label: "Contact" }
   ];
+
+  const internalLinks = [{ href: "/changelog", label: "Changelog" }];
 
   const services = [
     { href: "/services#preventive-dentistry", label: "Preventive Dentistry" },
@@ -121,9 +124,12 @@ const Footer = () => {
                 {quickLinks.map((link, index) => (
                   <li key={index} className="text-sm text-white/80">
                     <Link href={link.href}>
-                      <span className="hover:text-white transition-colors cursor-pointer inline-flex items-center">
-                        {link.label}
-                        <ExternalLink className="ml-1 h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <span className="group inline-flex items-center hover:text-white transition-colors cursor-pointer">
+                        <span>{link.label}</span>
+                        <ExternalLink
+                          className="ml-1 h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100"
+                          aria-hidden="true"
+                        />
                       </span>
                     </Link>
                   </li>
@@ -177,6 +183,17 @@ const Footer = () => {
                 </Link>
               ))}
             </div>
+            {internalLinks.length > 0 ? (
+              <div className="mt-4 md:mt-0 flex flex-wrap items-center justify-center md:justify-end gap-2 text-[10px]">
+                {internalLinks.map((link, index) => (
+                  <Link key={`internal-${index}`} href={link.href}>
+                    <span className="text-white/30 hover:text-white/50 transition-colors cursor-pointer">
+                      {link.label}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            ) : null}
           </div>
         </div>
       </div>
@@ -308,6 +325,15 @@ const Footer = () => {
                 </Link>
               ))}
             </div>
+            {internalLinks.length > 0 ? (
+              <p className="mt-3 text-[10px] text-white/30">
+                <Link href={internalLinks[0].href}>
+                  <span className="hover:text-white/50 transition-colors cursor-pointer">
+                    {internalLinks[0].label}
+                  </span>
+                </Link>
+              </p>
+            ) : null}
           </div>
         </div>
       </div>

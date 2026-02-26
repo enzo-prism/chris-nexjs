@@ -171,7 +171,7 @@ const About = () => {
                           <button
                             type="button"
                             onClick={() => openWeddingModal(index)}
-                            className="h-full w-full text-left group"
+                            className="h-full w-full text-left group rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2"
                           >
                             <div className="relative h-full overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-2 sm:p-3 shadow-md">
                               <OptimizedImage
@@ -216,12 +216,12 @@ const About = () => {
               if (event.target === event.currentTarget) closeWeddingModal();
             }}
           >
-            <button
-              type="button"
-              onClick={closeWeddingModal}
-              className="absolute top-3 right-3 sm:top-4 sm:right-4 text-white/80 hover:text-white transition-colors p-2 z-30"
-              aria-label="Close wedding gallery"
-            >
+              <button
+                type="button"
+                onClick={closeWeddingModal}
+                className="absolute top-3 right-3 sm:top-4 sm:right-4 rounded-full text-white/80 hover:text-white hover:bg-white/10 focus-visible:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 active:scale-95 transition-colors p-2 z-30"
+                aria-label="Close wedding gallery"
+              >
               <X className="h-6 w-6" />
             </button>
 
@@ -229,7 +229,7 @@ const About = () => {
               <button
                 type="button"
                 onClick={() => goToWeddingImage("prev")}
-                className="bg-white/10 hover:bg-white/20 text-white/90 rounded-full p-3 shadow-md transition-colors pointer-events-auto"
+                className="bg-white/10 hover:bg-white/20 text-white/90 rounded-full p-3 shadow-md transition-[background-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 active:scale-95 pointer-events-auto"
                 aria-label="Previous wedding photo"
               >
                 <ArrowLeft className="h-5 w-5" />
@@ -239,7 +239,7 @@ const About = () => {
               <button
                 type="button"
                 onClick={() => goToWeddingImage("next")}
-                className="bg-white/10 hover:bg-white/20 text-white/90 rounded-full p-3 shadow-md transition-colors pointer-events-auto"
+                className="bg-white/10 hover:bg-white/20 text-white/90 rounded-full p-3 shadow-md transition-[background-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 active:scale-95 pointer-events-auto"
                 aria-label="Next wedding photo"
               >
                 <ArrowRight className="h-5 w-5" />

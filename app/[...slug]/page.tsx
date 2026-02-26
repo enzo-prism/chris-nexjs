@@ -183,5 +183,5 @@ export default function CatchAllPage({
     notFound();
   }
 
-  return <RouteShell ssrPath={canonicalPath} />;
+  return <RouteShell key={canonicalPath} ssrPath={canonicalPath} />;
 }

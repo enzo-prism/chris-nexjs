@@ -1,5 +1,6 @@
 import {
   useState,
+  useLayoutEffect,
   useEffect,
   useRef,
   type FocusEvent,
@@ -17,6 +18,7 @@ import {
   ArrowRight,
   Instagram,
 } from "lucide-react";
+import Image from "next/image";
 import { officeInfo } from "@/lib/data";
 import HolidayHoursNotice from "@/components/common/HolidayHoursNotice";
 import ButtonLink from "@/components/common/ButtonLink";
@@ -68,6 +70,7 @@ const navLinks: readonly NavLink[] = [
     ],
   },
   { href: "/patient-stories", label: "Patient Stories" },
+  { href: "/gallery", label: "Gallery" },
   { href: "/testimonials", label: "Testimonials" },
   { href: "/contact", label: "Contact" },
 ] as const;
@@ -84,12 +87,8 @@ const Header = () => {
     null,
   );
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
-  const [desktopCollapsed, setDesktopCollapsed] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
-  const navRowRef = useRef<HTMLDivElement>(null);
-  const desktopClusterRef = useRef<HTMLDivElement>(null);
-  const requiredRowWidthRef = useRef<number>(0);
-  const baselineHeaderHeightRef = useRef<number>(0);
+  const frameRef = useRef<number>(0);
 
   const isActive = (path: string): boolean => pathname === path;
   const isParentActive = (children?: readonly NavChild[]): boolean =>
@@ -111,99 +110,77 @@ const Header = () => {
 
   const closeDesktopSubmenu = () => setOpenDesktopSubmenu(null);
 
-  // Calculate and set header height based on actual rendered size.
-  // Keep a stable minimum height when the top bar collapses on scroll.
-  useEffect(() => {
+  const syncHeaderHeight = () => {
     const headerEl = headerRef.current;
     if (!headerEl) return;
 
-    const updateHeaderHeight = () => {
-      const measuredHeight = headerEl.offsetHeight;
-      if (!scrolled) {
-        baselineHeaderHeightRef.current = measuredHeight;
-      }
-      const effectiveHeight = scrolled
-        ? Math.max(measuredHeight, baselineHeaderHeightRef.current)
-        : measuredHeight;
-      document.documentElement.style.setProperty(
-        "--header-height",
-        `${effectiveHeight}px`,
-      );
+    const measuredHeight = Math.ceil(headerEl.getBoundingClientRect().height);
+    document.documentElement.style.setProperty(
+      "--header-height",
+      `${measuredHeight}px`,
+    );
+  };
+
+  const scheduleHeaderHeightUpdate = () => {
+    if (frameRef.current) {
+      window.cancelAnimationFrame(frameRef.current);
+    }
+
+    frameRef.current = window.requestAnimationFrame(() => {
+      frameRef.current = 0;
+      syncHeaderHeight();
+    });
+  };
+
+  // Calculate and set header height from the rendered header size before paint.
+  useLayoutEffect(() => {
+    const headerEl = headerRef.current;
+    if (!headerEl) return;
+
+    syncHeaderHeight();
+    scheduleHeaderHeightUpdate();
+
+    if (typeof document.fonts?.ready?.then === "function") {
+      document.fonts.ready.then(scheduleHeaderHeightUpdate).catch(() => {
+        scheduleHeaderHeightUpdate();
+      });
+    }
+
+    scheduleHeaderHeightUpdate();
+
+    const onResize = () => {
+      scheduleHeaderHeightUpdate();
     };
 
-    updateHeaderHeight();
+    window.addEventListener("resize", onResize);
 
-    let observer: ResizeObserver | null = null;
     if (typeof ResizeObserver !== "undefined") {
-      observer = new ResizeObserver(() => {
-        requestAnimationFrame(updateHeaderHeight);
+      const observer = new ResizeObserver(() => {
+        scheduleHeaderHeightUpdate();
       });
       observer.observe(headerEl);
+
+      return () => {
+        if (frameRef.current) {
+          window.cancelAnimationFrame(frameRef.current);
+        }
+        observer.disconnect();
+        window.removeEventListener("resize", onResize);
+      };
     }
 
-    window.addEventListener("resize", updateHeaderHeight);
     return () => {
-      observer?.disconnect();
-      window.removeEventListener("resize", updateHeaderHeight);
+      if (frameRef.current) {
+        window.cancelAnimationFrame(frameRef.current);
+      }
+      window.removeEventListener("resize", onResize);
     };
-  }, [scrolled]);
-
-  // Collapse desktop nav into hamburger if it overflows available width.
-  useEffect(() => {
-    const rowEl = navRowRef.current;
-    const clusterEl = desktopClusterRef.current;
-    if (!rowEl) return;
-
-    const updateCollapse = () => {
-      const isLgUp =
-        typeof window.matchMedia === "function"
-          ? window.matchMedia("(min-width: 1024px)").matches
-          : window.innerWidth >= 1024;
-      if (!isLgUp) {
-        requiredRowWidthRef.current = 0;
-        if (desktopCollapsed) setDesktopCollapsed(false);
-        return;
-      }
-
-      if (!desktopCollapsed) {
-        requiredRowWidthRef.current = rowEl.scrollWidth;
-      }
-
-      const requiredWidth = requiredRowWidthRef.current || rowEl.scrollWidth;
-      const availableWidth = rowEl.clientWidth;
-      const nextCollapsed = requiredWidth > availableWidth + 8;
-
-      if (isLgUp && !nextCollapsed && mobileMenuOpen) {
-        setMobileMenuOpen(false);
-      }
-
-      if (nextCollapsed !== desktopCollapsed) {
-        setDesktopCollapsed(nextCollapsed);
-      }
-    };
-
-    let resizeObserver: ResizeObserver | null = null;
-    if (typeof ResizeObserver !== "undefined") {
-      resizeObserver = new ResizeObserver(() => {
-        requestAnimationFrame(updateCollapse);
-      });
-      resizeObserver.observe(rowEl);
-      if (clusterEl) {
-        resizeObserver.observe(clusterEl);
-      }
-    }
-
-    window.addEventListener("resize", updateCollapse);
-    requestAnimationFrame(updateCollapse);
-
-    return () => {
-      resizeObserver?.disconnect();
-      window.removeEventListener("resize", updateCollapse);
-    };
-  }, [desktopCollapsed, mobileMenuOpen]);
+  }, [pathname, scrolled]);
 
   // Handle scroll effect for sticky header.
   useEffect(() => {
+    setScrolled(window.scrollY > 20);
+
     let frame = 0;
     const handleScroll = () => {
       if (frame) return;
@@ -233,6 +210,21 @@ const Header = () => {
     }
     return () => {
       document.body.style.overflow = "unset";
+    };
+  }, [mobileMenuOpen]);
+
+  // Keep mobile overlay closed once the desktop breakpoint is active.
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1280 && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+        setExpandedMenus([]);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
     };
   }, [mobileMenuOpen]);
 
@@ -388,23 +380,24 @@ const Header = () => {
         )}
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div ref={navRowRef} className="flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-4">
             {/* Logo */}
             <Link
               href="/"
               className={cn(
                 "group relative z-[102] min-w-0 shrink",
-                !desktopCollapsed && "lg:shrink-0",
+                "xl:shrink-0",
               )}
             >
               <div className="flex min-w-0 items-center gap-3">
                 <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white ring-1 ring-slate-200 transition-colors group-hover:bg-slate-50 sm:h-11 sm:w-11">
                   {!logoLoadFailed ? (
-                    <img
+                    <Image
                       src="/favicon.png"
                       alt="Christopher B. Wong, DDS logo"
                       width={256}
                       height={256}
+                      priority
                       className="h-full w-full object-contain p-1"
                       onError={() => setLogoLoadFailed(true)}
                     />
@@ -427,10 +420,8 @@ const Header = () => {
 
             {/* Desktop Navigation + CTA */}
             <div
-              ref={desktopClusterRef}
               className={cn(
-                "hidden flex-shrink-0 items-center gap-4 lg:flex xl:gap-6",
-                desktopCollapsed && "lg:hidden",
+                "hidden flex-shrink-0 items-center gap-4 xl:flex 2xl:gap-6",
               )}
             >
               <nav className="relative z-[102] flex items-center gap-4 xl:gap-6 2xl:gap-8">
@@ -541,7 +532,7 @@ const Header = () => {
               onClick={toggleMobileMenu}
               className={cn(
                 "relative z-50 h-auto w-auto rounded-md p-2 text-slate-900 transition-colors hover:bg-transparent hover:text-primary focus-visible:ring-primary focus-visible:ring-offset-2",
-                !desktopCollapsed && "lg:hidden",
+                "xl:hidden",
               )}
               aria-label="Toggle menu"
               aria-expanded={mobileMenuOpen}
@@ -562,8 +553,7 @@ const Header = () => {
         <div
           id="mobile-nav"
           className={cn(
-            "fixed inset-0 z-40 bg-[#0b1f3a] transition-opacity duration-200",
-            !desktopCollapsed && "lg:hidden",
+            "fixed inset-0 z-40 bg-[#0b1f3a] transition-opacity duration-200 xl:hidden",
           )}
         >
           <div

@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider } from "@/lib/helmet";
 import { Toaster } from "@/components/ui/toaster";
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import NotFound from "@/pages/not-found";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -61,6 +62,8 @@ import Locations from "@/pages/Locations";
 import Blog from "@/pages/Blog";
 import BlogPost from "@/pages/BlogPost";
 import PatientStories from "@/pages/PatientStories";
+import Changelog from "@/pages/Changelog";
+import Gallery from "@/pages/Gallery";
 
 const AnalyticsMinimal = React.lazy(() => import("@/pages/AnalyticsMinimal"));
 const GATestPage = React.lazy(() => import("@/pages/GATestPage"));
@@ -85,7 +88,7 @@ function Router() {
       <Header />
       <main
         id="main-content"
-        style={{ paddingTop: "var(--header-height, 136px)" }}
+        style={{ paddingTop: "var(--header-height, 110px)" }}
       >
         <React.Suspense fallback={<div className="min-h-[40vh]" />}>
           <Switch>
@@ -95,9 +98,11 @@ function Router() {
             <Route path="/patient-resources" component={PatientResources} />
             <Route path="/testimonials" component={Testimonials} />
             <Route path="/patient-stories" component={PatientStories} />
+            <Route path="/gallery" component={Gallery} />
             <Route path="/contact" component={Contact} />
             <Route path="/schedule" component={Schedule} />
             <Route path="/blog" component={Blog} />
+            <Route path="/changelog" component={Changelog} />
             <Route path="/thank-you" component={ThankYou} />
             <Route path="/privacy-policy" component={PrivacyPolicy} />
             <Route path="/terms" component={TermsOfService} />
@@ -148,6 +153,19 @@ type AppShellProps = {
   readonly helmetContext?: unknown;
 };
 
+function WouterPathSync() {
+  const pathname = usePathname() || "/";
+  const [location, navigate] = useLocation();
+
+  useEffect(() => {
+    if (pathname !== location) {
+      navigate(pathname, { replace: true });
+    }
+  }, [pathname, location, navigate]);
+
+  return null;
+}
+
 export function AppShell({
   ssrPath,
   queryClientOverride,
@@ -163,6 +181,7 @@ export function AppShell({
           <SitemapLink />
           <Favicons />
           <PreloadResources />
+          <WouterPathSync />
           <StructuredData
             data={[
               buildOrganizationSchema(),

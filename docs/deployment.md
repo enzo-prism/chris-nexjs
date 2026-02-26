@@ -1,61 +1,80 @@
 # Deployment Runbook (Vercel)
 
-This runbook defines how to deploy and verify this repository on Vercel.
+Release procedure for production-safe deployments.
 
 ## Preconditions
 
-- `main` contains all required changes.
-- CI checks are green.
-- Required environment variables are available.
+- Changes are merged to `main` or available in a preview branch.
+- Local or CI quality checks pass.
+- Required environment variables are configured in Vercel.
 
 ## Required environment variables
 
-- `DATABASE_URL` for Postgres/Neon persistence.
-- `GOOGLE_SITE_VERIFICATION` or `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` for Search Console metadata verification.
-- Analytics identifiers used by your active tracking setup.
+Core:
+- `DATABASE_URL` (required for Postgres/Neon mode; app can fall back to memory mode without it).
+
+Metadata and SEO:
+- `GOOGLE_SITE_VERIFICATION` or `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`.
+
+Optional script variables (for audits):
+- `SEO_AUDIT_BASE_URL`
+- `IMAGE_AUDIT_BASE_URL`
+- `LIGHTHOUSE_BASE_URL`
+- `LIGHTHOUSE_RUNS`
 
 ## Vercel project settings
 
-- Framework preset: Next.js
-- Build command: `pnpm run build`
-- Install command: `pnpm install`
-- Output: Next default output
+- Framework preset: Next.js.
+- Install command: `pnpm install`.
+- Build command: `pnpm run build`.
+- Output directory: default Next.js output.
 
 ## Deploy process
 
-1. Push changes to `main` (or open preview PR).
-2. Wait for Vercel build + deployment completion.
-3. Validate canonical redirect behavior:
-- apex host redirects to `www` host.
-4. Validate core routes:
-- `/`
-- `/services`
-- `/invisalign`
-- `/blog`
-- `/contact`
-5. Validate API smoke:
-- `/api/services`
-- `/api/blog-posts`
+1. Push changes or merge PR.
+2. Wait for Vercel build and deployment success.
+3. Verify canonical host behavior:
+  - `https://chriswongdds.com/*` redirects to `https://www.chriswongdds.com/*`.
+4. Smoke key pages:
+  - `/`
+  - `/services`
+  - `/invisalign`
+  - `/gallery`
+  - `/blog`
+  - `/changelog`
+  - `/contact`
+5. Smoke key APIs:
+  - `/api/services`
+  - `/api/blog-posts`
+  - `/api/testimonials`
+  - `/api/rss.xml`
 
-## Post-deploy verification
-
-Run these checks against preview or production URL:
+## Verification commands against preview or production
 
 ```bash
 SEO_AUDIT_BASE_URL=https://<deployment-domain> pnpm run test:seo:all
+IMAGE_AUDIT_BASE_URL=https://<deployment-domain> pnpm run test:images
 LIGHTHOUSE_BASE_URL=https://<deployment-domain> pnpm run check:lighthouse-budget
 ```
 
-## Rollback strategy
+## Rollback
 
 1. Re-promote last known-good deployment in Vercel.
-2. Re-run SEO and route smoke checks on rolled-back deployment.
-3. Open follow-up fix PR for root cause.
+2. Re-run route and SEO smoke checks on rolled-back build.
+3. Open a follow-up fix PR with root-cause notes.
 
-## Operational notes
+## Canonical/redirect ownership
 
-- Keep `/shared/seo.ts`, `/shared/redirects.ts`, middleware behavior, and `/vercel.json` synchronized for route/canonical changes.
-- Keep doctor naming format compliant in content updates:
-  - `Dr. Christopher B. Wong`
-  - `Christopher B. Wong, DDS`
-  - never `Dr. ... DDS` on one line.
+Keep these files aligned whenever routes or SEO paths change:
+- `shared/seo.ts`
+- `shared/redirects.ts`
+- `middleware.ts`
+- `vercel.json`
+
+## Editorial compliance note
+
+Allowed doctor naming:
+- `Dr. Christopher B. Wong`
+- `Christopher B. Wong, DDS`
+
+Do not combine `Dr.` and `DDS` on one line.

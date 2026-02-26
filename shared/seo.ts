@@ -127,6 +127,22 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     canonicalPath: "/blog",
     ogImage: "https://i.imgur.com/qK5nPtS.png",
   },
+  "/changelog": {
+    title: "Website Changelog | Christopher B. Wong, DDS",
+    description:
+      "Read recent website updates in simple language, from new features and design updates to important fixes.",
+    canonicalPath: "/changelog",
+    ogImage: DEFAULT_OG_IMAGE,
+    seoCluster: "trust",
+  },
+  "/gallery": {
+    title: "Photo & Video Gallery | Dr. Christopher B. Wong, DDS",
+    description:
+      "Take a look at our Palo Alto dental office, treatment rooms, and care-first environment through real photos and short walkthrough videos from Dr. Wong's team.",
+    canonicalPath: "/gallery",
+    ogImage: "https://i.imgur.com/mVvasLs.png",
+    seoCluster: "trust",
+  },
   "/contact": {
     title: "Contact | Palo Alto Dentist | Christopher B. Wong, DDS",
     description: `Contact Palo Alto dentist Dr. Christopher Wong at ${officeInfo.address.line1}, ${officeInfo.address.line2}. Call ${officeInfo.phone} to schedule your visit.`,
@@ -360,6 +376,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
 const PRIORITY_OVERRIDES: Record<string, number> = {
   "/": 1.0,
   "/services": 0.9,
+  "/changelog": 0.4,
   "/schedule": 0.9,
   "/blog": 0.8,
   "/about": 0.8,

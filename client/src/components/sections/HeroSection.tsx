@@ -28,8 +28,8 @@ const HeroSection = () => {
     <section
       className="bg-gradient-to-b from-[#0b1f3a] via-[#123a6b] to-white pb-16 md:pb-20 overflow-hidden relative"
       style={{
-        marginTop: "calc(var(--header-height, 136px) * -1)",
-        paddingTop: "var(--header-height, 136px)",
+        marginTop: "calc(var(--header-height, 110px) * -1)",
+        paddingTop: "var(--header-height, 110px)",
       }}
     >
       {/* Background accents */}
@@ -127,30 +127,16 @@ const HeroSection = () => {
           >
             {/* Main image with styling */}
             <div className="relative rounded-2xl overflow-hidden shadow-lg ring-1 ring-white/10 mb-12">
-              <picture>
-                <source
-                  type="image/avif"
-                  srcSet="/images/hero-office-640.avif 640w, /images/hero-office-960.avif 960w, /images/hero-office-1280.avif 1280w"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1280px) 60vw, 1280px"
-                />
-                <source
-                  type="image/webp"
-                  srcSet="/images/hero-office-640.webp 640w, /images/hero-office-960.webp 960w, /images/hero-office-1280.webp 1280w"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1280px) 60vw, 1280px"
-                />
-                <img
-                  src="/images/hero-office-1280.webp"
-                  srcSet="/images/hero-office-640.webp 640w, /images/hero-office-960.webp 960w, /images/hero-office-1280.webp 1280w"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1280px) 60vw, 1280px"
-                  width={960}
-                  height={720}
-                  loading="eager"
-                  decoding="async"
-                  fetchPriority="high"
-                  alt="Dr. Wong's modern Palo Alto dental office"
-                  className="w-full h-auto object-cover rounded-2xl aspect-[4/3]"
-                />
-              </picture>
+              <img
+                src="https://res.cloudinary.com/dhqpqfw6w/image/upload/v1762989226/Post-11_nohz6f.webp"
+                width={1280}
+                height={854}
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+                alt="Dr. Wong's modern Palo Alto dental office"
+                className="w-full h-auto object-cover rounded-2xl aspect-[4/3]"
+              />
 
               {/* Status badge */}
               <div className="absolute bottom-5 left-5 bg-white/95 px-4 py-2 rounded-full shadow-sm text-sm font-medium text-gray-900 flex items-center gap-2">

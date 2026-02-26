@@ -75,10 +75,10 @@ const NewsletterForm = () => {
             className="bg-white text-primary hover:bg-white/90 rounded-full px-3 min-w-[80px]"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "..." : (
+            {isSubmitting ? "Submitting…" : (
               <span className="flex items-center">
                 <span>Join</span>
-                <ArrowRight className="ml-1 h-3 w-3" />
+                <ArrowRight className="ml-1 h-3 w-3" aria-hidden="true" />
               </span>
             )}
           </Button>

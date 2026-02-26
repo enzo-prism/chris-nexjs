@@ -165,7 +165,7 @@ const Blog = () => {
                   <p className="text-[#333333] mb-6">{featuredDescription}</p>
                   <div className="mt-auto">
                     <Link href={`/blog/${featuredPost.slug}`}>
-                      <Button className="bg-primary text-white font-semibold hover:bg-blue-700 inline-flex items-center">
+                      <Button className="bg-primary text-white font-semibold hover:bg-primary/90 inline-flex items-center">
                         Read Full Article
                         <ArrowRight className="h-4 w-4 ml-2" />
                       </Button>
@@ -194,7 +194,7 @@ const Blog = () => {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full rounded-r-none"
                   />
-                  <Button type="submit" className="rounded-l-none bg-primary hover:bg-blue-700">
+                  <Button type="submit" className="rounded-l-none bg-primary hover:bg-primary/90">
                     <Search className="h-4 w-4" />
                   </Button>
                 </form>
@@ -207,7 +207,7 @@ const Blog = () => {
                     <li key={category.id}>
                       <button
                         onClick={() => setSelectedCategory(category.id)}
-                        className={`flex items-center w-full min-w-0 text-left py-2 px-3 rounded-md hover:bg-[#F5F9FC] transition-colors ${
+                        className={`flex items-center w-full min-w-0 text-left py-2 px-3 rounded-md hover:bg-[#F5F9FC] active:bg-[#EAF3FF] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
                           selectedCategory === category.id 
                             ? 'bg-primary text-white hover:bg-primary' 
                             : 'text-[#333333]'

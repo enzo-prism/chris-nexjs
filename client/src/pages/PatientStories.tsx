@@ -214,7 +214,7 @@ const CaseStory = ({ study, index, onShare, copiedId }: CaseStoryProps) => {
               <button
                 type="button"
                 onClick={() => onShare(study.id)}
-                className="inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-primary shadow-sm ring-1 ring-primary/20 transition hover:bg-white"
+                className="inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-primary shadow-sm ring-1 ring-primary/20 transition-[background-color,box-shadow,transform] hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-95"
                 aria-label={`Copy link to ${study.title}`}
               >
                 <Link2 className="h-3.5 w-3.5" aria-hidden="true" />

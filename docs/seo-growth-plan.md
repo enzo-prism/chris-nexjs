@@ -1,32 +1,43 @@
 # SEO Growth Program (Local Lead Focus)
 
-Operational SEO plan for sustainable local lead growth while protecting technical quality in CI.
+Operational SEO plan for sustained local lead growth while preserving technical quality.
 
-## 90-day objectives
+## Current baseline snapshot
+
+- Canonical SEO definitions: `44`
+- Indexable routes: `40`
+- Noindex routes: `4`
+  - `/zoom-whitening/schedule`
+  - `/thank-you`
+  - `/analytics`
+  - `/ga-test`
+- Metadata source of truth: `shared/seo.ts`
+
+## 90-day growth targets
 
 1. Increase non-brand local organic clicks by 25%.
-2. Increase organic CTR on primary service/location pages by 15%.
+2. Increase CTR on priority service/location pages by 15%.
 3. Increase organic conversions (calls + forms) by 20%.
 
 ## Technical success criteria
 
-1. All indexable routes from `getIndexablePaths()` are reachable and self-canonical.
-2. No noindex routes leak into sitemap output.
-3. At least 95% title-length compliance on indexable pages.
-4. At least 95% description-length compliance on indexable pages.
-5. Exactly one `<h1>` on each indexable page.
-6. Zero orphan indexable pages from root crawl.
-7. JSON-LD parses cleanly across audited routes.
+1. Every indexable route in `getIndexablePaths()` is reachable and self-canonical.
+2. No noindex route appears in sitemap.
+3. At least 95% title compliance and 95% description compliance.
+4. Exactly one `<h1>` per indexable route.
+5. Zero orphan indexable routes.
+6. JSON-LD parses cleanly across audited routes.
+7. Redirect chains resolve to canonical destinations in one hop when possible.
 
-## Enforced SEO gates
+## SEO gate commands
 
-Run all:
+Full suite:
 
 ```bash
 pnpm run test:seo:all
 ```
 
-Run individually:
+Individual:
 
 ```bash
 pnpm run test:seo
@@ -35,46 +46,62 @@ pnpm run test:seo:links
 pnpm run test:seo:schema
 ```
 
-Runtime audit base URL:
-- default: `SEO_AUDIT_BASE_URL=http://localhost:3000`
-- preview override:
+Runtime base URL:
+- default scripts use `http://localhost:3000`
+- local dev often runs on `5000`, so use:
 
 ```bash
-SEO_AUDIT_BASE_URL=https://preview-domain.vercel.app pnpm run test:seo:all
+SEO_AUDIT_BASE_URL=http://localhost:5000 pnpm run test:seo:all
 ```
 
-## CI policy
+Preview verification example:
 
-CI must fail if any SEO gate fails.
+```bash
+SEO_AUDIT_BASE_URL=https://<preview-domain>.vercel.app pnpm run test:seo:all
+```
 
-Current pipeline includes:
-1. Static SEO regression check.
-2. Runtime on-page audit.
-3. Runtime link-graph audit.
-4. Runtime structured-data audit.
+## Content and entity strategy
 
-## Content operations cadence
+1. Service pages:
+- keep one clear primary intent per URL
+- maintain unique value proposition and FAQ scope
+2. Location pages:
+- keep city-level uniqueness and internal service links
+3. Blog:
+- publish 2 to 4 high-intent posts monthly
+- each post must link to at least one service page and one related post
+4. Gallery page:
+- preserve accessibility metadata (`alt`, `title`, `description`) in media data model
+- keep media performance behavior stable (hero autoplay muted; in-grid click-to-play)
+5. Changelog page:
+- keep update transparency while maintaining clean metadata and crawl behavior
 
-1. Publish 2-4 high-intent posts monthly.
-2. Refresh top service/location pages every 6-8 weeks.
-3. Weekly Search Console review:
-- coverage/indexing drift
-- query opportunity mining
-- CTR drops by landing page
-4. Weekly Google Business Profile updates aligned to service taxonomy.
+## Weekly operating cadence
+
+1. Search Console:
+- coverage/indexing drift review
+- query opportunity review
+- CTR loss review by landing page
+2. Google Business Profile:
+- category and service alignment check
+- update posting cadence and response hygiene
+3. Content updates:
+- refresh top service/location pages every 6 to 8 weeks
+- align updates with query and conversion patterns
 
 ## Editorial guardrails
 
-1. Doctor naming style:
-- `Dr. Christopher B. Wong` or `Christopher B. Wong, DDS`
-- never `Dr. ... DDS` in the same line
-2. Every new blog article must include:
-- one internal service-page link
-- one related-post link
-- intent-aligned title/H1 and structured summary
+Doctor naming:
+- `Dr. Christopher B. Wong`
+- `Christopher B. Wong, DDS`
+
+Never use `Dr.` and `DDS` on one line.
 
 ## Ownership
 
-1. Engineering: metadata/canonical/schema/link integrity and gate maintenance.
-2. Marketing/content: content refreshes, FAQ updates, intent coverage.
-3. Operations: Search Console and GBP workflow plus monthly reporting.
+1. Engineering:
+- metadata, canonical, schema, redirects, SEO gate maintenance
+2. Content/marketing:
+- local intent pages, blog cadence, copy refreshes
+3. Operations:
+- Search Console and GBP workflow, monthly KPI reporting
