@@ -140,7 +140,11 @@ const extractUtmParams = (url: string): Record<string, string> => {
   }
 };
 
-const AppointmentForm = () => {
+type AppointmentFormProps = {
+  readonly className?: string;
+};
+
+const AppointmentForm = ({ className = "" }: AppointmentFormProps) => {
   const [status, setStatus] = useState<SubmitStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const hasTrackedStart = useRef(false);
@@ -323,7 +327,7 @@ const AppointmentForm = () => {
     <Form {...form}>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="space-y-6"
+        className={className ? `space-y-6 ${className}` : "space-y-6"}
         autoComplete="on"
       >
         <FormField
