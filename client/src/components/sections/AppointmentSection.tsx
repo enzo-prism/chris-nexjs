@@ -1,8 +1,7 @@
 import { CheckCircle, Phone } from "lucide-react";
-import TypeFormEmbed from "@/components/forms/TypeFormEmbed";
+import AppointmentForm from "@/components/forms/AppointmentForm";
 import { officeInfo } from "@/lib/data";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
 
 const AppointmentSection = () => {
   const fadeIn = {
@@ -34,7 +33,7 @@ const AppointmentSection = () => {
             Book Your Dental Visit Today
           </h2>
           <p className="text-[#333333] max-w-2xl mx-auto text-sm sm:text-base md:text-lg">
-            Schedule in minutes and get confirmation instantly
+            Send a quick request and our team will respond within one business day.
           </p>
         </motion.div>
         
@@ -112,14 +111,16 @@ const AppointmentSection = () => {
             {/* Right side - form section */}
             <div className="lg:w-3/5 p-6 sm:p-8 lg:p-12">
               <div className="max-w-lg mx-auto">
-                <h3 className="text-2xl sm:text-3xl font-bold font-heading text-[#333333] mb-2 sm:mb-4">Schedule Your Visit Now</h3>
-                <p className="text-[#333333] mb-6 text-sm sm:text-base">Complete this simple form to book your appointment. We'll confirm your visit right away.</p>
+                <h3 className="text-2xl sm:text-3xl font-bold font-heading text-[#333333] mb-2 sm:mb-4">Request an Appointment</h3>
+                <p className="text-[#333333] mb-6 text-sm sm:text-base">
+                  Complete this simple form and we&apos;ll confirm your appointment by call or text within one business day.
+                </p>
+                <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                  This should take about 30 seconds.
+                </p>
                 
-                {/* TypeForm embedded form */}
-                <TypeFormEmbed 
-                  formId="01JPZ57W1F3352Q1X0XK6P9SNV" 
-                  className="min-h-[320px] sm:min-h-[400px] md:min-h-[450px] w-full shadow-md rounded-lg" 
-                />
+                {/* Built-in scheduling form */}
+                <AppointmentForm />
                 
                 <p className="text-xs text-gray-500 mt-4 text-center">
                   Need assistance? Call us directly at {officeInfo.phone}

@@ -26,7 +26,8 @@ const FRIDAY_TIME_WINDOWS = WEEKDAY_TIME_WINDOWS.slice(0, 6);
 const selectClassName =
   "h-12 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
 
-const FORM_ENDPOINT = "https://formspree.io/f/mrebndyq";
+const FORM_ENDPOINT =
+  process.env.NEXT_PUBLIC_FORM_ENDPOINT ?? "https://formspree.io/f/xojnrjna";
 
 const getDayOfWeek = (value: string): number | null => {
   if (!value) return null;

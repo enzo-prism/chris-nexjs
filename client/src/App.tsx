@@ -21,6 +21,7 @@ import {
   buildPersonSchema,
   buildWebSiteSchema,
 } from "@/lib/structuredData";
+import PracticeAssistant from "@/components/chat/PracticeAssistant";
 import Home from "@/pages/Home";
 import About from "@/pages/About";
 import Services from "@/pages/Services";
@@ -82,14 +83,8 @@ function Router() {
   return (
     <>
       <ScrollToTop />
-      <a href="#main-content" className="skip-link">
-        Skip to main content
-      </a>
       <Header />
-      <main
-        id="main-content"
-        style={{ paddingTop: "var(--header-height, 110px)" }}
-      >
+      <main style={{ paddingTop: "var(--header-height, 110px)" }}>
         <React.Suspense fallback={<div className="min-h-[40vh]" />}>
           <Switch>
             <Route path="/" component={Home} />
@@ -142,6 +137,7 @@ function Router() {
         </React.Suspense>
         <SupplementalContent />
       </main>
+      <PracticeAssistant />
       <Footer />
     </>
   );

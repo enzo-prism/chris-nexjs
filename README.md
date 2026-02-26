@@ -7,6 +7,7 @@ The app runs on Next.js App Router with API route handlers, centralized SEO meta
 
 - Marketing pages, location pages, services, and blog content.
 - Interactive lead flows: appointment request, contact form, newsletter.
+- AI practice assistant at `POST /api/chat` with knowledge-first canned responses.
 - `/gallery` media showcase with hero video, click-to-play clips, and fullscreen lightbox.
 - `/changelog` page that merges update history from current and legacy repositories.
 
@@ -64,6 +65,13 @@ Core:
 Metadata/SEO:
 - `GOOGLE_SITE_VERIFICATION` or `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`.
 
+Chat / scheduling:
+- `CHAT_USE_AI_GATEWAY` + `AI_GATEWAY_API_KEY`
+- `AI_GATEWAY_MODEL` (`openai/gpt-4o-mini` recommended)
+- `VERCEL_AI_GATEWAY_BASE_URL` (optional)
+- `CHAT_USE_OPENAI` + `OPENAI_API_KEY` (legacy fallback)
+- `NEXT_PUBLIC_FORM_ENDPOINT` and `SCHEDULE_FORM_ENDPOINT` for Formspree-backed scheduling.
+
 Script URL overrides:
 - `SEO_AUDIT_BASE_URL` for runtime SEO scripts.
 - `IMAGE_AUDIT_BASE_URL` for image runtime audit.
@@ -89,6 +97,7 @@ Contract and quality checks:
 - `pnpm run test:design-system`
 - `pnpm run test:images`
 - `pnpm run test:gallery`
+- `pnpm run test:chatbot`
 
 SEO checks:
 - `pnpm run test:seo`
@@ -128,6 +137,8 @@ Write endpoints:
 - `POST /api/appointments`
 - `POST /api/contact`
 - `POST /api/newsletter`
+- `POST /api/chat`
+- `POST /api/schedule-request`
 
 ## SEO and canonical behavior
 
@@ -164,5 +175,6 @@ Never combine `Dr.` and `DDS` in the same line.
 - Production readiness spec: `/Users/enzo/chris-nextjs/docs/production-readiness-spec.md`
 - SEO growth plan: `/Users/enzo/chris-nextjs/docs/seo-growth-plan.md`
 - SEO keyword map: `/Users/enzo/chris-nextjs/docs/seo-keyword-map.md`
+- Chat strategy and success criteria: `/Users/enzo/chris-nextjs/docs/chatbot-strategy-and-success-criteria.md`
 - Gallery feature guide: `/Users/enzo/chris-nextjs/docs/gallery.md`
 - Changelog operations guide: `/Users/enzo/chris-nextjs/docs/changelog.md`

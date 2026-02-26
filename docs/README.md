@@ -30,6 +30,8 @@ Use this file as the central index for project documentation.
   `/gallery` media model, interaction rules, and QA checklist.
 - `changelog.md`  
   `/changelog` generation flow using GitHub CLI.
+- `chatbot-strategy-and-success-criteria.md`  
+  chatbot intent behavior, success criteria, and test expectations.
 
 ## Supporting project context
 

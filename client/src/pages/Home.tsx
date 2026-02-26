@@ -9,6 +9,7 @@ import { ArrowRight, BadgePercent, CheckCircle, Gift, Phone } from "lucide-react
 import Link from "next/link";
 import { Service, Testimonial } from "@shared/schema";
 import { officeInfo } from "@/lib/data";
+import AppointmentForm from "@/components/forms/AppointmentForm";
 import {
   buildFAQSchema,
   type FAQEntry,
@@ -20,10 +21,6 @@ const FeaturesSection = dynamic(
 );
 const AboutDoctorSection = dynamic(
   () => import("@/components/sections/AboutDoctorSection"),
-  { ssr: false, loading: () => null },
-);
-const TypeFormEmbed = dynamic(
-  () => import("@/components/forms/TypeFormEmbed"),
   { ssr: false, loading: () => null },
 );
 const FAQSection = dynamic(
@@ -563,8 +560,7 @@ const Home = (props: any) => {
                   Fill out the form below to schedule your appointment. We'll
                   get back to you promptly to confirm your visit.
                 </p>
-                <TypeFormEmbed
-                  formId="01JPZ57W1F3352Q1X0XK6P9SNV"
+                <AppointmentForm
                   className="min-h-[320px] w-full sm:min-h-[400px]"
                 />
               </div>

@@ -18,6 +18,7 @@ import {
   buildPersonSchema,
   buildWebSiteSchema,
 } from "@/lib/structuredData";
+import PracticeAssistant from "@/components/chat/PracticeAssistant";
 
 const GoogleAnalytics = dynamic(
   () => import("@/components/common/GoogleAnalytics"),
@@ -84,18 +85,13 @@ export function AppPageShell({
         ]}
         id="global-organization-schema"
       />
-      <a href="#main-content" className="skip-link">
-        Skip to main content
-      </a>
       <Header />
-      <main
-        id="main-content"
-        style={{ paddingTop: "var(--header-height, 110px)" }}
-      >
+      <main style={{ paddingTop: "var(--header-height, 110px)" }}>
         {children}
       </main>
       <Footer />
       <SupplementalContent />
+      <PracticeAssistant />
     </WouterRouter>
   );
 

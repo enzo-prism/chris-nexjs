@@ -19,6 +19,8 @@ Command reference for contract, UI, SEO, and performance checks.
 
 - `pnpm run test:api`
   - Verifies API handlers for status codes and key payload semantics.
+- `pnpm run test:chatbot`
+  - Verifies chatbot request validation, intent handling, fallback behavior, and LLM JSON sanitization.
 - `pnpm run test:routes`
   - Verifies canonical metadata, redirects, and dynamic blog route behavior.
 

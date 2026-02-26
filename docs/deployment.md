@@ -49,6 +49,34 @@ Optional script variables (for audits):
   - `/api/testimonials`
   - `/api/rss.xml`
 
+## Vercel CLI workflow
+
+From a synced `main` branch:
+
+```bash
+vercel link
+vercel env pull .env.local
+```
+
+Optional: sync local environment for preview validation:
+
+```bash
+VERCEL_ORG_ID=... VERCEL_PROJECT_ID=... vercel deploy --prebuilt
+```
+
+Production deploy:
+
+```bash
+vercel deploy --prod
+```
+
+Useful flags:
+
+- `vercel deploy --dry-run` to validate config before upload.
+- `vercel deploy --confirm` to skip interactive prompts in CI.
+- `vercel logs <deployment-url>` to inspect runtime errors.
+- `vercel --scope=<team-slug> --prod` for team-scoped projects.
+
 ## Verification commands against preview or production
 
 ```bash
@@ -70,6 +98,11 @@ Keep these files aligned whenever routes or SEO paths change:
 - `shared/redirects.ts`
 - `middleware.ts`
 - `vercel.json`
+
+## Deployment source of truth check
+
+- Keep `.vercel/project.json` aligned with your selected production project.
+- Verify any new routing, environment, or redirects through the Vercel dashboard after each deploy.
 
 ## Editorial compliance note
 
