@@ -10,6 +10,7 @@ Use this file as the central index for project documentation.
   Local setup and development workflows.
 - `deployment.md`  
   Vercel deployment runbook.
+  Includes push-domain verification for production aliases.
 - `testing.md`  
   Test matrix and release command sets.
 - `performance.md`  

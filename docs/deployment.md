@@ -49,6 +49,25 @@ Optional script variables (for audits):
   - `/api/testimonials`
   - `/api/rss.xml`
 
+## Push-domain deployment notes
+
+After a production push:
+
+- Confirm the main production URL for this project in Vercel (typically `https://chris-nextjs.vercel.app` in this environment).
+- Confirm redirect and canonical behavior from push domain to canonical host:
+  - `https://chris-nextjs.vercel.app/` should render the app successfully.
+  - Canonical redirect for `https://chriswongdds.com/*` should still land on `https://www.chriswongdds.com/*`.
+- Confirm API reachability from push domain:
+  - `https://chris-nextjs.vercel.app/api/chat`
+  - `https://chris-nextjs.vercel.app/api/schedule-request`
+
+Useful commands:
+
+```bash
+vercel alias list
+vercel inspect chris-nextjs
+```
+
 ## Vercel CLI workflow
 
 From a synced `main` branch:
