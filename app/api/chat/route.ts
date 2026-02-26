@@ -352,40 +352,46 @@ function sanitizeActions(raw: unknown): readonly ChatAction[] {
     return [];
   }
 
-  return raw
-    .map((entry) => {
-      if (entry === null || typeof entry !== "object") {
-        return null;
-      }
+  const actionCandidates: ChatAction[] = [];
 
-      const action = entry as {
-        readonly label?: unknown;
-        readonly href?: unknown;
-        readonly external?: unknown;
-      };
+  for (const entry of raw) {
+    if (entry === null || typeof entry !== "object") {
+      continue;
+    }
 
-      if (typeof action.label !== "string" || typeof action.href !== "string") {
-        return null;
-      }
+    const action = entry as {
+      readonly label?: unknown;
+      readonly href?: unknown;
+      readonly external?: unknown;
+    };
 
-      if (action.label.trim().length < 1 || action.href.trim().length < 1) {
-        return null;
-      }
+    if (typeof action.label !== "string" || typeof action.href !== "string") {
+      continue;
+    }
 
-      return {
-        label: action.label.trim(),
-        href: action.href.trim(),
-        external: action.external === true,
-      };
-    })
-    .filter((action): action is ChatAction => action !== null)
-    .filter((action) => action.label.length <= 80)
-    .filter((action) =>
-      /^(\/(?!\/)|#|mailto:|tel:|https?:\/\/)/i.test(action.href),
-    )
-    .filter((action) => !action.href.toLowerCase().startsWith("javascript:"))
-    .filter((action) => !action.href.toLowerCase().includes("data:"))
-    .slice(0, 4);
+    const label = action.label.trim();
+    const href = action.href.trim();
+
+    if (label.length < 1 || href.length < 1 || label.length > 80) {
+      continue;
+    }
+
+    if (
+      !/^(\/(?!\/)|#|mailto:|tel:|https?:\/\/)/i.test(href) ||
+      href.toLowerCase().startsWith("javascript:") ||
+      href.toLowerCase().includes("data:")
+    ) {
+      continue;
+    }
+
+    actionCandidates.push({
+      label,
+      href,
+      external: action.external === true,
+    });
+  }
+
+  return actionCandidates.slice(0, 4);
 }
 
 function sanitizePrompts(raw: unknown): readonly string[] {
