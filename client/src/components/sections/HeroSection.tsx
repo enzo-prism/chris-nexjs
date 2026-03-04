@@ -3,6 +3,7 @@ import ButtonLink from "@/components/common/ButtonLink";
 import { motion } from "@/lib/motion-lite";
 import { officeInfo } from "@/lib/data";
 import OptimizedImage from "@/components/seo/OptimizedImage";
+import AnimatedDentalAura from "@/components/common/animated/AnimatedDentalAura";
 
 const HERO_IMAGE_SRC =
   "https://res.cloudinary.com/dhqpqfw6w/image/upload/f_auto,q_auto:eco,w_1120/v1762989226/Post-11_nohz6f";
@@ -42,6 +43,14 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-[radial-gradient(2px_2px_at_20%_30%,rgba(147,197,253,0.14),transparent),radial-gradient(2px_2px_at_70%_60%,rgba(147,197,253,0.16),transparent),radial-gradient(1.5px_1.5px_at_40%_80%,rgba(255,255,255,0.15),transparent)]" />
         <div className="absolute -right-32 -top-48 h-72 w-72 rounded-full bg-gradient-to-br from-[#93c5fd]/20 to-transparent blur-3xl" />
         <div className="absolute -bottom-48 -left-32 h-80 w-80 rounded-full bg-gradient-to-tr from-[#60a5fa]/15 to-transparent blur-3xl" />
+        <AnimatedDentalAura
+          idPrefix="hero-aura-primary"
+          className="absolute -right-20 top-16 hidden h-64 w-64 text-sky-100/75 lg:block"
+        />
+        <AnimatedDentalAura
+          idPrefix="hero-aura-secondary"
+          className="absolute -left-20 bottom-12 hidden h-52 w-52 text-blue-100/65 md:block lg:hidden"
+        />
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-6 sm:pt-8 lg:pt-10">

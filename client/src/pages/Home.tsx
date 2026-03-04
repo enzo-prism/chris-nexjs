@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import HeroSection from "@/components/sections/HeroSection";
 import StructuredData from "@/components/seo/StructuredData";
 import ButtonLink from "@/components/common/ButtonLink";
+import AnimatedFlowDivider from "@/components/common/animated/AnimatedFlowDivider";
 import {
   ArrowRight,
   BadgePercent,
@@ -467,6 +468,15 @@ const Home = (props: any) => {
           </div>
         </div>
       </section>
+
+      <div className="bg-white">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <AnimatedFlowDivider
+            idPrefix="home-offers-testimonials-divider"
+            className="mx-auto h-16 max-w-4xl text-sky-500/55"
+          />
+        </div>
+      </div>
 
       {/* Patient Testimonials Spotlight */}
       <section className="relative overflow-hidden bg-gradient-to-b from-[#F4F8FC] via-white to-[#F8FBFF] py-16 md:py-24">

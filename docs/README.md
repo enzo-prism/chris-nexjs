@@ -34,6 +34,8 @@ Use this file as the central index for project documentation.
 
 - `gallery.md`  
   `/gallery` media model, no-crop frame strategy, Cloudinary still-image pack, and QA checklist.
+- `svg-animation-system.md`
+  Custom SVG components, motion hooks, reduced-motion behavior, and placement map.
 - `reviews-data.md`
   Google reviews import pipeline, data quality profile, and integrity checks.
 - `changelog.md`  

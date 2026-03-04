@@ -34,6 +34,10 @@ Command reference for contract, UI, SEO, and performance checks.
     - required alt/title/description metadata
     - no duplicate video posters
     - no overlap between video posters and still-image tile sources
+- SVG animation surfaces (manual QA):
+  - verify decorative accents are visible but non-blocking on desktop/tablet/mobile
+  - verify `prefers-reduced-motion: reduce` disables SVG movement
+  - verify no CTA or readable copy is obscured by animated SVG layers
 - `pnpm run test:reviews`
   - Verifies generated Google review seed data integrity:
     - generated count matches raw export count

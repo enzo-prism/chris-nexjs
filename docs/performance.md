@@ -36,6 +36,13 @@ Feature route:
 - Pause in-grid clips when out of viewport.
 - Non-hero clips use `preload="none"`.
 
+## SVG animation performance policy
+
+- Prefer CSS-first motion for decorative SVG accents.
+- Animate wrapper containers for transform-heavy effects to improve smoothness.
+- Keep SVG precision compact and avoid duplicate geometry.
+- Disable motion under `prefers-reduced-motion: reduce`.
+
 ## Scripts
 
 - `scripts/bundle-budget.test.mjs`

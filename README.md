@@ -10,6 +10,7 @@ The app runs on Next.js App Router with API route handlers, centralized SEO meta
 - No production chat widget or `/api/chat` endpoint in current launch scope.
 - `/gallery` media showcase with hero video, click-to-play clips, fullscreen lightbox, and no-crop still-image frames.
 - `/changelog` page that merges update history from current and legacy repositories.
+- Homepage visual accents powered by reusable SVG animation components with reduced-motion support.
 
 ## Architecture at a glance
 
@@ -30,6 +31,7 @@ The app runs on Next.js App Router with API route handlers, centralized SEO meta
 
 - `app/`: route segments, metadata, sitemap, robots, API handlers.
 - `client/src/`: page components, UI components, hooks, and data modules.
+  - includes reusable animated SVG accents under `client/src/components/common/animated/`
 - `server/`: storage contract + DB/memory implementations.
 - `shared/`: schemas, redirects, office info, SEO definitions.
 - `scripts/`: test gates and operational audit scripts.
@@ -215,3 +217,4 @@ Never combine `Dr.` and `DDS` in the same line.
 - Gallery feature guide: `/Users/enzo/chris-nextjs/docs/gallery.md`
 - Review data runbook: `/Users/enzo/chris-nextjs/docs/reviews-data.md`
 - Changelog operations guide: `/Users/enzo/chris-nextjs/docs/changelog.md`
+- SVG animation system guide: `/Users/enzo/chris-nextjs/docs/svg-animation-system.md`

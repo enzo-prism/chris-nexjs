@@ -60,6 +60,12 @@ pnpm run test:design-system
 pnpm run test:images
 ```
 
+Visual motion checks (when SVG/UI animation is touched):
+
+1. Run the app in dev and verify key animated surfaces at `sm`, `md`, and `lg` breakpoints.
+2. Toggle OS/browser reduced-motion preference and confirm decorative SVG accents stop animating.
+3. Confirm accents do not overlap critical copy or CTA controls.
+
 SEO checks:
 
 ```bash
