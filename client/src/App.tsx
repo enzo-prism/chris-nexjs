@@ -6,6 +6,7 @@ import { HelmetProvider } from "@/lib/helmet";
 import { Toaster } from "@/components/ui/toaster";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import dynamic from "next/dynamic";
 import NotFound from "@/pages/not-found";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -67,6 +68,10 @@ import Gallery from "@/pages/Gallery";
 
 const AnalyticsMinimal = React.lazy(() => import("@/pages/AnalyticsMinimal"));
 const GATestPage = React.lazy(() => import("@/pages/GATestPage"));
+const AnalyticsConsentBanner = dynamic(
+  () => import("@/components/common/AnalyticsConsentBanner"),
+  { ssr: false, loading: () => null },
+);
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -171,6 +176,7 @@ export function AppShell({
       <HelmetProvider context={helmetContext}>
         <WouterRouter ssrPath={ssrPath}>
           <GoogleAnalytics />
+          <AnalyticsConsentBanner />
           <HotjarTracking />
           <SitemapLink />
           <Favicons />

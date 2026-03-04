@@ -25,6 +25,11 @@ const HotjarTracking = dynamic(
   { ssr: false, loading: () => null },
 );
 
+const AnalyticsConsentBanner = dynamic(
+  () => import("@/components/common/AnalyticsConsentBanner"),
+  { ssr: false, loading: () => null },
+);
+
 type AppPageShellProps = {
   readonly ssrPath?: string;
   readonly queryClientOverride?: QueryClient;
@@ -72,6 +77,7 @@ export function AppPageShell({
       <WouterPathSync />
       <ScrollToTop />
       <GoogleAnalytics />
+      <AnalyticsConsentBanner />
       <HotjarTracking />
       <StructuredData
         data={[

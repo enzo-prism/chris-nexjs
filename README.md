@@ -186,6 +186,7 @@ Write endpoints:
 - Consent Mode v2 defaults:
   - granted outside EEA/UK
   - denied for EEA/UK regions until consent is granted
+- Consent choices can be updated from the in-app banner (`Accept Analytics` / `Decline`) and are applied through `window.setAnalyticsConsent(...)`.
 - Consent state is persisted in `localStorage` under `analytics_consent`.
 
 ## Naming rule (editorial and compliance)
