@@ -1,14 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import HeroSection from "@/components/sections/HeroSection";
 import StructuredData from "@/components/seo/StructuredData";
 import ButtonLink from "@/components/common/ButtonLink";
-import { ArrowRight, BadgePercent, CheckCircle, Gift, Phone } from "lucide-react";
+import {
+  ArrowRight,
+  BadgePercent,
+  CheckCircle,
+  ChevronLeft,
+  ChevronRight,
+  Gift,
+  Phone,
+  Quote,
+} from "lucide-react";
 import Link from "next/link";
 import { Service, Testimonial } from "@shared/schema";
 import { officeInfo } from "@/lib/data";
+import { isNoAdditionalCommentPlaceholder } from "@/lib/testimonialText";
 import {
   buildFAQSchema,
   type FAQEntry,
@@ -28,10 +38,6 @@ const FAQSection = dynamic(
 );
 const ServiceCard = dynamic(
   () => import("@/components/common/ServiceCard"),
-  { ssr: false, loading: () => null },
-);
-const TestimonialCard = dynamic(
-  () => import("@/components/common/TestimonialCard"),
   { ssr: false, loading: () => null },
 );
 const AppointmentForm = dynamic(
@@ -57,17 +63,31 @@ const Home = (props: any) => {
     initialServices = [],
     initialTestimonials = [],
   } = (props ?? {}) as HomeProps;
-  const testimonialsToShow = initialTestimonials.slice(0, 4);
+  const testimonialsToShow = initialTestimonials.slice(0, 10);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const testimonialCount = testimonialsToShow.length;
 
-  const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
-    if (testimonialsToShow.length === 0) return;
-    const container = event.currentTarget;
-    const cardWidth = container.firstElementChild?.clientWidth ?? 1;
-    const scrollLeft = container.scrollLeft;
-    const index = Math.round(scrollLeft / cardWidth);
-	    setActiveTestimonial(Math.min(Math.max(index, 0), testimonialsToShow.length - 1));
-	  };
+  const getWrappedIndex = (index: number) => {
+    if (testimonialCount === 0) return 0;
+    return (index + testimonialCount) % testimonialCount;
+  };
+
+  const goToPreviousTestimonial = () => {
+    if (testimonialCount === 0) return;
+    setActiveTestimonial((current) => getWrappedIndex(current - 1));
+  };
+
+  const goToNextTestimonial = () => {
+    if (testimonialCount === 0) return;
+    setActiveTestimonial((current) => getWrappedIndex(current + 1));
+  };
+
+  useEffect(() => {
+    if (!testimonialCount) return;
+    if (activeTestimonial > testimonialCount - 1) {
+      setActiveTestimonial(0);
+    }
+  }, [activeTestimonial, testimonialCount]);
 
     const homeFaqs: FAQEntry[] = [
       {
@@ -404,44 +424,140 @@ const Home = (props: any) => {
       </section>
 
       {/* Patient Testimonials Spotlight */}
-      <section className="py-16 md:py-20 bg-gradient-to-b from-white via-[#F5F9FC] to-white">
+      <section className="relative overflow-hidden py-16 md:py-24 bg-gradient-to-b from-[#F3F7FB] via-white to-[#F8FBFF]">
+        <div
+          className="pointer-events-none absolute left-1/2 top-12 h-72 w-72 -translate-x-1/2 rounded-full bg-[#DBEAFE]/60 blur-3xl"
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute -right-16 bottom-10 h-56 w-56 rounded-full bg-[#FEE2E2]/40 blur-3xl"
+          aria-hidden="true"
+        />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold font-heading text-[#1F2933]">Loved by our patients</h2>
+          <div className="relative text-center mb-12 md:mb-14">
+            <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-[#CBD5E1] bg-white/90 px-4 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#334155]">
+              <Quote className="h-3.5 w-3.5 text-primary" />
+              Testimonials
+            </div>
+            <h2 className="mt-4 text-3xl md:text-5xl font-bold font-heading text-[#1F2933]">
+              What Our Patients Say
+            </h2>
+            <p className="mt-4 text-base md:text-xl text-slate-600 max-w-2xl mx-auto">
+              Real stories from families who trust us with their smiles.
+            </p>
           </div>
 
-          <div className="w-full">
-            <div
-              className="-mx-4 flex snap-x snap-mandatory gap-6 overflow-x-auto pb-6 sm:hidden"
-              onScroll={handleScroll}
-            >
-              {testimonialsToShow.map((testimonial, index) => (
-                <div
-                  key={`${testimonial.id}-${index}`}
-                  className="snap-center shrink-0 basis-full px-4"
-                  style={{ minWidth: "0" }}
+          {testimonialCount > 0 && (
+            <div className="relative mx-auto max-w-5xl">
+              <div className="pointer-events-none absolute left-4 top-1/2 hidden -translate-y-1/2 lg:block">
+                <button
+                  type="button"
+                  aria-label="Previous testimonial"
+                  className="pointer-events-auto inline-flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:border-slate-300 hover:text-slate-700"
+                  onClick={goToPreviousTestimonial}
                 >
-                  <TestimonialCard testimonial={testimonial} index={index} />
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+              </div>
+              <div className="pointer-events-none absolute right-4 top-1/2 hidden -translate-y-1/2 lg:block">
+                <button
+                  type="button"
+                  aria-label="Next testimonial"
+                  className="pointer-events-auto inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white shadow-sm transition-colors hover:bg-primary/90"
+                  onClick={goToNextTestimonial}
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
+              </div>
+
+              <article className="relative rounded-[2rem] border border-slate-200 bg-white/90 px-6 pb-10 pt-8 shadow-[0_25px_55px_-35px_rgba(15,23,42,0.45)] sm:px-10 md:px-16 md:pb-12 md:pt-10">
+                <div className="flex items-center justify-center gap-3">
+                  <div className="rounded-2xl border border-slate-200 bg-white p-2.5 text-primary">
+                    <Quote className="h-5 w-5" />
+                  </div>
+                  <div className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-amber-600">
+                    {Array.from({ length: 5 }).map((_, starIndex) => (
+                      <span key={`active-star-${starIndex}`} className="text-base leading-none">
+                        {starIndex < testimonialsToShow[activeTestimonial].rating ? "★" : "☆"}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              ))}
-            </div>
 
-            <div className="mt-4 flex items-center justify-center gap-2 sm:hidden">
-              {testimonialsToShow.map((_, index) => (
-                <span
-                  key={`dot-${index}`}
-                  className={`h-2.5 w-2.5 rounded-full transition-[width,background-color] ${
-                    activeTestimonial === index ? "bg-primary w-3" : "bg-slate-300"
-                  }`}
-                />
-              ))}
-            </div>
+                {!isNoAdditionalCommentPlaceholder(testimonialsToShow[activeTestimonial].text) && (
+                  <p className="mx-auto mt-8 max-w-3xl text-center text-2xl font-light italic leading-relaxed text-slate-700 md:text-[2rem] md:leading-[1.45]">
+                    &ldquo;{testimonialsToShow[activeTestimonial].text}&rdquo;
+                  </p>
+                )}
 
-            <div className="hidden grid-cols-2 gap-6 sm:grid xl:grid-cols-4">
-              {testimonialsToShow.map((testimonial, index) => (
-                <TestimonialCard key={`${testimonial.id}-${index}`} testimonial={testimonial} index={index} />
-              ))}
+                <div className="mx-auto mt-8 h-px w-20 bg-slate-300" />
+                <div className="mt-6 text-center">
+                  <p className="text-2xl font-semibold text-slate-900">
+                    {testimonialsToShow[activeTestimonial].name}
+                  </p>
+                  <p className="mt-1 text-sm font-medium uppercase tracking-[0.12em] text-slate-500">
+                    {testimonialsToShow[activeTestimonial].location || "Google Review"}
+                  </p>
+                </div>
+
+                <div className="mt-8 flex items-center justify-center gap-3 lg:hidden">
+                  <button
+                    type="button"
+                    aria-label="Previous testimonial"
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition-colors hover:border-slate-300 hover:text-slate-800"
+                    onClick={goToPreviousTestimonial}
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Next testimonial"
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white shadow-sm transition-colors hover:bg-primary/90"
+                    onClick={goToNextTestimonial}
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+                </div>
+              </article>
+
+              {testimonialCount > 2 && (
+                <div className="mt-6 hidden lg:grid grid-cols-2 gap-4">
+                  {[-1, 1].map((offset) => {
+                    const cardIndex = getWrappedIndex(activeTestimonial + offset);
+                    const card = testimonialsToShow[cardIndex];
+                    return (
+                      <div
+                        key={`preview-${card.id}-${offset}`}
+                        className="rounded-2xl border border-slate-200/80 bg-white/70 px-5 py-4 text-left shadow-sm"
+                      >
+                        <p className="text-sm font-semibold text-slate-900">{card.name}</p>
+                        <p className="mt-2 line-clamp-2 text-sm text-slate-600">
+                          {isNoAdditionalCommentPlaceholder(card.text)
+                            ? "Rated on Google"
+                            : card.text}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
+          )}
+
+          <div className="mt-8 flex items-center justify-center gap-2">
+            {testimonialsToShow.map((testimonial, index) => (
+              <button
+                key={`carousel-dot-${testimonial.id}-${index}`}
+                type="button"
+                aria-label={`Go to testimonial ${index + 1}`}
+                onClick={() => setActiveTestimonial(index)}
+                className={`h-2.5 rounded-full transition-all duration-300 ${
+                  activeTestimonial === index
+                    ? "w-8 bg-primary"
+                    : "w-2.5 bg-slate-300 hover:bg-slate-400"
+                }`}
+              />
+            ))}
           </div>
 
           <div className="mt-12 flex justify-center">
