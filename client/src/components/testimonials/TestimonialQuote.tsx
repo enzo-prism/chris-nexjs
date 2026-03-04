@@ -1,6 +1,7 @@
 import { Quote, Star } from "lucide-react";
 import type { InsertTestimonial } from "@shared/schema";
 import { cn } from "@/lib/utils";
+import { isNoAdditionalCommentPlaceholder } from "@/lib/testimonialText";
 
 interface TestimonialQuoteProps {
   testimonial: InsertTestimonial;
@@ -10,6 +11,8 @@ interface TestimonialQuoteProps {
 
 const TestimonialQuote = ({ testimonial, className, hideStars = false }: TestimonialQuoteProps) => {
   const { name, text, rating } = testimonial;
+  const hasVisibleText =
+    text.trim().length > 0 && !isNoAdditionalCommentPlaceholder(text);
 
   return (
     <div
@@ -19,9 +22,11 @@ const TestimonialQuote = ({ testimonial, className, hideStars = false }: Testimo
       )}
     >
       <Quote className="h-8 w-8 text-primary/40" />
-      <p className="mt-4 text-sm leading-relaxed text-slate-700 sm:text-base">
-        "{text}"
-      </p>
+      {hasVisibleText && (
+        <p className="mt-4 text-sm leading-relaxed text-slate-700 sm:text-base">
+          "{text}"
+        </p>
+      )}
       <div className="mt-6 flex flex-col gap-2 text-sm sm:text-base">
         {!hideStars && (
           <div className="flex text-blue-500">

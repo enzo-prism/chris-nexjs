@@ -3,6 +3,7 @@ import { Star, Quote } from "lucide-react";
 import { Testimonial } from "@shared/schema";
 import { motion } from "framer-motion";
 import OptimizedImage from "@/components/seo/OptimizedImage";
+import { isNoAdditionalCommentPlaceholder } from "@/lib/testimonialText";
 
 interface TestimonialCardProps {
   testimonial: Testimonial;
@@ -20,6 +21,8 @@ const TestimonialCard = ({ testimonial, index = 0, disableAnimation = false }: T
   ];
   const gradientClass = gradients[index % gradients.length];
   const hasImage = Boolean(image && image.trim().length > 0);
+  const hasVisibleText =
+    text.trim().length > 0 && !isNoAdditionalCommentPlaceholder(text);
 
   const content = (
     <Card className="ui-card-interactive relative h-full overflow-hidden border">
@@ -41,9 +44,11 @@ const TestimonialCard = ({ testimonial, index = 0, disableAnimation = false }: T
           ))}
         </div>
 
-        <p className="text-gray-700 mb-6 text-sm sm:text-base leading-relaxed">
-          "{text}"
-        </p>
+        {hasVisibleText && (
+          <p className="text-gray-700 mb-6 text-sm sm:text-base leading-relaxed">
+            "{text}"
+          </p>
+        )}
 
         <div className="flex items-center">
           {hasImage ? (
