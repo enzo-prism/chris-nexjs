@@ -1,89 +1,52 @@
-import { useEffect, useCallback, useRef } from "react";
-import { useLocation } from "wouter";
+import { useEffect, useMemo, useRef } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
-const GA_MEASUREMENT_ID = "G-94WRBJY51J";
-const GA_SCRIPT_ID = "ga-gtag-script";
+const GA_MEASUREMENT_ID =
+  process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() || "G-94WRBJY51J";
 
-// This component handles Google Analytics page view tracking for SPAs
 const GoogleAnalytics = () => {
-  const [location] = useLocation();
-  const pendingPathRef = useRef<string | null>(null);
-  const isLoadedRef = useRef(false);
+  const pathname = usePathname() || "/";
+  const searchParams = useSearchParams();
+  const lastTrackedPathRef = useRef<string>("");
 
-  const loadAnalyticsScript = useCallback(() => {
-    if (typeof window === "undefined" || isLoadedRef.current) return;
-
-    isLoadedRef.current = true;
-    window.dataLayer = window.dataLayer || [];
-    window.gtag =
-      window.gtag ||
-      function gtag(...args: any[]) {
-        window.dataLayer?.push(args);
-      };
-
-    window.gtag("js", new Date());
-    window.gtag("config", GA_MEASUREMENT_ID, { send_page_view: false });
-
-    if (!document.getElementById(GA_SCRIPT_ID)) {
-      const script = document.createElement("script");
-      script.id = GA_SCRIPT_ID;
-      script.async = true;
-      script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
-      script.onload = () => {
-        const pendingPath = pendingPathRef.current;
-        if (pendingPath && window.gtag) {
-          window.gtag("config", GA_MEASUREMENT_ID, { page_path: pendingPath });
-          pendingPathRef.current = null;
-        }
-      };
-      document.head.appendChild(script);
-    }
-  }, []);
-
-  // Track page views
-  const trackPageView = useCallback((path: string) => {
-    if (typeof window === "undefined") return;
-
-    if ("gtag" in window && typeof window.gtag === "function") {
-      window.gtag("config", GA_MEASUREMENT_ID, {
-        page_path: path,
-      });
-      return;
-    }
-    pendingPathRef.current = path;
-  }, []);
+  const fullPath = useMemo(() => {
+    const queryString = searchParams?.toString() ?? "";
+    return queryString ? `${pathname}?${queryString}` : pathname;
+  }, [pathname, searchParams]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const load = () => loadAnalyticsScript();
-    const interactionEvents = ["pointerdown", "keydown", "touchstart", "scroll"];
+    let attempts = 0;
+    let timer: ReturnType<typeof setTimeout> | null = null;
 
-    interactionEvents.forEach((event) =>
-      window.addEventListener(event, load, { once: true, passive: true }),
-    );
+    const sendPageView = () => {
+      if (typeof window.gtag !== "function") {
+        if (attempts < 20) {
+          attempts += 1;
+          timer = setTimeout(sendPageView, 150);
+        }
+        return;
+      }
 
-    let idleTimer: ReturnType<typeof setTimeout> | undefined;
-    if ("requestIdleCallback" in window) {
-      (window as any).requestIdleCallback(load, { timeout: 2000 });
-    } else {
-      idleTimer = setTimeout(load, 1800);
-    }
+      if (lastTrackedPathRef.current === fullPath) return;
+      lastTrackedPathRef.current = fullPath;
+      window.gtag("event", "page_view", {
+        send_to: GA_MEASUREMENT_ID,
+        page_path: fullPath,
+        page_location: window.location.href,
+        page_title: document.title,
+      });
+    };
+
+    sendPageView();
 
     return () => {
-      interactionEvents.forEach((event) =>
-        window.removeEventListener(event, load),
-      );
-      if (idleTimer) clearTimeout(idleTimer);
+      if (timer) clearTimeout(timer);
     };
-  }, [loadAnalyticsScript]);
+  }, [fullPath]);
 
-  // Listen for location changes and send page views to GA
-  useEffect(() => {
-    trackPageView(location);
-  }, [location, trackPageView]);
-
-  return null; // This component doesn't render anything
+  return null;
 };
 
 export default GoogleAnalytics;

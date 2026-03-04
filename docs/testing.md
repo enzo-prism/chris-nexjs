@@ -127,6 +127,7 @@ vercel inspect www.chriswongdds.com
 gh api 'repos/enzo-prism/chris-nexjs/deployments?per_page=20' | jq -r '.[] | [.environment, .sha, .created_at] | @tsv'
 curl -I https://chriswongdds.com
 curl -I https://www.chriswongdds.com
+curl -sL https://www.chriswongdds.com/ | rg -n 'googletagmanager.com/gtag/js\\?id=G-94WRBJY51J'
 ```
 
 Expected:

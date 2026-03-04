@@ -13,16 +13,13 @@ import SupplementalContent from "@/components/common/SupplementalContent";
 import StructuredData from "@/components/seo/StructuredData";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import GoogleAnalytics from "@/components/common/GoogleAnalytics";
 import {
   buildOrganizationSchema,
   buildPersonSchema,
   buildWebSiteSchema,
 } from "@/lib/structuredData";
 
-const GoogleAnalytics = dynamic(
-  () => import("@/components/common/GoogleAnalytics"),
-  { ssr: false, loading: () => null },
-);
 const HotjarTracking = dynamic(
   () => import("@/components/common/HotjarTracking"),
   { ssr: false, loading: () => null },

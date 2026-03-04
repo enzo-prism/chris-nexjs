@@ -37,6 +37,7 @@ Core:
 Metadata and SEO:
 
 - `GOOGLE_SITE_VERIFICATION` or `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`.
+- `NEXT_PUBLIC_GA_MEASUREMENT_ID` (defaults to `G-94WRBJY51J` if omitted).
 
 Lead forms:
 
@@ -166,6 +167,16 @@ Verify form flows:
 
 - submit `/contact` form
 - submit `/schedule` appointment request
+
+Verify analytics tag install:
+
+```bash
+curl -sL https://www.chriswongdds.com/ | rg -n 'googletagmanager.com/gtag/js\\?id=G-94WRBJY51J'
+```
+
+Expected:
+
+- Exactly one Google tag reference per page.
 
 ## Verification commands against preview or production
 

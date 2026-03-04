@@ -84,6 +84,7 @@ Core:
 
 Metadata/SEO:
 - `GOOGLE_SITE_VERIFICATION` or `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`.
+- `NEXT_PUBLIC_GA_MEASUREMENT_ID` (defaults to `G-94WRBJY51J` when not set).
 
 Lead forms / scheduling:
 - `NEXT_PUBLIC_FORM_ENDPOINT` and `SCHEDULE_FORM_ENDPOINT` for Formspree-backed scheduling.
@@ -176,6 +177,16 @@ Write endpoints:
   - 44 total canonical definitions
   - 40 indexable
   - 4 noindex (`/zoom-whitening/schedule`, `/thank-you`, `/analytics`, `/ga-test`)
+
+## Analytics behavior (GA4)
+
+- Google tag is installed globally from root layout head for all routes.
+- Measurement ID defaults to `G-94WRBJY51J` and can be overridden by `NEXT_PUBLIC_GA_MEASUREMENT_ID`.
+- SPA page-view events are sent on route/query changes via `client/src/components/common/GoogleAnalytics.tsx`.
+- Consent Mode v2 defaults:
+  - granted outside EEA/UK
+  - denied for EEA/UK regions until consent is granted
+- Consent state is persisted in `localStorage` under `analytics_consent`.
 
 ## Naming rule (editorial and compliance)
 
