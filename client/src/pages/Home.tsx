@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import HeroSection from "@/components/sections/HeroSection";
 import StructuredData from "@/components/seo/StructuredData";
@@ -66,6 +66,7 @@ const Home = (props: any) => {
   const testimonialsToShow = initialTestimonials.slice(0, 10);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const testimonialCount = testimonialsToShow.length;
+  const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const getWrappedIndex = (index: number) => {
     if (testimonialCount === 0) return 0;
@@ -82,12 +83,56 @@ const Home = (props: any) => {
     setActiveTestimonial((current) => getWrappedIndex(current + 1));
   };
 
+  const handleTestimonialPointerDown = (event: any) => {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    swipeStartRef.current = { x: event.clientX, y: event.clientY };
+  };
+
+  const handleTestimonialPointerUp = (event: any) => {
+    if (!swipeStartRef.current) return;
+
+    const deltaX = event.clientX - swipeStartRef.current.x;
+    const deltaY = event.clientY - swipeStartRef.current.y;
+    swipeStartRef.current = null;
+
+    if (Math.abs(deltaY) > Math.abs(deltaX)) return;
+    const swipeThreshold = 45;
+    if (Math.abs(deltaX) < swipeThreshold) return;
+
+    if (deltaX < 0) {
+      goToNextTestimonial();
+      return;
+    }
+
+    goToPreviousTestimonial();
+  };
+
+  const resetSwipeStart = () => {
+    swipeStartRef.current = null;
+  };
+
+  const handleTestimonialKeyDown = (event: any) => {
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      goToPreviousTestimonial();
+    }
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      goToNextTestimonial();
+    }
+  };
+
   useEffect(() => {
     if (!testimonialCount) return;
     if (activeTestimonial > testimonialCount - 1) {
       setActiveTestimonial(0);
     }
   }, [activeTestimonial, testimonialCount]);
+
+  const trackWidthPercent = testimonialCount * 100;
+  const slideWidthPercent = testimonialCount > 0 ? 100 / testimonialCount : 100;
+  const trackTranslatePercent =
+    testimonialCount > 0 ? (activeTestimonial * 100) / testimonialCount : 0;
 
     const homeFaqs: FAQEntry[] = [
       {
@@ -424,17 +469,17 @@ const Home = (props: any) => {
       </section>
 
       {/* Patient Testimonials Spotlight */}
-      <section className="relative overflow-hidden py-16 md:py-24 bg-gradient-to-b from-[#F3F7FB] via-white to-[#F8FBFF]">
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#F4F8FC] via-white to-[#F8FBFF] py-16 md:py-24">
         <div
-          className="pointer-events-none absolute left-1/2 top-12 h-72 w-72 -translate-x-1/2 rounded-full bg-[#DBEAFE]/60 blur-3xl"
+          className="pointer-events-none absolute left-[18%] top-16 h-72 w-72 rounded-full bg-[#DBEAFE]/60 blur-3xl"
           aria-hidden="true"
         />
         <div
-          className="pointer-events-none absolute -right-16 bottom-10 h-56 w-56 rounded-full bg-[#FEE2E2]/40 blur-3xl"
+          className="pointer-events-none absolute right-[12%] top-24 h-64 w-64 rounded-full bg-[#FDE68A]/30 blur-3xl"
           aria-hidden="true"
         />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative text-center mb-12 md:mb-14">
+          <div className="relative text-center mb-12 md:mb-16">
             <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-[#CBD5E1] bg-white/90 px-4 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#334155]">
               <Quote className="h-3.5 w-3.5 text-primary" />
               Testimonials
@@ -448,99 +493,126 @@ const Home = (props: any) => {
           </div>
 
           {testimonialCount > 0 && (
-            <div className="relative mx-auto max-w-5xl">
-              <div className="pointer-events-none absolute left-4 top-1/2 hidden -translate-y-1/2 lg:block">
+            <div
+              className="relative mx-auto max-w-6xl"
+              onKeyDown={handleTestimonialKeyDown}
+              tabIndex={0}
+              role="region"
+              aria-label="Patient testimonials carousel"
+            >
+              <button
+                type="button"
+                aria-label="Previous testimonial"
+                className="absolute left-0 top-1/2 z-30 hidden h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-md transition-colors hover:border-slate-300 hover:text-slate-900 lg:inline-flex"
+                onClick={goToPreviousTestimonial}
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                aria-label="Next testimonial"
+                className="absolute right-0 top-1/2 z-30 hidden h-12 w-12 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-white shadow-md transition-colors hover:bg-primary/90 lg:inline-flex"
+                onClick={goToNextTestimonial}
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+
+              <div
+                className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_30px_60px_-38px_rgba(15,23,42,0.48)] touch-pan-y"
+                onPointerDown={handleTestimonialPointerDown}
+                onPointerUp={handleTestimonialPointerUp}
+                onPointerCancel={resetSwipeStart}
+                onPointerLeave={resetSwipeStart}
+              >
+                <div
+                  className="flex transition-transform duration-500 ease-out will-change-transform"
+                  style={{
+                    width: `${trackWidthPercent}%`,
+                    transform: `translateX(-${trackTranslatePercent}%)`,
+                  }}
+                >
+                  {testimonialsToShow.map((testimonial, index) => (
+                    <article
+                      key={`slide-${testimonial.id}-${index}`}
+                      className="shrink-0 px-6 pb-10 pt-8 sm:px-10 md:px-16 md:pb-12 md:pt-10"
+                      style={{ width: `${slideWidthPercent}%` }}
+                    >
+                      <div className="flex items-center justify-center gap-3">
+                        <div className="rounded-2xl border border-slate-200 bg-white p-2.5 text-primary">
+                          <Quote className="h-5 w-5" />
+                        </div>
+                        <div className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-amber-600">
+                          {Array.from({ length: 5 }).map((_, starIndex) => (
+                            <span
+                              key={`active-star-${testimonial.id}-${starIndex}`}
+                              className="text-base leading-none"
+                            >
+                              {starIndex < testimonial.rating ? "★" : "☆"}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {!isNoAdditionalCommentPlaceholder(testimonial.text) && (
+                        <p className="mx-auto mt-8 max-w-3xl text-center text-2xl font-light italic leading-relaxed text-slate-700 md:text-[2rem] md:leading-[1.45]">
+                          &ldquo;{testimonial.text}&rdquo;
+                        </p>
+                      )}
+
+                      <div className="mx-auto mt-8 h-px w-20 bg-slate-300" />
+                      <div className="mt-6 text-center">
+                        <p className="text-2xl font-semibold text-slate-900">
+                          {testimonial.name}
+                        </p>
+                        <p className="mt-1 text-sm font-medium uppercase tracking-[0.12em] text-slate-500">
+                          {testimonial.location || "Google Review"}
+                        </p>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-5 grid gap-4 lg:grid-cols-2">
+                {[-1, 1].map((offset) => {
+                  const cardIndex = getWrappedIndex(activeTestimonial + offset);
+                  const card = testimonialsToShow[cardIndex];
+                  return (
+                    <button
+                      type="button"
+                      key={`preview-${card.id}-${offset}`}
+                      className="rounded-2xl border border-slate-200/90 bg-white/80 px-5 py-4 text-left shadow-sm transition-colors hover:bg-white"
+                      onClick={() => setActiveTestimonial(cardIndex)}
+                    >
+                      <p className="text-sm font-semibold text-slate-900">{card.name}</p>
+                      <p className="mt-2 line-clamp-2 text-sm text-slate-600">
+                        {isNoAdditionalCommentPlaceholder(card.text)
+                          ? "Rated on Google"
+                          : card.text}
+                      </p>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="mt-6 flex items-center justify-center gap-3 lg:hidden">
                 <button
                   type="button"
                   aria-label="Previous testimonial"
-                  className="pointer-events-auto inline-flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:border-slate-300 hover:text-slate-700"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition-colors hover:border-slate-300 hover:text-slate-900"
                   onClick={goToPreviousTestimonial}
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </button>
-              </div>
-              <div className="pointer-events-none absolute right-4 top-1/2 hidden -translate-y-1/2 lg:block">
                 <button
                   type="button"
                   aria-label="Next testimonial"
-                  className="pointer-events-auto inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white shadow-sm transition-colors hover:bg-primary/90"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white shadow-sm transition-colors hover:bg-primary/90"
                   onClick={goToNextTestimonial}
                 >
                   <ChevronRight className="h-5 w-5" />
                 </button>
               </div>
-
-              <article className="relative rounded-[2rem] border border-slate-200 bg-white/90 px-6 pb-10 pt-8 shadow-[0_25px_55px_-35px_rgba(15,23,42,0.45)] sm:px-10 md:px-16 md:pb-12 md:pt-10">
-                <div className="flex items-center justify-center gap-3">
-                  <div className="rounded-2xl border border-slate-200 bg-white p-2.5 text-primary">
-                    <Quote className="h-5 w-5" />
-                  </div>
-                  <div className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-amber-600">
-                    {Array.from({ length: 5 }).map((_, starIndex) => (
-                      <span key={`active-star-${starIndex}`} className="text-base leading-none">
-                        {starIndex < testimonialsToShow[activeTestimonial].rating ? "★" : "☆"}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {!isNoAdditionalCommentPlaceholder(testimonialsToShow[activeTestimonial].text) && (
-                  <p className="mx-auto mt-8 max-w-3xl text-center text-2xl font-light italic leading-relaxed text-slate-700 md:text-[2rem] md:leading-[1.45]">
-                    &ldquo;{testimonialsToShow[activeTestimonial].text}&rdquo;
-                  </p>
-                )}
-
-                <div className="mx-auto mt-8 h-px w-20 bg-slate-300" />
-                <div className="mt-6 text-center">
-                  <p className="text-2xl font-semibold text-slate-900">
-                    {testimonialsToShow[activeTestimonial].name}
-                  </p>
-                  <p className="mt-1 text-sm font-medium uppercase tracking-[0.12em] text-slate-500">
-                    {testimonialsToShow[activeTestimonial].location || "Google Review"}
-                  </p>
-                </div>
-
-                <div className="mt-8 flex items-center justify-center gap-3 lg:hidden">
-                  <button
-                    type="button"
-                    aria-label="Previous testimonial"
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition-colors hover:border-slate-300 hover:text-slate-800"
-                    onClick={goToPreviousTestimonial}
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="Next testimonial"
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white shadow-sm transition-colors hover:bg-primary/90"
-                    onClick={goToNextTestimonial}
-                  >
-                    <ChevronRight className="h-5 w-5" />
-                  </button>
-                </div>
-              </article>
-
-              {testimonialCount > 2 && (
-                <div className="mt-6 hidden lg:grid grid-cols-2 gap-4">
-                  {[-1, 1].map((offset) => {
-                    const cardIndex = getWrappedIndex(activeTestimonial + offset);
-                    const card = testimonialsToShow[cardIndex];
-                    return (
-                      <div
-                        key={`preview-${card.id}-${offset}`}
-                        className="rounded-2xl border border-slate-200/80 bg-white/70 px-5 py-4 text-left shadow-sm"
-                      >
-                        <p className="text-sm font-semibold text-slate-900">{card.name}</p>
-                        <p className="mt-2 line-clamp-2 text-sm text-slate-600">
-                          {isNoAdditionalCommentPlaceholder(card.text)
-                            ? "Rated on Google"
-                            : card.text}
-                        </p>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
             </div>
           )}
 

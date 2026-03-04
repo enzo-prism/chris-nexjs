@@ -22,7 +22,8 @@ Operational guide for importing, auditing, and publishing Google review content 
   - `2-star`: `0`
   - `1-star`: `4`
 - Reviews with no text in source (`[No text]`): `113`
-  - Converted during import to: `Left a X-star Google review with no additional comment.`
+  - Converted during import to a normalized sentinel string for transport consistency.
+  - UI rendering intentionally suppresses that placeholder sentence and shows rating + reviewer metadata only.
 - Reviews with truncated excerpt marker: `68`
   - Normalized to clean ellipsis output (`...`) for display consistency
 
@@ -33,6 +34,10 @@ Operational guide for importing, auditing, and publishing Google review content 
   - if storage returns fewer rows than the imported seed count, it serves the full imported seed set.
 - Client pages consume testimonials via API to avoid shipping the entire 319-review seed bundle to the browser.
 - Structured review schema is intentionally capped via `buildReviewSchemas(..., limit = 8)` to avoid over-large JSON-LD payloads.
+- Homepage spotlight carousel (`client/src/pages/Home.tsx`) uses:
+  - width-aware slide-track translation (`translateX(active * 100 / count)`) to keep arrow navigation aligned with single-card increments
+  - pointer swipe detection (45px horizontal threshold, vertical-swipe rejection) for mobile and trackpad/mouse drags
+  - no-comment review suppression via `isNoAdditionalCommentPlaceholder(...)`
 
 ## Refresh workflow
 
