@@ -32,6 +32,10 @@ Use this file as the central index for project documentation.
 
 ## Feature operations
 
+- `scheduling-ux-streamline-plan.md`
+  Mobile-first scheduling flow architecture, conditional step behavior, and rollout checks.
+- `scheduling-event-taxonomy.md`
+  `/schedule` analytics event map, payload contract, and QA instrumentation checks.
 - `gallery.md`  
   `/gallery` media model, no-crop frame strategy, Cloudinary still-image pack, and QA checklist.
 - `svg-animation-system.md`

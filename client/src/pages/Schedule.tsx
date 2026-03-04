@@ -5,7 +5,7 @@ import OfficeVisitSection from "@/components/sections/OfficeVisitSection";
 import InsuranceInfoSection from "@/components/sections/InsuranceInfoSection";
 import MetaTags from "@/components/common/MetaTags";
 import { pageTitles, pageDescriptions } from "@/lib/metaContent";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import HolidayHoursNotice from "@/components/common/HolidayHoursNotice";
 import { holidayHours } from "@/lib/data";
 import StructuredData from "@/components/seo/StructuredData";
@@ -13,22 +13,51 @@ import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import { buildBreadcrumbSchema, type StructuredDataNode } from "@/lib/structuredData";
 
 const Schedule = () => {
+  const reviewsSectionRef = useRef<HTMLElement | null>(null);
+  const [shouldLoadReviews, setShouldLoadReviews] = useState(false);
+
   useEffect(() => {
-    // Add the Elfsight script
+    if (shouldLoadReviews) {
+      return;
+    }
+
+    const sectionNode = reviewsSectionRef.current;
+    if (!sectionNode) {
+      return;
+    }
+
+    if (typeof window === "undefined" || !("IntersectionObserver" in window)) {
+      setShouldLoadReviews(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setShouldLoadReviews(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "180px 0px" },
+    );
+    observer.observe(sectionNode);
+
+    return () => observer.disconnect();
+  }, [shouldLoadReviews]);
+
+  useEffect(() => {
+    if (!shouldLoadReviews) {
+      return;
+    }
+
     const script = document.createElement('script');
     script.src = "https://static.elfsight.com/platform/platform.js";
     script.async = true;
     
-    // Add the script to the document if it doesn't already exist
     if (!document.querySelector('script[src="https://static.elfsight.com/platform/platform.js"]')) {
       document.body.appendChild(script);
     }
-    
-    // Cleanup function
-    return () => {
-      // We're not removing the script on unmount because it might be used by other pages
-    };
-  }, []);
+  }, [shouldLoadReviews]);
 
   const breadcrumbItems = [
     { name: "Home", path: "/" },
@@ -75,7 +104,7 @@ const Schedule = () => {
       />
       
       {/* Google Reviews Section */}
-      <section className="py-16 bg-[#FFFFFF]">
+      <section ref={reviewsSectionRef} className="py-16 bg-[#FFFFFF]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8">
             <h2 className="text-2xl md:text-3xl font-bold font-heading text-[#333333] mb-4">Why Our Patients Love Us</h2>
@@ -84,8 +113,22 @@ const Schedule = () => {
           </div>
           
           <div className="bg-white rounded-lg shadow-lg overflow-hidden p-4">
-            {/* Elfsight Google Reviews Widget */}
-            <div className="elfsight-app-97536d24-590e-4a39-ae4c-c3fb469042f8" data-elfsight-app-lazy></div>
+            {shouldLoadReviews ? (
+              <div className="elfsight-app-97536d24-590e-4a39-ae4c-c3fb469042f8" data-elfsight-app-lazy></div>
+            ) : (
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-6 text-center">
+                <p className="text-sm text-slate-600">
+                  Reviews load as you scroll to keep scheduling fast on mobile.
+                </p>
+                <button
+                  type="button"
+                  className="ui-focus-premium mt-4 inline-flex min-h-11 items-center justify-center rounded-full border border-primary px-5 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/5"
+                  onClick={() => setShouldLoadReviews(true)}
+                >
+                  Load Reviews Now
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </section>

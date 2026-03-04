@@ -1,54 +1,59 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fromZodError } from "zod-validation-error";
-import { ZodError, z } from "zod";
-
-const formRequestSchema = z.object({
-  emergency: z.boolean(),
-  appointmentType: z.enum([
-    "New Patient Exam & Cleaning",
-    "Existing Patient Checkup",
-    "Invisalign Consultation",
-    "Cosmetic Consultation",
-    "Emergency Visit",
-    "Other",
-  ]),
-  preferredDays: z
-    .array(
-      z.enum([
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-      ]),
-    )
-    .min(1, "Please select at least one preferred day."),
-  preferredTimeOfDay: z.enum([
-    "Morning (8am-11am)",
-    "Midday (11am-2pm)",
-    "Afternoon (2pm-5pm)",
-    "First Available",
-  ]),
-  firstName: z.string().trim().min(1).max(40),
-  lastName: z.string().trim().min(1).max(40),
-  phone: z
-    .string()
-    .trim()
-    .transform((value) => value.replace(/\D/g, ""))
-    .refine((value) => /^\d{10}$/.test(value), "Phone number must be 10 digits."),
-  email: z.string().trim().email(),
-  insuranceStatus: z.enum(["Yes", "No", "Not Sure"]).optional(),
-  additionalNotes: z.string().trim().max(300).optional(),
-  sourceUrl: z.string().trim().url().optional(),
-  utmParams: z.record(z.string()).optional(),
-});
-
-type ScheduleRequest = z.infer<typeof formRequestSchema>;
+import { ZodError } from "zod";
+import {
+  legacyScheduleRequestSchema,
+  normalizeSchedulePhone,
+  scheduleRequestV2Schema,
+  type ScheduleRequestV2,
+} from "@shared/scheduleRequest";
 
 type ForwardingResult = {
   enabled: boolean;
   sent: boolean;
   error?: string;
+};
+
+type ScheduleDispatchPayload = Omit<ScheduleRequestV2, "phone"> & {
+  phone: string;
+  sourceUrl: string;
+  utm: Record<string, string>;
+  timestamp: string;
+};
+
+const normalizeIncomingScheduleRequest = (body: unknown): ScheduleRequestV2 => {
+  const parsedV2 = scheduleRequestV2Schema.safeParse(body);
+  if (parsedV2.success) {
+    return parsedV2.data;
+  }
+
+  const legacyPayload = legacyScheduleRequestSchema.parse(body);
+  const schedulingMode =
+    legacyPayload.preferredTimeOfDay === "First Available"
+      ? "first_available"
+      : "choose_preferences";
+
+  return scheduleRequestV2Schema.parse({
+    appointmentType: legacyPayload.appointmentType,
+    isEmergency: legacyPayload.emergency,
+    schedulingMode,
+    preferredDays:
+      schedulingMode === "choose_preferences" ? legacyPayload.preferredDays : undefined,
+    preferredTime:
+      schedulingMode === "choose_preferences"
+        ? legacyPayload.preferredTimeOfDay
+        : undefined,
+    firstName: legacyPayload.firstName,
+    lastName: legacyPayload.lastName,
+    phone: legacyPayload.phone,
+    email: legacyPayload.email,
+    contactPreference: "phone",
+    insuranceProvider: legacyPayload.insuranceStatus,
+    message: legacyPayload.additionalNotes,
+    source: "schedule_page_form_v1",
+    sourceUrl: legacyPayload.sourceUrl,
+    utmParams: legacyPayload.utmParams,
+  });
 };
 
 const parseUtmParams = (url: string | null | undefined) => {
@@ -97,21 +102,40 @@ const mergeUtmParams = (
   return merged;
 };
 
-const buildInboxMessage = (data: ScheduleRequest & { sourceUrl: string | null; utm: Record<string, string>; timestamp: string; }) => {
+const sanitizeOptionalText = (value: string | undefined): string | undefined => {
+  if (!value) {
+    return undefined;
+  }
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+};
+
+const buildInboxMessage = (data: ScheduleDispatchPayload) => {
+  const prefersSpecificWindow = data.schedulingMode === "choose_preferences";
+  const preferredDays = prefersSpecificWindow
+    ? data.preferredDays?.join(", ") ?? "Not provided"
+    : "First available";
+  const preferredTime = prefersSpecificWindow
+    ? data.preferredTime ?? "Not provided"
+    : "First available";
+
   return [
     "New Appointment Request",
     `Name: ${data.firstName} ${data.lastName}`,
     `Email: ${data.email}`,
     `Phone: ${data.phone}`,
     `Appointment type: ${data.appointmentType}`,
-    `Urgent: ${data.emergency ? "Yes" : "No"}`,
-    `Preferred days: ${data.preferredDays.join(", ")}`,
-    `Preferred time: ${data.preferredTimeOfDay}`,
-    `Insurance status: ${data.insuranceStatus ?? "Not provided"}`,
+    `Urgent: ${data.isEmergency ? "Yes" : "No"}`,
+    `Scheduling mode: ${data.schedulingMode}`,
+    `Preferred days: ${preferredDays}`,
+    `Preferred time: ${preferredTime}`,
+    `Contact preference: ${data.contactPreference}`,
+    `Insurance provider: ${data.insuranceProvider ?? "Not provided"}`,
     `Source URL: ${data.sourceUrl ?? "Unknown"}`,
+    `Source: ${data.source ?? "Not provided"}`,
     `UTM: ${JSON.stringify(data.utm || {})}`,
     `Submitted: ${data.timestamp}`,
-    `Notes: ${data.additionalNotes || "None"}`,
+    `Notes: ${data.message || "None"}`,
   ].join("\n");
 };
 
@@ -134,26 +158,37 @@ const postJsonWebhook = async (url: string, payload: unknown): Promise<void> => 
 
 const postToFormspree = async (
   formspreeEndpoint: string,
-  payload: ScheduleRequest & { sourceUrl: string; utm: Record<string, string>; timestamp: string },
+  payload: ScheduleDispatchPayload,
 ) => {
+  const prefersSpecificWindow = payload.schedulingMode === "choose_preferences";
+  const preferredDays = prefersSpecificWindow
+    ? payload.preferredDays?.join(", ") ?? ""
+    : "First available";
+  const preferredTime = prefersSpecificWindow
+    ? payload.preferredTime ?? ""
+    : "First available";
+
   const formPayload = {
     first_name: payload.firstName,
     last_name: payload.lastName,
     email: payload.email,
     phone: payload.phone,
     appointment_type: payload.appointmentType,
-    urgent: payload.emergency ? "Yes" : "No",
-    preferred_days: payload.preferredDays.join(", "),
-    preferred_time_of_day: payload.preferredTimeOfDay,
-    insurance_status: payload.insuranceStatus ?? "Not provided",
+    urgent: payload.isEmergency ? "Yes" : "No",
+    preferred_days: preferredDays,
+    preferred_time_of_day: preferredTime,
+    scheduling_mode: payload.schedulingMode,
+    contact_preference: payload.contactPreference,
+    insurance_status: payload.insuranceProvider ?? "Not provided",
     source_url: payload.sourceUrl,
+    source: payload.source ?? "schedule_page_form",
     timestamp: payload.timestamp,
     utm_source: payload.utm.utm_source,
     utm_medium: payload.utm.utm_medium,
     utm_campaign: payload.utm.utm_campaign,
     utm_term: payload.utm.utm_term,
     utm_content: payload.utm.utm_content,
-    additional_notes: payload.additionalNotes ?? "",
+    additional_notes: payload.message ?? "",
     _replyto: payload.email,
     _subject: `Appointment Request: ${payload.appointmentType}`,
     message: buildInboxMessage(payload),
@@ -179,7 +214,14 @@ const postToFormspree = async (
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const parsedBody = formRequestSchema.parse(body);
+    const parsedBody = normalizeIncomingScheduleRequest(body);
+    const normalizedPhone = normalizeSchedulePhone(parsedBody.phone);
+    if (!normalizedPhone) {
+      return NextResponse.json(
+        { message: "Phone number must include 10 digits (or 11 digits starting with 1)." },
+        { status: 400 },
+      );
+    }
 
     const sourceUrl =
       parsedBody.sourceUrl ??
@@ -187,14 +229,12 @@ export async function POST(request: NextRequest) {
       null;
     const utm = mergeUtmParams(sourceUrl, parsedBody.utmParams);
 
-    const payload: ScheduleRequest & {
-      sourceUrl: string;
-      utm: Record<string, string>;
-      phone: string;
-      timestamp: string;
-    } = {
+    const payload: ScheduleDispatchPayload = {
       ...parsedBody,
-      phone: parsedBody.phone.replace(/\D/g, ""),
+      phone: normalizedPhone,
+      insuranceProvider: sanitizeOptionalText(parsedBody.insuranceProvider),
+      message: sanitizeOptionalText(parsedBody.message),
+      source: sanitizeOptionalText(parsedBody.source),
       sourceUrl: sourceUrl ?? "",
       utm,
       timestamp: new Date().toISOString(),

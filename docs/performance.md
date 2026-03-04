@@ -19,6 +19,7 @@ Primary routes:
 
 Feature route:
 - `/gallery`
+- `/schedule` (mobile-first conversion surface; monitor separately for LCP/TBT trend)
 
 ## Budget targets
 
@@ -35,6 +36,12 @@ Feature route:
 - In-grid clips: paused by default, user-initiated playback only.
 - Pause in-grid clips when out of viewport.
 - Non-hero clips use `preload="none"`.
+
+## Scheduling route performance policy
+
+- Prioritize the scheduling form as the first interactive surface on `/schedule`.
+- Defer non-critical third-party scripts (reviews widget) until section intersection or explicit user action.
+- Keep mobile interaction responsive while keyboard is open (sticky action bar must not block submit controls).
 
 ## SVG animation performance policy
 

@@ -66,6 +66,21 @@ Visual motion checks (when SVG/UI animation is touched):
 2. Toggle OS/browser reduced-motion preference and confirm decorative SVG accents stop animating.
 3. Confirm accents do not overlap critical copy or CTA controls.
 
+Scheduling mobile checks (when `/schedule` is touched):
+
+1. Validate both flows:
+   - `first_available` (Step 3 skip)
+   - `choose_preferences` (Step 3 required)
+2. Verify sticky action bar behavior on iOS and Android-sized viewports:
+   - `375x812`
+   - `390x844`
+   - `412x915`
+3. Confirm form tap targets remain at least 44px high and easy to hit one-handed.
+4. Confirm error summary links move focus to invalid fields.
+5. Verify deferred reviews behavior:
+   - reviews widget does not load before the reviews section approaches viewport
+   - "Load Reviews Now" button loads reviews on demand
+
 SEO checks:
 
 ```bash
@@ -123,6 +138,16 @@ Then run checks from another terminal:
 PERF_BASE_URL=http://localhost:3101 pnpm run perf:smoke
 NEXT_DIST_DIR=.next-perf pnpm run test:bundle
 LIGHTHOUSE_BASE_URL=http://localhost:3101 LIGHTHOUSE_RUNS=3 pnpm run perf:lighthouse
+```
+
+Schedule-specific Lighthouse spot check:
+
+```bash
+npx --yes lighthouse http://localhost:3101/schedule \
+  --chrome-flags='--headless --no-sandbox --disable-dev-shm-usage' \
+  --only-categories=performance,seo \
+  --output=html \
+  --output-path=./.tmp-schedule-lighthouse.html
 ```
 
 ## Runtime audit URL overrides

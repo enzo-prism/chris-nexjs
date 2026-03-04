@@ -21,6 +21,7 @@ Command reference for contract, UI, SEO, and performance checks.
 
 - `pnpm run test:api`
   - Verifies API handlers for status codes and key payload semantics.
+  - Includes schedule-request compatibility checks (legacy + v2 payloads).
 - `pnpm run test:routes`
   - Verifies canonical metadata, redirects, and dynamic blog route behavior.
 
@@ -129,6 +130,25 @@ And in another terminal:
 PERF_BASE_URL=http://localhost:3101 pnpm run perf:smoke
 LIGHTHOUSE_BASE_URL=http://localhost:3101 LIGHTHOUSE_RUNS=3 pnpm run perf:lighthouse
 ```
+
+## Scheduling release checklist
+
+Run this when scheduling flow or `/schedule` UX is changed:
+
+```bash
+pnpm run check
+pnpm run test:api
+pnpm run test:routes
+pnpm run test:seo:all
+```
+
+Manual QA:
+
+- Validate `first_available` step-skip submit path.
+- Validate `choose_preferences` path (required day/time preferences).
+- Validate field-error summary focus links and inline messaging.
+- Validate sticky mobile action bar in common phone viewports.
+- Validate deferred reviews load on scroll and via explicit click.
 
 ## Live production alignment checks
 

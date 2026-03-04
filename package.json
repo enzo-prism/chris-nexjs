@@ -15,7 +15,7 @@
     "start:perf": "NEXT_DIST_DIR=.next-perf next start -p ${PORT:-3101}",
     "start:legacy": "NODE_ENV=production tsx server/index.ts",
     "check": "tsx scripts/check-business-info.ts && tsc",
-    "test:api": "tsx scripts/api-contract.test.ts",
+    "test:api": "tsx scripts/api-contract.test.ts && tsx scripts/schedule-request-contract.test.ts",
     "test:seo": "tsx scripts/seo-regression.ts",
     "test:seo:onpage": "tsx scripts/seo-onpage-audit.ts",
     "test:seo:links": "tsx scripts/seo-links-audit.ts",
