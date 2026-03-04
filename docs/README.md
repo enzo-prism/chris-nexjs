@@ -10,7 +10,8 @@ Use this file as the central index for project documentation.
   Local setup and development workflows.
 - `deployment.md`  
   Vercel deployment runbook.
-  Includes push-domain verification for production aliases.
+  Includes production topology (`chris-wong-dds` public domain + mirror projects),
+  SHA/deployment sync checks, and release verification commands.
 - `testing.md`  
   Test matrix and release command sets.
 - `performance.md`  

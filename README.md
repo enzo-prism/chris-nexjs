@@ -35,6 +35,24 @@ The app runs on Next.js App Router with API route handlers, centralized SEO meta
 - `scripts/`: test gates and operational audit scripts.
 - `docs/`: runbooks, quality specs, SEO/perf plans, feature docs.
 
+## Deployment topology
+
+- Repository of record: `enzo-prism/chris-nexjs` on `main`.
+- Primary public production:
+  - Vercel project: `chris-wong-dds`
+  - Domains: `https://www.chriswongdds.com`, `https://chriswongdds.com`
+- Secondary production mirror:
+  - Vercel project: `chris-nextjs`
+  - Domain: `https://chris-nextjs.vercel.app`
+- Legacy production mirror:
+  - Vercel project: `chriswongdds`
+  - Domain: `https://chriswongdds.vercel.app`
+
+Release default:
+
+- Link and deploy to `chris-wong-dds` for public production pushes.
+- Use mirror deployments only when explicit cross-project sync is required.
+
 ## Quick start
 
 1. Install dependencies.

@@ -110,6 +110,22 @@ Current script coverage:
 Note:
 - `test:production` does not run `test:gallery` and does not replace full perf verification.
 
+### 10. Deployment topology and SHA sync
+
+Must pass:
+- `main` commit SHA is synced between local and `origin/main`
+- primary production deployment (`chris-wong-dds` / `www.chriswongdds.com`) is Ready
+- any mirror production deployments (`chris-nextjs`, `chriswongdds`) are either intentionally skipped or confirmed on the same SHA
+- canonical host and apex redirect behavior are correct at runtime
+
+Verification commands:
+- `git rev-parse HEAD`
+- `git rev-parse origin/main`
+- `vercel inspect www.chriswongdds.com`
+- `gh api 'repos/enzo-prism/chris-nexjs/deployments?per_page=100' | jq -r '.[] | [.environment, .sha, .created_at] | @tsv' | head -n 20`
+- `curl -I https://chriswongdds.com`
+- `curl -I https://www.chriswongdds.com`
+
 ## Recommended release command sequence
 
 ```bash

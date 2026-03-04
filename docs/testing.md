@@ -113,3 +113,24 @@ And in another terminal:
 PERF_BASE_URL=http://localhost:3101 pnpm run perf:smoke
 LIGHTHOUSE_BASE_URL=http://localhost:3101 LIGHTHOUSE_RUNS=3 pnpm run perf:lighthouse
 ```
+
+## Live production alignment checks
+
+Run these after a production release to ensure GitHub, Vercel, and the public domain are aligned:
+
+```bash
+git rev-parse HEAD
+git rev-parse origin/main
+vercel inspect www.chriswongdds.com
+gh api 'repos/enzo-prism/chris-nexjs/deployments?per_page=20' | jq -r '.[] | [.environment, .sha, .created_at] | @tsv'
+curl -I https://chriswongdds.com
+curl -I https://www.chriswongdds.com
+```
+
+Expected:
+
+- local `HEAD` equals `origin/main`
+- `www.chriswongdds.com` deployment is `Ready`
+- latest production deployments for `chris-wong-dds`, `chris-nextjs`, and `chriswongdds` reference the expected release SHA
+- apex host (`chriswongdds.com`) redirects to `https://www.chriswongdds.com/`
+- canonical host returns `200`
