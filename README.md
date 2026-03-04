@@ -182,7 +182,7 @@ Write endpoints:
 
 - Google tag is installed globally from root layout head for all routes.
 - Measurement ID defaults to `G-94WRBJY51J` and can be overridden by `NEXT_PUBLIC_GA_MEASUREMENT_ID`.
-- SPA page-view events are sent on route/query changes via `client/src/components/common/GoogleAnalytics.tsx`.
+- SPA page-view events are sent on route transitions via `client/src/components/common/GoogleAnalytics.tsx`.
 - Consent Mode v2 defaults:
   - granted outside EEA/UK
   - denied for EEA/UK regions until consent is granted

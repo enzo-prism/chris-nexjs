@@ -1,24 +1,21 @@
-import { useEffect, useMemo, useRef } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+"use client";
+
+import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 
 const GA_MEASUREMENT_ID =
   process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() || "G-94WRBJY51J";
 
 const GoogleAnalytics = () => {
   const pathname = usePathname() || "/";
-  const searchParams = useSearchParams();
   const lastTrackedPathRef = useRef<string>("");
-
-  const fullPath = useMemo(() => {
-    const queryString = searchParams?.toString() ?? "";
-    return queryString ? `${pathname}?${queryString}` : pathname;
-  }, [pathname, searchParams]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     let attempts = 0;
     let timer: ReturnType<typeof setTimeout> | null = null;
+    const fullPath = `${pathname}${window.location.search || ""}`;
 
     const sendPageView = () => {
       if (typeof window.gtag !== "function") {
@@ -44,7 +41,7 @@ const GoogleAnalytics = () => {
     return () => {
       if (timer) clearTimeout(timer);
     };
-  }, [fullPath]);
+  }, [pathname]);
 
   return null;
 };
