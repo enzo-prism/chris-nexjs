@@ -477,7 +477,7 @@ const About = () => {
               <h3 className="text-lg sm:text-xl font-bold font-heading text-[#333333] mb-2 sm:mb-3">Comprehensive Care</h3>
               <p className="text-[#333333] text-sm sm:text-base leading-relaxed">
                 From preventive cleanings to complex restorations, we provide a full range of services to meet your oral health needs in one location, including{" "}
-                <Link href="/invisalign" className="text-primary font-semibold hover:underline">
+                <Link href="/invisalign" className="ui-link-premium">
                   Invisalign clear aligners
                 </Link>{" "}
                 for adults and teens.

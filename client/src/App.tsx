@@ -21,7 +21,6 @@ import {
   buildPersonSchema,
   buildWebSiteSchema,
 } from "@/lib/structuredData";
-import PracticeAssistant from "@/components/chat/PracticeAssistant";
 import Home from "@/pages/Home";
 import About from "@/pages/About";
 import Services from "@/pages/Services";
@@ -137,7 +136,6 @@ function Router() {
         </React.Suspense>
         <SupplementalContent />
       </main>
-      <PracticeAssistant />
       <Footer />
     </>
   );

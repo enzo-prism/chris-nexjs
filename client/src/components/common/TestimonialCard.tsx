@@ -22,7 +22,7 @@ const TestimonialCard = ({ testimonial, index = 0, disableAnimation = false }: T
   const hasImage = Boolean(image && image.trim().length > 0);
 
   const content = (
-    <Card className="h-full border-0 shadow-sm hover:shadow-xl transition-[box-shadow] duration-300 relative overflow-hidden">
+    <Card className="ui-card-interactive relative h-full overflow-hidden border">
       <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass}`} aria-hidden="true" />
       <div className="absolute -top-8 -right-8 text-primary/5">
         <Quote className="w-28 h-28" strokeWidth={1} aria-hidden="true" />

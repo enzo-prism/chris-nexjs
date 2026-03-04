@@ -74,7 +74,7 @@ const InvisalignResources = () => {
       </p>
       <div className="mt-6">
         <Link href="/invisalign">
-          <Button className="bg-primary text-white hover:bg-primary/90">
+          <Button className="ui-btn-primary">
             Invisalign in Palo Alto
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
@@ -114,13 +114,13 @@ const InvisalignResources = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/invisalign">
-              <Button className="bg-primary text-white hover:bg-primary/90">
+              <Button className="ui-btn-primary">
                 Invisalign in Palo Alto
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
             <Link href="/schedule#appointment">
-              <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">
+              <Button variant="outline" className="ui-btn-outline">
                 Book a consultation
               </Button>
             </Link>
@@ -164,13 +164,13 @@ const InvisalignResources = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/schedule#appointment">
-              <Button className="bg-primary text-white hover:bg-primary/90">
+              <Button className="ui-btn-primary">
                 Request a consultation
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
             <Link href="/contact">
-              <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">
+              <Button variant="outline" className="ui-btn-outline">
                 Contact the office
               </Button>
             </Link>

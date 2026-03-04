@@ -62,7 +62,7 @@ const NewsletterForm = () => {
                   <Input 
                     placeholder="Your email address" 
                     type="email" 
-                    className="w-full border-0 bg-transparent text-white placeholder:text-white/60 focus:ring-0 text-sm"
+                    className="w-full border-0 bg-transparent text-sm text-white placeholder:text-white/60 hover:border-white/40 focus-visible:border-white/70"
                     {...field}
                   />
                 </FormControl>
@@ -72,7 +72,7 @@ const NewsletterForm = () => {
           <Button 
             type="submit" 
             size="sm"
-            className="bg-white text-primary hover:bg-white/90 rounded-full px-3 min-w-[80px]"
+            className="ui-focus-premium rounded-full bg-white px-3 text-primary transition-[background-color,transform] hover:bg-white/90 active:translate-y-[0.5px] min-w-[80px]"
             disabled={isSubmitting}
           >
             {isSubmitting ? "Submitting…" : (

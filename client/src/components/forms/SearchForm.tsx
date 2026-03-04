@@ -61,7 +61,7 @@ const SearchForm = () => {
             }
           }}
         />
-        <Button type="submit" className="rounded-l-none bg-primary hover:bg-primary/90 active:bg-primary/80">
+        <Button type="submit" className="rounded-l-none ui-btn-primary">
           <Search className="h-4 w-4 mr-2" />
           Search
         </Button>

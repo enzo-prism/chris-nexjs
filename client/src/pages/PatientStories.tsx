@@ -479,7 +479,7 @@ const CaseStory = ({ study, index, onShare, copiedId }: CaseStoryProps) => {
 
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <Link href="/schedule#appointment">
-              <Button className="bg-primary text-white hover:bg-primary/90 w-full sm:w-auto">
+              <Button className="ui-btn-primary w-full sm:w-auto">
                 Start your plan
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
@@ -594,7 +594,7 @@ const PatientStories = () => {
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
             <Link href="/schedule#appointment">
-              <Button className="bg-primary text-white hover:bg-primary/90">
+              <Button className="ui-btn-primary">
                 Schedule a consultation
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>

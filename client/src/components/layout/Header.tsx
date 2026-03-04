@@ -329,7 +329,7 @@ const Header = () => {
           <div className="flex items-center space-x-6">
             <a
               href={`tel:${officeInfo.phoneE164}`}
-              className="group flex items-center transition-colors hover:text-blue-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1f3a]"
+              className="ui-link-premium-dark group flex items-center px-1 py-0.5 text-white/85"
             >
               <Phone
                 className="mr-2 h-3.5 w-3.5 text-blue-200 transition-transform group-hover:scale-110"
@@ -349,7 +349,7 @@ const Header = () => {
               href={officeInfo.mapUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="group hidden items-center transition-colors hover:text-blue-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1f3a] md:flex"
+              className="ui-link-premium-dark group hidden items-center px-1 py-0.5 text-white/85 md:flex"
             >
               <MapPin
                 className="mr-2 h-3.5 w-3.5 text-blue-200 transition-transform group-hover:scale-110"
@@ -363,7 +363,7 @@ const Header = () => {
               href={officeInfo.socialMedia.instagram}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center transition-colors hover:text-blue-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1f3a]"
+              className="ui-link-premium-dark flex items-center px-2 py-1 text-white/85"
               aria-label="Instagram"
             >
               <Instagram className="h-4 w-4" aria-hidden="true" />
@@ -444,10 +444,12 @@ const Header = () => {
                         id={triggerId}
                         href={link.href}
                         className={cn(
-                          "relative z-[102] flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-md py-2 text-xs font-medium tracking-wide text-slate-700 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-                          active && "text-primary",
+                          "ui-focus-premium relative z-[102] flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-xl px-3 py-2 text-xs font-medium tracking-wide text-slate-700 transition-[color,background-color,border-color,box-shadow] hover:bg-primary/5 hover:text-primary",
+                          active &&
+                            "bg-primary/10 text-primary shadow-[inset_0_0_0_1px_rgba(37,99,235,0.24)]",
                           "xl:text-sm",
                         )}
+                        aria-current={isActive(link.href) ? "page" : undefined}
                         aria-haspopup={hasSubmenu ? "menu" : undefined}
                         aria-expanded={hasSubmenu ? openDesktopSubmenu === link.label : undefined}
                         aria-controls={hasSubmenu ? menuId : undefined}
@@ -467,7 +469,7 @@ const Header = () => {
                       </Link>
 
                       {active && (
-                        <span className="absolute -bottom-1 left-0 right-0 z-[101] h-0.5 bg-primary" />
+                        <span className="absolute -bottom-1 left-2 right-2 z-[101] h-0.5 rounded-full bg-primary" />
                       )}
 
                       {hasSubmenu && openDesktopSubmenu === link.label && (
@@ -488,11 +490,12 @@ const Header = () => {
                                 href={subItem.href}
                                 role="menuitem"
                                 className={cn(
-                                  "group/item relative z-[104] flex items-center justify-between rounded-lg px-4 py-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#102a4a]",
+                                  "ui-focus-premium group/item relative z-[104] flex items-center justify-between rounded-lg px-4 py-3 text-sm font-medium transition-[color,background-color,border-color,box-shadow]",
                                   isActive(subItem.href)
-                                    ? "bg-white/10 text-blue-200"
-                                    : "text-white/90 hover:bg-white/5 hover:text-white",
+                                    ? "bg-white/14 text-blue-200 shadow-[inset_0_0_0_1px_rgba(191,219,254,0.35)]"
+                                    : "text-white/90 hover:bg-white/8 hover:text-white",
                                 )}
+                                aria-current={isActive(subItem.href) ? "page" : undefined}
                                 onClick={closeDesktopSubmenu}
                               >
                                 <span>{subItem.label}</span>
@@ -518,7 +521,7 @@ const Header = () => {
               <ButtonLink
                 href="/schedule#appointment"
                 aria-label="Book Appointment"
-                className="whitespace-nowrap rounded-full bg-primary px-3 text-xs font-semibold text-white shadow-[0_0_15px_rgba(59,130,246,0.35)] transition-[transform,box-shadow,background-color] duration-300 hover:scale-105 hover:bg-primary/90 hover:shadow-[0_0_25px_rgba(59,130,246,0.5)] xl:px-6 xl:text-sm"
+                className="ui-btn-primary whitespace-nowrap rounded-full px-3 text-xs font-semibold xl:px-6 xl:text-sm"
               >
                 Book <span className="hidden xl:inline">Appointment</span>
               </ButtonLink>
@@ -578,9 +581,12 @@ const Header = () => {
                         href={link.href}
                         onClick={closeMenus}
                         className={cn(
-                          "group flex items-center justify-between border-b border-white/5 py-4 font-serif text-xl font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1f3a] sm:text-2xl",
-                          active ? "text-blue-200" : "text-white/80",
+                          "ui-focus-premium group flex items-center justify-between rounded-xl border-b border-white/5 px-3 py-4 font-serif text-xl font-medium transition-[color,background-color,border-color,box-shadow] sm:text-2xl",
+                          active
+                            ? "border-blue-200/35 bg-white/10 text-blue-200 shadow-[inset_0_0_0_1px_rgba(147,197,253,0.3)]"
+                            : "text-white/80 hover:bg-white/5 hover:text-white",
                         )}
+                        aria-current={isActive(link.href) ? "page" : undefined}
                       >
                         <span className="transition-transform group-active:scale-95">
                           {link.label}
@@ -602,8 +608,10 @@ const Header = () => {
                           variant="ghost"
                           onClick={() => toggleSubmenu(link.label)}
                           className={cn(
-                            "group flex h-auto w-full items-center justify-between bg-transparent px-0 py-4 font-serif text-xl font-medium transition-colors hover:bg-transparent focus-visible:ring-blue-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1f3a] sm:text-2xl",
-                            active ? "text-blue-200" : "text-white/80",
+                            "ui-focus-premium group flex h-auto w-full items-center justify-between rounded-xl bg-transparent px-3 py-4 font-serif text-xl font-medium transition-[color,background-color,border-color] sm:text-2xl",
+                            active
+                              ? "bg-white/10 text-blue-200 shadow-[inset_0_0_0_1px_rgba(147,197,253,0.3)]"
+                              : "text-white/80 hover:bg-white/5 hover:text-white",
                           )}
                           aria-expanded={expandedMenus.includes(link.label)}
                           aria-controls={submenuId}
@@ -631,11 +639,12 @@ const Header = () => {
                                   href={subLink.href}
                                   onClick={closeMenus}
                                   className={cn(
-                                    "block rounded-md px-2 py-3 text-base font-medium transition-colors active:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1f3a] sm:text-lg",
+                                    "ui-focus-premium block rounded-lg px-3 py-3 text-base font-medium transition-[color,background-color,border-color,box-shadow] active:bg-white/5 sm:text-lg",
                                     isActive(subLink.href)
-                                      ? "text-blue-200"
-                                      : "text-white/70",
+                                      ? "bg-white/12 text-blue-200 shadow-[inset_0_0_0_1px_rgba(147,197,253,0.3)]"
+                                      : "text-white/70 hover:bg-white/5 hover:text-white",
                                   )}
+                                  aria-current={isActive(subLink.href) ? "page" : undefined}
                                 >
                                   {subLink.label}
                                 </Link>
@@ -654,7 +663,7 @@ const Header = () => {
               <ButtonLink
                 href="/schedule#appointment"
                 onClick={closeMenus}
-                className="h-14 w-full rounded-xl bg-primary text-lg font-bold text-white transition-[background-color,transform] hover:bg-primary/90 active:scale-[0.98]"
+                className="ui-btn-primary h-14 w-full rounded-xl text-lg font-bold"
               >
                 Book Appointment Now
               </ButtonLink>
@@ -662,7 +671,7 @@ const Header = () => {
               <div className="grid grid-cols-2 gap-4 pt-2">
                 <a
                   href={`tel:${officeInfo.phoneE164}`}
-                  className="flex flex-col items-center justify-center rounded-xl border border-white/5 bg-white/5 p-4 text-white transition-colors active:bg-white/10"
+                  className="ui-focus-premium flex flex-col items-center justify-center rounded-xl border border-white/5 bg-white/5 p-4 text-white transition-[background-color,border-color] hover:border-blue-200/40 hover:bg-white/10 active:bg-white/10"
                 >
                   <Phone className="mb-2 h-6 w-6 text-blue-200" aria-hidden="true" />
                   <span className="text-sm font-medium">Call Us</span>
@@ -671,7 +680,7 @@ const Header = () => {
                   href={officeInfo.mapUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex flex-col items-center justify-center rounded-xl border border-white/5 bg-white/5 p-4 text-white transition-colors active:bg-white/10"
+                  className="ui-focus-premium flex flex-col items-center justify-center rounded-xl border border-white/5 bg-white/5 p-4 text-white transition-[background-color,border-color] hover:border-blue-200/40 hover:bg-white/10 active:bg-white/10"
                 >
                   <MapPin className="mb-2 h-6 w-6 text-blue-200" aria-hidden="true" />
                   <span className="text-sm font-medium">Directions</span>

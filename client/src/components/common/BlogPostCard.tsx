@@ -21,7 +21,7 @@ const BlogPostCard = ({ post }: BlogPostCardProps) => {
 
   return (
     <Card 
-      className="h-full bg-white rounded-xl border-0 shadow-sm hover:shadow-md transition-[box-shadow] duration-300 flex flex-col group" 
+      className="ui-card-interactive h-full rounded-xl border flex flex-col group" 
       id={post.slug}
     >
       {/* Image container with responsive height */}
@@ -70,7 +70,7 @@ const BlogPostCard = ({ post }: BlogPostCardProps) => {
         {/* Read more link */}
         <Link
           href={`/blog/${post.slug}`}
-          className="inline-flex items-center text-sm font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer group/link"
+          className="ui-link-premium inline-flex items-center text-sm font-medium cursor-pointer group/link"
         >
           <span>Read article</span>
           <ArrowRight

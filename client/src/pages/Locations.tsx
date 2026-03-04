@@ -121,10 +121,10 @@ const Locations = () => {
           </div>
           <div className="flex flex-col sm:flex-row justify-center gap-3">
             <Link href="/schedule#appointment">
-              <Button className="bg-primary text-white hover:bg-primary/90">Request an appointment</Button>
+              <Button className="ui-btn-primary">Request an appointment</Button>
             </Link>
             <a href={`tel:${officeInfo.phoneE164}`}>
-              <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">
+              <Button variant="outline" className="ui-btn-outline">
                 Call {officeInfo.phone}
                 <Phone className="ml-2 h-4 w-4" />
               </Button>

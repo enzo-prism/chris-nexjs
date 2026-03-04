@@ -278,7 +278,7 @@ const ZoomWhitening = () => {
               </div>
               <div className="mt-6">
                 <Link href="/schedule#appointment">
-                  <Button className="w-full bg-primary text-white hover:bg-primary/90">
+                  <Button className="w-full ui-btn-primary">
                     Schedule ZOOM! whitening
                   </Button>
                 </Link>
@@ -331,7 +331,7 @@ const ZoomWhitening = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href="/schedule#appointment">
-              <Button className="bg-primary text-white hover:bg-primary/90 px-6 py-3 font-semibold shadow-sm">
+              <Button className="ui-btn-primary px-6 py-3 font-semibold shadow-sm">
                 Schedule now
               </Button>
             </Link>

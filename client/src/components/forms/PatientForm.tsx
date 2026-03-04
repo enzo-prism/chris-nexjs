@@ -168,7 +168,7 @@ const PatientForm = () => {
           control={form.control}
           name="agreeToTerms"
           render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md p-4 border">
+            <FormItem className="ui-focus-premium flex flex-row items-start space-x-3 space-y-0 rounded-xl border border-slate-200 bg-slate-50/60 p-4 transition-[border-color,background-color,box-shadow] hover:border-primary/35 focus-within:border-primary focus-within:shadow-[var(--ui-focus-shadow)]">
               <FormControl>
                 <Checkbox
                   checked={field.value}
@@ -187,7 +187,7 @@ const PatientForm = () => {
 
         <Button 
           type="submit" 
-          className="w-full bg-primary hover:bg-primary/90 active:bg-primary/80 text-white font-semibold py-3"
+          className="ui-btn-primary w-full py-3 font-semibold"
           disabled={isSubmitting}
         >
           {isSubmitting ? "Submitting..." : "Submit Form"}

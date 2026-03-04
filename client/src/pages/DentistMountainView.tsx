@@ -128,13 +128,13 @@ const DentistMountainView = () => {
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link href="/schedule#appointment">
-                  <Button className="bg-primary text-white hover:bg-primary/90">
+                  <Button className="ui-btn-primary">
                     Request an appointment
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
                 <a href={`tel:${officeInfo.phoneE164}`}>
-                  <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">
+                  <Button variant="outline" className="ui-btn-outline">
                     Call {officeInfo.phone}
                     <Phone className="ml-2 h-4 w-4" />
                   </Button>
@@ -173,7 +173,7 @@ const DentistMountainView = () => {
                       href={officeInfo.mapUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-2 inline-flex items-center text-primary font-semibold hover:underline"
+                      className="mt-2 inline-flex items-center ui-link-premium"
                     >
                       Get directions
                       <ArrowRight className="ml-2 h-4 w-4" />
@@ -232,7 +232,7 @@ const DentistMountainView = () => {
               If your child needs a gentle start, our{" "}
               <Link
                 href="/pediatric-dentist-palo-alto"
-                className="text-primary font-semibold hover:underline"
+                className="ui-link-premium"
               >
                 pediatric dentist team
               </Link>{" "}
@@ -251,7 +251,7 @@ const DentistMountainView = () => {
                 <p className="text-slate-700 leading-relaxed">
                   Gentle visits focused on prevention, cavity risk reduction, and healthy routines.
                   Explore{" "}
-                  <Link href="/pediatric-dentist-palo-alto" className="text-primary font-semibold hover:underline">
+                  <Link href="/pediatric-dentist-palo-alto" className="ui-link-premium">
                     pediatric dentistry
                   </Link>{" "}
                   for Mountain View families.
@@ -262,7 +262,7 @@ const DentistMountainView = () => {
                 <p className="text-slate-700 leading-relaxed">
                   Checkups, sports mouthguard planning, and guidance on habits that affect enamel.
                   For alignment goals, many teens choose{" "}
-                  <Link href="/invisalign" className="text-primary font-semibold hover:underline">
+                  <Link href="/invisalign" className="ui-link-premium">
                     Invisalign
                   </Link>{" "}
                   because it is discreet and removable.
@@ -273,11 +273,11 @@ const DentistMountainView = () => {
                 <p className="text-slate-700 leading-relaxed">
                   Prevention, fillings, crowns, and cosmetic improvements with clear recommendations.
                   Start with{" "}
-                  <Link href="/preventive-dentistry" className="text-primary font-semibold hover:underline">
+                  <Link href="/preventive-dentistry" className="ui-link-premium">
                     preventive dentistry
                   </Link>{" "}
                   and regular{" "}
-                  <Link href="/dental-cleaning-palo-alto" className="text-primary font-semibold hover:underline">
+                  <Link href="/dental-cleaning-palo-alto" className="ui-link-premium">
                     cleanings
                   </Link>
                   .
@@ -288,7 +288,7 @@ const DentistMountainView = () => {
                 <p className="text-slate-700 leading-relaxed">
                   Support for older restorations, bite wear, and long-term maintenance. If a tooth breaks or starts
                   hurting, our{" "}
-                  <Link href="/emergency-dental" className="text-primary font-semibold hover:underline">
+                  <Link href="/emergency-dental" className="ui-link-premium">
                     emergency dental care
                   </Link>{" "}
                   team can often help the same day.
@@ -304,22 +304,22 @@ const DentistMountainView = () => {
             <p className="text-slate-700 leading-relaxed">
               We are known for thorough preventive visits and clear next steps when something needs attention. Common
               needs include routine{" "}
-              <Link href="/dental-cleaning-palo-alto" className="text-primary font-semibold hover:underline">
+              <Link href="/dental-cleaning-palo-alto" className="ui-link-premium">
                 cleanings and exams
               </Link>
               ,{" "}
-              <Link href="/cavity-fillings-palo-alto" className="text-primary font-semibold hover:underline">
+              <Link href="/cavity-fillings-palo-alto" className="ui-link-premium">
                 tooth-colored fillings
               </Link>
               , and{" "}
-              <Link href="/crowns-palo-alto" className="text-primary font-semibold hover:underline">
+              <Link href="/crowns-palo-alto" className="ui-link-premium">
                 dental crowns
               </Link>{" "}
               when a tooth needs added protection.
             </p>
             <p className="text-slate-700 leading-relaxed">
               If you are considering orthodontics,{" "}
-              <Link href="/invisalign" className="text-primary font-semibold hover:underline">
+              <Link href="/invisalign" className="ui-link-premium">
                 Invisalign
               </Link>{" "}
               is a popular option for Mountain View patients because it fits work and school schedules. For cosmetic goals,
@@ -338,13 +338,13 @@ const DentistMountainView = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Link href="/schedule#appointment">
-                <Button className="bg-primary text-white hover:bg-primary/90">
+                <Button className="ui-btn-primary">
                   Request an appointment
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
               <Link href="/patient-resources#insurance">
-                <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">
+                <Button variant="outline" className="ui-btn-outline">
                   Insurance and forms
                 </Button>
               </Link>

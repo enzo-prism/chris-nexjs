@@ -99,7 +99,7 @@ const PediatricDentistPaloAlto = () => {
           </p>
           <p className="text-lg text-slate-700 leading-relaxed">
             Many families visit us from Menlo Park. If you’re searching for a{" "}
-            <Link href="/dentist-menlo-park" className="text-primary font-semibold hover:underline">
+            <Link href="/dentist-menlo-park" className="ui-link-premium">
               Menlo Park family dentist
             </Link>
             , our Palo Alto office is nearby and we’ll help you schedule kids’ and adult care with one consistent team.
@@ -107,12 +107,12 @@ const PediatricDentistPaloAlto = () => {
 
           <div className="flex flex-col sm:flex-row gap-3">
             <Link href="/schedule#appointment">
-              <Button className="bg-primary text-white hover:bg-primary/90">
+              <Button className="ui-btn-primary">
                 Schedule a kids’ visit
               </Button>
             </Link>
             <a href={`tel:${officeInfo.phoneE164}`}>
-              <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">
+              <Button variant="outline" className="ui-btn-outline">
                 Call {officeInfo.phone}
               </Button>
             </a>

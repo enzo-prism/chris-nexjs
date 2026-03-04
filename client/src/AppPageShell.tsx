@@ -18,7 +18,6 @@ import {
   buildPersonSchema,
   buildWebSiteSchema,
 } from "@/lib/structuredData";
-import PracticeAssistant from "@/components/chat/PracticeAssistant";
 
 const GoogleAnalytics = dynamic(
   () => import("@/components/common/GoogleAnalytics"),
@@ -91,7 +90,6 @@ export function AppPageShell({
       </main>
       <Footer />
       <SupplementalContent />
-      <PracticeAssistant />
     </WouterRouter>
   );
 

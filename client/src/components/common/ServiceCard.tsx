@@ -64,7 +64,7 @@ const ServiceCard = ({ service }: ServiceCardProps) => {
 
   return (
     <Card
-      className="group flex h-full w-full flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm transition-[box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+      className="ui-card-interactive group flex h-full w-full flex-col overflow-hidden rounded-3xl border"
       id={service.slug}
     >
       <div
@@ -93,14 +93,14 @@ const ServiceCard = ({ service }: ServiceCardProps) => {
           <ButtonLink
             href={getDetailPath(service.slug)}
             variant="outline"
-            className="w-full border-primary text-primary transition-colors hover:bg-primary/5"
+            className="w-full"
           >
             {getDetailLabel(service.slug)}
             <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
           </ButtonLink>
           <ButtonLink
             href="/schedule#appointment"
-            className="w-full bg-primary text-white transition-colors hover:bg-primary/90"
+            className="w-full"
           >
             {getCtaText(service.title)}
             <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />

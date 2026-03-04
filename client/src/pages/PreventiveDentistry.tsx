@@ -109,12 +109,12 @@ const PreventiveDentistry = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href="/schedule#appointment">
-              <Button className="bg-primary text-white hover:bg-primary/90">
+              <Button className="ui-btn-primary">
                 Book a checkup
               </Button>
             </Link>
             <Link href="/contact">
-              <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">
+              <Button variant="outline" className="ui-btn-outline">
                 Ask a question
               </Button>
             </Link>

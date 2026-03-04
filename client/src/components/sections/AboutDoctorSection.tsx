@@ -38,11 +38,11 @@ const AboutDoctorSection: React.FC = () => {
             </p>
             <p className="text-gray-700 mb-6">
               Dr. Wong practices ethical and non-invasive dentistry with special interests in{" "}
-              <Link href="/invisalign" className="text-primary font-semibold hover:underline">
+              <Link href="/invisalign" className="ui-link-premium">
                 Invisalign in Palo Alto
               </Link>
               ,{" "}
-              <Link href="/dental-implants" className="text-primary font-semibold hover:underline">
+              <Link href="/dental-implants" className="ui-link-premium">
                 dental implants
               </Link>
               , and restorative care. He focuses on prevention and early detection, helping patients retain their natural tooth
@@ -70,7 +70,7 @@ const AboutDoctorSection: React.FC = () => {
             
             <div className="mt-8">
               <Link href="/about">
-                <Button className="bg-primary text-white font-semibold px-6 py-3 rounded-md hover:bg-primary/90 active:bg-primary/80">
+                <Button className="ui-btn-primary rounded-md px-6 py-3 font-semibold">
                   Meet Dr. Christopher Wong
                 </Button>
               </Link>

@@ -40,7 +40,7 @@ const RelatedServices = ({
             <Link
               key={item.href}
               href={item.href}
-              className="group block rounded-2xl border border-slate-100 bg-slate-50 p-6 shadow-sm transition-[color,background-color,box-shadow] hover:border-primary/30 hover:bg-white hover:shadow-md"
+              className="ui-card-interactive group block rounded-2xl border p-6"
             >
               <h3 className="text-lg font-semibold text-slate-900 group-hover:text-primary">
                 {item.anchorText}
@@ -50,7 +50,7 @@ const RelatedServices = ({
                   {item.description}
                 </p>
               )}
-              <div className="mt-4 inline-flex items-center text-sm font-semibold text-primary">
+              <div className="ui-link-premium mt-4 inline-flex items-center text-sm font-semibold">
                 Learn more
                 <ArrowRight
                   className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5"

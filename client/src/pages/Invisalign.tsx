@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import StructuredData from "@/components/seo/StructuredData";
 import { motion } from "@/lib/motion-lite";
-import { getTestimonialsByNames } from "@/lib/testimonials";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import type { RelatedServiceLink } from "@/components/common/RelatedServices";
+import type { InsertTestimonial } from "@shared/schema";
 import {  buildBreadcrumbSchema,
   buildHowToSchema,
   buildFAQSchema,
@@ -37,6 +37,30 @@ const OptimizedImage = dynamic(
   () => import("@/components/seo/OptimizedImage"),
   { ssr: false, loading: () => null },
 );
+
+const invisalignTestimonials: InsertTestimonial[] = [
+  {
+    name: "Kevin Zhang",
+    rating: 5,
+    location: "Google Review",
+    image: "",
+    text: "Dr. Wong is very with the times, down to earth, and gives practical, conservative advice with great results.",
+  },
+  {
+    name: "Ashley Chung",
+    rating: 5,
+    location: "Google Review",
+    image: "",
+    text: "Been going here for 10+ years since I was a kid. Great establishment and excellent teeth cleaning and guidance!",
+  },
+  {
+    name: "Abdel Fahmy",
+    rating: 5,
+    location: "Google Review",
+    image: "",
+    text: "Wonderful doctor and staff!",
+  },
+];
 
 const invisalignFaqs: FAQEntry[] = [
   {
@@ -87,12 +111,6 @@ const invisalignFaqs: FAQEntry[] = [
 ];
 
 const Invisalign = () => {
-  const invisalignTestimonials = getTestimonialsByNames([
-    "Kevin Zhang",
-    "Ashley Chung",
-    "Abdel Fahmy",
-  ]);
-
   const invisalignBenefits = [
     {
       title: "Virtually Invisible",
@@ -356,7 +374,7 @@ const Invisalign = () => {
                 <a href={`tel:${officeInfo.phoneE164}`}>
                   <Button
                     variant="outline"
-                    className="border-primary text-primary hover:bg-primary/5 px-8 py-3 w-full sm:w-auto"
+                    className="ui-btn-outline px-8 py-3 w-full sm:w-auto"
                   >
                     Call {officeInfo.phone}
                     <Phone className="ml-2 h-5 w-5" />
@@ -387,7 +405,7 @@ const Invisalign = () => {
                       href={officeInfo.mapUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-2 inline-flex items-center text-primary font-semibold hover:underline"
+                      className="mt-2 inline-flex items-center ui-link-premium"
                     >
                       Get directions
                       <ArrowRight className="ml-2 h-4 w-4" />
@@ -453,7 +471,7 @@ const Invisalign = () => {
               </ul>
               <p className="mt-5 text-sm text-slate-600">
                 Want the full bio?{" "}
-                <Link href="/about" className="text-primary font-semibold hover:underline">
+                <Link href="/about" className="ui-link-premium">
                   Meet Dr. Wong
                 </Link>
                 .
@@ -472,7 +490,7 @@ const Invisalign = () => {
               </p>
               <Link
                 href="/about"
-                className="mt-4 inline-flex items-center text-sm font-semibold text-primary hover:underline"
+                className="mt-4 inline-flex items-center text-sm ui-link-premium"
               >
                 View credentials and experience
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -909,13 +927,13 @@ const Invisalign = () => {
 
               <div className="mt-8 flex flex-col sm:flex-row gap-3">
                 <Link href="/schedule#appointment">
-                  <Button className="bg-primary text-white hover:bg-primary/90 px-8 py-3">
+                  <Button className="ui-btn-primary px-8 py-3">
                     Request a consultation
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
                 <a href={`tel:${officeInfo.phoneE164}`}>
-                  <Button variant="outline" className="border-primary text-primary hover:bg-primary/5 px-8 py-3">
+                  <Button variant="outline" className="ui-btn-outline px-8 py-3">
                     Call {officeInfo.phone}
                   </Button>
                 </a>
@@ -946,7 +964,7 @@ const Invisalign = () => {
                   confident smile.
                 </p>
                 <Link href="/patient-stories#invisalign-whitening-bonding-66yo">
-                  <Button className="bg-primary text-white hover:bg-primary/90">
+                  <Button className="ui-btn-primary">
                     View Invisalign case study
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
@@ -979,7 +997,7 @@ const Invisalign = () => {
               planning in our Invisalign resources hub.
             </p>
             <Link href="/invisalign/resources">
-              <Button className="bg-primary text-white hover:bg-primary/90">
+              <Button className="ui-btn-primary">
                 Explore Invisalign resources
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>

@@ -9,7 +9,6 @@ import { ArrowRight, BadgePercent, CheckCircle, Gift, Phone } from "lucide-react
 import Link from "next/link";
 import { Service, Testimonial } from "@shared/schema";
 import { officeInfo } from "@/lib/data";
-import AppointmentForm from "@/components/forms/AppointmentForm";
 import {
   buildFAQSchema,
   type FAQEntry,
@@ -34,6 +33,18 @@ const ServiceCard = dynamic(
 const TestimonialCard = dynamic(
   () => import("@/components/common/TestimonialCard"),
   { ssr: false, loading: () => null },
+);
+const AppointmentForm = dynamic(
+  () => import("@/components/forms/AppointmentForm"),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        aria-hidden="true"
+        className="min-h-[320px] w-full rounded-xl border border-slate-200 bg-slate-50/80 sm:min-h-[400px]"
+      />
+    ),
+  },
 );
 
 type HomeProps = {
@@ -122,11 +133,11 @@ const Home = (props: any) => {
               </p>
               <p className="text-lg text-slate-700 leading-relaxed">
                 Explore focused treatments including{" "}
-                <Link href="/restorative-dentistry" className="text-primary font-semibold hover:underline">
+                <Link href="/restorative-dentistry" className="ui-link-premium">
                   restorative dentistry
                 </Link>{" "}
                 and{" "}
-                <Link href="/pediatric-dentistry" className="text-primary font-semibold hover:underline">
+                <Link href="/pediatric-dentistry" className="ui-link-premium">
                   pediatric dentistry
                 </Link>{" "}
                 for children, teens, and adults.
@@ -139,70 +150,70 @@ const Home = (props: any) => {
                 Nearby communities:{" "}
                 <Link
                   href="/dentist-menlo-park"
-                  className="text-primary font-semibold hover:underline"
+                  className="ui-link-premium"
                 >
                   Menlo Park families
                 </Link>
                 ,{" "}
                 <Link
                   href="/dentist-stanford"
-                  className="text-primary font-semibold hover:underline"
+                  className="ui-link-premium"
                 >
                   Stanford patients
                 </Link>
                 ,{" "}
                 <Link
                   href="/dentist-mountain-view"
-                  className="text-primary font-semibold hover:underline"
+                  className="ui-link-premium"
                 >
                   Mountain View families
                 </Link>
                 ,{" "}
                 <Link
                   href="/dentist-los-altos"
-                  className="text-primary font-semibold hover:underline"
+                  className="ui-link-premium"
                 >
                   Los Altos patients
                 </Link>
                 ,{" "}
                 <Link
                   href="/dentist-los-altos-hills"
-                  className="text-primary font-semibold hover:underline"
+                  className="ui-link-premium"
                 >
                   Los Altos Hills patients
                 </Link>
                 ,{" "}
                 <Link
                   href="/dentist-sunnyvale"
-                  className="text-primary font-semibold hover:underline"
+                  className="ui-link-premium"
                 >
                   Sunnyvale families
                 </Link>
                 ,{" "}
                 <Link
                   href="/dentist-cupertino"
-                  className="text-primary font-semibold hover:underline"
+                  className="ui-link-premium"
                 >
                   Cupertino families
                 </Link>
                 ,{" "}
                 <Link
                   href="/dentist-redwood-city"
-                  className="text-primary font-semibold hover:underline"
+                  className="ui-link-premium"
                 >
                   Redwood City patients
                 </Link>
                 ,{" "}
                 <Link
                   href="/dentist-atherton"
-                  className="text-primary font-semibold hover:underline"
+                  className="ui-link-premium"
                 >
                   Atherton patients
                 </Link>
                 , and{" "}
                 <Link
                   href="/dentist-redwood-shores"
-                  className="text-primary font-semibold hover:underline"
+                  className="ui-link-premium"
                 >
                   Redwood Shores patients
                 </Link>
@@ -214,34 +225,34 @@ const Home = (props: any) => {
                 </p>
                 <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-sm text-slate-700">
                   <span className="font-semibold text-slate-900">Palo Alto</span>
-                  <Link href="/dentist-menlo-park" className="text-primary font-semibold hover:underline">
+                  <Link href="/dentist-menlo-park" className="ui-link-premium">
                     Menlo Park
                   </Link>
-                  <Link href="/dentist-stanford" className="text-primary font-semibold hover:underline">
+                  <Link href="/dentist-stanford" className="ui-link-premium">
                     Stanford
                   </Link>
-                  <Link href="/dentist-mountain-view" className="text-primary font-semibold hover:underline">
+                  <Link href="/dentist-mountain-view" className="ui-link-premium">
                     Mountain View
                   </Link>
-                  <Link href="/dentist-los-altos" className="text-primary font-semibold hover:underline">
+                  <Link href="/dentist-los-altos" className="ui-link-premium">
                     Los Altos
                   </Link>
-                  <Link href="/dentist-los-altos-hills" className="text-primary font-semibold hover:underline">
+                  <Link href="/dentist-los-altos-hills" className="ui-link-premium">
                     Los Altos Hills
                   </Link>
-                  <Link href="/dentist-sunnyvale" className="text-primary font-semibold hover:underline">
+                  <Link href="/dentist-sunnyvale" className="ui-link-premium">
                     Sunnyvale
                   </Link>
-                  <Link href="/dentist-cupertino" className="text-primary font-semibold hover:underline">
+                  <Link href="/dentist-cupertino" className="ui-link-premium">
                     Cupertino
                   </Link>
-                  <Link href="/dentist-redwood-city" className="text-primary font-semibold hover:underline">
+                  <Link href="/dentist-redwood-city" className="ui-link-premium">
                     Redwood City
                   </Link>
-                  <Link href="/dentist-atherton" className="text-primary font-semibold hover:underline">
+                  <Link href="/dentist-atherton" className="ui-link-premium">
                     Atherton
                   </Link>
-                  <Link href="/dentist-redwood-shores" className="text-primary font-semibold hover:underline">
+                  <Link href="/dentist-redwood-shores" className="ui-link-premium">
                     Redwood Shores
                   </Link>
                 </div>
@@ -249,14 +260,14 @@ const Home = (props: any) => {
               <div className="flex flex-col sm:flex-row gap-3 pt-1">
                 <ButtonLink
                   href="/schedule#appointment"
-                  className="bg-primary text-white hover:bg-primary/90"
+                  className="ui-btn-primary"
                 >
                   Request an appointment
                 </ButtonLink>
                 <ButtonLink
                   href="/services"
                   variant="outline"
-                  className="border-primary text-primary hover:bg-primary/5"
+                  className="ui-btn-outline"
                 >
                   Explore dental services
                 </ButtonLink>
@@ -278,7 +289,7 @@ const Home = (props: any) => {
                     href={officeInfo.mapUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-2 inline-flex items-center text-primary font-semibold hover:underline"
+                    className="mt-2 inline-flex items-center ui-link-premium"
                   >
                     Get directions
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -334,14 +345,14 @@ const Home = (props: any) => {
               <div className="flex flex-col sm:flex-row gap-3">
                 <ButtonLink
                   href="/schedule#appointment"
-                  className="bg-primary text-white hover:bg-primary/90"
+                  className="ui-btn-primary"
                 >
                   Claim an offer
                 </ButtonLink>
                 <ButtonLink
                   href="/contact"
                   variant="outline"
-                  className="border-primary text-primary hover:bg-primary/5"
+                  className="ui-btn-outline"
                 >
                   Ask a question
                 </ButtonLink>
@@ -466,7 +477,7 @@ const Home = (props: any) => {
               technology to improve your oral health and enhance your smile.{" "}
               <Link
                 href="/invisalign"
-                className="font-semibold text-primary hover:underline"
+                className="ui-link-premium"
               >
                 Invisalign in Palo Alto
               </Link>{" "}

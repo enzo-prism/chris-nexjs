@@ -128,13 +128,13 @@ const DentistLosAltos = () => {
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link href="/schedule#appointment">
-                  <Button className="bg-primary text-white hover:bg-primary/90">
+                  <Button className="ui-btn-primary">
                     Request an appointment
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
                 <a href={`tel:${officeInfo.phoneE164}`}>
-                  <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">
+                  <Button variant="outline" className="ui-btn-outline">
                     Call {officeInfo.phone}
                     <Phone className="ml-2 h-4 w-4" />
                   </Button>
@@ -173,7 +173,7 @@ const DentistLosAltos = () => {
                       href={officeInfo.mapUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-2 inline-flex items-center text-primary font-semibold hover:underline"
+                      className="mt-2 inline-flex items-center ui-link-premium"
                     >
                       Get directions
                       <ArrowRight className="ml-2 h-4 w-4" />
@@ -240,15 +240,15 @@ const DentistLosAltos = () => {
             </h2>
             <p className="text-slate-700 leading-relaxed">
               We see Los Altos patients for routine{" "}
-              <Link href="/dental-cleaning-palo-alto" className="text-primary font-semibold hover:underline">
+              <Link href="/dental-cleaning-palo-alto" className="ui-link-premium">
                 cleanings and exams
               </Link>
               ,{" "}
-              <Link href="/cavity-fillings-palo-alto" className="text-primary font-semibold hover:underline">
+              <Link href="/cavity-fillings-palo-alto" className="ui-link-premium">
                 tooth-colored fillings
               </Link>
               , and{" "}
-              <Link href="/crowns-palo-alto" className="text-primary font-semibold hover:underline">
+              <Link href="/crowns-palo-alto" className="ui-link-premium">
                 dental crowns
               </Link>
               . If you are planning cosmetic improvements, we can review whitening and veneers to match your goals.
@@ -270,13 +270,13 @@ const DentistLosAltos = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Link href="/schedule#appointment">
-                <Button className="bg-primary text-white hover:bg-primary/90">
+                <Button className="ui-btn-primary">
                   Request an appointment
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
               <Link href="/patient-resources#insurance">
-                <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">
+                <Button variant="outline" className="ui-btn-outline">
                   Insurance and forms
                 </Button>
               </Link>

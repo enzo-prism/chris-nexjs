@@ -9,7 +9,7 @@ import {
   buildExcerpt,
   NOINDEX_ROBOTS,
 } from "@shared/seo";
-import RouteShell from "./page-shell";
+import LegacyShell from "./legacy-shell";
 
 const CANONICAL_ORIGIN = "https://www.chriswongdds.com";
 
@@ -183,5 +183,5 @@ export default function CatchAllPage({
     notFound();
   }
 
-  return <RouteShell key={canonicalPath} ssrPath={canonicalPath} />;
+  return <LegacyShell key={canonicalPath} ssrPath={canonicalPath} />;
 }

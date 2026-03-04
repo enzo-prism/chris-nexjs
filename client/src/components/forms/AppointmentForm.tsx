@@ -336,7 +336,7 @@ const AppointmentForm = ({ className = "" }: AppointmentFormProps) => {
           render={({ field }) => (
             <FormItem>
               <label
-                className="flex items-start gap-3 rounded-md border border-slate-200 bg-slate-50 p-3"
+                className="ui-focus-premium flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 transition-[border-color,background-color,box-shadow] hover:border-primary/40 focus-within:border-primary focus-within:shadow-[var(--ui-focus-shadow)]"
               >
                 <FormControl>
                   <Checkbox
@@ -388,11 +388,8 @@ const AppointmentForm = ({ className = "" }: AppointmentFormProps) => {
                       return (
                         <label
                           key={option}
-                          className={`flex min-h-[44px] w-full cursor-pointer items-center rounded-lg border px-4 py-3 text-sm font-medium transition ${
-                            isSelected
-                              ? "border-primary bg-primary/10 text-primary"
-                              : "border-slate-300 text-[#333333] hover:border-primary/70"
-                          }`}
+                          data-selected={isSelected ? "true" : "false"}
+                          className="ui-chip-interactive w-full justify-start px-4 py-3 text-sm font-medium focus-within:border-primary focus-within:shadow-[var(--ui-focus-shadow)]"
                         >
                           <RadioGroupItem
                             value={option}
@@ -426,11 +423,8 @@ const AppointmentForm = ({ className = "" }: AppointmentFormProps) => {
                       <label
                         key={day}
                         htmlFor={`preferred-day-${day}`}
-                        className={`flex min-h-[44px] cursor-pointer items-center justify-between rounded-lg border px-4 py-3 text-sm font-medium transition ${
-                          checked
-                            ? "border-primary bg-primary/10 text-primary"
-                            : "border-slate-300 text-[#333333] hover:border-primary/70"
-                        }`}
+                        data-selected={checked ? "true" : "false"}
+                        className="ui-chip-interactive cursor-pointer justify-between px-4 py-3 text-sm font-medium focus-within:border-primary focus-within:shadow-[var(--ui-focus-shadow)]"
                       >
                         <span>{day}</span>
                         <Checkbox
@@ -472,11 +466,8 @@ const AppointmentForm = ({ className = "" }: AppointmentFormProps) => {
                     return (
                       <label
                         key={option}
-                        className={`flex min-h-[44px] cursor-pointer items-center rounded-lg border px-4 py-3 text-sm font-medium transition ${
-                          isSelected
-                            ? "border-primary bg-primary/10 text-primary"
-                            : "border-slate-300 text-[#333333] hover:border-primary/70"
-                        }`}
+                        data-selected={isSelected ? "true" : "false"}
+                        className="ui-chip-interactive cursor-pointer justify-start px-4 py-3 text-sm font-medium focus-within:border-primary focus-within:shadow-[var(--ui-focus-shadow)]"
                       >
                         <RadioGroupItem
                           value={option}
@@ -597,11 +588,8 @@ const AppointmentForm = ({ className = "" }: AppointmentFormProps) => {
                     return (
                       <label
                         key={option}
-                        className={`flex min-h-[44px] cursor-pointer items-center justify-center rounded-lg border px-3 py-3 text-sm font-medium transition ${
-                          isSelected
-                            ? "border-primary bg-primary/10 text-primary"
-                            : "border-slate-300 text-[#333333] hover:border-primary/70"
-                        }`}
+                        data-selected={isSelected ? "true" : "false"}
+                        className="ui-chip-interactive cursor-pointer justify-center px-3 py-3 text-sm font-medium focus-within:border-primary focus-within:shadow-[var(--ui-focus-shadow)]"
                       >
                         <RadioGroupItem
                           value={option}
@@ -650,7 +638,7 @@ const AppointmentForm = ({ className = "" }: AppointmentFormProps) => {
 
         <Button
           type="submit"
-          className="h-12 w-full bg-primary text-base font-semibold hover:bg-primary/90"
+          className="ui-btn-primary h-12 w-full text-base font-semibold"
           disabled={isSubmitting || status === "submitting"}
         >
           {isSubmitting || status === "submitting"

@@ -169,7 +169,7 @@ const DentalVeneers = () => {
                 </Button>
               </Link>
               <Link href="/contact">
-                <Button variant="outline" className="border-primary text-primary hover:bg-primary/5 px-8 py-3">
+                <Button variant="outline" className="ui-btn-outline px-8 py-3">
                   Learn More
                 </Button>
               </Link>

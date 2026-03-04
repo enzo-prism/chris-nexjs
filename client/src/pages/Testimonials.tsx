@@ -205,7 +205,7 @@ const Testimonials = () => {
               </Button>
             </Link>
             <Link href="/schedule">
-              <Button variant="outline" className="border-primary text-primary hover:bg-primary/5 font-medium px-6 py-2 rounded-md transition-colors duration-300">
+              <Button variant="outline" className="ui-btn-outline font-medium px-6 py-2 rounded-md transition-colors duration-300">
                 Schedule Appointment
               </Button>
             </Link>

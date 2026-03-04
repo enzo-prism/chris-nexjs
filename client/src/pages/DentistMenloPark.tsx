@@ -9,21 +9,39 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Button } from "@/components/ui/button";
 import { officeInfo } from "@/lib/data";
 import { getSeoForPath } from "@/lib/seo";
-import { getTestimonialsByNames } from "@/lib/testimonials";
+import type { InsertTestimonial } from "@shared/schema";
 import { ArrowRight, CheckCircle, Clock, MapPin, Phone } from "lucide-react";
 import {  buildBreadcrumbSchema,
   buildFAQSchema,  buildReviewSchemas,  type StructuredDataNode,
 } from "@/lib/structuredData";
 import { Link } from "wouter";
 
+const familyTestimonials: InsertTestimonial[] = [
+  {
+    name: "Michael Austin",
+    rating: 5,
+    location: "Google Review",
+    image: "",
+    text: "Been getting my dental care at this office for nearly 30 years, and both my parents did so before me. Kind, caring, gentle, and reasonably priced!",
+  },
+  {
+    name: "Ashley Chung",
+    rating: 5,
+    location: "Google Review",
+    image: "",
+    text: "Been going here for 10+ years since I was a kid. Great establishment and excellent teeth cleaning and guidance!",
+  },
+  {
+    name: "Giordano Bruno Beretta",
+    rating: 5,
+    location: "Google Review",
+    image: "",
+    text: "They have been taking good care of my teeth since 1984 and they are in good shape. I highly recommend Dr. Hamamoto for her expertise and humanity.",
+  },
+];
+
 const DentistMenloPark = () => {
   const seo = getSeoForPath("/dentist-menlo-park");
-
-  const familyTestimonials = getTestimonialsByNames([
-    "Michael Austin",
-    "Ashley Chung",
-    "Giordano Bruno Beretta",
-  ]);
 
   const breadcrumbItems = [
     { name: "Home", path: "/" },
@@ -130,13 +148,13 @@ const DentistMenloPark = () => {
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link href="/schedule#appointment">
-                  <Button className="bg-primary text-white hover:bg-primary/90">
+                  <Button className="ui-btn-primary">
                     Request an appointment
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
                 <a href={`tel:${officeInfo.phoneE164}`}>
-                  <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">
+                  <Button variant="outline" className="ui-btn-outline">
                     Call {officeInfo.phone}
                     <Phone className="ml-2 h-4 w-4" />
                   </Button>
@@ -175,7 +193,7 @@ const DentistMenloPark = () => {
                       href={officeInfo.mapUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-2 inline-flex items-center text-primary font-semibold hover:underline"
+                      className="mt-2 inline-flex items-center ui-link-premium"
                     >
                       Get directions
                       <ArrowRight className="ml-2 h-4 w-4" />
@@ -234,7 +252,7 @@ const DentistMenloPark = () => {
               If your child needs a gentle start, our{" "}
               <Link
                 href="/pediatric-dentist-palo-alto"
-                className="text-primary font-semibold hover:underline"
+                className="ui-link-premium"
               >
                 pediatric dentist team
               </Link>{" "}
@@ -253,7 +271,7 @@ const DentistMenloPark = () => {
                 <p className="text-slate-700 leading-relaxed">
                   Gentle visits focused on prevention, cavity risk reduction, and building comfort early.
                   Explore{" "}
-                  <Link href="/pediatric-dentist-palo-alto" className="text-primary font-semibold hover:underline">
+                  <Link href="/pediatric-dentist-palo-alto" className="ui-link-premium">
                     pediatric dentistry
                   </Link>{" "}
                   for Menlo Park families.
@@ -264,7 +282,7 @@ const DentistMenloPark = () => {
                 <p className="text-slate-700 leading-relaxed">
                   Checkups, sports mouthguard planning, and guidance on habits that affect enamel.
                   For alignment goals, many teens choose{" "}
-                  <Link href="/invisalign" className="text-primary font-semibold hover:underline">
+                  <Link href="/invisalign" className="ui-link-premium">
                     Invisalign
                   </Link>{" "}
                   because it’s discreet and removable.
@@ -275,11 +293,11 @@ const DentistMenloPark = () => {
                 <p className="text-slate-700 leading-relaxed">
                   Prevention, fillings, crowns, and cosmetic improvements with clear recommendations.
                   Start with{" "}
-                  <Link href="/preventive-dentistry" className="text-primary font-semibold hover:underline">
+                  <Link href="/preventive-dentistry" className="ui-link-premium">
                     preventive dentistry
                   </Link>{" "}
                   and regular{" "}
-                  <Link href="/dental-cleaning-palo-alto" className="text-primary font-semibold hover:underline">
+                  <Link href="/dental-cleaning-palo-alto" className="ui-link-premium">
                     cleanings
                   </Link>
                   .
@@ -290,7 +308,7 @@ const DentistMenloPark = () => {
                 <p className="text-slate-700 leading-relaxed">
                   Support for older restorations, bite wear, and long‑term maintenance. If a tooth breaks or starts
                   hurting, our{" "}
-                  <Link href="/emergency-dental" className="text-primary font-semibold hover:underline">
+                  <Link href="/emergency-dental" className="ui-link-premium">
                     emergency dental care
                   </Link>{" "}
                   team can often help the same day.
@@ -306,22 +324,22 @@ const DentistMenloPark = () => {
             <p className="text-slate-700 leading-relaxed">
               We’re known for thorough, comfortable preventive visits—and for making the next steps easy when something
               needs attention. Common needs include routine{" "}
-              <Link href="/dental-cleaning-palo-alto" className="text-primary font-semibold hover:underline">
+              <Link href="/dental-cleaning-palo-alto" className="ui-link-premium">
                 cleanings and exams
               </Link>
               ,{" "}
-              <Link href="/cavity-fillings-palo-alto" className="text-primary font-semibold hover:underline">
+              <Link href="/cavity-fillings-palo-alto" className="ui-link-premium">
                 tooth‑colored fillings
               </Link>
               , and{" "}
-              <Link href="/crowns-palo-alto" className="text-primary font-semibold hover:underline">
+              <Link href="/crowns-palo-alto" className="ui-link-premium">
                 dental crowns
               </Link>{" "}
               when a tooth needs added protection.
             </p>
             <p className="text-slate-700 leading-relaxed">
               If you’re considering orthodontics,{" "}
-              <Link href="/invisalign" className="text-primary font-semibold hover:underline">
+              <Link href="/invisalign" className="ui-link-premium">
                 Invisalign
               </Link>{" "}
               is a popular option for Menlo Park patients because it fits work and school schedules. For cosmetic goals,
@@ -340,13 +358,13 @@ const DentistMenloPark = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Link href="/schedule#appointment">
-                <Button className="bg-primary text-white hover:bg-primary/90">
+                <Button className="ui-btn-primary">
                   Request an appointment
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
               <Link href="/patient-resources#insurance">
-                <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">
+                <Button variant="outline" className="ui-btn-outline">
                   Insurance & forms
                 </Button>
               </Link>

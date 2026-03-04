@@ -16,6 +16,10 @@ Core:
 Metadata and SEO:
 - `GOOGLE_SITE_VERIFICATION` or `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`.
 
+Lead forms:
+- `NEXT_PUBLIC_FORM_ENDPOINT` (client-side Formspree target)
+- `SCHEDULE_FORM_ENDPOINT` (server-side Formspree target)
+
 Optional script variables (for audits):
 - `SEO_AUDIT_BASE_URL`
 - `IMAGE_AUDIT_BASE_URL`
@@ -31,11 +35,15 @@ Optional script variables (for audits):
 
 ## Deploy process
 
-1. Push changes or merge PR.
-2. Wait for Vercel build and deployment success.
-3. Verify canonical host behavior:
+1. Run preflight checks locally (or in CI):
+  - `pnpm run test:production`
+  - `pnpm run test:gallery` (if gallery media changed)
+  - perf suite (`build:perf`, `test:bundle`, `perf:smoke`, `perf:lighthouse`) for performance-sensitive releases
+2. Push changes or merge PR.
+3. Wait for Vercel build and deployment success.
+4. Verify canonical host behavior:
   - `https://chriswongdds.com/*` redirects to `https://www.chriswongdds.com/*`.
-4. Smoke key pages:
+5. Smoke key pages:
   - `/`
   - `/services`
   - `/invisalign`
@@ -43,11 +51,14 @@ Optional script variables (for audits):
   - `/blog`
   - `/changelog`
   - `/contact`
-5. Smoke key APIs:
+6. Smoke key APIs:
   - `/api/services`
   - `/api/blog-posts`
   - `/api/testimonials`
   - `/api/rss.xml`
+7. Verify form flows:
+  - submit `/contact` form
+  - submit `/schedule` appointment request
 
 ## Push-domain deployment notes
 
@@ -58,7 +69,6 @@ After a production push:
   - `https://chris-nextjs.vercel.app/` should render the app successfully.
   - Canonical redirect for `https://chriswongdds.com/*` should still land on `https://www.chriswongdds.com/*`.
 - Confirm API reachability from push domain:
-  - `https://chris-nextjs.vercel.app/api/chat`
   - `https://chris-nextjs.vercel.app/api/schedule-request`
 
 Useful commands:
@@ -101,7 +111,7 @@ Useful flags:
 ```bash
 SEO_AUDIT_BASE_URL=https://<deployment-domain> pnpm run test:seo:all
 IMAGE_AUDIT_BASE_URL=https://<deployment-domain> pnpm run test:images
-LIGHTHOUSE_BASE_URL=https://<deployment-domain> pnpm run check:lighthouse-budget
+LIGHTHOUSE_BASE_URL=https://<deployment-domain> pnpm run perf:lighthouse
 ```
 
 ## Rollback

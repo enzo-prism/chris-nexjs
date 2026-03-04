@@ -5,7 +5,7 @@ Command reference for contract, UI, SEO, and performance checks.
 ## Fast summary
 
 - Use `pnpm run test:production` for a one-command baseline gate.
-- Add runtime SEO/image/perf checks before production promotion.
+- Add `test:gallery` and perf checks when affected surfaces change.
 - Run `pnpm run test:gallery` whenever media inventory or gallery behavior changes.
 
 ## Script matrix
@@ -14,13 +14,12 @@ Command reference for contract, UI, SEO, and performance checks.
 
 - `pnpm run check`
   - Runs hard-coded business-info guard and TypeScript compile checks.
+  - Requires generated Next route types in `.next/types`; if missing, run `pnpm run build` once.
 
 ### API and routing contracts
 
 - `pnpm run test:api`
   - Verifies API handlers for status codes and key payload semantics.
-- `pnpm run test:chatbot`
-  - Verifies chatbot request validation, intent handling, fallback behavior, and LLM JSON sanitization.
 - `pnpm run test:routes`
   - Verifies canonical metadata, redirects, and dynamic blog route behavior.
 
@@ -66,6 +65,25 @@ If local dev is on port `5000`, set `SEO_AUDIT_BASE_URL=http://localhost:5000`.
 - `pnpm run perf:lighthouse`
   - Executes Lighthouse budget checks.
 
+## What `test:production` runs
+
+`pnpm run test:production` executes:
+
+- `pnpm run check`
+- `pnpm run test:bundle`
+- `pnpm run test:api`
+- `pnpm run test:routes`
+- `pnpm run test:design-system`
+- `pnpm run build`
+- starts `pnpm run start` (local production server)
+- `pnpm run test:images` against the started server
+- `pnpm run test:seo:all` against the started server
+
+Environment knobs:
+
+- `PRODUCTION_TEST_PORT` (default `3000`)
+- `PRODUCTION_TEST_BASE_URL` (default `http://localhost:<PRODUCTION_TEST_PORT>`)
+
 ## Release workflows
 
 Baseline gate:
@@ -77,14 +95,8 @@ pnpm run test:production
 Extended release gate:
 
 ```bash
-pnpm run check
-pnpm run test:api
-pnpm run test:routes
+pnpm run test:production
 pnpm run test:gallery
-pnpm run test:design-system
-pnpm run test:images
-pnpm run test:seo:all
-pnpm run build
 pnpm run build:perf
 NEXT_DIST_DIR=.next-perf pnpm run test:bundle
 ```

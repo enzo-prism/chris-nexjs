@@ -95,11 +95,9 @@ const PatientResources = () => {
 	              <div className="grid grid-cols-1 min-[420px]:grid-cols-2 gap-3 max-w-sm mx-auto">
                 <button
                   onClick={() => setActiveTab("forms")}
-                  className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-[0.99] ${
-                    activeTab === "forms" 
-                      ? "border-primary bg-primary text-white shadow-md" 
-                      : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-slate-50"
-                  }`}
+                  data-selected={activeTab === "forms" ? "true" : "false"}
+                  aria-pressed={activeTab === "forms"}
+                  className="ui-chip-interactive flex flex-col items-center justify-center rounded-xl p-4 text-gray-600"
                 >
                   <FileText className="h-6 w-6 mb-2" />
                   <span className="text-sm font-medium">Forms</span>
@@ -107,11 +105,9 @@ const PatientResources = () => {
                 
                 <button
                   onClick={() => setActiveTab("insurance")}
-                  className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-[0.99] ${
-                    activeTab === "insurance" 
-                      ? "border-primary bg-primary text-white shadow-md" 
-                      : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-slate-50"
-                  }`}
+                  data-selected={activeTab === "insurance" ? "true" : "false"}
+                  aria-pressed={activeTab === "insurance"}
+                  className="ui-chip-interactive flex flex-col items-center justify-center rounded-xl p-4 text-gray-600"
                 >
                   <CreditCard className="h-6 w-6 mb-2" />
                   <span className="text-sm font-medium">Insurance</span>
@@ -119,11 +115,9 @@ const PatientResources = () => {
                 
                 <button
                   onClick={() => setActiveTab("faq")}
-                  className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-[0.99] ${
-                    activeTab === "faq" 
-                      ? "border-primary bg-primary text-white shadow-md" 
-                      : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-slate-50"
-                  }`}
+                  data-selected={activeTab === "faq" ? "true" : "false"}
+                  aria-pressed={activeTab === "faq"}
+                  className="ui-chip-interactive flex flex-col items-center justify-center rounded-xl p-4 text-gray-600"
                 >
                   <HelpCircle className="h-6 w-6 mb-2" />
                   <span className="text-sm font-medium">FAQs</span>
@@ -131,11 +125,9 @@ const PatientResources = () => {
                 
                 <button
                   onClick={() => setActiveTab("first-visit")}
-                  className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-[0.99] ${
-                    activeTab === "first-visit" 
-                      ? "border-primary bg-primary text-white shadow-md" 
-                      : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-slate-50"
-                  }`}
+                  data-selected={activeTab === "first-visit" ? "true" : "false"}
+                  aria-pressed={activeTab === "first-visit"}
+                  className="ui-chip-interactive flex flex-col items-center justify-center rounded-xl p-4 text-gray-600"
                 >
                   <Calendar className="h-6 w-6 mb-2" />
                   <span className="text-sm font-medium">First Visit</span>
@@ -148,28 +140,28 @@ const PatientResources = () => {
 	              <TabsList className="bg-blue-50 p-1.5 rounded-3xl shadow-sm border border-blue-100 h-auto flex flex-wrap justify-center gap-1">
 	                <TabsTrigger 
 	                  value="forms" 
-	                  className="rounded-full px-4 py-2 text-sm md:px-6 md:py-3 md:text-base font-medium transition-all data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm"
+	                  className="rounded-full px-4 py-2 text-sm md:px-6 md:py-3 md:text-base"
 	                >
 	                  <FileText className="h-5 w-5 mr-2" />
 	                  Forms
 	                </TabsTrigger>
 	                <TabsTrigger 
 	                  value="insurance" 
-	                  className="rounded-full px-4 py-2 text-sm md:px-6 md:py-3 md:text-base font-medium transition-all data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm"
+	                  className="rounded-full px-4 py-2 text-sm md:px-6 md:py-3 md:text-base"
 	                >
 	                  <CreditCard className="h-5 w-5 mr-2" />
 	                  Insurance
 	                </TabsTrigger>
 	                <TabsTrigger 
 	                  value="faq" 
-	                  className="rounded-full px-4 py-2 text-sm md:px-6 md:py-3 md:text-base font-medium transition-all data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm"
+	                  className="rounded-full px-4 py-2 text-sm md:px-6 md:py-3 md:text-base"
 	                >
 	                  <HelpCircle className="h-5 w-5 mr-2" />
 	                  FAQs
 	                </TabsTrigger>
 	                <TabsTrigger 
 	                  value="first-visit" 
-	                  className="rounded-full px-4 py-2 text-sm md:px-6 md:py-3 md:text-base font-medium transition-all data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm"
+	                  className="rounded-full px-4 py-2 text-sm md:px-6 md:py-3 md:text-base"
 	                >
 	                  <Calendar className="h-5 w-5 mr-2" />
 	                  First Visit
@@ -196,13 +188,13 @@ const PatientResources = () => {
                         href={form.url} 
                         target="_blank" 
                         rel="noopener noreferrer" 
-                        className="flex justify-between items-center p-4 border rounded-md hover:bg-[#F5F9FC] transition-colors"
+                        className="ui-card-interactive flex items-center justify-between rounded-xl border p-4"
                       >
                         <div className="flex items-center">
                           <FileText className="h-5 w-5 text-primary mr-3" />
                           <span>{form.name}</span>
                         </div>
-                        <Button variant="ghost" size="sm" className="text-primary hover:text-primary hover:bg-blue-50">
+                        <Button variant="ghost" size="sm" className="ui-focus-premium text-primary hover:bg-blue-50 hover:text-primary">
                           <Download className="h-4 w-4 mr-1" />
                           {form.type}
                         </Button>
@@ -240,17 +232,17 @@ const PatientResources = () => {
                   <p className="text-[#333333] mb-6">We offer several payment options to help you receive the dental care you need:</p>
                   
                   <div className="space-y-4">
-                    <div className="p-4 border rounded-md hover:bg-[#F5F9FC] transition-colors">
+                    <div className="ui-card-interactive rounded-xl border p-4">
                       <h4 className="font-semibold text-[#333333] mb-1">Credit Cards</h4>
                       <p className="text-sm text-[#333333]">We accept Visa and MasterCard.</p>
                     </div>
                     
-                    <div className="p-4 border rounded-md hover:bg-[#F5F9FC] transition-colors">
+                    <div className="ui-card-interactive rounded-xl border p-4">
                       <h4 className="font-semibold text-[#333333] mb-1">Flexible Spending Accounts (FSA)</h4>
                       <p className="text-sm text-[#333333]">We accept FSA cards for qualified dental procedures and treatments.</p>
                     </div>
                     
-                    <div className="p-4 border rounded-md hover:bg-[#F5F9FC] transition-colors">
+                    <div className="ui-card-interactive rounded-xl border p-4">
                       <h4 className="font-semibold text-[#333333] mb-1">In-Office Dental Plan</h4>
                       <p className="text-sm text-[#333333]">For patients without insurance, we offer an in-house dental plan with significant savings on preventive care and treatments.</p>
                     </div>
@@ -282,7 +274,7 @@ const PatientResources = () => {
               <div className="mt-8 text-center">
                 <p className="text-[#333333] mb-4">Don't see your question here? Feel free to contact us!</p>
                 <Link href="/contact">
-                  <Button className="bg-primary text-white font-semibold hover:bg-primary/90 active:bg-primary/80">
+                  <Button className="ui-btn-primary font-semibold">
                     Contact Us
                   </Button>
                 </Link>
@@ -368,7 +360,7 @@ const PatientResources = () => {
                   </div>
                   
                   <Link href="/schedule#appointment">
-                    <Button className="w-full bg-primary text-white font-semibold hover:bg-primary/90 active:bg-primary/80">
+                    <Button className="ui-btn-primary w-full font-semibold">
                       Schedule Your First Visit
                     </Button>
                   </Link>
@@ -409,7 +401,7 @@ const PatientResources = () => {
                 </div>
                 <div className="mt-8">
                   <Link href="/contact">
-                    <Button className="bg-primary text-white font-semibold hover:bg-primary/90 active:bg-primary/80">
+                    <Button className="ui-btn-primary font-semibold">
                       Contact Us
                     </Button>
                   </Link>

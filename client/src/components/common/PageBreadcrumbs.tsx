@@ -30,7 +30,7 @@ const PageBreadcrumbs = ({
   return (
     <div
       className={cn(
-        "bg-[#F5F9FC] border-b border-slate-200",
+        "border-b border-slate-200 bg-[#F5F9FC]",
         containerClassName,
       )}
     >
@@ -49,7 +49,7 @@ const PageBreadcrumbs = ({
                     ) : (
                       <BreadcrumbLink
                         href={item.path}
-                        className="text-slate-600 hover:text-slate-900"
+                        className="text-slate-600"
                       >
                         {item.name}
                       </BreadcrumbLink>

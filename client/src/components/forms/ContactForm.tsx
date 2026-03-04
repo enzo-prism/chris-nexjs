@@ -173,7 +173,7 @@ const ContactForm = () => {
           )}
         />
 
-        <div className="flex items-start gap-3 rounded-md border border-slate-200 p-3 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/25">
+        <div className="ui-focus-premium flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50/60 p-3 transition-[border-color,background-color,box-shadow] hover:border-primary/35 focus-within:border-primary focus-within:shadow-[var(--ui-focus-shadow)]">
           <Checkbox id="contact-privacy" required className="mt-0.5" />
           <label
             htmlFor="contact-privacy"
@@ -185,7 +185,7 @@ const ContactForm = () => {
 
         <Button
           type="submit"
-          className="w-full bg-primary hover:bg-primary/90 active:bg-primary/80 text-white font-semibold py-3"
+          className="ui-btn-primary w-full py-3 font-semibold"
           disabled={isSubmitting}
         >
           {isSubmitting ? "Sending…" : "Send Message"}

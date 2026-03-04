@@ -1,7 +1,20 @@
+import dynamic from "next/dynamic";
 import { CheckCircle, Phone } from "lucide-react";
-import AppointmentForm from "@/components/forms/AppointmentForm";
 import { officeInfo } from "@/lib/data";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion-lite";
+
+const AppointmentForm = dynamic(
+  () => import("@/components/forms/AppointmentForm"),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        aria-hidden="true"
+        className="min-h-[320px] w-full rounded-xl border border-slate-200 bg-slate-50/80 sm:min-h-[400px]"
+      />
+    ),
+  },
+);
 
 const AppointmentSection = () => {
   const fadeIn = {

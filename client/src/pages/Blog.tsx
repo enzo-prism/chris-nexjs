@@ -165,7 +165,7 @@ const Blog = () => {
                   <p className="text-[#333333] mb-6">{featuredDescription}</p>
                   <div className="mt-auto">
                     <Link href={`/blog/${featuredPost.slug}`}>
-                      <Button className="bg-primary text-white font-semibold hover:bg-primary/90 inline-flex items-center">
+                      <Button className="ui-btn-primary inline-flex items-center font-semibold">
                         Read Full Article
                         <ArrowRight className="h-4 w-4 ml-2" />
                       </Button>
@@ -194,7 +194,7 @@ const Blog = () => {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full rounded-r-none"
                   />
-                  <Button type="submit" className="rounded-l-none bg-primary hover:bg-primary/90">
+                  <Button type="submit" className="ui-btn-primary rounded-l-none">
                     <Search className="h-4 w-4" />
                   </Button>
                 </form>
@@ -207,18 +207,16 @@ const Blog = () => {
                     <li key={category.id}>
                       <button
                         onClick={() => setSelectedCategory(category.id)}
-                        className={`flex items-center w-full min-w-0 text-left py-2 px-3 rounded-md hover:bg-[#F5F9FC] active:bg-[#EAF3FF] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
-                          selectedCategory === category.id 
-                            ? 'bg-primary text-white hover:bg-primary' 
-                            : 'text-[#333333]'
-                        }`}
+                        data-selected={selectedCategory === category.id ? "true" : "false"}
+                        aria-pressed={selectedCategory === category.id}
+                        className="ui-chip-interactive flex w-full min-w-0 items-center justify-start rounded-xl px-3 py-2 text-left text-[#333333]"
                       >
                         <ArrowRight className={`h-4 w-4 mr-2 ${
-                          selectedCategory === category.id ? 'text-white' : 'text-primary'
+                          selectedCategory === category.id ? "text-primary" : "text-primary/80"
                         }`} />
                         <span className="flex-1 min-w-0 break-words">{category.name}</span>
                         <span className={`text-xs ${
-                          selectedCategory === category.id ? 'text-white/80' : 'text-gray-400'
+                          selectedCategory === category.id ? "text-primary/80" : "text-gray-400"
                         }`}>
                           {category.count}
                         </span>

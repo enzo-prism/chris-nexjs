@@ -26,6 +26,7 @@ cp .env.example .env
 - `PORT` for local server port (`.env.example` uses `5000`).
 - `DATABASE_URL` to enable DB-backed storage mode.
 - `GOOGLE_SITE_VERIFICATION` or `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`.
+- `NEXT_PUBLIC_FORM_ENDPOINT` and `SCHEDULE_FORM_ENDPOINT` for Formspree-backed forms.
 
 ## Run development server
 
@@ -71,6 +72,9 @@ Release convenience gate:
 pnpm run test:production
 ```
 
+`test:production` builds and starts the production server automatically, then runs runtime image + SEO audits.
+Default runtime base URL is `http://localhost:3000` (override with `PRODUCTION_TEST_PORT` or `PRODUCTION_TEST_BASE_URL`).
+
 ## Performance local flow
 
 Run isolated perf build and server:
@@ -103,6 +107,13 @@ IMAGE_AUDIT_BASE_URL=http://localhost:5000 pnpm run test:images
 
 - Stale build artifacts:
   - `rm -rf .next .next-perf`
+- `ChunkLoadError` for `/_next/static/chunks/app/%5B...slug%5D/page.js` in dev:
+  - stop the dev server
+  - run `rm -rf .next`
+  - restart with `pnpm run dev`
+  - hard refresh browser tab
+- `pnpm run check` fails with missing `.next/types/*` files:
+  - run `pnpm run build` once to regenerate Next route type artifacts
 - Port already in use:
   - change `PORT` in `.env` or stop conflicting process
 - Redirect/canonical mismatch:

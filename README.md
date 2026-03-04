@@ -7,7 +7,7 @@ The app runs on Next.js App Router with API route handlers, centralized SEO meta
 
 - Marketing pages, location pages, services, and blog content.
 - Interactive lead flows: appointment request, contact form, newsletter.
-- AI practice assistant at `POST /api/chat` with knowledge-first canned responses.
+- No production chat widget or `/api/chat` endpoint in current launch scope.
 - `/gallery` media showcase with hero video, click-to-play clips, and fullscreen lightbox.
 - `/changelog` page that merges update history from current and legacy repositories.
 
@@ -15,7 +15,9 @@ The app runs on Next.js App Router with API route handlers, centralized SEO meta
 
 - Runtime: Next.js 14 App Router.
 - UI stack: React 18, TypeScript, Tailwind, shadcn/ui primitives.
-- Routing strategy: explicit App Router pages plus catch-all compatibility route.
+- Routing strategy:
+  - explicit App Router pages for canonical public URLs
+  - catch-all route reserved for legacy compatibility fallback (`app/[...slug]/page.tsx`)
 - API layer: Next route handlers under `app/api/*`.
 - Data layer: repository pattern under `server/storage/*`.
 - Storage mode:
@@ -65,11 +67,7 @@ Core:
 Metadata/SEO:
 - `GOOGLE_SITE_VERIFICATION` or `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`.
 
-Chat / scheduling:
-- `CHAT_USE_AI_GATEWAY` + `AI_GATEWAY_API_KEY`
-- `AI_GATEWAY_MODEL` (`openai/gpt-4o-mini` recommended)
-- `VERCEL_AI_GATEWAY_BASE_URL` (optional)
-- `CHAT_USE_OPENAI` + `OPENAI_API_KEY` (legacy fallback)
+Lead forms / scheduling:
 - `NEXT_PUBLIC_FORM_ENDPOINT` and `SCHEDULE_FORM_ENDPOINT` for Formspree-backed scheduling.
 
 Script URL overrides:
@@ -97,7 +95,6 @@ Contract and quality checks:
 - `pnpm run test:design-system`
 - `pnpm run test:images`
 - `pnpm run test:gallery`
-- `pnpm run test:chatbot`
 
 SEO checks:
 - `pnpm run test:seo`
@@ -115,6 +112,9 @@ Performance checks:
 
 Release convenience gate:
 - `pnpm run test:production`
+  - runs `check`, `test:bundle`, `test:api`, `test:routes`, `test:design-system`, `build`
+  - starts `next start`, then runs runtime `test:images` and `test:seo:all`
+  - default runtime URL is `http://localhost:3000` (override with `PRODUCTION_TEST_PORT` or `PRODUCTION_TEST_BASE_URL`)
 
 Utility:
 - `pnpm run changelog:generate`
@@ -137,7 +137,6 @@ Write endpoints:
 - `POST /api/appointments`
 - `POST /api/contact`
 - `POST /api/newsletter`
-- `POST /api/chat`
 - `POST /api/schedule-request`
 
 ## SEO and canonical behavior
@@ -175,6 +174,5 @@ Never combine `Dr.` and `DDS` in the same line.
 - Production readiness spec: `/Users/enzo/chris-nextjs/docs/production-readiness-spec.md`
 - SEO growth plan: `/Users/enzo/chris-nextjs/docs/seo-growth-plan.md`
 - SEO keyword map: `/Users/enzo/chris-nextjs/docs/seo-keyword-map.md`
-- Chat strategy and success criteria: `/Users/enzo/chris-nextjs/docs/chatbot-strategy-and-success-criteria.md`
 - Gallery feature guide: `/Users/enzo/chris-nextjs/docs/gallery.md`
 - Changelog operations guide: `/Users/enzo/chris-nextjs/docs/changelog.md`

@@ -113,7 +113,7 @@ const RelatedServicePosts = ({
             </p>
           </div>
           <Link href={ctaHref}>
-            <Button className="mt-6 sm:mt-0 bg-primary text-white hover:bg-primary/90 inline-flex items-center">
+            <Button className="ui-btn-primary mt-6 inline-flex items-center sm:mt-0">
               {normalizedCategory
                 ? `View all ${serviceName} articles`
                 : "View All Articles"}

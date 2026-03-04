@@ -88,9 +88,7 @@ export default function GalleryTile({
       onKeyDown={handleKeyDown}
       aria-label={item.title}
       className={cn(
-        "group relative overflow-hidden rounded-[24px] bg-slate-100 ring-1 ring-slate-900/5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-500 ease-out",
-        "hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(0,0,0,0.12)] hover:ring-slate-900/10",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2",
+        "ui-card-interactive ui-focus-premium group relative overflow-hidden rounded-[24px] border border-slate-900/5 bg-slate-100",
         className,
       )}
     >
@@ -140,7 +138,7 @@ export default function GalleryTile({
               type="button"
               onClick={toggleInlinePlayback}
               className={cn(
-                "absolute inset-0 m-auto z-10 flex h-14 w-14 items-center justify-center rounded-full border border-white/30 bg-black/20 text-white backdrop-blur-md transition-all duration-300",
+                "ui-focus-premium absolute inset-0 m-auto z-10 flex h-14 w-14 items-center justify-center rounded-full border border-white/30 bg-black/20 text-white backdrop-blur-md transition-all duration-300",
                 "opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 hover:bg-black/40",
               )}
               aria-label={isInlinePlaying ? "Pause preview clip" : "Play preview clip"}

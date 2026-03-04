@@ -304,7 +304,7 @@ const EmergencyDental = () => {
                   href={officeInfo.mapUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-2 inline-flex items-center text-primary font-semibold hover:underline"
+                  className="mt-2 inline-flex items-center ui-link-premium"
                 >
                   Get directions
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -588,7 +588,7 @@ const EmergencyDental = () => {
                 </Button>
               </a>
               <Link href="/schedule">
-                <Button variant="outline" className="border-primary text-primary hover:bg-primary/5 px-8 py-3">
+                <Button variant="outline" className="ui-btn-outline px-8 py-3">
                   Schedule Regular Visit
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>

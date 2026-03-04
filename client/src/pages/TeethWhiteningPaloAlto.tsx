@@ -184,13 +184,13 @@ const TeethWhiteningPaloAlto = () => {
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link href="/schedule#appointment">
-                  <Button className="bg-primary text-white hover:bg-primary/90">
+                  <Button className="ui-btn-primary">
                     Schedule whitening consultation
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
                 <a href={`tel:${officeInfo.phoneE164}`}>
-                  <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">
+                  <Button variant="outline" className="ui-btn-outline">
                     Call {officeInfo.phone}
                     <Phone className="ml-2 h-4 w-4" />
                   </Button>
@@ -215,7 +215,7 @@ const TeethWhiteningPaloAlto = () => {
                       href={officeInfo.mapUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-2 inline-flex items-center text-primary font-semibold hover:underline"
+                      className="mt-2 inline-flex items-center ui-link-premium"
                     >
                       Get directions
                       <ArrowRight className="ml-2 h-4 w-4" />
@@ -267,7 +267,7 @@ const TeethWhiteningPaloAlto = () => {
             </h2>
             <p className="text-slate-700 leading-relaxed">
               Our most popular option is professional in‑office whitening using{" "}
-              <Link href="/zoom-whitening" className="text-primary font-semibold hover:underline">
+              <Link href="/zoom-whitening" className="ui-link-premium">
                 ZOOM! whitening in Palo Alto
               </Link>
               . In a single visit, we isolate the gums, apply professional whitening gel, and use controlled activation
@@ -290,7 +290,7 @@ const TeethWhiteningPaloAlto = () => {
                   tailor strength and timing to reduce irritation and sensitivity.
                 </p>
                 <Link href="/zoom-whitening">
-                  <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">
+                  <Button variant="outline" className="ui-btn-outline">
                     Learn about ZOOM! whitening
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
@@ -305,7 +305,7 @@ const TeethWhiteningPaloAlto = () => {
                   stays where it belongs and results feel more predictable.
                 </p>
                 <Link href="/schedule#appointment">
-                  <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">
+                  <Button variant="outline" className="ui-btn-outline">
                     Ask about take‑home trays
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
@@ -422,7 +422,7 @@ const TeethWhiteningPaloAlto = () => {
             </h2>
             <p className="text-slate-700 leading-relaxed">
               Whitening lasts longest when your teeth are healthy and clean. Regular visits for{" "}
-              <Link href="/dental-cleaning-palo-alto" className="text-primary font-semibold hover:underline">
+              <Link href="/dental-cleaning-palo-alto" className="ui-link-premium">
                 dental cleanings in Palo Alto
               </Link>{" "}
               help remove surface stains and keep your shade stable. At home, brush twice daily, floss, and consider
@@ -453,13 +453,13 @@ const TeethWhiteningPaloAlto = () => {
             </div>
             <div className="flex flex-col sm:flex-row gap-3 pt-1">
               <Link href="/schedule#appointment">
-                <Button className="bg-primary text-white hover:bg-primary/90">
+                <Button className="ui-btn-primary">
                   Request an appointment
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
               <Link href="/patient-resources#insurance">
-                <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">
+                <Button variant="outline" className="ui-btn-outline">
                   Insurance & forms
                 </Button>
               </Link>
@@ -472,17 +472,17 @@ const TeethWhiteningPaloAlto = () => {
             </h2>
             <ul className="space-y-2 text-slate-700">
               <li>
-                <Link href="/blog/how-long-does-teeth-whitening-last" className="text-primary font-semibold hover:underline">
+                <Link href="/blog/how-long-does-teeth-whitening-last" className="ui-link-premium">
                   How long does teeth whitening last?
                 </Link>
               </li>
               <li>
-                <Link href="/blog/teeth-whitening-sensitivity-what-helps" className="text-primary font-semibold hover:underline">
+                <Link href="/blog/teeth-whitening-sensitivity-what-helps" className="ui-link-premium">
                   Teeth whitening sensitivity: what helps
                 </Link>
               </li>
               <li>
-                <Link href="/blog/in-office-whitening-vs-take-home-trays" className="text-primary font-semibold hover:underline">
+                <Link href="/blog/in-office-whitening-vs-take-home-trays" className="ui-link-premium">
                   In‑office whitening vs take‑home trays: what to expect
                 </Link>
               </li>
@@ -557,7 +557,7 @@ const TeethWhiteningPaloAlto = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href="/schedule#appointment">
-              <Button className="bg-primary text-white hover:bg-primary/90 font-semibold">
+              <Button className="ui-btn-primary font-semibold">
                 Book whitening visit
               </Button>
             </Link>

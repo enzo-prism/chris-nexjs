@@ -34,7 +34,7 @@ const OfficeInformationSection = () => {
             href={officeInfo.mapUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center text-primary text-sm sm:text-base hover:underline"
+            className="ui-link-premium inline-flex items-center text-sm sm:text-base"
           >
             Get Directions
             <ExternalLink className="ml-1 h-3 w-3 sm:h-4 sm:w-4" />
@@ -49,7 +49,7 @@ const OfficeInformationSection = () => {
         <p className="text-[#333333] text-sm sm:text-base">
           <a
             href={`tel:${officeInfo.phoneE164}`}
-            className="hover:text-primary transition-colors"
+            className="ui-link-premium text-slate-700"
           >
             {officeInfo.phone}
           </a>
@@ -95,7 +95,7 @@ const OfficeInformationSection = () => {
           {contactCards.map((card, index) => (
             <motion.div 
               key={index}
-              className="bg-white p-5 sm:p-6 rounded-lg shadow-md text-center hover:shadow-lg transition-shadow duration-300"
+              className="ui-card-interactive rounded-lg border bg-white p-5 text-center sm:p-6"
               custom={index}
               initial="hidden"
               whileInView="visible"

@@ -74,7 +74,7 @@ const Footer = () => {
                   <Phone className="h-4 w-4 mr-3 flex-shrink-0 text-white/70" />
                   <a
                     href={`tel:${officeInfo.phoneE164}`}
-                    className="hover:text-white transition-colors"
+                    className="ui-link-premium-dark px-1 py-0.5 text-white/90"
                     itemProp="telephone"
                   >
                     {officeInfo.phone}
@@ -104,7 +104,7 @@ const Footer = () => {
                     <a 
                       key={index} 
                       href={social.href} 
-                      className="text-white/80 hover:text-white transition-colors bg-white/10 p-2 rounded-full"
+                      className="ui-link-premium-dark rounded-full bg-white/10 p-2 text-white/80"
                       aria-label={social.label}
                       rel="noopener noreferrer"
                       target="_blank"
@@ -123,14 +123,12 @@ const Footer = () => {
               <ul className="space-y-3">
                 {quickLinks.map((link, index) => (
                   <li key={index} className="text-sm text-white/80">
-                    <Link href={link.href}>
-                      <span className="group inline-flex items-center hover:text-white transition-colors cursor-pointer">
-                        <span>{link.label}</span>
-                        <ExternalLink
-                          className="ml-1 h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100"
-                          aria-hidden="true"
-                        />
-                      </span>
+                    <Link href={link.href} className="group inline-flex items-center ui-link-premium-dark px-1 py-0.5 text-white/80">
+                      <span>{link.label}</span>
+                      <ExternalLink
+                        className="ml-1 h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100"
+                        aria-hidden="true"
+                      />
                     </Link>
                   </li>
                 ))}
@@ -143,10 +141,8 @@ const Footer = () => {
               <ul className="space-y-3">
                 {services.map((service, index) => (
                   <li key={index} className="text-sm text-white/80">
-                    <Link href={service.href}>
-                      <span className="hover:text-white transition-colors cursor-pointer">
-                        {service.label}
-                      </span>
+                    <Link href={service.href} className="ui-link-premium-dark px-1 py-0.5 text-white/80">
+                      {service.label}
                     </Link>
                   </li>
                 ))}
@@ -168,7 +164,7 @@ const Footer = () => {
                   href="https://www.design-prism.com/case-studies/dr-christopher-wong?utm_source=drwong&utm_medium=referral&utm_campaign=drwong_2025-07" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="hover:text-white/70 transition-colors underline underline-offset-2"
+                  className="ui-link-premium-dark px-1 py-0.5 text-white/70"
                 >
                   Prism in silicon valley
                 </a>
@@ -176,20 +172,20 @@ const Footer = () => {
             </div>
             <div className="flex space-x-4 mt-4 md:mt-0">
               {legalLinks.map((link, index) => (
-                <Link key={index} href={link.href}>
-                  <span className="text-xs text-white/70 hover:text-white transition-colors cursor-pointer">
-                    {link.label}
-                  </span>
+                <Link key={index} href={link.href} className="ui-link-premium-dark px-1 py-0.5 text-xs text-white/70">
+                  {link.label}
                 </Link>
               ))}
             </div>
             {internalLinks.length > 0 ? (
               <div className="mt-4 md:mt-0 flex flex-wrap items-center justify-center md:justify-end gap-2 text-[10px]">
                 {internalLinks.map((link, index) => (
-                  <Link key={`internal-${index}`} href={link.href}>
-                    <span className="text-white/30 hover:text-white/50 transition-colors cursor-pointer">
-                      {link.label}
-                    </span>
+                  <Link
+                    key={`internal-${index}`}
+                    href={link.href}
+                    className="ui-link-premium-dark px-1 py-0.5 text-white/30"
+                  >
+                    {link.label}
                   </Link>
                 ))}
               </div>
@@ -211,7 +207,7 @@ const Footer = () => {
                 <a 
                   key={index} 
                   href={social.href} 
-                  className="text-white/80 hover:text-white transition-colors bg-white/10 p-2 rounded-full"
+                  className="ui-link-premium-dark rounded-full bg-white/10 p-2 text-white/80"
                   aria-label={social.label}
                   rel="noopener noreferrer"
                   target="_blank"
@@ -229,7 +225,7 @@ const Footer = () => {
                 <Phone className="h-4 w-4 mr-3 flex-shrink-0 text-white/70" />
                 <a
                   href={`tel:${officeInfo.phoneE164}`}
-                  className="hover:text-white transition-colors"
+                  className="ui-link-premium-dark px-1 py-0.5 text-white/90"
                   itemProp="telephone"
                 >
                   {officeInfo.phone}
@@ -260,17 +256,15 @@ const Footer = () => {
           {/* Accordion menu for mobile */}
           <Accordion type="single" collapsible className="mb-8">
             <AccordionItem value="quick-links" className="border-white/20">
-              <AccordionTrigger className="text-sm py-3 text-white hover:text-white/90">
+              <AccordionTrigger className="text-sm py-3 text-white hover:text-white">
                 Quick Links
               </AccordionTrigger>
               <AccordionContent>
                 <ul className="space-y-2 py-2 pl-2">
                   {quickLinks.map((link, index) => (
                     <li key={index} className="text-sm text-white/80">
-                      <Link href={link.href}>
-                        <span className="hover:text-white transition-colors cursor-pointer block py-1">
-                          {link.label}
-                        </span>
+                      <Link href={link.href} className="ui-link-premium-dark block px-2 py-1 text-white/80">
+                        {link.label}
                       </Link>
                     </li>
                   ))}
@@ -279,17 +273,15 @@ const Footer = () => {
             </AccordionItem>
             
             <AccordionItem value="services" className="border-white/20">
-              <AccordionTrigger className="text-sm py-3 text-white hover:text-white/90">
+              <AccordionTrigger className="text-sm py-3 text-white hover:text-white">
                 Our Services
               </AccordionTrigger>
               <AccordionContent>
                 <ul className="space-y-2 py-2 pl-2">
                   {services.map((service, index) => (
                     <li key={index} className="text-sm text-white/80">
-                      <Link href={service.href}>
-                        <span className="hover:text-white transition-colors cursor-pointer block py-1">
-                          {service.label}
-                        </span>
+                      <Link href={service.href} className="ui-link-premium-dark block px-2 py-1 text-white/80">
+                        {service.label}
                       </Link>
                     </li>
                   ))}
@@ -311,26 +303,29 @@ const Footer = () => {
                 href="https://www.design-prism.com/case-studies/dr-christopher-wong?utm_source=drwong&utm_medium=referral&utm_campaign=drwong_2025-07" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="hover:text-white/70 transition-colors underline underline-offset-2"
+                className="ui-link-premium-dark px-1 py-0.5 text-white/70"
               >
                 Prism in silicon valley
               </a>
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               {legalLinks.map((link, index) => (
-                <Link key={index} href={link.href}>
-                  <span className="text-xs text-white/70 hover:text-white transition-colors cursor-pointer">
-                    {link.label}
-                  </span>
+                <Link
+                  key={index}
+                  href={link.href}
+                  className="ui-link-premium-dark px-1 py-0.5 text-xs text-white/70"
+                >
+                  {link.label}
                 </Link>
               ))}
             </div>
             {internalLinks.length > 0 ? (
               <p className="mt-3 text-[10px] text-white/30">
-                <Link href={internalLinks[0].href}>
-                  <span className="hover:text-white/50 transition-colors cursor-pointer">
-                    {internalLinks[0].label}
-                  </span>
+                <Link
+                  href={internalLinks[0].href}
+                  className="ui-link-premium-dark px-1 py-0.5 text-white/30"
+                >
+                  {internalLinks[0].label}
                 </Link>
               </p>
             ) : null}

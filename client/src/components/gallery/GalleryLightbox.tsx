@@ -129,7 +129,7 @@ export default function GalleryLightbox({
       <button
         type="button"
         onClick={onClose}
-        className="absolute right-3 top-3 z-20 rounded-full border border-white/20 bg-black/35 p-2 text-white/85 transition hover:bg-black/55 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 sm:right-5 sm:top-5"
+        className="ui-focus-premium absolute right-3 top-3 z-20 rounded-full border border-white/20 bg-black/35 p-2 text-white/85 transition-[background-color,color,border-color,transform] hover:border-white/35 hover:bg-black/55 hover:text-white active:translate-y-[0.5px] sm:right-5 sm:top-5"
         aria-label="Close gallery viewer"
       >
         <X className="h-6 w-6" />
@@ -138,7 +138,7 @@ export default function GalleryLightbox({
       <button
         type="button"
         onClick={goPrev}
-        className="absolute left-2 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/20 bg-black/35 p-2 text-white/85 transition hover:bg-black/55 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 sm:left-5 sm:p-3"
+        className="ui-focus-premium absolute left-2 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/20 bg-black/35 p-2 text-white/85 transition-[background-color,color,border-color,transform] hover:border-white/35 hover:bg-black/55 hover:text-white active:scale-[0.98] sm:left-5 sm:p-3"
         aria-label="Previous media"
       >
         <ChevronLeft className="h-6 w-6" />
@@ -147,7 +147,7 @@ export default function GalleryLightbox({
       <button
         type="button"
         onClick={goNext}
-        className="absolute right-2 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/20 bg-black/35 p-2 text-white/85 transition hover:bg-black/55 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 sm:right-5 sm:p-3"
+        className="ui-focus-premium absolute right-2 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/20 bg-black/35 p-2 text-white/85 transition-[background-color,color,border-color,transform] hover:border-white/35 hover:bg-black/55 hover:text-white active:scale-[0.98] sm:right-5 sm:p-3"
         aria-label="Next media"
       >
         <ChevronRight className="h-6 w-6" />
@@ -185,7 +185,7 @@ export default function GalleryLightbox({
               <button
                 type="button"
                 onClick={toggleLightboxVideo}
-                className="absolute inset-0 m-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/45 bg-black/40 text-white backdrop-blur-sm transition hover:bg-black/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+                className="ui-focus-premium absolute inset-0 m-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/45 bg-black/40 text-white backdrop-blur-sm transition-[background-color,border-color,transform] hover:border-white/70 hover:bg-black/55 active:translate-y-[0.5px]"
                 aria-label={isVideoPlaying ? "Pause video" : "Play video"}
               >
                 {isVideoPlaying ? (

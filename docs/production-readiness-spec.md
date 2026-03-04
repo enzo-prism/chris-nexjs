@@ -103,21 +103,18 @@ Gates:
 
 Current script coverage:
 - `pnpm run test:production`
+  - includes: `check`, `test:bundle`, `test:api`, `test:routes`, `test:design-system`, `build`
+  - starts production server and runs runtime `test:images` and `test:seo:all`
+  - default runtime base URL: `http://localhost:3000` (override with `PRODUCTION_TEST_PORT` / `PRODUCTION_TEST_BASE_URL`)
 
 Note:
-- `test:production` is a convenience gate and does not replace full perf/build verification.
+- `test:production` does not run `test:gallery` and does not replace full perf verification.
 
 ## Recommended release command sequence
 
 ```bash
-pnpm run check
-pnpm run test:api
-pnpm run test:routes
+pnpm run test:production
 pnpm run test:gallery
-pnpm run test:design-system
-pnpm run test:images
-pnpm run test:seo:all
-pnpm run build
 pnpm run build:perf
 NEXT_DIST_DIR=.next-perf pnpm run test:bundle
 ```

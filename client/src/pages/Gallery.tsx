@@ -59,7 +59,7 @@ function GalleryHero({ video }: { video: GalleryMediaItem }): JSX.Element {
             </div>
             
             <div className="flex flex-wrap gap-4">
-              <ButtonLink href="/schedule#appointment" className="rounded-full px-8 h-12 text-base font-semibold shadow-lg shadow-blue-600/20 transition-all hover:scale-105 active:scale-95">
+              <ButtonLink href="/schedule#appointment" className="ui-btn-primary h-12 rounded-full px-8 text-base font-semibold">
                 Book a Visit
               </ButtonLink>
               <div className="flex items-center gap-4 text-slate-500 text-sm font-medium">
@@ -95,7 +95,7 @@ function GalleryHero({ video }: { video: GalleryMediaItem }): JSX.Element {
               <button
                 type="button"
                 onClick={() => setIsMuted((value) => !value)}
-                className="absolute bottom-6 left-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/30 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white backdrop-blur-md transition-all hover:bg-black/50"
+                className="ui-focus-premium absolute bottom-6 left-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/30 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white backdrop-blur-md transition-[background-color,border-color,transform] hover:border-white/40 hover:bg-black/50 active:translate-y-[0.5px]"
               >
                 {isMuted ? (
                   <><VolumeOff className="h-4 w-4" /> Unmute Tour</>
@@ -151,11 +151,11 @@ export default function Gallery(): JSX.Element {
                 <button
                   key={category}
                   onClick={() => setActiveCategory(category)}
+                  data-selected={activeCategory === category ? "true" : "false"}
+                  aria-pressed={activeCategory === category}
                   className={cn(
-                    "relative rounded-xl px-5 py-2.5 text-sm font-semibold transition-all duration-300",
-                    activeCategory === category
-                      ? "bg-white text-blue-600 shadow-sm ring-1 ring-slate-200"
-                      : "text-slate-500 hover:text-slate-900"
+                    "ui-chip-interactive relative rounded-xl px-5 py-2.5 text-sm font-semibold",
+                    activeCategory === category ? "text-primary" : "text-slate-600"
                   )}
                 >
                   {category}
@@ -251,4 +251,3 @@ export default function Gallery(): JSX.Element {
     </div>
   );
 }
-

@@ -99,12 +99,12 @@ const CrownsPaloAlto = () => {
 
           <div className="flex flex-col sm:flex-row gap-3">
             <Link href="/schedule#appointment">
-              <Button className="bg-primary text-white hover:bg-primary/90">
+              <Button className="ui-btn-primary">
                 Schedule a crown consult
               </Button>
             </Link>
             <a href={`tel:${officeInfo.phoneE164}`}>
-              <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">
+              <Button variant="outline" className="ui-btn-outline">
                 Call {officeInfo.phone}
               </Button>
             </a>
