@@ -127,7 +127,13 @@ vercel inspect www.chriswongdds.com
 gh api 'repos/enzo-prism/chris-nexjs/deployments?per_page=20' | jq -r '.[] | [.environment, .sha, .created_at] | @tsv'
 curl -I https://chriswongdds.com
 curl -I https://www.chriswongdds.com
-curl -sL https://www.chriswongdds.com/ | rg -n 'googletagmanager.com/gtag/js\\?id=G-94WRBJY51J'
+curl -sL https://www.chriswongdds.com/ \
+  | perl -0ne 'if (/<head>(.*?)<\\/head>/s) { print $1 }' \
+  | rg -o 'googletagmanager.com/gtag/js\\?id=G-94WRBJY51J' \
+  | wc -l
+curl -sL https://www.chriswongdds.com/ \
+  | perl -0ne 'if (/<head>(.*?)<\\/head>/s) { print $1 }' \
+  | rg -n "gtag\\('consent', 'default'|region:|analytics_consent|gtag\\('config', 'G-94WRBJY51J'|send_page_view: false"
 ```
 
 Expected:
@@ -137,3 +143,5 @@ Expected:
 - latest production deployments for `chris-wong-dds`, `chris-nextjs`, and `chriswongdds` reference the expected release SHA
 - apex host (`chriswongdds.com`) redirects to `https://www.chriswongdds.com/`
 - canonical host returns `200`
+- GA head-tag count command returns `1`
+- consent markers are present in head bootstrap script

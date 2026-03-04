@@ -171,12 +171,19 @@ Verify form flows:
 Verify analytics tag install:
 
 ```bash
-curl -sL https://www.chriswongdds.com/ | rg -n 'googletagmanager.com/gtag/js\\?id=G-94WRBJY51J'
+curl -sL https://www.chriswongdds.com/ \
+  | perl -0ne 'if (/<head>(.*?)<\\/head>/s) { print $1 }' \
+  | rg -o 'googletagmanager.com/gtag/js\\?id=G-94WRBJY51J' \
+  | wc -l
+curl -sL https://www.chriswongdds.com/ \
+  | perl -0ne 'if (/<head>(.*?)<\\/head>/s) { print $1 }' \
+  | rg -n "gtag\\('consent', 'default'|region:|analytics_consent|gtag\\('config', 'G-94WRBJY51J'|send_page_view: false"
 ```
 
 Expected:
 
-- Exactly one Google tag reference per page.
+- First command returns `1` (exactly one GA4 tag in `<head>`).
+- Consent mode script markers are present (`consent default`, `region`, `analytics_consent`).
 
 ## Verification commands against preview or production
 
