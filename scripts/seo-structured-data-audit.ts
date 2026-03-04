@@ -80,6 +80,19 @@ function hasTelephone(node: JsonRecord): boolean {
   return typeof telephone === "string" && telephone.length > 0;
 }
 
+function hasWebSiteSearchAction(node: JsonRecord): boolean {
+  if (node["@type"] !== "WebSite") return false;
+  const action = node.potentialAction;
+  if (!action || typeof action !== "object") return false;
+  const actionType = (action as JsonRecord)["@type"];
+  if (actionType !== "SearchAction") return false;
+
+  const target = (action as JsonRecord).target;
+  if (!target || typeof target !== "object") return false;
+  const urlTemplate = (target as JsonRecord).urlTemplate;
+  return typeof urlTemplate === "string" && urlTemplate.includes("{search_term_string}");
+}
+
 function validateCanonicalUrls(nodes: JsonRecord[], path: string, failures: Failure[]): void {
   for (const node of nodes) {
     const url = node.url;
@@ -145,6 +158,13 @@ async function main(): Promise<void> {
       if (!types.has("WebSite")) {
         failures.push({ path, message: "Homepage should include WebSite schema" });
       }
+      const hasSearchAction = nodes.some((node) => hasWebSiteSearchAction(node));
+      if (!hasSearchAction) {
+        failures.push({
+          path,
+          message: "Homepage WebSite schema should include SearchAction with urlTemplate",
+        });
+      }
       if (!types.has("Organization") && !types.has("Dentist")) {
         failures.push({
           path,
@@ -191,6 +211,36 @@ async function main(): Promise<void> {
         failures.push({
           path,
           message: "Service page should include Service, FAQPage, or BreadcrumbList schema",
+        });
+      }
+    }
+
+    if (path === "/services") {
+      if (!types.has("CollectionPage")) {
+        failures.push({
+          path,
+          message: "Services page should include CollectionPage schema",
+        });
+      }
+      if (!types.has("ItemList")) {
+        failures.push({
+          path,
+          message: "Services page should include ItemList schema",
+        });
+      }
+    }
+
+    if (path === "/locations") {
+      if (!types.has("CollectionPage")) {
+        failures.push({
+          path,
+          message: "Locations page should include CollectionPage schema",
+        });
+      }
+      if (!types.has("ItemList")) {
+        failures.push({
+          path,
+          message: "Locations page should include ItemList schema",
         });
       }
     }

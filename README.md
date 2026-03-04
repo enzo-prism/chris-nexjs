@@ -208,5 +208,6 @@ Never combine `Dr.` and `DDS` in the same line.
 - Production readiness spec: `/Users/enzo/chris-nextjs/docs/production-readiness-spec.md`
 - SEO growth plan: `/Users/enzo/chris-nextjs/docs/seo-growth-plan.md`
 - SEO keyword map: `/Users/enzo/chris-nextjs/docs/seo-keyword-map.md`
+- SEO implementation backlog: `/Users/enzo/chris-nextjs/docs/seo-implementation-backlog.md`
 - Gallery feature guide: `/Users/enzo/chris-nextjs/docs/gallery.md`
 - Changelog operations guide: `/Users/enzo/chris-nextjs/docs/changelog.md`

@@ -33,12 +33,13 @@ const Footer = () => {
   const internalLinks = [{ href: "/changelog", label: "Changelog" }];
 
   const services = [
-    { href: "/services#preventive-dentistry", label: "Preventive Dentistry" },
+    { href: "/preventive-dentistry", label: "Preventive Dentistry" },
     { href: "/invisalign", label: "Invisalign®" },
-    { href: "/services#cosmetic-dentistry", label: "Cosmetic Dentistry" },
+    { href: "/dental-veneers", label: "Cosmetic Dentistry" },
     { href: "/teeth-whitening-palo-alto", label: "Teeth Whitening" },
-    { href: "/services#restorative-dentistry", label: "Restorative Dentistry" },
-    { href: "/services#pediatric-dentistry", label: "Pediatric Dentistry" },
+    { href: "/restorative-dentistry", label: "Restorative Dentistry" },
+    { href: "/pediatric-dentistry", label: "Pediatric Dentistry" },
+    { href: "/dental-implants", label: "Dental Implants" },
     { href: "/emergency-dental", label: "Emergency Dentist" }
   ];
 

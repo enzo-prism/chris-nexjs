@@ -27,6 +27,8 @@ Use this file as the central index for project documentation.
   Operational SEO growth plan and cadence.
 - `seo-keyword-map.md`  
   URL-level keyword mapping and anti-cannibalization guide.
+- `seo-implementation-backlog.md`
+  Prioritized technical SEO implementation tickets and completion log.
 
 ## Feature operations
 

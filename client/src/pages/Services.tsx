@@ -12,8 +12,10 @@ import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import FAQSection from "@/components/common/FAQSection";
 import {
   buildBreadcrumbSchema,
+  buildCollectionPageSchema,
   buildFAQSchema,
-  buildItemListSchema,  type FAQEntry,
+  buildItemListSchema,
+  type FAQEntry,
 } from "@/lib/structuredData";
 
 const preventiveDentistryFaqs: FAQEntry[] = [
@@ -54,9 +56,6 @@ const Services = () => {
 
   const itemListSchema =
     services && services.length ? buildItemListSchema(services) : null;
-  if (itemListSchema) {
-    servicesSchemas.push(itemListSchema);
-  }
 
   const breadcrumbItems = [
     { name: "Home", path: "/" },
@@ -160,6 +159,45 @@ const Services = () => {
       description: "Explore every Peninsula community we serve.",
     },
   ];
+
+  const serviceCollectionParts = localServiceLinks
+    .filter((link) => {
+      if (link.href === "/services") return false;
+      if (link.href === "/locations") return false;
+      if (link.href.startsWith("/dentist-")) return false;
+      return true;
+    })
+    .map((link) => ({
+      name: link.title,
+      path: link.href,
+      description: link.description,
+    }));
+  const serviceCollectionSchema = buildCollectionPageSchema({
+    path: "/services",
+    name: "Comprehensive Dental Services in Palo Alto",
+    description:
+      "Service hub for preventive, restorative, cosmetic, Invisalign, and emergency dental treatments in Palo Alto.",
+    parts: serviceCollectionParts,
+  });
+
+  const fallbackItemListSchema =
+    itemListSchema ??
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "@id": "https://www.chriswongdds.com/services#item-list-fallback",
+      name: "Dental services offered",
+      itemListElement: serviceCollectionParts.map((part, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: part.name,
+        url: `https://www.chriswongdds.com${part.path}`,
+      })),
+    };
+  servicesSchemas.push(fallbackItemListSchema);
+  if (serviceCollectionSchema) {
+    servicesSchemas.push(serviceCollectionSchema);
+  }
 
   return (
     <>

@@ -15,6 +15,12 @@ export type HowToStep = {
 
 export type StructuredDataNode = Record<string, unknown>;
 
+type CollectionPart = {
+  name: string;
+  path: string;
+  description?: string;
+};
+
 const PROD_DOMAIN = "www.chriswongdds.com";
 const DEFAULT_AREA_SERVED = [
   "Palo Alto",
@@ -220,6 +226,14 @@ export const buildWebSiteSchema = () => {
     publisher: {
       "@id": schemaId("/", "organization"),
     },
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: absoluteUrl("/blog?q={search_term_string}"),
+      },
+      "query-input": "required name=search_term_string",
+    },
   };
 };
 
@@ -260,6 +274,7 @@ export const buildItemListSchema = (services: Service[]) => {
   return {
     "@context": "https://schema.org",
     "@type": "ItemList",
+    "@id": schemaId("/services", "item-list"),
     name: "Dental services offered",
     itemListElement: services.map((service, index) => ({
       "@type": "ListItem",
@@ -267,6 +282,52 @@ export const buildItemListSchema = (services: Service[]) => {
       url: absoluteUrl(`/services#${service.slug}`),
       name: service.title,
       description: service.description,
+    })),
+  };
+};
+
+export const buildCollectionPageSchema = (config: {
+  path: string;
+  name: string;
+  description: string;
+  parts: CollectionPart[];
+}) => {
+  if (!config.parts.length) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "@id": schemaId(config.path, "collection-page"),
+    name: config.name,
+    description: config.description,
+    url: absoluteUrl(config.path),
+    isPartOf: {
+      "@id": schemaId("/", "website"),
+    },
+    hasPart: config.parts.map((part) => ({
+      "@type": "WebPage",
+      "@id": schemaId(part.path, "webpage"),
+      name: part.name,
+      url: absoluteUrl(part.path),
+      ...(part.description ? { description: part.description } : {}),
+    })),
+  };
+};
+
+export const buildLocationItemListSchema = (locations: CollectionPart[]) => {
+  if (!locations.length) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "@id": schemaId("/locations", "location-list"),
+    name: "Areas served from Palo Alto dental office",
+    itemListOrder: "https://schema.org/ItemListOrderAscending",
+    numberOfItems: locations.length,
+    itemListElement: locations.map((location, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: location.name,
+      url: absoluteUrl(location.path),
+      ...(location.description ? { description: location.description } : {}),
     })),
   };
 };

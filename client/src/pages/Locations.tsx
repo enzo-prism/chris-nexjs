@@ -8,7 +8,13 @@ import { officeInfo } from "@/lib/data";
 import { getSeoForPath } from "@/lib/seo";
 import { ArrowRight, MapPin, Phone } from "lucide-react";
 import { Link } from "wouter";
-import { buildBreadcrumbSchema, buildFAQSchema, type StructuredDataNode } from "@/lib/structuredData";
+import {
+  buildBreadcrumbSchema,
+  buildCollectionPageSchema,
+  buildFAQSchema,
+  buildLocationItemListSchema,
+  type StructuredDataNode,
+} from "@/lib/structuredData";
 
 const Locations = () => {
   const seo = getSeoForPath("/locations");
@@ -99,6 +105,26 @@ const Locations = () => {
       description: "Modern dentistry for Atherton families near Palo Alto.",
     },
   ];
+
+  const locationParts = locations.map((location) => ({
+    name: location.title,
+    path: location.href,
+    description: location.description,
+  }));
+  const locationListSchema = buildLocationItemListSchema(locationParts);
+  if (locationListSchema) {
+    structuredDataNodes.push(locationListSchema);
+  }
+  const locationCollectionSchema = buildCollectionPageSchema({
+    path: "/locations",
+    name: "Peninsula locations served by Christopher B. Wong, DDS",
+    description:
+      "Location hub for Palo Alto and nearby Peninsula communities served by our dental office.",
+    parts: locationParts,
+  });
+  if (locationCollectionSchema) {
+    structuredDataNodes.push(locationCollectionSchema);
+  }
 
   return (
     <>

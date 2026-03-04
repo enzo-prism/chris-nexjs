@@ -39,6 +39,26 @@ export const NOINDEX_ROBOTS = "noindex, nofollow, noarchive";
 const DEFAULT_OG_IMAGE = "/images/dr_wong_polaroids.png";
 const DEFAULT_PRIORITY = 0.7;
 const DEFAULT_CHANGEFREQ: SitemapEntry["changefreq"] = "monthly";
+const CLUSTER_PRIORITY_DEFAULTS: Record<
+  NonNullable<SeoDefinition["seoCluster"]>,
+  number
+> = {
+  service: 0.82,
+  location: 0.78,
+  blog: 0.7,
+  trust: 0.66,
+  legal: 0.35,
+};
+const CLUSTER_CHANGEFREQ_DEFAULTS: Record<
+  NonNullable<SeoDefinition["seoCluster"]>,
+  SitemapEntry["changefreq"]
+> = {
+  service: "weekly",
+  location: "weekly",
+  blog: "weekly",
+  trust: "monthly",
+  legal: "monthly",
+};
 const DEFAULT_TITLE_MIN_LEN = 45;
 const DEFAULT_TITLE_MAX_LEN = 60;
 const DEFAULT_DESCRIPTION_MIN_LEN = 120;
@@ -614,9 +634,16 @@ export const seoByPath: Record<string, SeoDefinition> = Object.fromEntries(
         canonicalPath,
         robots: entry.robots ?? (indexable ? DEFAULT_ROBOTS : NOINDEX_ROBOTS),
         indexable,
-        priority: entry.priority ?? PRIORITY_OVERRIDES[path] ?? DEFAULT_PRIORITY,
+        priority:
+          entry.priority ??
+          PRIORITY_OVERRIDES[path] ??
+          CLUSTER_PRIORITY_DEFAULTS[seoCluster] ??
+          DEFAULT_PRIORITY,
         changefreq:
-          entry.changefreq ?? CHANGEFREQ_OVERRIDES[path] ?? DEFAULT_CHANGEFREQ,
+          entry.changefreq ??
+          CHANGEFREQ_OVERRIDES[path] ??
+          CLUSTER_CHANGEFREQ_DEFAULTS[seoCluster] ??
+          DEFAULT_CHANGEFREQ,
         lastmod: entry.lastmod ?? LASTMOD_OVERRIDES[path],
         schemaType: entry.schemaType ?? resolveSchemaType(canonicalPath),
         seoCluster,

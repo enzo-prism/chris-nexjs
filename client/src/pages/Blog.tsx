@@ -17,7 +17,7 @@ import { buildBreadcrumbSchema } from "@/lib/structuredData";
 
 const Blog = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const categoryFromQuery = useMemo(() => {
     const search = location.split("?")[1] ?? "";
     const params = new URLSearchParams(search);
@@ -25,17 +25,30 @@ const Blog = () => {
     if (!categoryParam) return "all";
     return normalizeBlogCategory(categoryParam);
   }, [location]);
+  const searchFromQuery = useMemo(() => {
+    const search = location.split("?")[1] ?? "";
+    const params = new URLSearchParams(search);
+    return params.get("q")?.trim() ?? "";
+  }, [location]);
   const [selectedCategory, setSelectedCategory] = useState(categoryFromQuery);
+  const [activeSearchQuery, setActiveSearchQuery] = useState(searchFromQuery);
 
   const { posts, featuredPost, categories, isLoading, isError, error } = useBlogPosts();
 
-  const normalizedSearch = searchQuery.trim().toLowerCase();
+  const normalizedSearch = activeSearchQuery.trim().toLowerCase();
 
   useEffect(() => {
     if (categoryFromQuery !== selectedCategory) {
       setSelectedCategory(categoryFromQuery);
     }
   }, [categoryFromQuery, selectedCategory]);
+
+  useEffect(() => {
+    if (searchFromQuery !== activeSearchQuery) {
+      setActiveSearchQuery(searchFromQuery);
+      setSearchQuery(searchFromQuery);
+    }
+  }, [searchFromQuery, activeSearchQuery]);
 
   const filteredPosts = useMemo(() => {
     return posts.filter((post) => {
@@ -83,6 +96,17 @@ const Blog = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    const nextParams = new URLSearchParams();
+    if (selectedCategory !== "all") {
+      nextParams.set("category", selectedCategory);
+    }
+    const query = searchQuery.trim();
+    if (query) {
+      nextParams.set("q", query);
+    }
+    const nextUrl = nextParams.toString() ? `/blog?${nextParams.toString()}` : "/blog";
+    setActiveSearchQuery(query);
+    setLocation(nextUrl, { replace: true });
   };
 
   const hasError = isError && !isLoading;
