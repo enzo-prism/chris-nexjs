@@ -33,7 +33,7 @@ Use this file as the central index for project documentation.
 ## Feature operations
 
 - `gallery.md`  
-  `/gallery` media model, interaction rules, and QA checklist.
+  `/gallery` media model, no-crop frame strategy, Cloudinary still-image pack, and QA checklist.
 - `changelog.md`  
   `/changelog` generation flow using GitHub CLI.
 

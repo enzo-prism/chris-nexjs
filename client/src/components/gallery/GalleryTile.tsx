@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type MouseEvent,
+} from "react";
 import Image from "next/image";
 import { Pause, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -57,7 +63,7 @@ export default function GalleryTile({
     }
   };
 
-  const toggleInlinePlayback = async (event: React.MouseEvent<HTMLButtonElement>) => {
+  const toggleInlinePlayback = async (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
 
     const videoElement = videoRef.current;
@@ -93,14 +99,13 @@ export default function GalleryTile({
       )}
     >
       {item.kind === "image" ? (
-        <div className="relative h-full w-full overflow-hidden">
-          <Image
+        <div className="relative w-full overflow-hidden bg-slate-50">
+          <img
             src={item.src}
             alt={item.alt}
-            fill
-            sizes={getSizes(item)}
-            priority={priority}
-            className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+            loading={priority ? "eager" : "lazy"}
+            decoding={priority ? "sync" : "async"}
+            className="block h-auto w-full object-contain transition-transform duration-700 ease-out group-hover:scale-[1.02]"
           />
         </div>
       ) : (
@@ -112,7 +117,7 @@ export default function GalleryTile({
                 alt={item.alt}
                 fill
                 sizes={getSizes(item)}
-                className="object-cover"
+                className="object-contain"
                 priority={priority}
               />
             ) : (
@@ -123,7 +128,7 @@ export default function GalleryTile({
               ref={videoRef}
               src={item.src}
               poster={item.poster}
-              className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+              className="h-full w-full object-contain transition-transform duration-700 ease-out group-hover:scale-[1.01]"
               playsInline
               muted
               loop

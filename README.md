@@ -8,7 +8,7 @@ The app runs on Next.js App Router with API route handlers, centralized SEO meta
 - Marketing pages, location pages, services, and blog content.
 - Interactive lead flows: appointment request, contact form, newsletter.
 - No production chat widget or `/api/chat` endpoint in current launch scope.
-- `/gallery` media showcase with hero video, click-to-play clips, and fullscreen lightbox.
+- `/gallery` media showcase with hero video, click-to-play clips, fullscreen lightbox, and no-crop still-image frames.
 - `/changelog` page that merges update history from current and legacy repositories.
 
 ## Architecture at a glance

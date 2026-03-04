@@ -19,7 +19,7 @@ export const heroVideo: GalleryMediaItem = {
   id: "hero-clinic-overview",
   kind: "video",
   src: "https://res.cloudinary.com/dhqpqfw6w/video/upload/v1772057711/chris_wong_dds_lgbxf4.mp4",
-  poster: drWongImages.heroImage,
+  poster: drWongImages.drWongOffice1,
   alt: "Dr. Christopher B. Wong dental office highlights video",
   title: "Clinic highlights",
   description: "Experience the calming and modern environment of our Palo Alto practice.",
@@ -33,7 +33,7 @@ export const galleryItems: readonly GalleryMediaItem[] = [
   {
     id: "photo-reception-area",
     kind: "image",
-    src: drWongImages.drWongOffice1,
+    src: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1762989225/Post-2_hdbi3u.webp",
     alt: "Warm reception area with Dr. Wong",
     title: "A Warm Welcome",
     description: "Our reception area is designed to feel more like a home than a clinic.",
@@ -45,7 +45,7 @@ export const galleryItems: readonly GalleryMediaItem[] = [
     id: "video-office-walkthrough",
     kind: "video",
     src: "https://res.cloudinary.com/dhqpqfw6w/video/upload/v1772057719/dr-wong-office-2-10s-b3-varA_gaole9.mp4",
-    poster: drWongImages.drWongOffice2,
+    poster: drWongImages.drWongOffice3,
     alt: "Office walkthrough video clip showing natural light",
     title: "Light-Filled Spaces",
     description: "We prioritize natural light and open spaces for a relaxing patient experience.",
@@ -56,7 +56,7 @@ export const galleryItems: readonly GalleryMediaItem[] = [
   {
     id: "photo-courtyard-view",
     kind: "image",
-    src: drWongImages.drWongOffice2,
+    src: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1762989225/Post-5_dib4rp.webp",
     alt: "Garden courtyard view from dental suite",
     title: "Serene Courtyard",
     description: "Every operatory features a calming view of our private garden courtyard.",
@@ -67,7 +67,7 @@ export const galleryItems: readonly GalleryMediaItem[] = [
   {
     id: "photo-front-entrance",
     kind: "image",
-    src: drWongImages.drWongReception,
+    src: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1762989225/Post_e0ayi2.webp",
     alt: "Dr. Wong's office front entrance",
     title: "Easy Access",
     description: "Conveniently located in the heart of Palo Alto with accessible parking.",
@@ -80,7 +80,7 @@ export const galleryItems: readonly GalleryMediaItem[] = [
   {
     id: "photo-treatment-room",
     kind: "image",
-    src: drWongImages.drWongWaiting,
+    src: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1762989226/Post-7_d8rmrk.webp",
     alt: "Modern treatment room with comfortable patient chair",
     title: "Comfort-First Care",
     description: "State-of-the-art treatment suites designed for maximum patient comfort.",
@@ -92,7 +92,7 @@ export const galleryItems: readonly GalleryMediaItem[] = [
     id: "video-treatment-spaces",
     kind: "video",
     src: "https://res.cloudinary.com/dhqpqfw6w/video/upload/v1772057713/Untitled_2_vte679.mp4",
-    poster: drWongImages.drWongWaiting,
+    poster: drWongImages.drWongOffice4,
     alt: "Video of treatment setup and environment",
     title: "Ready for You",
     description: "A behind-the-scenes look at how we prepare for each patient.",
@@ -103,7 +103,7 @@ export const galleryItems: readonly GalleryMediaItem[] = [
   {
     id: "photo-consultation-room",
     kind: "image",
-    src: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1765382511/IMG_8352_qyutwv.webp",
+    src: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1762989226/Post-8_jmfidt.webp",
     alt: "Private consultation room for treatment planning",
     title: "Private Consultations",
     description: "Dedicated spaces to discuss your treatment goals in privacy and comfort.",
@@ -116,7 +116,7 @@ export const galleryItems: readonly GalleryMediaItem[] = [
   {
     id: "photo-clinical-equipment",
     kind: "image",
-    src: drWongImages.drWongLab2,
+    src: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1762989226/Post-11_nohz6f.webp",
     alt: "Advanced dental technology and clinical equipment",
     title: "Modern Technology",
     description: "We invest in the latest dental tech to ensure precision and better outcomes.",
@@ -127,7 +127,7 @@ export const galleryItems: readonly GalleryMediaItem[] = [
   {
     id: "photo-dental-environment",
     kind: "image",
-    src: drWongImages.drWongLab1,
+    src: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1762989226/Post-6_uhnnyg.webp",
     alt: "Historical photos and dental decor",
     title: "Legacy of Excellence",
     description: "Blending modern technology with a long-standing commitment to the Palo Alto community.",
@@ -139,7 +139,7 @@ export const galleryItems: readonly GalleryMediaItem[] = [
     id: "video-clinic-overview",
     kind: "video",
     src: "https://res.cloudinary.com/dhqpqfw6w/video/upload/v1772057700/dr-wong-office-1-10s_axqa3o.mp4",
-    poster: drWongImages.drWongReception,
+    poster: drWongImages.drWongLab3,
     alt: "Video overview of office flow and tech integration",
     title: "Seamless Integration",
     description: "Advanced systems working together to provide a smooth, efficient visit.",
@@ -152,7 +152,7 @@ export const galleryItems: readonly GalleryMediaItem[] = [
   {
     id: "photo-dr-portrait",
     kind: "image",
-    src: drWongImages.polaroid,
+    src: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1762989226/Post-13_vdeedx.webp",
     alt: "Dr. Christopher B. Wong",
     title: "Dr. Christopher Wong",
     description: "Meet the expert behind the care, dedicated to your dental health since 1994.",
@@ -163,7 +163,7 @@ export const galleryItems: readonly GalleryMediaItem[] = [
   {
     id: "photo-clinic-team",
     kind: "image",
-    src: drWongImages.teamPhoto,
+    src: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1762989227/Polaroids_iep3fj.webp",
     alt: "Our friendly dental team",
     title: "Our Dedicated Team",
     description: "Our experienced team is here to support you at every step of your journey.",
@@ -175,7 +175,7 @@ export const galleryItems: readonly GalleryMediaItem[] = [
     id: "video-doctor-team",
     kind: "video",
     src: "https://res.cloudinary.com/dhqpqfw6w/video/upload/v1772057535/chris_wong_dds_cfagg4.mp4",
-    poster: drWongImages.teamPhoto,
+    poster: drWongImages.drWongPortrait2,
     alt: "Dr. Wong and team working together",
     title: "Collaborative Care",
     description: "Our team works in harmony to provide comprehensive dental solutions.",
@@ -184,4 +184,3 @@ export const galleryItems: readonly GalleryMediaItem[] = [
     interaction: "tapToPlayLoopMuted",
   },
 ];
-

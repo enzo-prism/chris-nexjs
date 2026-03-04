@@ -7,6 +7,7 @@ Command reference for contract, UI, SEO, and performance checks.
 - Use `pnpm run test:production` for a one-command baseline gate.
 - Add `test:gallery` and perf checks when affected surfaces change.
 - Run `pnpm run test:gallery` whenever media inventory or gallery behavior changes.
+- For gallery frame/layout updates, perform manual viewport QA (`sm` to `xl`) to confirm still images are fully visible and not cropped.
 
 ## Script matrix
 
@@ -31,6 +32,8 @@ Command reference for contract, UI, SEO, and performance checks.
     - HTTPS media paths
     - valid kind/layout/interaction values
     - required alt/title/description metadata
+    - no duplicate video posters
+    - no overlap between video posters and still-image tile sources
 
 ### SEO checks
 

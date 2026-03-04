@@ -27,6 +27,10 @@ function isHttpsUrl(value: string): boolean {
 const mediaPool = [heroVideo, ...galleryItems];
 const idSet = new Set<string>();
 const srcSet = new Set<string>();
+const galleryImageSrcSet = new Set(
+  galleryItems.filter((item) => item.kind === "image").map((item) => item.src),
+);
+const videoPosterSet = new Set<string>();
 
 for (const media of mediaPool) {
   assert(!idSet.has(media.id), `Duplicate media id detected: ${media.id}`);
@@ -60,6 +64,17 @@ for (const media of mediaPool) {
     assert(
       isHttpsUrl(media.poster),
       `Media poster must be HTTPS: ${media.poster}`,
+    );
+
+    assert(
+      !videoPosterSet.has(media.poster),
+      `Duplicate video poster detected: ${media.poster}`,
+    );
+    videoPosterSet.add(media.poster);
+
+    assert(
+      !galleryImageSrcSet.has(media.poster),
+      `Video poster duplicates a gallery image tile src: ${media.poster} (${media.id})`,
     );
   }
 }

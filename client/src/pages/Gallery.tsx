@@ -104,12 +104,6 @@ function GalleryHero({ video }: { video: GalleryMediaItem }): JSX.Element {
                 )}
               </button>
 
-              <div className="absolute top-6 right-6">
-                <div className="flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 backdrop-blur-md ring-1 ring-white/20">
-                  <div className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
-                  <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-white">Live Tour</span>
-                </div>
-              </div>
             </div>
           </motion.div>
         </div>
@@ -200,8 +194,12 @@ export default function Gallery(): JSX.Element {
                       onOpen={() => setActiveIndex(index)}
                       priority={index < 4}
                       className={cn(
-                        "h-full w-full",
-                        item.layout === "photoTall" ? "aspect-[3/4]" : "aspect-[4/3]"
+                        "w-full",
+                        item.kind === "video"
+                          ? item.layout === "videoWide"
+                            ? "aspect-video"
+                            : "aspect-[4/3]"
+                          : undefined
                       )}
                     />
                   </motion.div>
