@@ -18,7 +18,6 @@ import {
   ArrowRight,
   Instagram,
 } from "lucide-react";
-import Image from "next/image";
 import { officeInfo } from "@/lib/data";
 import HolidayHoursNotice from "@/components/common/HolidayHoursNotice";
 import ButtonLink from "@/components/common/ButtonLink";
@@ -392,13 +391,13 @@ const Header = () => {
               <div className="flex min-w-0 items-center gap-3">
                 <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white ring-1 ring-slate-200 transition-colors group-hover:bg-slate-50 sm:h-11 sm:w-11">
                   {!logoLoadFailed ? (
-                    <Image
+                    <img
                       src="/favicon.png"
                       alt="Christopher B. Wong, DDS logo"
-                      width={256}
-                      height={256}
-                      sizes="44px"
-                      loading="eager"
+                      width={44}
+                      height={44}
+                      loading="lazy"
+                      decoding="async"
                       className="h-full w-full object-contain p-1"
                       onError={() => setLogoLoadFailed(true)}
                     />

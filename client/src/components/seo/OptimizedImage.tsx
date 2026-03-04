@@ -23,6 +23,7 @@ interface OptimizedImageProps {
   useIntrinsicAspect?: boolean;
   objectPosition?: string;
   fetchPriority?: "high" | "low" | "auto";
+  quality?: number;
 }
 
 const FALLBACK_PLACEHOLDER =
@@ -46,6 +47,7 @@ const OptimizedImage = ({
   useIntrinsicAspect = false,
   objectPosition = "center",
   fetchPriority,
+  quality,
 }: OptimizedImageProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -115,6 +117,7 @@ const OptimizedImage = ({
           sizes={sizes ?? DEFAULT_SIZES}
           priority={priority}
           fetchPriority={fetchPriority}
+          quality={quality}
           loading={priority ? undefined : "lazy"}
           decoding={priority ? "sync" : "async"}
           placeholder={shouldUseBlur ? "blur" : "empty"}

@@ -134,7 +134,7 @@ curl -sL https://www.chriswongdds.com/ \
   | wc -l
 curl -sL https://www.chriswongdds.com/ \
   | perl -0ne 'if (/<head>(.*?)<\\/head>/s) { print $1 }' \
-  | rg -n "gtag\\('consent', 'default'|wait_for_update: 500|analytics_consent|gtag\\('config', 'G-94WRBJY51J'|send_page_view: false|allow_google_signals: false|allow_ad_personalization_signals: false"
+  | rg -n "gtag\\('consent', 'default'|wait_for_update: 500|analytics_consent|analytics-consent-updated|gtag\\('config', 'G-94WRBJY51J'|send_page_view: false|allow_google_signals: false|allow_ad_personalization_signals: false"
 ```
 
 Expected:
@@ -144,4 +144,4 @@ Expected:
 - apex host (`chriswongdds.com`) redirects to `https://www.chriswongdds.com/`
 - canonical host returns `200`
 - GA head-tag count command returns `1`
-- consent/privacy markers are present in head bootstrap script (`wait_for_update`, `allow_google_signals: false`)
+- consent/privacy markers are present in head bootstrap script (`wait_for_update`, `analytics-consent-updated`, `allow_google_signals: false`)

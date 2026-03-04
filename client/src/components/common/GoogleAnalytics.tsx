@@ -2,6 +2,10 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
+import {
+  ANALYTICS_CONSENT_EVENT,
+  ANALYTICS_CONSENT_STORAGE_KEY,
+} from "@shared/analytics";
 
 const GA_MEASUREMENT_ID =
   process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() || "G-94WRBJY51J";
@@ -17,7 +21,26 @@ const GoogleAnalytics = () => {
     let timer: ReturnType<typeof setTimeout> | null = null;
     const fullPath = `${pathname}${window.location.search || ""}`;
 
-    const sendPageView = () => {
+    const hasGrantedConsent = () => {
+      try {
+        return (
+          window.localStorage.getItem(ANALYTICS_CONSENT_STORAGE_KEY) === "granted"
+        );
+      } catch (_error) {
+        return false;
+      }
+    };
+
+    const clearTimer = () => {
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
+    };
+
+    const sendPageView = (force = false) => {
+      if (!hasGrantedConsent()) return;
+
       if (typeof window.gtag !== "function") {
         if (attempts < 20) {
           attempts += 1;
@@ -26,7 +49,9 @@ const GoogleAnalytics = () => {
         return;
       }
 
-      if (lastTrackedPathRef.current === fullPath) return;
+      clearTimer();
+
+      if (!force && lastTrackedPathRef.current === fullPath) return;
       lastTrackedPathRef.current = fullPath;
       window.gtag("event", "page_view", {
         send_to: GA_MEASUREMENT_ID,
@@ -36,10 +61,26 @@ const GoogleAnalytics = () => {
       });
     };
 
+    const handleConsentUpdated = (event: Event) => {
+      const customEvent = event as CustomEvent<{ granted?: boolean }>;
+      if (customEvent.detail?.granted !== true) return;
+      lastTrackedPathRef.current = "";
+      attempts = 0;
+      sendPageView(true);
+    };
+
+    window.addEventListener(
+      ANALYTICS_CONSENT_EVENT,
+      handleConsentUpdated as EventListener,
+    );
     sendPageView();
 
     return () => {
-      if (timer) clearTimeout(timer);
+      clearTimer();
+      window.removeEventListener(
+        ANALYTICS_CONSENT_EVENT,
+        handleConsentUpdated as EventListener,
+      );
     };
   }, [pathname]);
 

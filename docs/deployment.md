@@ -179,13 +179,13 @@ curl -sL https://www.chriswongdds.com/ \
   | wc -l
 curl -sL https://www.chriswongdds.com/ \
   | perl -0ne 'if (/<head>(.*?)<\\/head>/s) { print $1 }' \
-  | rg -n "gtag\\('consent', 'default'|wait_for_update: 500|analytics_consent|gtag\\('config', 'G-94WRBJY51J'|send_page_view: false|allow_google_signals: false|allow_ad_personalization_signals: false"
+  | rg -n "gtag\\('consent', 'default'|wait_for_update: 500|analytics_consent|analytics-consent-updated|gtag\\('config', 'G-94WRBJY51J'|send_page_view: false|allow_google_signals: false|allow_ad_personalization_signals: false"
 ```
 
 Expected:
 
 - First command returns `1` (exactly one GA4 tag in `<head>`).
-- Consent mode and privacy-hardening markers are present (`consent default`, `analytics_consent`, `wait_for_update`, `allow_google_signals: false`).
+- Consent mode and privacy-hardening markers are present (`consent default`, `analytics_consent`, `analytics-consent-updated`, `wait_for_update`, `allow_google_signals: false`).
 
 ## Verification commands against preview or production
 

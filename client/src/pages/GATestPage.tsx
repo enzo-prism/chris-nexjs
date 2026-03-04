@@ -34,7 +34,7 @@ export default function GATestPage() {
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <h3 className="font-semibold text-blue-900 mb-2">✓ Google Analytics Updated Successfully</h3>
             <ul className="text-sm text-blue-800 space-y-1">
-              <li>• Global Google tag loads via Next.js Script</li>
+              <li>• Global Google tag loads from root layout head</li>
               <li>• Measurement ID: G-94WRBJY51J</li>
               <li>• SPA page view tracking active</li>
               <li>• Consent mode hooks are available</li>

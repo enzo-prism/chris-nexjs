@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import { getSeoForPath } from "@/lib/seo";
+import {
+  ANALYTICS_CONSENT_EVENT,
+  ANALYTICS_CONSENT_STORAGE_KEY,
+} from "@shared/analytics";
 import "./globals.css";
 
 const googleSiteVerification =
@@ -7,7 +11,6 @@ const googleSiteVerification =
   process.env.GOOGLE_SITE_VERIFICATION;
 const GA_MEASUREMENT_ID =
   process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() || "G-94WRBJY51J";
-const CONSENT_STORAGE_KEY = "analytics_consent";
 
 const googleTagBootstrap = `
   window.dataLayer = window.dataLayer || [];
@@ -31,13 +34,16 @@ const googleTagBootstrap = `
       ad_personalization: state,
       analytics_storage: state
     });
+    window.dispatchEvent(new CustomEvent('${ANALYTICS_CONSENT_EVENT}', {
+      detail: { granted: state === 'granted' }
+    }));
     try {
-      window.localStorage.setItem('${CONSENT_STORAGE_KEY}', state);
+      window.localStorage.setItem('${ANALYTICS_CONSENT_STORAGE_KEY}', state);
     } catch (_error) {}
   };
 
   try {
-    var persistedConsent = window.localStorage.getItem('${CONSENT_STORAGE_KEY}');
+    var persistedConsent = window.localStorage.getItem('${ANALYTICS_CONSENT_STORAGE_KEY}');
     if (persistedConsent === 'granted' || persistedConsent === 'denied') {
       window.setAnalyticsConsent(persistedConsent === 'granted');
     }

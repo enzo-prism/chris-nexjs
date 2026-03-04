@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { setAnalyticsConsent } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
-
-const CONSENT_STORAGE_KEY = "analytics_consent";
+import { ANALYTICS_CONSENT_STORAGE_KEY } from "@shared/analytics";
 
 const AnalyticsConsentBanner = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -13,7 +12,9 @@ const AnalyticsConsentBanner = () => {
     if (typeof window === "undefined") return;
 
     try {
-      const savedConsent = window.localStorage.getItem(CONSENT_STORAGE_KEY);
+      const savedConsent = window.localStorage.getItem(
+        ANALYTICS_CONSENT_STORAGE_KEY,
+      );
       if (savedConsent === "granted" || savedConsent === "denied") {
         setIsVisible(false);
         return;
