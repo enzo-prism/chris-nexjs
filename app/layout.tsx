@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getSeoForPath } from "@/lib/seo";
+import CopyDashSanitizer from "@/components/common/CopyDashSanitizer";
 import {
   ANALYTICS_CONSENT_EVENT,
   ANALYTICS_CONSENT_STORAGE_KEY,
@@ -113,7 +114,10 @@ export default function RootLayout({
         />
         <script dangerouslySetInnerHTML={{ __html: googleTagBootstrap }} />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <CopyDashSanitizer />
+        {children}
+      </body>
     </html>
   );
 }
