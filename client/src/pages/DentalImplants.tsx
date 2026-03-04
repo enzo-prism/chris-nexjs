@@ -124,7 +124,7 @@ const faqs = [
 
 const DentalImplants = () => {
   const implantTestimonials = getTestimonialsByNames([
-    "Sarah L.",
+    "Anne Starr",
     "Paul Pedersen",
     "Martha Debs",
   ]);

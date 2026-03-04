@@ -15,31 +15,31 @@ interface Review {
 const sampleReviews: Review[] = [
   {
     id: "1",
-    name: "Lisa M.",
+    name: "Anne Starr",
     rating: 5,
-    text: "Dr. Wong is not just a skilled dentist; he's an artist who transformed my smile and gave me back my confidence. His practice combines cutting-edge technology with genuine care for patients.",
-    date: "2 months ago"
+    text: "Dr. Hamamoto did great passing her practice to Dr. Wong! He is great! Helen and Angelisa are the best dental hygienists!",
+    date: "6 days ago"
   },
   {
     id: "2",
-    name: "Michael A.",
+    name: "Anat Sipres",
     rating: 5,
-    text: "Been getting my dental care at this office for nearly 30 years, and both my parents did so before me! The level of care and attention to detail is outstanding.",
-    date: "1 month ago"
+    text: "I can't say enough good things about Dr. Wong and the entire team. From the warm welcome at the front desk to the thorough care provided by the hygienist, every visit is a pleasure.",
+    date: "51 weeks ago"
   },
   {
     id: "3",
-    name: "Sarah L.",
+    name: "Sandra Bell",
     rating: 5,
-    text: "Best dental experience I\'ve ever had. Dr. Wong took the time to explain everything and made sure I was comfortable throughout my procedure. Highly recommend!",
-    date: "2 weeks ago"
+    text: "Excellent dentist and very professional staff. Best dentist, best staff. What more does one need?",
+    date: "Dec 14, 2024"
   },
   {
     id: "4",
-    name: "David K.",
+    name: "Steve Collins",
     rating: 5,
-    text: "Dr. Wong completely transformed my smile with his exceptional cosmetic dentistry skills. His attention to detail resulted in veneers that look completely natural.",
-    date: "3 months ago"
+    text: "High skill level, modern tools, helpful guidance, and a friendly demeanor. An excellent experience for cleanings and fillings.",
+    date: "Nov 23, 2018"
   }
 ];
 
@@ -67,7 +67,7 @@ const CustomGoogleReviews = ({ className = '' }: CustomGoogleReviewsProps) => {
                   <Star key={i} className="h-4 w-4" fill="currentColor" />
                 ))}
               </div>
-              <span className="text-sm text-gray-600">4.9 • 65+ reviews</span>
+              <span className="text-sm text-gray-600">4.9 • 319 reviews</span>
             </div>
           </div>
         </div>

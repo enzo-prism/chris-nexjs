@@ -34,6 +34,8 @@ Use this file as the central index for project documentation.
 
 - `gallery.md`  
   `/gallery` media model, no-crop frame strategy, Cloudinary still-image pack, and QA checklist.
+- `reviews-data.md`
+  Google reviews import pipeline, data quality profile, and integrity checks.
 - `changelog.md`  
   `/changelog` generation flow using GitHub CLI.
 

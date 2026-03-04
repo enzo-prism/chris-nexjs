@@ -33,6 +33,9 @@
     "changelog:generate": "node scripts/generate-changelog.mjs",
     "check:seo-regression": "tsx scripts/seo-regression.ts",
     "check:lighthouse-budget": "node scripts/lighthouse-budget.mjs",
+    "reviews:import": "tsx scripts/import-google-reviews.ts",
+    "reviews:audit": "node scripts/reviews-audit.mjs",
+    "test:reviews": "node scripts/reviews-audit.mjs --assert",
     "db:push": "drizzle-kit push"
   },
   "dependencies": {

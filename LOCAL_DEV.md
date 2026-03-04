@@ -75,6 +75,33 @@ pnpm run test:production
 `test:production` builds and starts the production server automatically, then runs runtime image + SEO audits.
 Default runtime base URL is `http://localhost:3000` (override with `PRODUCTION_TEST_PORT` or `PRODUCTION_TEST_BASE_URL`).
 
+## Google reviews refresh workflow
+
+Use this whenever new Google review exports are added to the project.
+
+1. Replace the raw export file:
+   - `attached_assets/google-reviews-export-319.txt`
+2. Regenerate the typed seed dataset:
+
+```bash
+pnpm run reviews:import
+```
+
+3. Verify integrity:
+
+```bash
+pnpm run reviews:audit
+pnpm run test:reviews
+```
+
+4. Run contract checks before commit:
+
+```bash
+pnpm run check
+pnpm run test:api
+pnpm run test:routes
+```
+
 ## Performance local flow
 
 Run isolated perf build and server:

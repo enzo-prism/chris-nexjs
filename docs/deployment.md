@@ -81,6 +81,7 @@ Expected:
 1. Run preflight checks locally (or in CI):
    - `pnpm run test:production`
    - `pnpm run test:gallery` (if gallery media changed)
+   - `pnpm run test:reviews` (if review source/import changed)
    - perf suite (`build:perf`, `test:bundle`, `perf:smoke`, `perf:lighthouse`) for performance-sensitive releases
 2. Link CLI to the primary production project:
 

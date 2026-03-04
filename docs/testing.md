@@ -34,6 +34,12 @@ Command reference for contract, UI, SEO, and performance checks.
     - required alt/title/description metadata
     - no duplicate video posters
     - no overlap between video posters and still-image tile sources
+- `pnpm run test:reviews`
+  - Verifies generated Google review seed data integrity:
+    - generated count matches raw export count
+    - rating distribution matches source
+    - no-text placeholder conversion counts match source
+    - minimum count floor (`>=300`) is maintained
 
 ### SEO checks
 
@@ -102,6 +108,7 @@ Extended release gate:
 ```bash
 pnpm run test:production
 pnpm run test:gallery
+pnpm run test:reviews
 pnpm run build:perf
 NEXT_DIST_DIR=.next-perf pnpm run test:bundle
 ```

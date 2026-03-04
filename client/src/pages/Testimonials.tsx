@@ -8,8 +8,7 @@ import { pageTitles, pageDescriptions } from "@/lib/metaContent";
 import { useQuery } from "@tanstack/react-query";
 import TestimonialCard from "@/components/common/TestimonialCard";
 import type { Testimonial } from "@shared/schema";
-import { useMemo } from "react";
-import { buildInsertTestimonial, testimonialSeedData } from "@shared/testimonialsData";
+import { useEffect, useState } from "react";
 import StructuredData from "@/components/seo/StructuredData";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import {
@@ -18,26 +17,30 @@ import {
 } from "@/lib/structuredData";
 
 const Testimonials = () => {
-  const { data: testimonials, isLoading: isLoadingTestimonials } = useQuery<Testimonial[]>({
+  const REVIEWS_PAGE_SIZE = 24;
+  const {
+    data: testimonials,
+    isLoading: isLoadingTestimonials,
+    isError: hasTestimonialsError,
+    refetch: refetchTestimonials,
+  } = useQuery<Testimonial[]>({
     queryKey: ["/api/testimonials"],
   });
-  const fallbackTestimonials = useMemo<Testimonial[]>(() => {
-    return testimonialSeedData.map((seed, index) => ({
-      id: index + 1,
-      ...buildInsertTestimonial(seed, index),
-    }));
-  }, []);
-  const apiCount = testimonials?.length ?? 0;
-  const fallbackCount = fallbackTestimonials.length;
-  const shouldUseApiData = apiCount >= fallbackCount && apiCount > 0;
-  const reviews = shouldUseApiData ? testimonials! : fallbackTestimonials;
+  const [visibleCount, setVisibleCount] = useState(REVIEWS_PAGE_SIZE);
+  const reviews = testimonials ?? [];
+  useEffect(() => {
+    setVisibleCount(REVIEWS_PAGE_SIZE);
+  }, [reviews.length]);
+
+  const displayedReviews = reviews.slice(0, visibleCount);
+  const canLoadMore = visibleCount < reviews.length;
   const totalReviews = reviews.length;
   const fiveStarShare = reviews.length
     ? Math.round((reviews.filter((review) => review.rating === 5).length / reviews.length) * 100)
     : 0;
   const spotlightReview =
     reviews.find((review) => review.text.length > 180) ?? reviews[0];
-  const showSkeleton = isLoadingTestimonials && apiCount === 0;
+  const showSkeleton = isLoadingTestimonials && reviews.length === 0;
 
   const breadcrumbItems = [
     { name: "Home", path: "/" },
@@ -139,9 +142,27 @@ const Testimonials = () => {
                 </div>
             ))}
           </div>
+        ) : hasTestimonialsError && reviews.length === 0 ? (
+          <div className="bg-[#F5F9FC] border border-[#E5E7EB] rounded-2xl p-8 text-center space-y-4">
+            <h3 className="text-xl font-semibold text-[#1F2933]">
+              We&apos;re refreshing patient reviews right now
+            </h3>
+            <p className="text-[#4B5563] max-w-xl mx-auto">
+              Please try again in a moment. You can also call our office if you&apos;d like to hear what patients are saying.
+            </p>
+            <Button
+              variant="outline"
+              className="ui-btn-outline font-medium px-6 py-2 rounded-md transition-colors duration-300"
+              onClick={() => {
+                void refetchTestimonials();
+              }}
+            >
+              Retry loading reviews
+            </Button>
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
-            {reviews.map((testimonial, index) => (
+            {displayedReviews.map((testimonial, index) => (
               <TestimonialCard
                 key={`${testimonial.id}-${index}`}
                 testimonial={testimonial}
@@ -151,6 +172,22 @@ const Testimonials = () => {
             ))}
           </div>
         )}
+
+          {!showSkeleton && canLoadMore && (
+            <div className="mt-10 flex justify-center">
+              <Button
+                variant="outline"
+                className="ui-btn-outline font-medium px-6 py-2 rounded-md transition-colors duration-300"
+                onClick={() =>
+                  setVisibleCount((count) =>
+                    Math.min(count + REVIEWS_PAGE_SIZE, reviews.length),
+                  )
+                }
+              >
+                Load more reviews ({reviews.length - visibleCount} remaining)
+              </Button>
+            </div>
+          )}
 
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4 mt-16">
             {[

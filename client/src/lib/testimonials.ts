@@ -1,9 +1,7 @@
 import type { InsertTestimonial } from "@shared/schema";
-import { buildInsertTestimonial, testimonialSeedData } from "@shared/testimonialsData";
+import { featuredTestimonials } from "@/data/featuredTestimonials";
 
-const seededTestimonials: InsertTestimonial[] = testimonialSeedData.map((seed, index) =>
-  buildInsertTestimonial(seed, index),
-);
+const seededTestimonials: InsertTestimonial[] = [...featuredTestimonials];
 
 export const allTestimonials = seededTestimonials;
 

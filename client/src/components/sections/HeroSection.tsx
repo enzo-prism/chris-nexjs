@@ -110,7 +110,7 @@ const HeroSection = () => {
                   Read patient reviews on Google
                 </span>
                 <span className="ml-2 text-white/70 text-xs sm:text-sm">
-                  317+ Google reviews
+                  319+ Google reviews
                 </span>
                 <ArrowRight
                   className="h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-100"

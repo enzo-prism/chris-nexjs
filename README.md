@@ -137,6 +137,9 @@ Release convenience gate:
 
 Utility:
 - `pnpm run changelog:generate`
+- `pnpm run reviews:import`
+- `pnpm run reviews:audit`
+- `pnpm run test:reviews`
 
 ## API surface
 
@@ -210,4 +213,5 @@ Never combine `Dr.` and `DDS` in the same line.
 - SEO keyword map: `/Users/enzo/chris-nextjs/docs/seo-keyword-map.md`
 - SEO implementation backlog: `/Users/enzo/chris-nextjs/docs/seo-implementation-backlog.md`
 - Gallery feature guide: `/Users/enzo/chris-nextjs/docs/gallery.md`
+- Review data runbook: `/Users/enzo/chris-nextjs/docs/reviews-data.md`
 - Changelog operations guide: `/Users/enzo/chris-nextjs/docs/changelog.md`
