@@ -150,6 +150,15 @@ Manual QA:
 - Validate sticky mobile action bar in common phone viewports.
 - Validate deferred reviews load on scroll and via explicit click.
 
+Audit reporting:
+
+- After schedule-related releases, write or refresh a dated schedule audit report in `docs/` (example:
+  [scheduling-audit-2026-03-04.md](/Users/enzo/chris-nextjs/docs/scheduling-audit-2026-03-04.md))
+  with:
+  - localhost runtime status checks (`/schedule` and `/api/schedule-request`)
+  - Lighthouse category scores + key timing metrics
+  - prioritized remediation backlog
+
 ## Live production alignment checks
 
 Run these after a production release to ensure GitHub, Vercel, and the public domain are aligned:

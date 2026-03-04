@@ -36,6 +36,8 @@ Use this file as the central index for project documentation.
   Mobile-first scheduling flow architecture, conditional step behavior, and rollout checks.
 - `scheduling-event-taxonomy.md`
   `/schedule` analytics event map, payload contract, and QA instrumentation checks.
+- `scheduling-audit-2026-03-04.md`
+  Localhost Lighthouse + runtime verification snapshot with prioritized follow-up actions.
 - `gallery.md`  
   `/gallery` media model, no-crop frame strategy, Cloudinary still-image pack, and QA checklist.
 - `svg-animation-system.md`

@@ -89,6 +89,10 @@ Legacy payloads are still accepted by [route.ts](/Users/enzo/chris-nextjs/app/ap
 - Fallback allows explicit user-triggered load.
 - Scheduling form is prioritized for early interaction.
 
+Latest measured audit snapshot is documented in:
+
+- [scheduling-audit-2026-03-04.md](/Users/enzo/chris-nextjs/docs/scheduling-audit-2026-03-04.md)
+
 ## Verification checklist
 
 Functional:
@@ -104,3 +108,9 @@ Mobile UX:
 Performance:
 - `/schedule` interactive form appears before reviews script execution.
 - No regressions in `/schedule` Core Web Vitals trend after release.
+
+## Known follow-ups (post-launch)
+
+- Reduce main-thread JS work further on `/schedule` to move LCP/TBT toward targets.
+- Resolve footer contrast misses detected in Lighthouse accessibility checks.
+- Fix heading-order sequence warning in the scheduling section content hierarchy.
