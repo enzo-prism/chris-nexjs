@@ -124,23 +124,25 @@ vercel link --yes --scope enzo-design-prisms-projects --project chriswongdds
 vercel --prod --yes
 ```
 
-## GitHub deployment status verification
+## GitHub + Vercel release verification
 
-Validate that all production environments report success for the same SHA:
+Use SHA parity plus production alias inspection (reliable for manual CLI deploys and auto-deploys):
 
 ```bash
-gh api 'repos/enzo-prism/chris-nexjs/deployments?per_page=100' \
-  | jq -r '.[] | [.environment, .sha, .created_at] | @tsv' \
-  | head -n 20
+git fetch origin
+printf "local HEAD: " && git rev-parse HEAD
+printf "origin/main: " && git rev-parse origin/main
+gh repo view enzo-prism/chris-nexjs --json nameWithOwner,defaultBranchRef,url
+vercel inspect https://www.chriswongdds.com
+vercel inspect https://chris-nextjs.vercel.app
+vercel inspect https://chriswongdds.vercel.app
 ```
 
-Confirm recent entries for:
+Confirm:
 
-- `Production – chris-wong-dds`
-- `Production – chris-nextjs`
-- `Production – chriswongdds`
-
-with matching SHAs.
+- local `HEAD` equals `origin/main`.
+- all three `vercel inspect` commands show `target production` and `status Ready`.
+- deployment timestamps are at/after release execution time for the intended rollout.
 
 ## Runtime smoke checks
 
@@ -177,13 +179,13 @@ curl -sL https://www.chriswongdds.com/ \
   | wc -l
 curl -sL https://www.chriswongdds.com/ \
   | perl -0ne 'if (/<head>(.*?)<\\/head>/s) { print $1 }' \
-  | rg -n "gtag\\('consent', 'default'|region:|analytics_consent|gtag\\('config', 'G-94WRBJY51J'|send_page_view: false"
+  | rg -n "gtag\\('consent', 'default'|wait_for_update: 500|analytics_consent|gtag\\('config', 'G-94WRBJY51J'|send_page_view: false|allow_google_signals: false|allow_ad_personalization_signals: false"
 ```
 
 Expected:
 
 - First command returns `1` (exactly one GA4 tag in `<head>`).
-- Consent mode script markers are present (`consent default`, `region`, `analytics_consent`).
+- Consent mode and privacy-hardening markers are present (`consent default`, `analytics_consent`, `wait_for_update`, `allow_google_signals: false`).
 
 ## Verification commands against preview or production
 

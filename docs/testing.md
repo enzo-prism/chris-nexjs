@@ -124,7 +124,8 @@ Run these after a production release to ensure GitHub, Vercel, and the public do
 git rev-parse HEAD
 git rev-parse origin/main
 vercel inspect www.chriswongdds.com
-gh api 'repos/enzo-prism/chris-nexjs/deployments?per_page=20' | jq -r '.[] | [.environment, .sha, .created_at] | @tsv'
+vercel inspect https://chris-nextjs.vercel.app
+vercel inspect https://chriswongdds.vercel.app
 curl -I https://chriswongdds.com
 curl -I https://www.chriswongdds.com
 curl -sL https://www.chriswongdds.com/ \
@@ -133,15 +134,14 @@ curl -sL https://www.chriswongdds.com/ \
   | wc -l
 curl -sL https://www.chriswongdds.com/ \
   | perl -0ne 'if (/<head>(.*?)<\\/head>/s) { print $1 }' \
-  | rg -n "gtag\\('consent', 'default'|region:|analytics_consent|gtag\\('config', 'G-94WRBJY51J'|send_page_view: false"
+  | rg -n "gtag\\('consent', 'default'|wait_for_update: 500|analytics_consent|gtag\\('config', 'G-94WRBJY51J'|send_page_view: false|allow_google_signals: false|allow_ad_personalization_signals: false"
 ```
 
 Expected:
 
 - local `HEAD` equals `origin/main`
-- `www.chriswongdds.com` deployment is `Ready`
-- latest production deployments for `chris-wong-dds`, `chris-nextjs`, and `chriswongdds` reference the expected release SHA
+- `www.chriswongdds.com`, `chris-nextjs.vercel.app`, and `chriswongdds.vercel.app` deployments are `Ready`
 - apex host (`chriswongdds.com`) redirects to `https://www.chriswongdds.com/`
 - canonical host returns `200`
 - GA head-tag count command returns `1`
-- consent markers are present in head bootstrap script
+- consent/privacy markers are present in head bootstrap script (`wait_for_update`, `allow_google_signals: false`)

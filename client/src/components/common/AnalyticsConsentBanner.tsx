@@ -35,8 +35,9 @@ const AnalyticsConsentBanner = () => {
   return (
     <div className="fixed bottom-4 left-4 right-4 z-[120] rounded-xl border border-slate-200 bg-white/95 p-4 shadow-lg backdrop-blur md:left-auto md:w-[520px]">
       <p className="text-sm text-slate-700">
-        We use analytics cookies to understand website performance and improve
-        your experience. You can accept or decline analytics tracking.
+        We only enable analytics cookies after you choose Accept. This helps us
+        understand website performance and improve your experience while
+        respecting your privacy choice.
       </p>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <Button

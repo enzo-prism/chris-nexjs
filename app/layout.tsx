@@ -8,39 +8,6 @@ const googleSiteVerification =
 const GA_MEASUREMENT_ID =
   process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() || "G-94WRBJY51J";
 const CONSENT_STORAGE_KEY = "analytics_consent";
-const EEA_AND_UK_REGION_CODES = [
-  "AT",
-  "BE",
-  "BG",
-  "HR",
-  "CY",
-  "CZ",
-  "DK",
-  "EE",
-  "FI",
-  "FR",
-  "DE",
-  "GR",
-  "HU",
-  "IS",
-  "IE",
-  "IT",
-  "LV",
-  "LI",
-  "LT",
-  "LU",
-  "MT",
-  "NL",
-  "NO",
-  "PL",
-  "PT",
-  "RO",
-  "SK",
-  "SI",
-  "ES",
-  "SE",
-  "GB",
-] as const;
 
 const googleTagBootstrap = `
   window.dataLayer = window.dataLayer || [];
@@ -49,19 +16,11 @@ const googleTagBootstrap = `
   gtag('js', new Date());
 
   gtag('consent', 'default', {
-    ad_storage: 'granted',
-    ad_user_data: 'granted',
-    ad_personalization: 'granted',
-    analytics_storage: 'granted'
-  });
-
-  gtag('consent', 'default', {
     ad_storage: 'denied',
     ad_user_data: 'denied',
     ad_personalization: 'denied',
     analytics_storage: 'denied',
-    wait_for_update: 500,
-    region: ${JSON.stringify(EEA_AND_UK_REGION_CODES)}
+    wait_for_update: 500
   });
 
   window.setAnalyticsConsent = function setAnalyticsConsent(granted) {
@@ -86,7 +45,10 @@ const googleTagBootstrap = `
 
   gtag('config', '${GA_MEASUREMENT_ID}', {
     send_page_view: false,
-    anonymize_ip: true
+    anonymize_ip: true,
+    allow_google_signals: false,
+    allow_ad_personalization_signals: false,
+    transport_type: 'beacon'
   });
 `;
 
@@ -131,6 +93,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="" />
+        <link rel="dns-prefetch" href="//res.cloudinary.com" />
+        <link
+          rel="preconnect"
+          href="https://www.googletagmanager.com"
+          crossOrigin=""
+        />
+        <link rel="dns-prefetch" href="//www.googletagmanager.com" />
         <script
           async
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}

@@ -183,9 +183,11 @@ Write endpoints:
 - Google tag is installed globally from root layout head for all routes.
 - Measurement ID defaults to `G-94WRBJY51J` and can be overridden by `NEXT_PUBLIC_GA_MEASUREMENT_ID`.
 - SPA page-view events are sent on route transitions via `client/src/components/common/GoogleAnalytics.tsx`.
-- Consent Mode v2 defaults:
-  - granted outside EEA/UK
-  - denied for EEA/UK regions until consent is granted
+- Consent Mode v2 defaults to denied globally until users explicitly accept analytics.
+- Privacy hardening defaults are enforced in GA config:
+  - `allow_google_signals: false`
+  - `allow_ad_personalization_signals: false`
+  - `anonymize_ip: true`
 - Consent choices can be updated from the in-app banner (`Accept Analytics` / `Decline`) and are applied through `window.setAnalyticsConsent(...)`.
 - Consent state is persisted in `localStorage` under `analytics_consent`.
 

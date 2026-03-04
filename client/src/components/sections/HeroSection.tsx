@@ -2,6 +2,10 @@ import { ArrowRight, Calendar, CheckCircle, MapPin } from "lucide-react";
 import ButtonLink from "@/components/common/ButtonLink";
 import { motion } from "@/lib/motion-lite";
 import { officeInfo } from "@/lib/data";
+import OptimizedImage from "@/components/seo/OptimizedImage";
+
+const HERO_IMAGE_SRC =
+  "https://res.cloudinary.com/dhqpqfw6w/image/upload/f_auto,q_auto,w_1280/v1762989226/Post-11_nohz6f";
 
 const HeroSection = () => {
   // Features list
@@ -127,13 +131,13 @@ const HeroSection = () => {
           >
             {/* Main image with styling */}
             <div className="relative rounded-2xl overflow-hidden shadow-lg ring-1 ring-white/10 mb-12">
-              <img
-                src="https://res.cloudinary.com/dhqpqfw6w/image/upload/v1762989226/Post-11_nohz6f.webp"
+              <OptimizedImage
+                src={HERO_IMAGE_SRC}
                 width={1280}
                 height={854}
-                loading="eager"
-                decoding="async"
+                priority
                 fetchPriority="high"
+                sizes="(max-width: 1024px) 100vw, 60vw"
                 alt="Dr. Wong's modern Palo Alto dental office"
                 className="w-full h-auto object-cover rounded-2xl aspect-[4/3]"
               />
