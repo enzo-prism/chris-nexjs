@@ -78,11 +78,24 @@ function extractTitleFromHtml(html: string): string {
   return decodeHtmlEntities(match?.[1] ?? "").trim();
 }
 
-function extractRobotsMeta(html: string): string {
-  const match = html.match(
-    /<meta[^>]+name=["']robots["'][^>]+content=["']([^"']+)["'][^>]*>/i,
+function extractRobotsMetas(html: string): string[] {
+  const matches = html.matchAll(
+    /<meta[^>]+name=["']robots["'][^>]+content=["']([^"']+)["'][^>]*>/gi,
   );
-  return (match?.[1] ?? "").toLowerCase();
+  return [...matches].map((match) => (match[1] ?? "").toLowerCase());
+}
+
+function extractRssAlternateHref(html: string): string {
+  const alternateLinks =
+    html.match(/<link[^>]+rel=["']alternate["'][^>]*>/gi) ?? [];
+
+  for (const tag of alternateLinks) {
+    if (!/type=["']application\/rss\+xml["']/i.test(tag)) continue;
+    const hrefMatch = tag.match(/href=["']([^"']+)["']/i);
+    if (hrefMatch?.[1]) return hrefMatch[1];
+  }
+
+  return "";
 }
 
 function robotsHasNoindex(robots: Metadata["robots"]): boolean {
@@ -199,11 +212,34 @@ async function main(): Promise<void> {
       });
     }
 
-    const robotsMeta = extractRobotsMeta(html);
-    if (robotsMeta.includes("noindex")) {
+    const robotsMetas = extractRobotsMetas(html);
+    if (robotsMetas.length !== 1) {
       failures.push({
         path,
-        message: `Indexable path rendered with noindex robots meta (${robotsMeta})`,
+        message: `Expected exactly one robots meta tag, found ${robotsMetas.length}`,
+      });
+    }
+
+    if (robotsMetas.some((robotsMeta) => robotsMeta.includes("noindex"))) {
+      failures.push({
+        path,
+        message: `Indexable path rendered with noindex robots meta (${robotsMetas.join(" | ")})`,
+      });
+    }
+
+    const rssAlternateHref = extractRssAlternateHref(html);
+    if (!rssAlternateHref) {
+      failures.push({
+        path,
+        message: "Missing RSS alternate link tag in rendered HTML",
+      });
+    } else if (
+      rssAlternateHref !== "https://www.chriswongdds.com/rss.xml" &&
+      rssAlternateHref !== "/rss.xml"
+    ) {
+      failures.push({
+        path,
+        message: `Unexpected RSS alternate href (${rssAlternateHref})`,
       });
     }
   }

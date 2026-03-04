@@ -29,9 +29,7 @@ function getCanonicalRoutePath(slugParams: { slug?: string[] }): string {
 
 function getSeoMetadataHints(pathname: string) {
   const seoEntry = getSeoForPath(pathname);
-  const robotsDirective = (seoEntry.robots ?? DEFAULT_ROBOTS).toLowerCase();
-  const isNoIndex = robotsDirective.includes("noindex");
-  const isNoFollow = robotsDirective.includes("nofollow");
+  const robotsDirective = seoEntry.robots ?? DEFAULT_ROBOTS;
 
   return {
     title: seoEntry.title,
@@ -39,8 +37,7 @@ function getSeoMetadataHints(pathname: string) {
     image: seoEntry.ogImage,
     canonical: toAbsoluteUrl(seoEntry.canonicalPath || pathname),
     type: pathname.startsWith("/blog/") && pathname !== "/blog" ? "article" : "website",
-    isNoIndex,
-    isNoFollow,
+    robotsDirective,
   } as const;
 }
 
@@ -63,20 +60,19 @@ export async function generateMetadata({
         ? image
         : `${CANONICAL_ORIGIN}${image.startsWith("/") ? image : `/${image}`}`;
       const excerpt = buildExcerpt(post.content);
+      const published = Number.isNaN(Date.parse(post.date))
+        ? undefined
+        : new Date(post.date).toISOString();
 
       return {
         title: `${post.title} | Christopher B. Wong, DDS`,
         description: excerpt,
-        robots: {
-          index: true,
-          follow: !seoMetadata.isNoFollow,
-          googleBot: {
-            index: true,
-            follow: !seoMetadata.isNoFollow,
-          },
-        },
+        robots: DEFAULT_ROBOTS,
         alternates: {
           canonical: seoMetadata.canonical,
+          types: {
+            "application/rss+xml": `${CANONICAL_ORIGIN}/rss.xml`,
+          },
         },
         openGraph: {
           type: "article",
@@ -84,6 +80,9 @@ export async function generateMetadata({
           title: `${post.title} | Christopher B. Wong, DDS`,
           description: excerpt,
           images: [absoluteImage],
+          publishedTime: published,
+          modifiedTime: published,
+          authors: ["Christopher B. Wong, DDS"],
           siteName: "Christopher B. Wong, DDS",
         },
         twitter: {
@@ -99,16 +98,12 @@ export async function generateMetadata({
     return {
       title: "Page Not Found | Christopher B. Wong, DDS",
       description: "Page not found.",
-      robots: {
-        index: false,
-        follow: false,
-        googleBot: {
-          index: false,
-          follow: false,
-        },
-      },
+      robots: NOINDEX_ROBOTS,
       alternates: {
         canonical: seoMetadata.canonical,
+        types: {
+          "application/rss+xml": `${CANONICAL_ORIGIN}/rss.xml`,
+        },
       },
       openGraph: {
         type: "website",
@@ -133,16 +128,12 @@ export async function generateMetadata({
   return {
     title: seoMetadata.title,
     description: seoMetadata.description,
-    robots: {
-      index: !seoMetadata.isNoIndex,
-      follow: !seoMetadata.isNoIndex && !seoMetadata.isNoFollow,
-      googleBot: {
-        index: !seoMetadata.isNoIndex,
-        follow: !seoMetadata.isNoIndex && !seoMetadata.isNoFollow,
-      },
-    },
+    robots: seoMetadata.robotsDirective,
     alternates: {
       canonical: seoMetadata.canonical,
+      types: {
+        "application/rss+xml": `${CANONICAL_ORIGIN}/rss.xml`,
+      },
     },
     openGraph: {
       type: seoMetadata.type,
@@ -158,9 +149,6 @@ export async function generateMetadata({
       title: seoMetadata.title,
       description: seoMetadata.description,
       images: [absoluteImage],
-    },
-    other: {
-      robots: seoMetadata.isNoIndex || seoMetadata.isNoFollow ? NOINDEX_ROBOTS : DEFAULT_ROBOTS,
     },
   };
 }

@@ -21,6 +21,8 @@ Use this file as the central index for project documentation.
 
 ## SEO documentation
 
+- `seo-technical-architecture.md`
+  Technical SEO architecture, crawl surfaces, metadata rules, and release checks.
 - `seo-growth-plan.md`  
   Operational SEO growth plan and cadence.
 - `seo-keyword-map.md`  

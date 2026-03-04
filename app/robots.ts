@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { seoByPath } from "@shared/seo";
 
-const CANONICAL_HOST = "https://www.chriswongdds.com";
+const CANONICAL_HOST = "www.chriswongdds.com";
 const noIndexPaths = Object.values(seoByPath)
   .filter((entry) => !entry.indexable)
   .map((entry) => entry.canonicalPath);
@@ -36,7 +36,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: "/",
       },
     ],
-    sitemap: `${CANONICAL_HOST}/sitemap.xml`,
+    sitemap: `https://${CANONICAL_HOST}/sitemap.xml`,
     host: CANONICAL_HOST,
   };
 }

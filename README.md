@@ -149,6 +149,7 @@ Read endpoints:
 - `GET /api/search?query=<term>`
 - `GET /api/appointments`
 - `GET /api/contact`
+- `GET /rss.xml`
 - `GET /api/rss.xml`
 
 Write endpoints:
@@ -170,6 +171,7 @@ Write endpoints:
 - SEO files:
   - `app/sitemap.ts`
   - `app/robots.ts`
+  - `app/rss.xml/route.ts` (canonical feed route)
 - Current SEO map totals:
   - 44 total canonical definitions
   - 40 indexable

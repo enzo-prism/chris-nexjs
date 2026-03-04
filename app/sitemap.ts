@@ -4,27 +4,36 @@ import { getStorage } from "../server/storage/repository";
 
 const CANONICAL_BASE = "https://www.chriswongdds.com";
 
+function parseLastModified(value?: string): Date | undefined {
+  if (!value) return undefined;
+  const timestamp = Date.parse(value);
+  if (Number.isNaN(timestamp)) return undefined;
+  return new Date(timestamp);
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const storage = await getStorage();
   const blogPosts = await storage.getBlogPosts();
 
-  const now = new Date();
+  const staticEntries = getSitemapEntries().map((entry) => {
+    const lastModified = parseLastModified(entry.lastmod);
+    return {
+      url: `${CANONICAL_BASE}${entry.canonicalPath}`,
+      ...(lastModified ? { lastModified } : {}),
+      changeFrequency: entry.changefreq,
+      priority: entry.priority,
+    };
+  });
 
-  const staticEntries = getSitemapEntries().map((entry) => ({
-    url: `${CANONICAL_BASE}${entry.canonicalPath}`,
-    lastModified: entry.lastmod ? new Date(entry.lastmod) : now,
-    changeFrequency: entry.changefreq,
-    priority: entry.priority,
-  }));
-
-  const blogEntries = blogPosts.map((post) => ({
-    url: `${CANONICAL_BASE}/blog/${post.slug}`,
-    lastModified: Number.isNaN(Date.parse(post.date))
-      ? now
-      : new Date(post.date),
-    changeFrequency: "monthly" as const,
-    priority: 0.6,
-  }));
+  const blogEntries = blogPosts.map((post) => {
+    const lastModified = parseLastModified(post.date);
+    return {
+      url: `${CANONICAL_BASE}/blog/${post.slug}`,
+      ...(lastModified ? { lastModified } : {}),
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    };
+  });
 
   return [...staticEntries, ...blogEntries];
 }

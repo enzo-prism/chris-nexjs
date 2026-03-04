@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { buildExcerpt, seoByPath } from "@shared/seo";
 import { type BlogPost } from "@shared/schema";
+import { officeInfo } from "@shared/officeInfo";
 import { getStorage } from "../../../server/storage/repository";
 
 const BASE_URL = "https://www.chriswongdds.com";
+const FEED_URL = `${BASE_URL}/rss.xml`;
 
 function escapeXml(value: string): string {
   return value
@@ -32,6 +34,14 @@ export async function GET() {
     const channelTitle = blogSeo?.title ?? "Dental Health Blog";
     const channelDescription = blogSeo?.description ?? "";
     const channelLink = `${BASE_URL}/blog`;
+    const latestPostDate = posts
+      .map((post) => Date.parse(post.date))
+      .filter((timestamp) => !Number.isNaN(timestamp))
+      .sort((a, b) => b - a)[0];
+    const lastBuildDate = latestPostDate
+      ? new Date(latestPostDate).toUTCString()
+      : new Date().toUTCString();
+    const managingEditor = `${officeInfo.email} (${officeInfo.name})`;
 
     const itemsXml = posts
       .map((post) => {
@@ -52,11 +62,17 @@ export async function GET() {
       .join("\n");
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>${escapeXml(channelTitle)}</title>
     <link>${escapeXml(channelLink)}</link>
+    <atom:link href="${escapeXml(FEED_URL)}" rel="self" type="application/rss+xml" />
     <description>${escapeXml(channelDescription)}</description>
+    <language>en-US</language>
+    <lastBuildDate>${escapeXml(lastBuildDate)}</lastBuildDate>
+    <managingEditor>${escapeXml(managingEditor)}</managingEditor>
+    <webMaster>${escapeXml(managingEditor)}</webMaster>
+    <ttl>60</ttl>
 ${itemsXml ? `${itemsXml}\n` : ""}  </channel>
 </rss>`;
 
@@ -64,7 +80,7 @@ ${itemsXml ? `${itemsXml}\n` : ""}  </channel>
       status: 200,
       headers: {
         "Content-Type": "application/rss+xml; charset=utf-8",
-        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        "Cache-Control": "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400",
       },
     });
   } catch {

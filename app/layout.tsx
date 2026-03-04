@@ -10,6 +10,11 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.chriswongdds.com"),
   title: getSeoForPath("/").title,
   description: getSeoForPath("/").description,
+  alternates: {
+    types: {
+      "application/rss+xml": "https://www.chriswongdds.com/rss.xml",
+    },
+  },
   icons: {
     icon: [
       { url: "/favicon/favicon-16x16.png" },

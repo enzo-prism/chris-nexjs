@@ -38,6 +38,8 @@ Command reference for contract, UI, SEO, and performance checks.
   - Static SEO regression checks.
 - `pnpm run test:seo:onpage`
   - Runtime title/description/h1/canonical/robots checks.
+  - Enforces exactly one robots meta tag per indexable page.
+  - Verifies RSS discovery link (`rel=\"alternate\" type=\"application/rss+xml\"`).
 - `pnpm run test:seo:links`
   - Runtime internal link graph and orphan checks.
 - `pnpm run test:seo:schema`

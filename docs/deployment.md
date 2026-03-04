@@ -158,6 +158,7 @@ Smoke key APIs:
 - `/api/services`
 - `/api/blog-posts`
 - `/api/testimonials`
+- `/rss.xml`
 - `/api/rss.xml`
 - `/api/schedule-request`
 
