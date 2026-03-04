@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { setAnalyticsConsent } from "@/lib/analytics";
+import { Button } from "@/components/ui/button";
 
 const CONSENT_STORAGE_KEY = "analytics_consent";
 
@@ -38,20 +39,21 @@ const AnalyticsConsentBanner = () => {
         your experience. You can accept or decline analytics tracking.
       </p>
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <button
+        <Button
           type="button"
           onClick={() => handleConsent(true)}
           className="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
         >
           Accept Analytics
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="outline"
           onClick={() => handleConsent(false)}
           className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
         >
           Decline
-        </button>
+        </Button>
         <a
           href="/privacy-policy"
           className="text-sm font-medium text-blue-700 hover:text-blue-800"

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import type { PropsWithChildren } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle, Heart, Shield, Clock, Smile, Users, Award } from "lucide-react";
@@ -21,6 +21,15 @@ import RelatedServices, {
   type RelatedServiceLink,
 } from "@/components/common/RelatedServices";
 import RelatedServicePosts from "@/components/blog/RelatedServicePosts";
+
+type MotionDivProps = PropsWithChildren<{
+  className?: string;
+  [key: string]: unknown;
+}>;
+
+function MotionDiv({ className, children }: MotionDivProps) {
+  return <div className={className}>{children}</div>;
+}
 
 const benefits = [
   "Natural Look and Feel: Implants fuse with your jawbone, becoming a permanent part of your mouth",
@@ -202,7 +211,7 @@ const DentalImplants = () => {
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-primary to-blue-700 text-white py-12 sm:py-16 lg:py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -225,14 +234,14 @@ const DentalImplants = () => {
                 <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
             </Link>
-          </motion.div>
+          </MotionDiv>
         </div>
       </section>
 
       {/* Benefits Section */}
       <section className="py-12 sm:py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -246,10 +255,10 @@ const DentalImplants = () => {
               Dental implants are widely recognized as the gold standard for tooth replacement, and for good reason. 
               Unlike other options, they offer unique advantages:
             </p>
-          </motion.div>
+          </MotionDiv>
 
           <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-1 lg:grid-cols-2 sm:gap-8">
-            <motion.div
+            <MotionDiv
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
@@ -262,8 +271,8 @@ const DentalImplants = () => {
                   <p className="text-[#333333] text-sm sm:text-base leading-relaxed">{benefit}</p>
                 </div>
               ))}
-            </motion.div>
-            <motion.div
+            </MotionDiv>
+            <MotionDiv
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
@@ -276,7 +285,7 @@ const DentalImplants = () => {
                   <p className="text-[#333333] text-sm sm:text-base leading-relaxed">{benefit}</p>
                 </div>
               ))}
-            </motion.div>
+            </MotionDiv>
           </div>
         </div>
       </section>
@@ -284,7 +293,7 @@ const DentalImplants = () => {
       {/* Candidacy Section */}
       <section className="py-12 sm:py-16 bg-[#F5F9FC]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -298,9 +307,9 @@ const DentalImplants = () => {
               Many individuals in Palo Alto missing teeth are excellent candidates for dental implants. 
               Generally, ideal candidates should have:
             </p>
-          </motion.div>
+          </MotionDiv>
 
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -321,14 +330,14 @@ const DentalImplants = () => {
                 (CBCT scans if necessary), to determine if dental implants are the right solution for your specific needs and oral health condition.
               </p>
             </div>
-          </motion.div>
+          </MotionDiv>
         </div>
       </section>
 
       {/* Procedure Section */}
       <section className="py-12 sm:py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -342,11 +351,11 @@ const DentalImplants = () => {
               The dental implant process is a multi-step journey tailored to your individual needs. 
               Dr. Wong and our compassionate Palo Alto team will guide you through each phase:
             </p>
-          </motion.div>
+          </MotionDiv>
 
           <div className="space-y-4 sm:space-y-6 lg:space-y-8">
             {procedureSteps.map((step, index) => (
-              <motion.div
+              <MotionDiv
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -363,7 +372,7 @@ const DentalImplants = () => {
                     <p className="text-[#333333] text-sm sm:text-base leading-relaxed">{step.description}</p>
                   </div>
                 </div>
-              </motion.div>
+              </MotionDiv>
             ))}
           </div>
         </div>
@@ -372,7 +381,7 @@ const DentalImplants = () => {
       {/* Types of Implants Section */}
       <section className="py-12 sm:py-16 bg-[#F5F9FC]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -385,11 +394,11 @@ const DentalImplants = () => {
             <p className="text-[#333333] text-base sm:text-lg leading-relaxed">
               Depending on your specific situation, Dr. Wong may recommend different types of implant solutions:
             </p>
-          </motion.div>
+          </MotionDiv>
 
           <div className="space-y-4 sm:space-y-6 sm:grid sm:grid-cols-1 lg:grid-cols-2 sm:gap-6 lg:gap-8">
             {implantTypes.map((type, index) => (
-              <motion.div
+              <MotionDiv
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -399,7 +408,7 @@ const DentalImplants = () => {
               >
                 <h4 className="text-lg sm:text-xl font-semibold text-[#333333] mb-3 leading-tight">{type.title}</h4>
                 <p className="text-[#333333] text-sm sm:text-base leading-relaxed">{type.description}</p>
-              </motion.div>
+              </MotionDiv>
             ))}
           </div>
         </div>
@@ -408,7 +417,7 @@ const DentalImplants = () => {
       {/* Patient Success Stories */}
       <section className="py-12 sm:py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -421,7 +430,7 @@ const DentalImplants = () => {
             <p className="mt-4 text-sm text-[#4B5563] sm:text-base">
               Patients trust Dr. Wong and our team for transparent guidance, same-day support, and beautiful, lasting results.
             </p>
-          </motion.div>
+          </MotionDiv>
 
           <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
             {implantTestimonials.map((testimonial) => (
@@ -434,7 +443,7 @@ const DentalImplants = () => {
       {/* Cost Section */}
       <section className="py-16 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -447,9 +456,9 @@ const DentalImplants = () => {
             <p className="text-[#333333] text-lg mb-8">
               The cost of dental implants can vary based on several factors:
             </p>
-          </motion.div>
+          </MotionDiv>
 
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -482,14 +491,14 @@ const DentalImplants = () => {
               During your consultation, we will provide a transparent and detailed breakdown of all associated costs for your specific treatment plan. 
               Our Palo Alto dental office also offers information on financing options to help make this life-changing treatment more accessible.
             </p>
-          </motion.div>
+          </MotionDiv>
         </div>
       </section>
 
       {/* Care Instructions Section */}
       <section className="py-16 bg-[#F5F9FC]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -502,9 +511,9 @@ const DentalImplants = () => {
             <p className="text-[#333333] text-lg">
               Maintaining your dental implants is straightforward and similar to caring for your natural teeth:
             </p>
-          </motion.div>
+          </MotionDiv>
 
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -519,14 +528,14 @@ const DentalImplants = () => {
                 </div>
               ))}
             </div>
-          </motion.div>
+          </MotionDiv>
         </div>
       </section>
 
       {/* Why Choose Dr. Wong Section */}
       <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -539,7 +548,7 @@ const DentalImplants = () => {
             <p className="text-[#333333] text-lg">
               Choosing the right dentist for your dental implants is crucial for a successful outcome. Dr. Christopher B. Wong offers:
             </p>
-          </motion.div>
+          </MotionDiv>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
@@ -550,7 +559,7 @@ const DentalImplants = () => {
               { icon: Smile, title: "Comfortable Environment", desc: "We strive to make your experience comfortable and stress-free, offering sedation options if needed." },
               { icon: Users, title: "Long-Term Health Focus", desc: "Our goal is to restore your smile and ensure its health and function for years to come." }
             ].map((feature, index) => (
-              <motion.div
+              <MotionDiv
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -561,7 +570,7 @@ const DentalImplants = () => {
                 <feature.icon className="h-12 w-12 text-primary mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-[#333333] mb-3">{feature.title}</h3>
                 <p className="text-[#333333]">{feature.desc}</p>
-              </motion.div>
+              </MotionDiv>
             ))}
           </div>
         </div>
@@ -584,7 +593,7 @@ const DentalImplants = () => {
       {/* CTA Section */}
       <section className="py-12 sm:py-16 bg-primary text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -612,7 +621,7 @@ const DentalImplants = () => {
                 </Button>
               </Link>
             </div>
-          </motion.div>
+          </MotionDiv>
         </div>
       </section>
     </>
