@@ -397,7 +397,8 @@ const Header = () => {
                       alt="Christopher B. Wong, DDS logo"
                       width={256}
                       height={256}
-                      priority
+                      sizes="44px"
+                      loading="eager"
                       className="h-full w-full object-contain p-1"
                       onError={() => setLogoLoadFailed(true)}
                     />
