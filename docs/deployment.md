@@ -190,14 +190,21 @@ Expected:
 
 Verify Vercel Web Analytics install:
 
-```bash
-curl -sL https://www.chriswongdds.com/ \
-  | rg -n "_vercel/insights/script\\.js|data-sdkn=@vercel/analytics"
+Open `https://www.chriswongdds.com` in a browser and verify one of the following after hydration:
+
+- browser console returns a script element:
+
+```js
+document.head.querySelector('script[data-sdkn^="@vercel/analytics"]')
 ```
+
+- or DevTools Network shows:
+  - `/_vercel/insights/script.js`
+  - follow-up requests under `/_vercel/insights`
 
 Expected:
 
-- The response contains Vercel Web Analytics script markers.
+- The client runtime injects the Vercel Web Analytics script after hydration.
 - Page views begin appearing in the Vercel Analytics dashboard after navigating the live deployment.
 
 ## Verification commands against preview or production

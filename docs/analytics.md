@@ -64,11 +64,17 @@ Local development is not sufficient to validate Vercel Web Analytics collection 
 ### Preview or production verification
 
 1. Deploy to Vercel preview or production.
-2. Confirm the Vercel Web Analytics script is present:
+2. Open the deployed site in a browser and confirm the Vercel Web Analytics script is present after hydration:
 
-```bash
-curl -sL https://DEPLOYMENT_URL/ | rg -n "_vercel/insights/script\\.js|data-sdkn=@vercel/analytics"
+- Browser console:
+
+```js
+document.head.querySelector('script[data-sdkn^="@vercel/analytics"]')
 ```
+
+- Network tab:
+  - look for `/_vercel/insights/script.js`
+  - then look for subsequent requests under `/_vercel/insights`
 
 3. Confirm the GA bootstrap is still present:
 
@@ -80,6 +86,11 @@ curl -sL https://DEPLOYMENT_URL/ \
 
 4. Visit multiple pages on the deployment and then confirm Vercel Analytics starts receiving page views in the Vercel dashboard.
 
+Notes:
+
+- Vercel Web Analytics is injected client-side from the app layout bundle, so a raw `curl` of the SSR HTML may not show the final script tag.
+- If the deployment is preview-protected by Vercel SSO, use an authenticated browser session instead of CLI-only checks.
+
 ## Release checklist
 
 - Keep GA4 bootstrap in `app/layout.tsx`.
@@ -88,4 +99,4 @@ curl -sL https://DEPLOYMENT_URL/ \
 - Run `pnpm run check`, `pnpm run test:api`, `pnpm run test:routes`, and `pnpm run test:seo:all` before a production push.
 - After deployment, verify both:
   - GA4 bootstrap markers are present in the HTML.
-  - Vercel Web Analytics script markers are present in the HTML.
+  - Vercel Web Analytics runtime is present in the browser after hydration and requests `/_vercel/insights/script.js`.
