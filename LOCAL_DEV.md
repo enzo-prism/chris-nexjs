@@ -47,6 +47,10 @@ pnpm run start
 
 Use this mode for final behavior checks before deploy.
 
+Analytics note:
+- GA4 bootstrap and consent logic can be verified locally.
+- Vercel Web Analytics does not collect traffic in local development, so preview or production deployments are required for end-to-end verification.
+
 ## Recommended local test flow
 
 Core contract checks:

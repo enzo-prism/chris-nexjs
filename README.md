@@ -183,7 +183,7 @@ Write endpoints:
   - 40 indexable
   - 4 noindex (`/zoom-whitening/schedule`, `/thank-you`, `/analytics`, `/ga-test`)
 
-## Analytics behavior (GA4)
+## Analytics behavior (GA4 + Vercel Web Analytics)
 
 - Google tag is installed globally from root layout head for all routes.
 - Measurement ID defaults to `G-94WRBJY51J` and can be overridden by `NEXT_PUBLIC_GA_MEASUREMENT_ID`.
@@ -195,6 +195,8 @@ Write endpoints:
   - `anonymize_ip: true`
 - Consent choices can be updated from the in-app banner (`Accept Analytics` / `Decline`) and are applied through `window.setAnalyticsConsent(...)`.
 - Consent state is persisted in `localStorage` under `analytics_consent`, and updates emit `analytics-consent-updated`.
+- Vercel Web Analytics is also mounted from the root layout via `@vercel/analytics/next` for deployment-level page-view reporting on Vercel.
+- Vercel Web Analytics is separate from GA4 consent/event plumbing and does not replace the internal `/analytics` dashboard route.
 
 ## Naming rule (editorial and compliance)
 
@@ -208,6 +210,7 @@ Never combine `Dr.` and `DDS` in the same line.
 
 - Local development: `/Users/enzo/chris-nextjs/LOCAL_DEV.md`
 - Deployment runbook: `/Users/enzo/chris-nextjs/docs/deployment.md`
+- Analytics guide: `/Users/enzo/chris-nextjs/docs/analytics.md`
 - Testing guide: `/Users/enzo/chris-nextjs/docs/testing.md`
 - Performance workflow: `/Users/enzo/chris-nextjs/docs/performance.md`
 - Production readiness spec: `/Users/enzo/chris-nextjs/docs/production-readiness-spec.md`

@@ -8,6 +8,8 @@ Use this file as the central index for project documentation.
   Top-level project overview, architecture summary, command map.
 - `../LOCAL_DEV.md`  
   Local setup and development workflows.
+- `analytics.md`
+  Analytics ownership map for GA4, consent mode, and Vercel Web Analytics.
 - `deployment.md`  
   Vercel deployment runbook.
   Includes production topology (`chris-wong-dds` public domain + mirror projects),

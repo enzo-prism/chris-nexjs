@@ -188,6 +188,18 @@ Expected:
 - First command returns `1` (exactly one GA4 tag in `<head>`).
 - Consent mode and privacy-hardening markers are present (`consent default`, `analytics_consent`, `analytics-consent-updated`, `wait_for_update`, `allow_google_signals: false`).
 
+Verify Vercel Web Analytics install:
+
+```bash
+curl -sL https://www.chriswongdds.com/ \
+  | rg -n "_vercel/insights/script\\.js|data-sdkn=@vercel/analytics"
+```
+
+Expected:
+
+- The response contains Vercel Web Analytics script markers.
+- Page views begin appearing in the Vercel Analytics dashboard after navigating the live deployment.
+
 ## Verification commands against preview or production
 
 ```bash
