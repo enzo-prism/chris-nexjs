@@ -10,30 +10,26 @@ Operational guide for importing, auditing, and publishing Google review content 
 - Public testimonial seed source: `shared/testimonialsData.ts`
 - Client-featured subset: `client/src/data/featuredTestimonials.ts`
 
-`shared/testimonialsData.ts` now maps directly to `googleReviewSeedData`, so imported review data is the primary source for testimonial fallback rendering.
+`shared/testimonialsData.ts` now maps directly to the imported Google review data, but publishes only 5-star entries. Imported review data remains the source of truth for testimonial fallback rendering and counts.
 
-## Current data profile (2026-03-04 snapshot)
+## Current data profile (2026-03-09 published snapshot)
 
-- Total reviews: `319`
-- Rating distribution:
+- Raw imported Google review export count: `319`
+- Published testimonial count on the website: `308`
+- Published testimonial rating policy:
   - `5-star`: `308`
-  - `4-star`: `7`
-  - `3-star`: `0`
-  - `2-star`: `0`
-  - `1-star`: `4`
-- Reviews with no text in source (`[No text]`): `113`
-  - Converted during import to a normalized sentinel string for transport consistency.
-  - UI rendering intentionally suppresses that placeholder sentence and shows rating + reviewer metadata only.
-- Reviews with truncated excerpt marker: `68`
-  - Normalized to clean ellipsis output (`...`) for display consistency
+  - non-5-star reviews are retained in the raw import history but excluded from public testimonial rendering
+- 5-star reviews with no text in source still use the normalized placeholder sentence internally for transport consistency.
+  - UI rendering suppresses that placeholder sentence and shows rating + reviewer metadata only.
 
 ## Website rendering behavior
 
-- `/testimonials` keeps all imported reviews available, but renders them in batched pagination (`24` at a time) to avoid initial page bloat.
+- `/testimonials` renders the full published 5-star review set in batched pagination (`24` at a time) to avoid initial page bloat.
 - `/api/testimonials` enforces a minimum dataset floor:
-  - if storage returns fewer rows than the imported seed count, it serves the full imported seed set.
-- Client pages consume testimonials via API to avoid shipping the entire 319-review seed bundle to the browser.
+  - if storage returns fewer rows than the published 5-star seed count, it serves the full published seed set.
+- Client pages consume testimonials via API to avoid shipping the entire review seed bundle to the browser.
 - Structured review schema is intentionally capped via `buildReviewSchemas(..., limit = 8)` to avoid over-large JSON-LD payloads.
+- Homepage review/count badges should use the published 5-star count, not the raw import total.
 - Homepage spotlight carousel (`client/src/pages/Home.tsx`) uses:
   - width-aware slide-track translation (`translateX(active * 100 / count)`) to keep arrow navigation aligned with single-card increments
   - pointer swipe detection (45px horizontal threshold, vertical-swipe rejection) for mobile and trackpad/mouse drags
@@ -61,10 +57,12 @@ pnpm run test:reviews
 pnpm run check
 pnpm run test:api
 pnpm run test:routes
+pnpm run test:reviews
 ```
 
 ## Guardrails
 
-- Keep all star ratings represented (do not selectively remove low ratings).
+- The website’s published testimonial surface is intentionally 5-star only.
+- Do not hand-edit the rating filter in multiple places; keep it centralized around `shared/testimonialsData.ts`.
 - Do not manually hand-edit `shared/googleReviewsData.ts`; regenerate from source export instead.
 - If parsing drops unexpectedly below `300` reviews, treat it as a format break and inspect the source export structure before release.

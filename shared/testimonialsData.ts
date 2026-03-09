@@ -4,6 +4,8 @@ import { googleReviewSeedData } from "./googleReviewsData";
 type SeedTestimonial = Omit<InsertTestimonial, "location" | "image"> &
   Partial<Pick<InsertTestimonial, "location" | "image">>;
 
+export const PUBLISHED_TESTIMONIAL_RATING = 5;
+
 const DEFAULT_LOCATIONS = [
   "Google Review",
   "Palo Alto, CA",
@@ -13,8 +15,14 @@ const DEFAULT_LOCATIONS = [
   "Verified Patient",
 ];
 
-// Source of truth: imported from full Google review export (319 reviews).
-export const testimonialSeedData: SeedTestimonial[] = googleReviewSeedData;
+export const isPublishedTestimonial = (testimonial: { rating: number }) =>
+  testimonial.rating === PUBLISHED_TESTIMONIAL_RATING;
+
+// Source of truth for published testimonials: only 5-star reviews from the full Google export.
+export const testimonialSeedData: SeedTestimonial[] =
+  googleReviewSeedData.filter(isPublishedTestimonial);
+
+export const publishedTestimonialReviewCount = testimonialSeedData.length;
 
 export const buildInsertTestimonial = (
   testimonial: SeedTestimonial,

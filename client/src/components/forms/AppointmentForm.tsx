@@ -971,13 +971,14 @@ const AppointmentForm = ({ className = "" }: AppointmentFormProps) => {
             <ul className="space-y-1">
               {errorSummary.map((item) => (
                 <li key={item.field}>
-                  <button
+                  <Button
                     type="button"
-                    className="ui-focus-premium text-left underline underline-offset-2 hover:text-amber-950"
+                    variant="link"
+                    className="h-auto justify-start whitespace-normal p-0 text-left underline underline-offset-2 hover:text-amber-950"
                     onClick={() => setFocus(item.field)}
                   >
                     {item.message}
-                  </button>
+                  </Button>
                 </li>
               ))}
             </ul>

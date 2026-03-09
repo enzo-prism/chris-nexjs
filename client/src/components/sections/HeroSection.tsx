@@ -8,7 +8,11 @@ import AnimatedDentalAura from "@/components/common/animated/AnimatedDentalAura"
 const HERO_IMAGE_SRC =
   "https://res.cloudinary.com/dhqpqfw6w/image/upload/f_auto,q_auto:eco,w_1120/v1762989226/Post-11_nohz6f";
 
-const HeroSection = () => {
+type HeroSectionProps = {
+  reviewCount?: number;
+};
+
+const HeroSection = ({ reviewCount = 0 }: HeroSectionProps) => {
   // Features list
   const features = [
     {
@@ -119,7 +123,7 @@ const HeroSection = () => {
                   Read patient reviews on Google
                 </span>
                 <span className="ml-2 text-white/70 text-xs sm:text-sm">
-                  319+ Google reviews
+                  {reviewCount} Google reviews
                 </span>
                 <ArrowRight
                   className="h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-100"

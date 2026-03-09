@@ -23,6 +23,7 @@ import {
   type Service,
   type Testimonial,
 } from "@shared/schema";
+import { isPublishedTestimonial } from "@shared/testimonialsData";
 import { getSeedData } from "./seed";
 
 import type { IStorage } from "../storage";
@@ -334,7 +335,8 @@ class DatabaseStorage implements IStorage {
 
   async getTestimonials(): Promise<Testimonial[]> {
     await this.ensureSeeded();
-    return this.db.select().from(testimonials);
+    const rows = await this.db.select().from(testimonials);
+    return rows.filter(isPublishedTestimonial);
   }
 
   async getTestimonial(id: number): Promise<Testimonial | undefined> {

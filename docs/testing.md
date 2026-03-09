@@ -50,6 +50,7 @@ Command reference for contract, UI, SEO, and performance checks.
 
 - `pnpm run test:seo`
   - Static SEO regression checks.
+  - Rejects `robots` configs that use `crawlDelay`, because Google ignores it and it can make grouped crawler rules ambiguous in live inspection.
 - `pnpm run test:seo:onpage`
   - Runtime title/description/h1/canonical/robots checks.
   - Enforces exactly one robots meta tag per indexable page.
@@ -184,7 +185,21 @@ Expected:
 
 - local `HEAD` equals `origin/main`
 - `www.chriswongdds.com`, `chris-nextjs.vercel.app`, and `chriswongdds.vercel.app` deployments are `Ready`
-- apex host (`chriswongdds.com`) redirects to `https://www.chriswongdds.com/`
+- apex host (`chriswongdds.com`) redirects permanently (`301` or `308`) to `https://www.chriswongdds.com/`
 - canonical host returns `200`
 - GA head-tag count command returns `1`
 - consent/privacy markers are present in head bootstrap script (`wait_for_update`, `analytics-consent-updated`, `allow_google_signals: false`)
+
+Search Console-specific follow-up after SEO releases:
+
+```bash
+curl -sS https://www.chriswongdds.com/robots.txt
+curl -I https://chriswongdds.com/about
+curl -I https://www.chriswongdds.com/about
+```
+
+Then verify URL Inspection live tests for `/` and `/about` show:
+
+- crawl allowed
+- page fetch successful
+- not blocked by robots.txt

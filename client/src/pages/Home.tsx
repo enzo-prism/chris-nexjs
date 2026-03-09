@@ -176,7 +176,7 @@ const Home = (props: any) => {
 	  return (
 	    <>
       <StructuredData data={schemaNodes} />
-      <HeroSection />
+      <HeroSection reviewCount={initialTestimonials.length} />
 
       {/* Local relevance section */}
       <section id="palo-alto-dentist" className="bg-white py-12 md:py-16">

@@ -7,7 +7,11 @@ import {
   BlogPost, InsertBlogPost, blogPosts,
   Testimonial, InsertTestimonial, testimonials
 } from "@shared/schema";
-import { buildInsertTestimonial, testimonialSeedData } from "@shared/testimonialsData";
+import {
+  buildInsertTestimonial,
+  isPublishedTestimonial,
+  testimonialSeedData,
+} from "@shared/testimonialsData";
 
 export interface IStorage {
   // User methods
@@ -269,7 +273,7 @@ export class MemStorage implements IStorage {
 
   // Testimonial methods
   async getTestimonials(): Promise<Testimonial[]> {
-    return Array.from(this.testimonials.values());
+    return Array.from(this.testimonials.values()).filter(isPublishedTestimonial);
   }
 
   async getTestimonial(id: number): Promise<Testimonial | undefined> {

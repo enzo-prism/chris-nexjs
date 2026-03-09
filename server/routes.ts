@@ -61,11 +61,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.header("Expires", "0");
     res.send(`User-agent: *
 Allow: /
-Crawl-delay: 1
-
-Sitemap: https://www.chriswongdds.com/sitemap.xml
-Host: www.chriswongdds.com
-
 Disallow: /admin/
 Disallow: /api/
 Disallow: /private/
@@ -73,12 +68,6 @@ Disallow: /analytics
 Disallow: /ga-test
 Disallow: /thank-you
 Disallow: /zoom-whitening/schedule
-
-User-agent: Googlebot
-Crawl-delay: 1
-
-User-agent: Bingbot
-Crawl-delay: 2
 
 # Block problematic bots
 User-agent: AhrefsBot
@@ -89,6 +78,9 @@ Disallow: /
 
 User-agent: DotBot
 Disallow: /
+
+Sitemap: https://www.chriswongdds.com/sitemap.xml
+Host: www.chriswongdds.com
 `);
   });
 

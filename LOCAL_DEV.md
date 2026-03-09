@@ -180,6 +180,11 @@ IMAGE_AUDIT_BASE_URL=http://localhost:5000 pnpm run test:images
   - change `PORT` in `.env` or stop conflicting process
 - Redirect/canonical mismatch:
   - align `vercel.json`, `middleware.ts`, `shared/redirects.ts`, and `shared/seo.ts`
+- Search Console says `blocked by robots.txt` but `curl` looks open:
+  - inspect `app/robots.ts` first
+  - remove `Crawl-delay` and crawler groups that only contain unsupported directives
+  - rebuild and rerun `SEO_AUDIT_BASE_URL=http://localhost:5000 pnpm run test:seo:all`
+  - verify apex redirects are permanent
 - Metadata issues:
   - run `pnpm run test:routes`
   - run `pnpm run test:seo:all`

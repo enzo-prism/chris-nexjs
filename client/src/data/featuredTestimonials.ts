@@ -1,7 +1,7 @@
 import type { InsertTestimonial } from "@shared/schema";
 
 // Lightweight testimonial subset for service/location pages.
-// Full 319-review dataset is served through /api/testimonials.
+// Full published 5-star review dataset is served through /api/testimonials.
 export const featuredTestimonials: readonly InsertTestimonial[] = [
   {"name":"Abdel Fahmy","location":"Google Review","rating":5,"text":"Wonderful doctor and staff!","image":""},
   {"name":"Amy Hamachi","location":"Google Review","rating":5,"text":"Dr. Wong was very pleasant and seemed willing to listen to any questions that I had. He was easy to talk to and had a reasonable plan of care of my teeth. I would recommend him.","image":""},

@@ -67,7 +67,7 @@ const CustomGoogleReviews = ({ className = '' }: CustomGoogleReviewsProps) => {
                   <Star key={i} className="h-4 w-4" fill="currentColor" />
                 ))}
               </div>
-              <span className="text-sm text-gray-600">4.9 • 319 reviews</span>
+              <span className="text-sm text-gray-600">5.0 • 308 reviews</span>
             </div>
           </div>
         </div>

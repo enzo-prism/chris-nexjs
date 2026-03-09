@@ -106,11 +106,13 @@ vercel inspect www.chriswongdds.com
 ```bash
 curl -I https://chriswongdds.com
 curl -I https://www.chriswongdds.com
+curl -sS https://www.chriswongdds.com/robots.txt
+curl -I https://www.chriswongdds.com/about
 ```
 
 Expected:
 
-- `https://chriswongdds.com/*` returns a redirect to `https://www.chriswongdds.com/*`.
+- `https://chriswongdds.com/*` returns a permanent redirect (`301` or `308`) to `https://www.chriswongdds.com/*`.
 - `https://www.chriswongdds.com/*` returns `200`.
 
 ## Optional mirror sync deploys
@@ -207,6 +209,15 @@ Expected:
 - The client runtime injects the Vercel Web Analytics script after hydration.
 - Page views begin appearing in the Vercel Analytics dashboard after navigating the live deployment.
 
+Verify Google crawl surfaces after SEO-affecting releases:
+
+- `robots.txt` contains one primary `User-agent: *` allow/disallow section and no `Crawl-delay`
+- `sitemap.xml` includes `https://www.chriswongdds.com/about`
+- Search Console live test for `/about` reports:
+  - crawl allowed
+  - page fetch successful
+  - not blocked by robots.txt
+
 ## Verification commands against preview or production
 
 ```bash
@@ -229,6 +240,7 @@ Keep these files aligned whenever routes or SEO paths change:
 - `shared/redirects.ts`
 - `middleware.ts`
 - `vercel.json`
+- `app/robots.ts`
 
 ## Local link policy
 

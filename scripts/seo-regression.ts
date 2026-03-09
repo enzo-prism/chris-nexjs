@@ -135,9 +135,10 @@ async function main(): Promise<void> {
   }
 
   const robotsConfig = robots();
-  const primaryRule = Array.isArray(robotsConfig.rules)
-    ? robotsConfig.rules[0]
-    : robotsConfig.rules;
+  const allRules = Array.isArray(robotsConfig.rules)
+    ? robotsConfig.rules
+    : [robotsConfig.rules];
+  const primaryRule = allRules[0];
   const primaryDisallow = primaryRule?.disallow;
   const disallowValues = primaryDisallow
     ? Array.isArray(primaryDisallow)
@@ -152,6 +153,14 @@ async function main(): Promise<void> {
       if (!disallow.has(entry) && entry !== "/api/") {
         warnings.push(`Noindex path is not explicitly blocked in robots: ${entry}`);
       }
+    });
+  }
+
+  const rulesWithCrawlDelay = allRules.filter((rule) => "crawlDelay" in rule);
+  if (rulesWithCrawlDelay.length) {
+    errors.push({
+      message:
+        "robots config uses crawlDelay, which Google ignores and can make grouped user-agent rules ambiguous",
     });
   }
 

@@ -4,6 +4,7 @@ import path from "node:path";
 const rawPath = path.resolve("attached_assets/google-reviews-export-319.txt");
 const generatedPath = path.resolve("shared/googleReviewsData.ts");
 const shouldAssert = process.argv.includes("--assert");
+const PUBLISHED_REVIEW_RATING = 5;
 
 function parseRawExport(content) {
   const blocks = content
@@ -20,22 +21,29 @@ function parseRawExport(content) {
   ]);
 
   let noTextCount = 0;
+  let publishedNoTextCount = 0;
   for (const block of blocks) {
+    let rating = null;
     const starsMatch = block.match(/Stars:\s*(\d)\/5/);
     if (starsMatch) {
-      const rating = Number(starsMatch[1]);
+      rating = Number(starsMatch[1]);
       ratingCounts.set(rating, (ratingCounts.get(rating) ?? 0) + 1);
     }
 
     const reviewMatch = block.match(/Review:\s*([\s\S]*?)\s*$/);
     if (reviewMatch?.[1]?.trim() === "[No text]") {
       noTextCount += 1;
+      if (rating === PUBLISHED_REVIEW_RATING) {
+        publishedNoTextCount += 1;
+      }
     }
   }
 
   return {
     total: blocks.length,
     noTextCount,
+    publishedTotal: ratingCounts.get(PUBLISHED_REVIEW_RATING) ?? 0,
+    publishedNoTextCount,
     ratings: ratingCounts,
   };
 }
@@ -105,6 +113,8 @@ function run() {
     raw: {
       total: raw.total,
       noTextCount: raw.noTextCount,
+      publishedTotal: raw.publishedTotal,
+      publishedNoTextCount: raw.publishedNoTextCount,
       ratings: formatRatings(raw.ratings),
     },
     generated: {
@@ -125,26 +135,29 @@ function run() {
   if (generated.total < 300) {
     failures.push(`Generated review count too low: ${generated.total} (expected >= 300)`);
   }
-  if (generated.total !== raw.total) {
+  if (generated.total !== raw.publishedTotal) {
     failures.push(
-      `Generated review count mismatch: generated=${generated.total}, raw=${raw.total}`,
+      `Generated review count mismatch: generated=${generated.total}, published=${raw.publishedTotal}`,
     );
   }
   if (generated.emptyTextCount > 0) {
     failures.push(`Found ${generated.emptyTextCount} generated reviews with empty text`);
   }
-  if (generated.placeholderNoTextCount !== raw.noTextCount) {
+  if (generated.placeholderNoTextCount !== raw.publishedNoTextCount) {
     failures.push(
-      `No-text conversion mismatch: generated placeholders=${generated.placeholderNoTextCount}, raw [No text]=${raw.noTextCount}`,
+      `No-text conversion mismatch: generated placeholders=${generated.placeholderNoTextCount}, published [No text]=${raw.publishedNoTextCount}`,
     );
   }
 
   for (const rating of [1, 2, 3, 4, 5]) {
-    const rawCount = raw.ratings.get(rating) ?? 0;
+    const rawCount =
+      rating === PUBLISHED_REVIEW_RATING
+        ? raw.ratings.get(rating) ?? 0
+        : 0;
     const generatedCount = generated.ratings.get(rating) ?? 0;
     if (rawCount !== generatedCount) {
       failures.push(
-        `Rating distribution mismatch for ${rating}-star: generated=${generatedCount}, raw=${rawCount}`,
+        `Rating distribution mismatch for ${rating}-star: generated=${generatedCount}, published=${rawCount}`,
       );
     }
   }

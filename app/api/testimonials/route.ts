@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { getStorage } from "../../../server/storage/repository";
 import type { Testimonial } from "@shared/schema";
-import { buildInsertTestimonial, testimonialSeedData } from "@shared/testimonialsData";
+import {
+  buildInsertTestimonial,
+  isPublishedTestimonial,
+  testimonialSeedData,
+} from "@shared/testimonialsData";
 
 const buildSeedTestimonials = (): Testimonial[] =>
   testimonialSeedData.map((seed, index) => ({
@@ -17,7 +21,9 @@ export async function GET() {
     const responseData =
       testimonials.length >= seedCount ? testimonials : buildSeedTestimonials();
 
-    return NextResponse.json(responseData, { status: 200 });
+    return NextResponse.json(responseData.filter(isPublishedTestimonial), {
+      status: 200,
+    });
   } catch {
     return NextResponse.json(
       { message: "Failed to fetch testimonials" },

@@ -20,6 +20,10 @@ This runbook defines how technical SEO is implemented and validated in productio
   - canonical host: `www.chriswongdds.com`
   - primary sitemap: `https://www.chriswongdds.com/sitemap.xml`
   - disallows noindex routes and `/api/`
+  - keep the file minimal and parser-safe for Google:
+    - do not add `Crawl-delay`
+    - do not add crawler groups that only contain unsupported directives
+    - keep blocked-bot groups isolated after the primary `User-agent: *` group
 - `app/sitemap.ts`
   - includes indexable static routes from `shared/seo.ts`
   - includes blog post routes from storage
@@ -43,11 +47,16 @@ This runbook defines how technical SEO is implemented and validated in productio
 5. Feed discovery is available through:
    - `<link rel=\"alternate\" type=\"application/rss+xml\" ...>`
    - stable `/rss.xml` route.
+6. `robots.txt` must stay compatible with Google Search Console live tests:
+   - no unsupported `Crawl-delay`
+   - no ambiguous empty user-agent groups
+7. Canonical host redirects should be permanent (`301`/`308`), not temporary (`307`).
 
 ## Automated SEO gates
 
 - Static regression:
   - `pnpm run test:seo`
+  - rejects `robots` configs that reintroduce `crawlDelay`
 - Runtime on-page:
   - `pnpm run test:seo:onpage`
   - validates title/description thresholds, canonical, H1 count
@@ -75,3 +84,27 @@ SEO_AUDIT_BASE_URL=https://www.chriswongdds.com pnpm run test:seo:all
    - `https://www.chriswongdds.com/sitemap.xml`
    - `https://www.chriswongdds.com/rss.xml`
    - `SEO_AUDIT_BASE_URL=https://www.chriswongdds.com pnpm run test:seo:all`
+   - Google Search Console live test for `/` and `/about`
+   - confirm the live test shows:
+     - crawl allowed
+     - page fetch successful
+     - not blocked by robots.txt
+
+## Search Console incident note
+
+If Search Console reports `Page cannot be crawled: Blocked by robots.txt` while direct `curl` checks still show `Allow: /`, treat the parser itself as suspect before assuming transport is healthy.
+
+Known failure mode:
+
+- unsupported directives like `Crawl-delay` mixed with later bot-specific block groups can be interpreted inconsistently by Google tooling
+- this can surface as:
+  - public `robots.txt` looks open
+  - page fetch returns `200`
+  - Search Console live test still reports `blocked by robots.txt`
+
+First response:
+
+1. simplify `robots.txt` to one primary `User-agent: *` group plus explicit blocked-bot groups
+2. remove unsupported directives
+3. redeploy
+4. rerun the Search Console live test

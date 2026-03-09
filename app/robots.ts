@@ -13,15 +13,6 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
         allow: "/",
         disallow: [...noIndexPaths, "/api/"],
-        crawlDelay: 1,
-      },
-      {
-        userAgent: "Googlebot",
-        crawlDelay: 1,
-      },
-      {
-        userAgent: "Bingbot",
-        crawlDelay: 2,
       },
       {
         userAgent: "AhrefsBot",
