@@ -22,8 +22,10 @@ This runbook defines how technical SEO is implemented and validated in productio
   - disallows noindex routes and `/api/`
   - keep the file minimal and parser-safe for Google:
     - do not add `Crawl-delay`
-    - do not add crawler groups that only contain unsupported directives
-    - keep blocked-bot groups isolated after the primary `User-agent: *` group
+    - do not add unsupported `Host` directives
+    - do not leave duplicate `robots.txt` files in `client/public` or `public`
+    - explicitly include `Google-InspectionTool` because Search Console live tests use that token
+    - keep blocked-bot groups isolated after the primary allowlist groups
 - `app/sitemap.ts`
   - includes indexable static routes from `shared/seo.ts`
   - includes blog post routes from storage
@@ -49,7 +51,9 @@ This runbook defines how technical SEO is implemented and validated in productio
    - stable `/rss.xml` route.
 6. `robots.txt` must stay compatible with Google Search Console live tests:
    - no unsupported `Crawl-delay`
+   - no unsupported `Host`
    - no ambiguous empty user-agent groups
+   - explicit allow groups for `Googlebot` and `Google-InspectionTool`
 7. Canonical host redirects should be permanent (`301`/`308`), not temporary (`307`).
 
 ## Automated SEO gates
@@ -57,6 +61,8 @@ This runbook defines how technical SEO is implemented and validated in productio
 - Static regression:
   - `pnpm run test:seo`
   - rejects `robots` configs that reintroduce `crawlDelay`
+  - rejects duplicate static `robots.txt` files
+  - rejects missing explicit `Google-InspectionTool` rules
 - Runtime on-page:
   - `pnpm run test:seo:onpage`
   - validates title/description thresholds, canonical, H1 count
@@ -97,6 +103,8 @@ If Search Console reports `Page cannot be crawled: Blocked by robots.txt` while 
 Known failure mode:
 
 - unsupported directives like `Crawl-delay` mixed with later bot-specific block groups can be interpreted inconsistently by Google tooling
+- duplicate legacy `client/public/robots.txt` files can preserve stale crawler rules even after the App Router robots route is fixed
+- Search Console live tests use `Google-InspectionTool`, which should be represented explicitly instead of relying on wildcard matching
 - this can surface as:
   - public `robots.txt` looks open
   - page fetch returns `200`
@@ -104,7 +112,8 @@ Known failure mode:
 
 First response:
 
-1. simplify `robots.txt` to one primary `User-agent: *` group plus explicit blocked-bot groups
-2. remove unsupported directives
-3. redeploy
-4. rerun the Search Console live test
+1. remove duplicate static `robots.txt` files and keep one canonical policy source
+2. simplify `robots.txt` to explicit `Googlebot`, `Google-InspectionTool`, and `User-agent: *` allow groups plus blocked-bot groups
+3. remove unsupported directives
+4. redeploy
+5. rerun the Search Console live test

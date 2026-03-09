@@ -1,6 +1,13 @@
+import fs from "node:fs";
+import path from "node:path";
 import { getCanonicalRouteData } from "../app/route-utils";
 import sitemap from "../app/sitemap";
 import robots from "../app/robots";
+import {
+  GOOGLE_CRAWLER_USER_AGENTS,
+  buildRobotsTxtContent,
+  getPublicRobotsDisallowPaths,
+} from "../shared/robots";
 import {
   getIndexablePaths,
   getSitemapEntries,
@@ -138,19 +145,19 @@ async function main(): Promise<void> {
   const allRules = Array.isArray(robotsConfig.rules)
     ? robotsConfig.rules
     : [robotsConfig.rules];
-  const primaryRule = allRules[0];
-  const primaryDisallow = primaryRule?.disallow;
-  const disallowValues = primaryDisallow
-    ? Array.isArray(primaryDisallow)
-      ? primaryDisallow
-      : [primaryDisallow]
+  const publicRule = allRules.find((rule) => rule.userAgent === "*");
+  const publicDisallow = publicRule?.disallow;
+  const disallowValues = publicDisallow
+    ? Array.isArray(publicDisallow)
+      ? publicDisallow
+      : [publicDisallow]
     : [];
   if (!disallowValues.length) {
-    errors.push({ message: "robots config missing expected disallow list" });
+    errors.push({ message: "robots config missing expected wildcard disallow list" });
   } else {
     const disallow = new Set(disallowValues);
-    noindexPaths.forEach((entry) => {
-      if (!disallow.has(entry) && entry !== "/api/") {
+    getPublicRobotsDisallowPaths().forEach((entry) => {
+      if (!disallow.has(entry)) {
         warnings.push(`Noindex path is not explicitly blocked in robots: ${entry}`);
       }
     });
@@ -161,6 +168,60 @@ async function main(): Promise<void> {
     errors.push({
       message:
         "robots config uses crawlDelay, which Google ignores and can make grouped user-agent rules ambiguous",
+    });
+  }
+
+  if ("host" in robotsConfig && robotsConfig.host) {
+    errors.push({
+      message:
+        "robots config sets a host directive, which Google does not support and which can create avoidable parser ambiguity",
+    });
+  }
+
+  for (const userAgent of GOOGLE_CRAWLER_USER_AGENTS) {
+    const matchingRule = allRules.find((rule) => rule.userAgent === userAgent);
+    if (!matchingRule) {
+      errors.push({
+        message: `robots config missing explicit allow rule for ${userAgent}`,
+      });
+      continue;
+    }
+
+    const disallow = Array.isArray(matchingRule.disallow)
+      ? matchingRule.disallow
+      : [matchingRule.disallow];
+    const expectedDisallow = new Set(getPublicRobotsDisallowPaths());
+
+    if (matchingRule.allow !== "/") {
+      errors.push({
+        message: `robots config should explicitly Allow: / for ${userAgent}`,
+      });
+    }
+
+    for (const blockedPath of expectedDisallow) {
+      if (!disallow.includes(blockedPath)) {
+        errors.push({
+          message: `robots config missing ${blockedPath} in ${userAgent} rule`,
+        });
+      }
+    }
+  }
+
+  const duplicateRobotsPaths = [
+    path.resolve(process.cwd(), "client/public/robots.txt"),
+    path.resolve(process.cwd(), "public/robots.txt"),
+  ].filter((filePath) => fs.existsSync(filePath));
+
+  if (duplicateRobotsPaths.length) {
+    errors.push({
+      message: `Unexpected duplicate static robots.txt files found: ${duplicateRobotsPaths.join(", ")}`,
+    });
+  }
+
+  const renderedRobots = buildRobotsTxtContent();
+  if (!renderedRobots.includes("User-agent: Google-InspectionTool")) {
+    errors.push({
+      message: "Rendered robots.txt is missing an explicit Google-InspectionTool group",
     });
   }
 

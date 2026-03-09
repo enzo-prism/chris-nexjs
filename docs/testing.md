@@ -51,6 +51,7 @@ Command reference for contract, UI, SEO, and performance checks.
 - `pnpm run test:seo`
   - Static SEO regression checks.
   - Rejects `robots` configs that use `crawlDelay`, because Google ignores it and it can make grouped crawler rules ambiguous in live inspection.
+  - Rejects duplicate static `robots.txt` files and missing explicit `Google-InspectionTool` rules.
 - `pnpm run test:seo:onpage`
   - Runtime title/description/h1/canonical/robots checks.
   - Enforces exactly one robots meta tag per indexable page.
@@ -196,6 +197,7 @@ Search Console-specific follow-up after SEO releases:
 curl -sS https://www.chriswongdds.com/robots.txt
 curl -I https://chriswongdds.com/about
 curl -I https://www.chriswongdds.com/about
+curl -I -A 'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36 (compatible; Google-InspectionTool/1.0;)' https://www.chriswongdds.com/about
 ```
 
 Then verify URL Inspection live tests for `/` and `/about` show:
@@ -203,3 +205,4 @@ Then verify URL Inspection live tests for `/` and `/about` show:
 - crawl allowed
 - page fetch successful
 - not blocked by robots.txt
+- If `www` is clean but live tests still fail, inspect apex-host redirects separately and confirm they are permanent (`301`/`308`) rather than temporary (`307`)

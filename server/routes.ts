@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertAppointmentSchema, insertContactMessageSchema, insertNewsletterSubscriptionSchema } from "@shared/schema";
 import { buildExcerpt, getSitemapEntries, seoByPath } from "@shared/seo";
+import { buildRobotsTxtContent } from "@shared/robots";
 import { getLegacyRedirectPath } from "@shared/redirects";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
@@ -59,29 +60,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     );
     res.header("Pragma", "no-cache");
     res.header("Expires", "0");
-    res.send(`User-agent: *
-Allow: /
-Disallow: /admin/
-Disallow: /api/
-Disallow: /private/
-Disallow: /analytics
-Disallow: /ga-test
-Disallow: /thank-you
-Disallow: /zoom-whitening/schedule
-
-# Block problematic bots
-User-agent: AhrefsBot
-Disallow: /
-
-User-agent: MJ12bot
-Disallow: /
-
-User-agent: DotBot
-Disallow: /
-
-Sitemap: https://www.chriswongdds.com/sitemap.xml
-Host: www.chriswongdds.com
-`);
+    res.send(buildRobotsTxtContent());
   });
 
   // Sitemap route

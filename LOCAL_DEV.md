@@ -182,7 +182,9 @@ IMAGE_AUDIT_BASE_URL=http://localhost:5000 pnpm run test:images
   - align `vercel.json`, `middleware.ts`, `shared/redirects.ts`, and `shared/seo.ts`
 - Search Console says `blocked by robots.txt` but `curl` looks open:
   - inspect `app/robots.ts` first
-  - remove `Crawl-delay` and crawler groups that only contain unsupported directives
+  - remove duplicate static `robots.txt` files before debugging parser behavior
+  - remove `Crawl-delay`, unsupported `Host` directives, and crawler groups that only contain unsupported directives
+  - add an explicit `Google-InspectionTool` allow group instead of relying only on `User-agent: *`
   - rebuild and rerun `SEO_AUDIT_BASE_URL=http://localhost:5000 pnpm run test:seo:all`
   - verify apex redirects are permanent
 - Metadata issues:

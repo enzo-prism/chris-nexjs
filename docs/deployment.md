@@ -211,12 +211,15 @@ Expected:
 
 Verify Google crawl surfaces after SEO-affecting releases:
 
-- `robots.txt` contains one primary `User-agent: *` allow/disallow section and no `Crawl-delay`
+- `robots.txt` contains explicit allow groups for `Googlebot`, `Google-InspectionTool`, and `User-agent: *`
+- `robots.txt` contains no `Crawl-delay`, no `Host` directive, and no duplicate static copy in `client/public` or `public`
 - `sitemap.xml` includes `https://www.chriswongdds.com/about`
 - Search Console live test for `/about` reports:
   - crawl allowed
   - page fetch successful
   - not blocked by robots.txt
+- If `www` looks clean but Search Console still reports blocked:
+  - verify `https://chriswongdds.com/*` redirects permanently (`301`/`308`) and not temporarily (`307`)
 
 ## Verification commands against preview or production
 
