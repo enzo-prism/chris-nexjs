@@ -158,20 +158,6 @@ export default function GalleryTile({
         </div>
       )}
 
-      {/* Modern Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-      
-      <div className="absolute inset-x-0 bottom-0 p-6 translate-y-4 opacity-0 transition-all duration-500 ease-out group-hover:translate-y-0 group-hover:opacity-100">
-        <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-blue-300/90">
-          {item.category}
-        </p>
-        <h3 className="text-lg font-semibold text-white">
-          {item.title}
-        </h3>
-        <p className="mt-1 line-clamp-2 text-sm text-slate-200/90">
-          {item.description}
-        </p>
-      </div>
     </div>
   );
 }
