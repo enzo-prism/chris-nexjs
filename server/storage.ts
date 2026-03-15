@@ -500,6 +500,155 @@ We are here to help quickly, safely, and with compassion.`,
         relatedServices: ["emergency-dental"],
       },
       {
+        title: "When Is a Cracked Tooth a Dental Emergency in Palo Alto?",
+        content: `If you need a cracked tooth emergency dentist in Palo Alto, the hardest part is often knowing whether the problem can wait or whether you should be seen the same day.
+
+A cracked tooth can be easy to dismiss at first. Maybe you feel a sharp twinge while chewing, notice a rough edge with your tongue, or start getting sensitivity to cold coffee or ice water. In some cases, the crack is small and there is no pain at all. In others, the discomfort builds quickly.
+
+At Chris Wong DDS, urgent visits often begin this way. A patient in Palo Alto, Menlo Park, or Stanford notices that one tooth suddenly feels different, then realizes it is getting worse with every meal. The good news is that early evaluation often leads to more conservative treatment. The longer a cracked tooth is ignored, the greater the chance the damage spreads deeper into the tooth.
+
+## Why a cracked tooth deserves prompt attention
+
+Teeth handle a lot of force every day. Biting, grinding, clenching, and aging restorations can all create stress over time. A crack may begin as a very small structural problem, but once the tooth is weakened, normal chewing pressure can make it worse.
+
+That matters because treatment for a minor crack is often much simpler than treatment for a deep crack that reaches the nerve or allows part of the tooth to break away.
+
+A cracked tooth can also create an opening for bacteria. If the inner part of the tooth becomes irritated or infected, what started as a manageable repair can turn into significant pain, swelling, or a more complex restorative problem.
+
+## Signs a cracked tooth may be a dental emergency
+
+Not every cracked tooth requires you to rush to the office within the hour, but some situations do call for same-day attention. Contact a dentist quickly if you notice any of the following:
+
+### 1. Pain when you bite down
+
+This is one of the most common warning signs. If a tooth hurts when you chew, especially when releasing pressure, a crack may be opening and closing under force.
+
+### 2. Sudden sensitivity to hot or cold
+
+Brief sensitivity can happen for many reasons, but new sensitivity after biting something hard may point to a crack.
+
+### 3. A visible fracture or missing piece of tooth
+
+If part of the tooth chipped off or you can see a line or break, the tooth is more vulnerable to further damage.
+
+### 4. Sharp edges irritating your tongue or cheek
+
+A rough, jagged area usually means tooth structure has broken and should be evaluated before it worsens.
+
+### 5. Swelling, throbbing pain, or lingering discomfort
+
+These symptoms can mean the crack has affected the nerve or led to infection. That should not be put off.
+
+### 6. Pain that keeps getting worse over a day or two
+
+Even if the crack seemed minor at first, worsening pain is a sign the tooth needs prompt attention.
+
+## What to do right away
+
+If you think you cracked a tooth, do not test it by chewing on it again. That can deepen the damage.
+
+Instead:
+
+- Rinse gently with warm water.
+- Avoid chewing on that side.
+- Skip very hard, crunchy, or sticky foods.
+- If there is swelling, use a cold compress on the outside of the face.
+- Save any broken piece if one came off.
+- Call your dentist for guidance.
+
+If you have uncontrolled bleeding, trouble breathing, or rapidly worsening facial swelling, seek emergency medical care immediately.
+
+## What happens at your dental visit
+
+The first step is diagnosis. Dr. Wong takes a conservative approach, which is especially important with cracked teeth. Rather than jumping to the biggest procedure, the goal is to understand where the damage is, how stable the tooth remains, and what treatment will best preserve healthy structure.
+
+At your visit, your dentist may:
+
+- Examine the tooth and surrounding gum tissue.
+- Check your bite and pain triggers.
+- Use imaging to evaluate the crack and roots.
+- Determine whether the tooth can be protected with a simpler restoration or needs more extensive care.
+
+For many patients, this clarity is the biggest relief. Once you know whether the crack is minor, moderate, or urgent, it becomes much easier to move forward with confidence.
+
+## Conservative treatment options for a cracked tooth
+
+The right treatment depends on the size and location of the crack.
+
+### Dental bonding or smoothing
+
+If the issue is very minor, the tooth may only need smoothing or a small bonded repair.
+
+### Crown placement
+
+If the tooth is structurally weakened but still healthy enough to save predictably, a crown may protect it from further fracture and restore comfortable function.
+
+### Replacement of an old filling
+
+Sometimes the tooth itself is not the only issue. An aging filling or weakened area around a restoration may need to be replaced before the crack worsens.
+
+### Root canal therapy plus restoration
+
+If the crack has irritated the nerve, root canal treatment may be recommended before the tooth is restored.
+
+### Extraction and replacement planning
+
+If the crack extends too deeply, saving the tooth may not be predictable. In that case, a thoughtful restorative plan can help replace the tooth in a stable, natural-looking way.
+
+## Why earlier care usually means better options
+
+One of the main themes across modern conservative dentistry is simple: earlier treatment protects more of what is healthy.
+
+That is especially true with cracked teeth. A patient who comes in when the tooth first hurts on biting may be able to avoid the kind of damage that develops after weeks of chewing, temperature stress, and bacterial exposure. Early attention can mean a smaller repair, less discomfort, and a more predictable long-term result.
+
+For busy Palo Alto patients, that also matters from a practical standpoint. Addressing the problem before it turns into an after-hours emergency usually means fewer disruptions to work, family, and school schedules.
+
+## How to lower your risk of future cracks
+
+While not every cracked tooth can be prevented, a few habits make a real difference:
+
+- Do not chew ice or hard candy.
+- Avoid using your teeth to open packages.
+- Wear a mouthguard for sports.
+- Ask about protection if you clench or grind.
+- Keep up with routine exams so small problems are found earlier.
+- Have worn fillings and damaged teeth evaluated before they fail.
+
+## When to call Chris Wong DDS
+
+If you have a cracked tooth and are not sure whether it is urgent, it is still worth calling. A quick conversation can help you decide whether you should be seen the same day or schedule the next available visit.
+
+Chris Wong DDS provides modern, conservative dental care for patients in Palo Alto, Stanford, Menlo Park, and nearby communities. If your tooth hurts when you bite, feels newly sensitive, or looks visibly damaged, the safest move is to have it evaluated before the problem becomes more complicated.
+
+Call (650) 326-6319 or request an appointment online to get a clear diagnosis and a conservative treatment plan.
+
+## FAQ
+
+### Can a small cracked tooth heal on its own?
+
+No. Teeth do not heal the way skin or bone can. A minor crack may stay stable for a while, but it will not repair itself.
+
+### Is a cracked tooth always painful?
+
+No. Some cracks cause little or no pain at first. That is one reason early evaluation matters.
+
+### Should I go to the ER for a cracked tooth?
+
+A hospital ER is usually not the best place for routine tooth fractures. Call a dentist first. If you have severe facial swelling, uncontrolled bleeding, or trouble breathing, seek emergency medical care immediately.
+
+### Can a crown save a cracked tooth?
+
+In many cases, yes. A crown can protect a weakened tooth and help prevent the crack from worsening, depending on how deep the damage goes.
+
+If you think you may have cracked a tooth, contact Chris Wong DDS to schedule an evaluation and get a clear, conservative treatment plan.`,
+        image: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1763585455/Gemini_Generated_Image_3fvkl73fvkl73fvk_sbv4kj.webp",
+        date: "March 15, 2026",
+        slug: "cracked-tooth-emergency-dentist-palo-alto",
+        category: "Emergency Dental",
+        readTime: 7,
+        relatedServices: ["emergency-dental", "restorative-dentistry"],
+      },
+      {
         title: "Family Dentist Near Menlo Park: Simple Checklist",
         content: `If you’re searching for a “Menlo Park family dentist,” you’re likely trying to solve a practical problem: keep your household on a consistent schedule with a team you trust. This guide shares a straightforward checklist to help you choose the right dental practice near Menlo Park.
 
