@@ -7,6 +7,7 @@ import {
   BlogPost, InsertBlogPost, blogPosts,
   Testimonial, InsertTestimonial, testimonials
 } from "@shared/schema";
+import { sortItemsByDateDesc } from "@shared/blog";
 import {
   buildInsertTestimonial,
   isPublishedTestimonial,
@@ -221,7 +222,7 @@ export class MemStorage implements IStorage {
 
   // Blog post methods
   async getBlogPosts(): Promise<BlogPost[]> {
-    return Array.from(this.blogPosts.values());
+    return sortItemsByDateDesc(Array.from(this.blogPosts.values()));
   }
 
   async getBlogPost(id: number): Promise<BlogPost | undefined> {
@@ -239,15 +240,17 @@ export class MemStorage implements IStorage {
       return [];
     }
 
-    return Array.from(this.blogPosts.values()).filter((post) => {
-      if (!post.relatedServices || !post.relatedServices.length) {
-        return false;
-      }
+    return sortItemsByDateDesc(
+      Array.from(this.blogPosts.values()).filter((post) => {
+        if (!post.relatedServices || !post.relatedServices.length) {
+          return false;
+        }
 
-      return post.relatedServices.some(
-        (serviceSlug) => this.normalizeServiceSlug(serviceSlug) === normalized,
-      );
-    });
+        return post.relatedServices.some(
+          (serviceSlug) => this.normalizeServiceSlug(serviceSlug) === normalized,
+        );
+      }),
+    );
   }
 
   async createBlogPost(postData: InsertBlogPost): Promise<BlogPost> {
@@ -297,10 +300,12 @@ export class MemStorage implements IStorage {
         service.description.toLowerCase().includes(lowerQuery)
     );
     
-    const filteredBlogPosts = Array.from(this.blogPosts.values()).filter(
-      (post) => 
-        post.title.toLowerCase().includes(lowerQuery) || 
-        post.content.toLowerCase().includes(lowerQuery)
+    const filteredBlogPosts = sortItemsByDateDesc(
+      Array.from(this.blogPosts.values()).filter(
+        (post) =>
+          post.title.toLowerCase().includes(lowerQuery) ||
+          post.content.toLowerCase().includes(lowerQuery),
+      ),
     );
     
     return {
@@ -648,39 +653,137 @@ The best way to understand whether you’ll need attachments, elastics, or refin
         relatedServices: ["invisalign"],
       },
       {
-        title: "How Long Does Invisalign Take? Timeline Factors",
-        content: `One of the first questions patients ask is: “How long will Invisalign take?” The honest answer is that Invisalign timelines vary. Some plans finish in months, while others take longer depending on your bite and how much tooth movement is needed.
+        title: "How Long Does Invisalign Take in Palo Alto?",
+        content: `Wondering how long Invisalign takes in Palo Alto? Learn what affects treatment length, when attachments or refinements are needed, and how to keep treatment on track.
 
-Typical Invisalign Timelines
-Many adult Invisalign cases fall somewhere around a year to a year and a half, but your plan may be shorter or longer. The best estimate comes after an exam and a digital scan, when your dentist can map movements and identify bite issues that affect timing.
+If you are thinking about straightening your teeth, one of the first questions you probably have is simple: how long does Invisalign take?
 
-What Makes Invisalign Take Longer (or Shorter)?
-Several factors influence your timeline:
-- Complexity: more crowding, spacing, or bite correction often takes longer
-- Wear time: consistently wearing aligners 20–22 hours per day is critical
-- Tracking: if aligners aren’t fitting closely, adjustments or new scans may be needed
-- Refinements: additional aligners are common at the end for fine details
-- Missed changes: delaying tray changes or losing aligners can extend treatment
+For most adults and teens, the honest answer is that treatment length depends on your bite, how much tooth movement is needed, and how consistently you wear your aligners. Many Invisalign cases finish in about 12 to 18 months, but some are shorter and some take longer. Minor alignment issues may move faster. More complex bite corrections usually need more time and closer monitoring.
 
-How Often Are Checkups?
-Most plans include periodic checkups so your dentist can confirm everything is tracking. Visit frequency depends on your case, your aligner change schedule, and whether you’re using attachments or elastics.
+At Christopher B. Wong, DDS, Invisalign treatment is built around careful diagnostics, 3D digital scans, and a conservative approach to tooth movement. That matters, because the goal is not just to move teeth quickly. The goal is to move them accurately, comfortably, and in a way that stays stable long term.
 
-Can Invisalign Be Faster Than Braces?
-For some mild to moderate alignment issues, Invisalign can be very efficient—especially when aligners are worn consistently. For complex tooth movements, braces may still be a better fit. Your dentist will help you compare options based on stability and your goals.
+## Why Invisalign timelines vary from person to person
 
-How to Keep Your Invisalign Timeline on Schedule
-- Wear aligners as directed (don’t “make up time” by skipping)
-- Keep aligners clean and seated fully (use chewies if recommended)
-- Bring aligners to appointments and let us know if fit changes
-- Stay on top of hygiene to avoid cavities or gum inflammation that could slow progress
+Invisalign uses a series of custom clear aligners to move your teeth in small, controlled steps. Each set is designed to make a specific movement before you switch to the next tray.
 
-Looking for Invisalign in Palo Alto?
-If you want a personalized timeline estimate, schedule a consultation for an exam and digital scan. We’ll outline realistic timing, expected phases, and what you can do to stay on track.`,
-        image: "/images/invisalign-step-5.png",
-        date: "October 5, 2025",
+Your total timeline depends on several factors:
+
+- How crowded or spaced your teeth are
+- Whether your bite needs correction, such as an overbite, underbite, crossbite, or open bite
+- Whether teeth have shifted after braces in the past
+- Your gum health and whether any cavities or dental issues need treatment first
+- How consistently you wear aligners, which is usually 20 to 22 hours per day
+- Whether your case needs attachments, elastics, or a short refinement phase near the end
+
+That is why a friend who used Invisalign cannot really predict your timeline. Two people can both want straighter teeth and still need very different treatment plans.
+
+## What a typical Invisalign timeline looks like
+
+While every case is different, most patients move through Invisalign in a few broad phases.
+
+### 1. Consultation and digital scan
+
+Your first visit is about understanding whether Invisalign is the right fit for your goals and your bite. Dr. Wong evaluates tooth position, gum health, and how your upper and lower teeth come together. A digital scan helps map out tooth movement with more precision than old-style impressions.
+
+If you have untreated decay or gum inflammation, that usually gets addressed first. Healthy teeth and gums create a better foundation for aligner treatment.
+
+### 2. Treatment planning and aligner fabrication
+
+After your scan, your custom treatment plan is created. This phase often takes a couple of weeks before your aligners are ready. During this step, your dentist determines how many trays you are likely to need and whether attachments or elastics will improve control.
+
+### 3. Active aligner treatment
+
+This is the longest stage. Many patients wear each set of aligners for about one to two weeks before switching to the next set. Check-in visits help confirm that teeth are tracking the way they should.
+
+For mild cosmetic alignment, active treatment may be shorter. For moderate crowding, spacing, or bite issues, treatment is often closer to the 12 to 18 month range. Cases involving more complex tooth movement can take longer.
+
+### 4. Refinements if needed
+
+Refinements are common and not a sign that anything went wrong. Teeth do not always move exactly the way software predicts. A short refinement phase can fine tune rotation, spacing, or bite details that matter for a polished result.
+
+### 5. Retainers to protect the result
+
+Once active treatment ends, retainers help keep your teeth from shifting back. This is a crucial part of treatment. Retainers are how you protect the time and money you invested in your smile.
+
+## What can slow Invisalign down?
+
+The biggest factor patients control is wear time. If aligners are not worn the recommended 20 to 22 hours per day, teeth may not track properly. That can lead to delays, extra trays, or more refinements.
+
+Other issues that can add time include:
+
+- Skipping check-ins
+- Losing trays and going too long without the correct aligner
+- Not wearing elastics as directed when they are part of the plan
+- Significant bite issues that need slower, more controlled movement
+- Teeth that have old restorations or movement patterns that require closer monitoring
+
+In a place like Palo Alto, where many patients have packed schedules, this is one reason clear communication matters. A treatment plan that fits real life is easier to stick with.
+
+## Do attachments mean your case is more serious?
+
+Not necessarily. Attachments are small tooth-colored shapes placed on certain teeth so the aligners can grip more effectively. They help with specific movements like rotation, root control, or bringing a tooth into a better position.
+
+Many well-planned Invisalign cases use attachments. They are simply a tool that helps treatment move more predictably.
+
+The same goes for elastics. Some patients need them to improve bite relationships. If Dr. Wong recommends attachments or elastics, it is usually because they make your treatment more efficient and more stable.
+
+## Is Invisalign faster than braces?
+
+Sometimes, but not always.
+
+For the right case, Invisalign can be very efficient because treatment is digitally planned from the beginning and aligners are designed to make small, controlled movements in sequence. But braces may still be the better choice for certain complex cases or for patients who know they will have trouble wearing removable aligners consistently.
+
+That is why a personalized exam matters more than broad claims online. The best treatment is the one that fits your bite, your habits, and your long-term goals.
+
+## Why Palo Alto patients often choose Invisalign
+
+Many adults and teens like Invisalign because it fits daily life well. Aligners are clear, removable for meals, and easier to brush and floss around than brackets and wires. For professionals, students, and parents balancing work and family schedules, that convenience is a big reason Invisalign stays popular.
+
+At the same time, convenience only works when treatment is monitored carefully. Conservative planning helps avoid pushing teeth too aggressively just to chase a faster finish date.
+
+## How to keep your Invisalign treatment on track
+
+If you want the shortest realistic timeline, a few habits make a real difference:
+
+- Wear aligners as directed every day
+- Switch trays on schedule
+- Keep check-in appointments
+- Brush and floss before putting aligners back in
+- Store trays safely when eating
+- Wear retainers exactly as instructed after treatment
+
+Small habits add up. The patients who stay consistent usually have smoother treatment.
+
+## When to schedule an Invisalign consultation
+
+If your teeth have shifted, you have crowding or spacing that bothers you, or you want a straighter smile without metal braces, it may be a good time to schedule an Invisalign consultation. The fastest way to get a real timeline is not guessing from online averages. It is getting a proper exam and digital scan.
+
+At Christopher B. Wong, DDS, patients from Palo Alto, Menlo Park, Stanford, and nearby communities can get a personalized Invisalign plan based on their actual bite, goals, and schedule.
+
+## FAQ
+
+### How long does Invisalign take for mild crowding?
+
+Mild crowding can sometimes be treated faster than full bite correction, but the only way to know is with an exam and digital scan.
+
+### Can Invisalign take less than a year?
+
+Some limited cases can finish in under a year. More involved cases usually take longer.
+
+### Do refinements mean Invisalign failed?
+
+No. Refinements are common and help fine tune the result.
+
+### Will I need retainers after Invisalign?
+
+Yes. Retainers are essential for helping your teeth stay in their new position.
+
+If you are wondering how long Invisalign takes in Palo Alto, schedule a consultation with Christopher B. Wong, DDS. A personalized evaluation can show what is realistic for your smile and what steps will help you get there as efficiently as possible.`,
+        image: "/images/invisalign-treatment.jpg",
+        date: "March 14, 2026",
         slug: "how-long-does-invisalign-take",
         category: "Invisalign",
-        readTime: 7,
+        readTime: 8,
         relatedServices: ["invisalign"],
       },
       {

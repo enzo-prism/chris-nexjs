@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import { Pool } from "@neondatabase/serverless";
+import { sortItemsByDateDesc } from "@shared/blog";
 import {
   appointments,
   blogPosts,
@@ -87,14 +88,44 @@ class DatabaseStorage implements IStorage {
     const existingBlogPosts = withCanonicalSeeding<BlogPost>(
       await this.db.select().from(blogPosts),
     );
-    if (!existingBlogPosts.length) {
-      for (const row of seed.blogPosts) {
+    const existingBlogPostsBySlug = new Map(
+      existingBlogPosts.map((post) => [post.slug, post]),
+    );
+    for (const row of seed.blogPosts) {
+      const nextValues = {
+        title: row.title,
+        content: row.content,
+        image: row.image,
+        date: row.date,
+        category: row.category ?? null,
+        readTime: row.readTime ?? null,
+        relatedServices: row.relatedServices ?? [],
+      };
+      const existing = existingBlogPostsBySlug.get(row.slug);
+
+      if (!existing) {
         await this.db.insert(blogPosts).values({
-          ...row,
-          category: row.category ?? null,
-          readTime: row.readTime ?? null,
-          relatedServices: row.relatedServices ?? [],
+          ...nextValues,
+          slug: row.slug,
         });
+        continue;
+      }
+
+      const hasChanged =
+        existing.title !== nextValues.title ||
+        existing.content !== nextValues.content ||
+        existing.image !== nextValues.image ||
+        existing.date !== nextValues.date ||
+        existing.category !== nextValues.category ||
+        existing.readTime !== nextValues.readTime ||
+        JSON.stringify(existing.relatedServices ?? []) !==
+          JSON.stringify(nextValues.relatedServices);
+
+      if (hasChanged) {
+        await this.db
+          .update(blogPosts)
+          .set(nextValues)
+          .where(eq(blogPosts.slug, row.slug));
       }
     }
 
@@ -283,7 +314,8 @@ class DatabaseStorage implements IStorage {
 
   async getBlogPosts(): Promise<BlogPost[]> {
     await this.ensureSeeded();
-    return this.db.select().from(blogPosts);
+    const rows = await this.db.select().from(blogPosts);
+    return sortItemsByDateDesc(rows);
   }
 
   async getBlogPost(id: number): Promise<BlogPost | undefined> {
@@ -312,9 +344,11 @@ class DatabaseStorage implements IStorage {
     }
 
     const posts = await this.getBlogPosts();
-    return posts.filter((post) =>
-      (post.relatedServices ?? []).some(
-        (relatedSlug) => normalizeServiceSlug(relatedSlug) === normalized,
+    return sortItemsByDateDesc(
+      posts.filter((post) =>
+        (post.relatedServices ?? []).some(
+          (relatedSlug) => normalizeServiceSlug(relatedSlug) === normalized,
+        ),
       ),
     );
   }
@@ -372,10 +406,12 @@ class DatabaseStorage implements IStorage {
         service.description.toLowerCase().includes(lowerQuery),
     );
 
-    const blogPostsResult = toList<BlogPost>(postList).filter(
-      (post) =>
-        post.title.toLowerCase().includes(lowerQuery) ||
-        post.content.toLowerCase().includes(lowerQuery),
+    const blogPostsResult = sortItemsByDateDesc(
+      toList<BlogPost>(postList).filter(
+        (post) =>
+          post.title.toLowerCase().includes(lowerQuery) ||
+          post.content.toLowerCase().includes(lowerQuery),
+      ),
     );
 
     return {

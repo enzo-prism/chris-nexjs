@@ -5,7 +5,7 @@ import { RouteComponentProps, useLocation } from "wouter";
 import Link from "next/link";
 import { useBlogPosts } from "@/hooks/useBlogPosts";
 import MetaTags from "@/components/common/MetaTags";
-import { pageDescriptions, pageTitles } from "@/lib/metaContent";
+import { buildExcerpt, pageDescriptions, pageTitles } from "@/lib/metaContent";
 import { getSeoForPath } from "@/lib/seo";
 import OptimizedImage from "@/components/seo/OptimizedImage";
 import { ArrowLeft, Calendar, Clock, Tag } from "lucide-react";
@@ -110,6 +110,34 @@ function getBlogSupplementalContent(category?: string | null): SupplementalConte
   };
 }
 
+function getMarkdownHeading(
+  line: string,
+): { level: 2 | 3; text: string } | null {
+  const match = line.match(/^(#{1,6})\s+(.+)$/);
+  if (!match) {
+    return null;
+  }
+
+  return {
+    level: match[1].length >= 3 ? 3 : 2,
+    text: match[2].trim(),
+  };
+}
+
+function isLegacyHeading(line: string): boolean {
+  if (/[:?]$/.test(line)) {
+    return true;
+  }
+
+  if (/[.!]$/.test(line) || line.includes(",")) {
+    return false;
+  }
+
+  return /^(?:[A-Z0-9][A-Za-z0-9'"’&()/,-]*)(?:\s+(?:[A-Z0-9][A-Za-z0-9'"’&()/,-]*)){0,9}$/.test(
+    line,
+  );
+}
+
 const BlogPost = ({ params }: RouteComponentProps<Params>) => {
   const { slug } = params ?? { slug: "" };
   const { posts, isLoading } = useBlogPosts();
@@ -125,7 +153,7 @@ const BlogPost = ({ params }: RouteComponentProps<Params>) => {
 
   const pageTitle = post ? `${post.title} | Christopher B. Wong, DDS` : pageTitles.blog;
   const pageDescription = post?.content
-    ? `${post.content.slice(0, 160)}${post.content.length > 160 ? "…" : ""}`
+    ? buildExcerpt(post.content)
     : pageDescriptions.blog;
   const blogOgImage = getSeoForPath("/blog").ogImage;
   const pageUrl = absoluteUrl(`/blog/${slug}`);
@@ -356,11 +384,6 @@ const BlogPost = ({ params }: RouteComponentProps<Params>) => {
       orderedList = null;
     };
 
-    const isHeading = (line: string) => {
-      const wordCount = line.split(/\s+/).length;
-      return /[:?]$/.test(line) || wordCount <= 7;
-    };
-
     lines.forEach((line) => {
       if (/^-\s+/.test(line)) {
         orderedList = null;
@@ -369,16 +392,25 @@ const BlogPost = ({ params }: RouteComponentProps<Params>) => {
         return;
       }
 
-      if (/^\d+\)\s+/.test(line)) {
+      if (/^\d+[.)]\s+/.test(line)) {
         bulletList = null;
         orderedList = orderedList ?? [];
-        orderedList.push(line.replace(/^\d+\)\s+/, ""));
+        orderedList.push(line.replace(/^\d+[.)]\s+/, ""));
         return;
       }
 
       flushLists();
 
-      if (isHeading(line)) {
+      const markdownHeading = getMarkdownHeading(line);
+      if (markdownHeading) {
+        blocks.push(
+          markdownHeading.level === 3 ? (
+            <h3 key={`h3-${blocks.length}`}>{markdownHeading.text}</h3>
+          ) : (
+            <h2 key={`h2-${blocks.length}`}>{markdownHeading.text}</h2>
+          ),
+        );
+      } else if (isLegacyHeading(line)) {
         blocks.push(
           <h2 key={`h2-${blocks.length}`}>
             {line.replace(/[:?]$/, "")}
@@ -423,6 +455,7 @@ const BlogPost = ({ params }: RouteComponentProps<Params>) => {
   }
 
   const supplementalContent = getBlogSupplementalContent(post.category);
+  const articleSummary = buildExcerpt(post.content, 180);
 
   return (
     <>
@@ -466,7 +499,7 @@ const BlogPost = ({ params }: RouteComponentProps<Params>) => {
           </div>
           <h1 className="text-4xl font-heading font-bold text-[#333333] mb-4 sm:mb-6">{post.title}</h1>
           <p className="text-lg text-gray-600 max-w-3xl mb-8">
-            Practical, patient-friendly guidance from Dr. Wong and team—built to help you act quickly and confidently.
+            {articleSummary}
           </p>
           {post.image ? (
             <div className="mb-10 rounded-2xl overflow-hidden shadow-lg border border-white/70">

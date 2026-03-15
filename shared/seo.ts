@@ -1,4 +1,5 @@
 import { officeInfo } from "./officeInfo";
+import { stripMarkdownToPlainText } from "./blog";
 
 export type SeoDefinition = {
   title: string;
@@ -732,7 +733,7 @@ export function getSitemapEntries(): SitemapEntry[] {
 }
 
 export function buildExcerpt(text: string, limit = 160): string {
-  const normalized = text.replace(/\s+/g, " ").trim();
+  const normalized = stripMarkdownToPlainText(text);
   if (normalized.length <= limit) return normalized;
   return `${normalized.slice(0, Math.max(limit - 1, 0))}…`;
 }

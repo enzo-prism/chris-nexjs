@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link, useLocation } from "wouter";
 import BlogPostCard from "@/components/common/BlogPostCard";
 import MetaTags from "@/components/common/MetaTags";
-import { pageTitles, pageDescriptions } from "@/lib/metaContent";
+import { buildExcerpt, pageTitles, pageDescriptions } from "@/lib/metaContent";
 import OptimizedImage from "@/components/seo/OptimizedImage";
 import { normalizeBlogCategory, useBlogPosts } from "@/hooks/useBlogPosts";
 import StructuredData from "@/components/seo/StructuredData";
@@ -72,9 +72,7 @@ const Blog = () => {
       return "";
     }
 
-    const text = featuredPost.content.trim();
-    const limit = 360;
-    return text.length > limit ? `${text.slice(0, limit)}...` : text;
+    return buildExcerpt(featuredPost.content, 360);
   }, [featuredPost]);
 
   const categoryFilters = useMemo(() => {

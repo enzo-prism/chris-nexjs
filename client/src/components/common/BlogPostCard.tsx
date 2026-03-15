@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { BlogPost } from "@shared/schema";
 import OptimizedImage from "@/components/seo/OptimizedImage";
+import { buildExcerpt } from "@/lib/metaContent";
 
 interface BlogPostCardProps {
   post: BlogPost;
@@ -12,12 +13,6 @@ interface BlogPostCardProps {
 const BlogPostCard = ({ post }: BlogPostCardProps) => {
   // Extract category from post if available
   const category = post.category || "Dental Health";
-  
-  // Function to truncate content for preview
-  const truncateContent = (content: string, maxLength: number = 120) => {
-    if (content.length <= maxLength) return content;
-    return content.slice(0, maxLength) + "…";
-  };
 
   return (
     <Card 
@@ -64,7 +59,7 @@ const BlogPostCard = ({ post }: BlogPostCardProps) => {
         
         {/* Content preview with line clamp */}
         <p className="text-sm text-gray-600 mb-5 line-clamp-2 leading-relaxed">
-          {truncateContent(post.content)}
+          {buildExcerpt(post.content, 120)}
         </p>
 
         {/* Read more link */}
