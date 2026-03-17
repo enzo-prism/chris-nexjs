@@ -15,9 +15,10 @@ export function normalizeBlogCategory(category?: string | null): string {
     .replace(/\s+/g, "-");
 }
 
-export function useBlogPosts() {
+export function useBlogPosts(initialPosts?: BlogPost[]) {
   const query = useQuery<BlogPost[]>({
     queryKey: ["/api/blog-posts"],
+    initialData: initialPosts,
   });
 
   const posts = query.data ?? [];

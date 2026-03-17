@@ -2,10 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Tag, Clock, Calendar, Search } from "lucide-react";
+import type { BlogPost as BlogPostRecord } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation, type RouteComponentProps } from "wouter";
 import BlogPostCard from "@/components/common/BlogPostCard";
 import MetaTags from "@/components/common/MetaTags";
 import { buildExcerpt, pageTitles, pageDescriptions } from "@/lib/metaContent";
@@ -15,7 +16,11 @@ import StructuredData from "@/components/seo/StructuredData";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import { buildBreadcrumbSchema } from "@/lib/structuredData";
 
-const Blog = () => {
+type BlogProps = Partial<RouteComponentProps<Record<string, string | undefined>>> & {
+  initialPosts?: BlogPostRecord[];
+};
+
+const Blog = ({ initialPosts }: BlogProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useLocation();
   const categoryFromQuery = useMemo(() => {
@@ -33,7 +38,8 @@ const Blog = () => {
   const [selectedCategory, setSelectedCategory] = useState(categoryFromQuery);
   const [activeSearchQuery, setActiveSearchQuery] = useState(searchFromQuery);
 
-  const { posts, featuredPost, categories, isLoading, isError, error } = useBlogPosts();
+  const { posts, featuredPost, categories, isLoading, isError, error } =
+    useBlogPosts(initialPosts);
 
   const normalizedSearch = activeSearchQuery.trim().toLowerCase();
 

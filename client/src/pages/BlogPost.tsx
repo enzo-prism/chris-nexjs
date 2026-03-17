@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { RouteComponentProps, useLocation } from "wouter";
 import Link from "next/link";
+import type { BlogPost as BlogPostRecord } from "@shared/schema";
 import { useBlogPosts } from "@/hooks/useBlogPosts";
 import MetaTags from "@/components/common/MetaTags";
 import { buildExcerpt, pageDescriptions, pageTitles } from "@/lib/metaContent";
@@ -138,9 +139,13 @@ function isLegacyHeading(line: string): boolean {
   );
 }
 
-const BlogPost = ({ params }: RouteComponentProps<Params>) => {
+type BlogPostPageProps = RouteComponentProps<Params> & {
+  initialPosts?: BlogPostRecord[];
+};
+
+const BlogPost = ({ params, initialPosts }: BlogPostPageProps) => {
   const { slug } = params ?? { slug: "" };
-  const { posts, isLoading } = useBlogPosts();
+  const { posts, isLoading } = useBlogPosts(initialPosts);
   const [, setLocation] = useLocation();
 
   const post = useMemo(() => {

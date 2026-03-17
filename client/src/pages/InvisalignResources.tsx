@@ -1,8 +1,9 @@
 "use client";
 
 import { useMemo } from "react";
-import { Link } from "wouter";
+import { Link, type RouteComponentProps } from "wouter";
 import { ArrowRight, BookOpen, Sparkles } from "lucide-react";
+import type { BlogPost as BlogPostRecord } from "@shared/schema";
 import MetaTags from "@/components/common/MetaTags";
 import StructuredData from "@/components/seo/StructuredData";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
@@ -12,8 +13,16 @@ import { normalizeBlogCategory, useBlogPosts } from "@/hooks/useBlogPosts";
 import { pageDescriptions, pageTitles } from "@/lib/metaContent";
 import { buildBreadcrumbSchema } from "@/lib/structuredData";
 
-const InvisalignResources = () => {
-  const { posts, isLoading, isError, error } = useBlogPosts();
+type InvisalignResourcesProps = Partial<RouteComponentProps<
+  Record<string, string | undefined>
+>> & {
+  initialPosts?: BlogPostRecord[];
+};
+
+const InvisalignResources = ({
+  initialPosts,
+}: InvisalignResourcesProps) => {
+  const { posts, isLoading, isError, error } = useBlogPosts(initialPosts);
 
   const filteredPosts = useMemo(() => {
     const normalizedCategory = normalizeBlogCategory("Invisalign");
