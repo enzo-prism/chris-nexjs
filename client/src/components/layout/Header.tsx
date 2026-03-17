@@ -35,6 +35,8 @@ type NavLink = {
   readonly submenu?: readonly NavChild[];
 };
 
+const DESKTOP_NAV_BREAKPOINT = 1380;
+
 const navLinks: readonly NavLink[] = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About" },
@@ -68,8 +70,6 @@ const navLinks: readonly NavLink[] = [
       { href: "/locations", label: "All Locations" },
     ],
   },
-  { href: "/patient-stories", label: "Patient Stories" },
-  { href: "/gallery", label: "Gallery" },
   { href: "/testimonials", label: "Testimonials" },
   { href: "/contact", label: "Contact" },
 ] as const;
@@ -215,7 +215,7 @@ const Header = () => {
   // Keep mobile overlay closed once the desktop breakpoint is active.
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 1280 && mobileMenuOpen) {
+      if (window.innerWidth >= DESKTOP_NAV_BREAKPOINT && mobileMenuOpen) {
         setMobileMenuOpen(false);
         setExpandedMenus([]);
       }
@@ -378,14 +378,14 @@ const Header = () => {
           scrolled ? "bg-white py-2 shadow-lg" : "bg-white py-4",
         )}
       >
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between gap-4">
+        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between gap-3 xl:gap-4">
             {/* Logo */}
             <Link
               href="/"
               className={cn(
                 "group relative z-[102] min-w-0 shrink",
-                "xl:shrink-0",
+                "min-[1380px]:max-w-[20rem] 2xl:max-w-none",
               )}
             >
               <div className="flex min-w-0 items-center gap-3">
@@ -408,10 +408,10 @@ const Header = () => {
                   )}
                 </div>
                 <div className="flex min-w-0 flex-col">
-                  <span className="truncate font-serif text-sm tracking-wide text-slate-900 transition-colors group-hover:text-primary sm:text-lg lg:text-base xl:text-lg">
+                  <span className="truncate font-serif text-sm tracking-wide text-slate-900 transition-colors group-hover:text-primary sm:text-lg lg:text-base min-[1380px]:text-base 2xl:text-lg">
                     Christopher B. Wong, DDS
                   </span>
-                  <span className="truncate text-[9px] uppercase tracking-[0.2em] text-slate-500 transition-colors group-hover:text-slate-600 sm:text-[10px] lg:hidden xl:block">
+                  <span className="hidden truncate text-[9px] uppercase tracking-[0.2em] text-slate-500 transition-colors group-hover:text-slate-600 2xl:block 2xl:text-[10px]">
                     Cosmetic & Family Dentistry
                   </span>
                 </div>
@@ -421,10 +421,10 @@ const Header = () => {
             {/* Desktop Navigation + CTA */}
             <div
               className={cn(
-                "hidden flex-shrink-0 items-center gap-4 xl:flex 2xl:gap-6",
+                "hidden min-w-0 flex-1 items-center justify-end gap-2 min-[1380px]:flex 2xl:gap-4",
               )}
             >
-              <nav className="relative z-[102] flex items-center gap-4 xl:gap-6 2xl:gap-8">
+              <nav className="relative z-[102] flex min-w-0 items-center gap-1.5 2xl:gap-3">
                 {navLinks.map((link) => {
                   const hasSubmenu = Boolean(link.submenu?.length);
                   const active = isActive(link.href) || isParentActive(link.submenu);
@@ -444,10 +444,9 @@ const Header = () => {
                         id={triggerId}
                         href={link.href}
                         className={cn(
-                          "ui-focus-premium relative z-[102] flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-xl px-3 py-2 text-xs font-medium tracking-wide text-slate-700 transition-[color,background-color,border-color,box-shadow] hover:bg-primary/5 hover:text-primary",
+                          "ui-focus-premium relative z-[102] flex cursor-pointer items-center gap-1 whitespace-nowrap rounded-xl px-2 py-2 text-[13px] font-medium tracking-wide text-slate-700 transition-[color,background-color,border-color,box-shadow] hover:bg-primary/5 hover:text-primary 2xl:gap-1.5 2xl:px-3 2xl:text-sm",
                           active &&
                             "bg-primary/10 text-primary shadow-[inset_0_0_0_1px_rgba(37,99,235,0.24)]",
-                          "xl:text-sm",
                         )}
                         aria-current={isActive(link.href) ? "page" : undefined}
                         aria-haspopup={hasSubmenu ? "menu" : undefined}
@@ -521,9 +520,9 @@ const Header = () => {
               <ButtonLink
                 href="/schedule#appointment"
                 aria-label="Book Appointment"
-                className="ui-btn-primary whitespace-nowrap rounded-full px-3 text-xs font-semibold xl:px-6 xl:text-sm"
+                className="ui-btn-primary shrink-0 whitespace-nowrap rounded-full px-4 text-[13px] font-semibold 2xl:px-6 2xl:text-sm"
               >
-                Book <span className="hidden xl:inline">Appointment</span>
+                Book <span className="hidden 2xl:inline">Appointment</span>
               </ButtonLink>
             </div>
 
@@ -535,7 +534,7 @@ const Header = () => {
               onClick={toggleMobileMenu}
               className={cn(
                 "relative z-50 h-auto w-auto rounded-md p-2 text-slate-900 transition-colors hover:bg-transparent hover:text-primary focus-visible:ring-primary focus-visible:ring-offset-2",
-                "xl:hidden",
+                "min-[1380px]:hidden",
               )}
               aria-label="Toggle menu"
               aria-expanded={mobileMenuOpen}
@@ -556,7 +555,7 @@ const Header = () => {
         <div
           id="mobile-nav"
           className={cn(
-            "fixed inset-0 z-40 bg-[#0b1f3a] transition-opacity duration-200 xl:hidden",
+            "fixed inset-0 z-40 bg-[#0b1f3a] transition-opacity duration-200 min-[1380px]:hidden",
           )}
         >
           <div
