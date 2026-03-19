@@ -649,6 +649,142 @@ If you think you may have cracked a tooth, contact Chris Wong DDS to schedule an
         relatedServices: ["emergency-dental", "restorative-dentistry"],
       },
       {
+        title: "Crown vs Filling in Palo Alto: Which Treatment Does Your Tooth Need?",
+        content: `Not sure whether your tooth needs a filling or a crown? In Palo Alto, the right answer usually depends on how much healthy tooth structure remains and whether the tooth is still strong enough to handle everyday chewing.
+
+If your dentist tells you a tooth can be restored either with a filling or a crown, the natural follow-up question is: what is the real difference, and how do you know which one you actually need?
+
+For many patients in Palo Alto, the answer comes down to structure. A filling repairs a smaller area of damage. A crown covers and protects more of the tooth when the remaining structure is too weak for a filling to hold up well over time.
+
+At Chris Wong DDS, that decision is not about doing more treatment than necessary. It is about choosing the most conservative option that will still keep the tooth strong, comfortable, and reliable. If a tooth can be predictably restored with a filling, that is often the simpler route. If the tooth is too compromised, a crown may be the better way to prevent a bigger problem later.
+
+## The basic difference between a filling and a crown
+
+A filling is typically used when decay, wear, or damage affects a more limited portion of the tooth. The damaged area is cleaned out, then replaced with a restorative material that rebuilds the missing part.
+
+A crown is more like a protective outer shell. According to the ADA's MouthHealthy guidance, crowns are often recommended when a tooth has a large filling, not enough remaining tooth structure, or a higher risk of breaking. Crowns can also protect teeth that are already cracked or significantly weakened.
+
+In plain English, fillings repair smaller problems. Crowns help hold together teeth that need more support.
+
+## Signs a filling may be enough
+
+A filling is often the right choice when the issue is caught early and the tooth is still structurally sound.
+
+That may include:
+
+- a small to moderate cavity
+- minor wear around an older filling
+- a small chip that does not weaken the tooth significantly
+- early decay found during a routine exam before pain starts
+
+This fits well with Dr. Wong's conservative approach. When damage is limited, preserving more natural enamel is usually the best long-term move. Smaller repairs also tend to mean less treatment time, lower cost, and easier maintenance.
+
+## Signs a crown may be the better option
+
+There are situations where a filling can technically be placed, but it may not be the smartest long-term restoration.
+
+A crown is more likely to be recommended when:
+
+- a large percentage of the tooth is missing
+- an old filling has become too big to replace predictably with another filling
+- the tooth is cracked or painful with biting pressure
+- the tooth has had root canal treatment and needs extra protection
+- the remaining walls of the tooth are thin and vulnerable to fracture
+
+This is where many patients get confused. If the tooth does not hurt constantly, it can feel surprising to hear that a crown is needed. But pain is not the only factor. Structure matters. A tooth can be quiet and still be too weak to trust with a regular filling.
+
+## Why dentists sometimes recommend a crown after a crack or large filling
+
+When a tooth has a crack or a very large existing filling, chewing pressure no longer spreads evenly through the tooth. Instead, certain areas flex more than they should. Over time, that can turn a manageable problem into a fracture that reaches deeper into the tooth.
+
+The ADA notes that crowns can strengthen teeth when there is not enough remaining structure to support a large filling. That matters because every time you bite, especially on molars, the tooth absorbs substantial force. If the restoration is not matched to the structural reality of the tooth, the repair may fail sooner than expected.
+
+For Palo Alto patients with busy workdays, school schedules, and family obligations, durability matters. The most conservative choice is not always the smallest restoration. Sometimes the conservative choice is the restoration that prevents repeat breakage and emergency visits.
+
+## What Dr. Wong's conservative style means in real life
+
+Some patients hear the word crown and worry that it automatically means overtreatment. At a practice built around ethical, non-invasive dentistry, that is not the goal.
+
+A conservative dentist looks at questions like:
+
+- How much healthy tooth structure is left?
+- Is the tooth stable under bite pressure?
+- Will a filling predictably last, or is it likely to fail?
+- Is there a crack pattern that makes fracture more likely?
+- Can the tooth be restored in a way that preserves long-term comfort and function?
+
+That kind of thinking is important because the wrong restoration can create a cycle of replacement. A filling that is too large for the tooth may chip, leak, or fail under pressure. Then the next repair becomes more involved. Choosing the right treatment at the right time often protects more natural tooth structure over the years.
+
+## What the evaluation usually includes
+
+If you are deciding between a crown and a filling, the appointment is about more than spotting a cavity.
+
+Your dentist may evaluate:
+
+- where the damage is located
+- whether there is a visible crack or deep wear pattern
+- how much of the tooth is already restored
+- whether the tooth hurts when biting or releasing pressure
+- whether imaging shows deeper decay or structural concerns
+- how your bite forces affect the tooth
+
+This is one reason it is helpful to come in before the tooth becomes an emergency. A tooth that only needs a careful evaluation today may become a much more urgent situation if you wait until part of it breaks off during dinner.
+
+## Common patient questions
+
+### Is a crown always stronger than a filling?
+
+Not in a simplistic sense. A small cavity does not need a crown just because a crown covers more tooth. The better question is whether the restoration fits the condition of the tooth. For smaller problems, a filling is often exactly right. For larger or weaker teeth, a crown may be the more stable choice.
+
+### Can a large filling eventually turn into a crown?
+
+Yes. Many crowns are placed because an older filling has become too large, worn, or unstable. This is common over time, especially on back teeth that handle heavy chewing forces.
+
+### If the tooth is cracked, can a filling fix it?
+
+Sometimes minor damage can be repaired conservatively, but a cracked tooth often needs more protection than a filling can provide. The answer depends on how deep the crack goes and how much structure remains.
+
+### Does getting a crown mean the tooth was too far gone?
+
+Not necessarily. In many cases, a crown is what helps save the tooth before the damage becomes much worse.
+
+## Why this topic matters for Palo Alto patients right now
+
+Palo Alto patients often want dentistry that is efficient, clear, and not more aggressive than it needs to be. That makes the crown versus filling question especially important. People want to understand the reason behind the recommendation, not just hear the name of a procedure.
+
+That is also why clear communication matters. If you know whether the issue is a small repair, a structurally weakened tooth, or a crack that needs protection, it becomes much easier to move forward confidently.
+
+## When to schedule an exam
+
+If you have a tooth that feels rough, sensitive, painful when biting, or different from the way it used to feel, it is worth having it checked before the problem grows.
+
+Chris Wong DDS provides modern, conservative restorative dentistry for patients in Palo Alto, Menlo Park, Stanford, and nearby Peninsula communities. If you are wondering whether a tooth needs a filling or a crown, schedule an exam and get a treatment recommendation based on preserving long-term function, comfort, and as much healthy tooth structure as possible.
+
+## FAQ
+
+### Can a filling fix every cavity?
+
+No. If decay is extensive or the tooth is too weakened, a filling may not provide enough support.
+
+### Do crowns look natural?
+
+Yes. Modern crowns are designed to restore function while blending naturally with your smile.
+
+### Is it better to treat a tooth early?
+
+Almost always. Earlier diagnosis usually means more options and a better chance of simpler treatment.
+
+### What if I am not sure whether the tooth is serious?
+
+That is exactly when an evaluation helps. Small symptoms can point to a larger structural issue, and catching it early often makes treatment more predictable.`,
+        image: "/images/dr-wong-lab-1.png",
+        date: "March 19, 2026",
+        slug: "crown-vs-filling-palo-alto",
+        category: "Restorative Dentistry",
+        readTime: 8,
+        relatedServices: ["restorative-dentistry"],
+      },
+      {
         title: "Family Dentist Near Menlo Park: Simple Checklist",
         content: `If you’re searching for a “Menlo Park family dentist,” you’re likely trying to solve a practical problem: keep your household on a consistent schedule with a team you trust. This guide shares a straightforward checklist to help you choose the right dental practice near Menlo Park.
 

@@ -82,6 +82,21 @@ function getBlogSupplementalContent(category?: string | null): SupplementalConte
     };
   }
 
+  if (normalized.includes("restorative")) {
+    return {
+      heading: "Restorative planning in Palo Alto",
+      paragraphs: [
+        "The right restoration is the one that protects the tooth without removing more structure than necessary. That is why treatment decisions are based on how much healthy tooth remains, how the tooth handles bite pressure, and how predictable the repair will be over time.",
+        "If you have a cracked tooth, a large older filling, or pain when chewing, an exam can clarify whether a filling, crown, or another restorative option is the safest long-term move.",
+      ],
+      bullets: [
+        "Treat cracks and failing fillings before they become emergencies",
+        "Ask how much natural tooth structure remains",
+        "Match the restoration to both function and long-term durability",
+      ],
+    };
+  }
+
   if (normalized.includes("family") || normalized.includes("pediatric")) {
     return {
       heading: "Family dentistry takeaways",
@@ -313,6 +328,34 @@ const BlogPost = ({ params, initialPosts }: BlogPostPageProps) => {
         {
           href: "/services",
           anchorText: "Explore all services",
+        },
+      ];
+    }
+
+    if (
+      slugLower.includes("crown") ||
+      slugLower.includes("filling") ||
+      categoryLower.includes("restorative")
+    ) {
+      return [
+        {
+          href: "/crowns-palo-alto",
+          anchorText: "Dental crowns in Palo Alto",
+          description: "Full-coverage protection for cracked or heavily restored teeth.",
+        },
+        {
+          href: "/cavity-fillings-palo-alto",
+          anchorText: "Cavity fillings in Palo Alto",
+          description: "Tooth-colored fillings for smaller areas of decay or damage.",
+        },
+        {
+          href: "/restorative-dentistry",
+          anchorText: "Restorative dentistry",
+          description: "Compare fillings, crowns, bridges, and other repair options.",
+        },
+        {
+          href: "/schedule",
+          anchorText: "Schedule a restorative exam",
         },
       ];
     }
