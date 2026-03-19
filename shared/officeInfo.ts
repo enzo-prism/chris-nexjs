@@ -59,7 +59,7 @@ export const holidayHours = {
   description:
     "Dr. Wong will be out of the office during this stretch, so appointment availability and office hours may vary. The office will be fully closed Thursday, April 9, 2026 and Friday, April 10, 2026. Please call before visiting if you need to confirm availability or request the soonest appointment.",
   shortNotice:
-    "Hours may vary April 6-17, 2026. The office will be closed Thursday, April 9 and Friday, April 10. Please call to confirm availability before you come in.",
+    "Dr. Wong will be out April 6-17, 2026. Availability may vary, and the office will be closed Thursday, April 9 and Friday, April 10. Please call to confirm before visiting.",
   footerNote:
     "Outside April 6-17, 2026, regular weekly hours apply.",
   entries: [
