@@ -1,5 +1,6 @@
 import { MapPin, Phone, Clock, ExternalLink } from "lucide-react";
 import { officeInfo } from "@/lib/data";
+import OfficeHoursSummary from "@/components/common/OfficeHoursSummary";
 import { motion } from "framer-motion";
 
 const OfficeInformationSection = () => {
@@ -61,11 +62,10 @@ const OfficeInformationSection = () => {
       icon: <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />,
       title: "Office Hours",
       content: (
-        <p className="text-[#333333] text-xs sm:text-sm">
-          Mon-Thu: {officeInfo.hours.monday}<br/>
-          Fri: {officeInfo.hours.friday}<br/>
-          Sat-Sun: Closed
-        </p>
+        <OfficeHoursSummary
+          className="text-left text-[#333333] text-xs sm:text-sm"
+          noteClassName="text-[11px] text-slate-500 sm:text-xs"
+        />
       )
     }
   ];

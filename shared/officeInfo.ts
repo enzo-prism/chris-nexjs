@@ -33,6 +33,13 @@ export const officeInfo = {
       closes: "14:00",
     },
   ],
+  specialOpeningHoursSpecification: [
+    {
+      "@type": "OpeningHoursSpecification",
+      validFrom: "2026-04-09",
+      validThrough: "2026-04-10",
+    },
+  ],
   phone: "(650) 326-6319",
   email: "info@drwongdental.com",
   socialMedia: {
@@ -46,14 +53,41 @@ export const officeInfo = {
 export type OfficeInfo = typeof officeInfo;
 
 export const holidayHours = {
-  active: false,
-  id: "office-closure-2026-02-16",
-  title: "No active office closures",
+  active: true,
+  id: "office-hours-2026-04-06-through-2026-04-17",
+  title: "Temporary schedule update: April 6-17, 2026",
   description:
-    "Our office has returned to regular operating hours.",
-  entries: [],
+    "Dr. Wong will be out of the office during this stretch, so appointment availability and office hours may vary. The office will be fully closed Thursday, April 9, 2026 and Friday, April 10, 2026. Please call before visiting if you need to confirm availability or request the soonest appointment.",
+  shortNotice:
+    "Hours may vary April 6-17, 2026. The office will be closed Thursday, April 9 and Friday, April 10. Please call to confirm availability before you come in.",
+  footerNote:
+    "Outside April 6-17, 2026, regular weekly hours apply.",
+  entries: [
+    {
+      day: "Mon-Wed, Apr 6-8",
+      hours: "Hours may vary",
+      status: "varies",
+      badge: "Call to confirm",
+    },
+    {
+      day: "Thu, Apr 9",
+      hours: "Closed",
+      status: "closed",
+    },
+    {
+      day: "Fri, Apr 10",
+      hours: "Closed",
+      status: "closed",
+    },
+    {
+      day: "Mon-Fri, Apr 13-17",
+      hours: "Hours may vary",
+      status: "varies",
+      badge: "Limited availability",
+    },
+  ],
   cta: {
-    label: "View our hours",
-    href: "/schedule#appointment",
+    label: "Call to confirm availability",
+    href: `tel:${officeInfo.phoneE164}`,
   },
 } as const;

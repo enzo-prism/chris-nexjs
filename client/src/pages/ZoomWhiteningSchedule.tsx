@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { CalendarDays, Camera, CheckCircle, Clock, Sparkles } from "lucide-react";
 import { Link } from "wouter";
 import MetaTags from "@/components/common/MetaTags";
+import OfficeHoursSummary from "@/components/common/OfficeHoursSummary";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -427,9 +428,11 @@ const ZoomWhiteningSchedule = () => {
                         <Clock className="mt-0.5 h-4 w-4 text-primary" />
                         <div>
                           <p className="font-semibold text-slate-700">Office hours</p>
-                          <p className="text-slate-600">
-                            Monday - Thursday: {officeInfo.hours.monday} | Friday: {officeInfo.hours.friday} | Closed weekends
-                          </p>
+                          <OfficeHoursSummary
+                            variant="inline"
+                            hoursClassName="text-slate-600"
+                            noteClassName="text-slate-500"
+                          />
                         </div>
                       </div>
                     </div>

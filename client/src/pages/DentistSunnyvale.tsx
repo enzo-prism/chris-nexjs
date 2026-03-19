@@ -1,6 +1,7 @@
 "use client";
 
 import MetaTags from "@/components/common/MetaTags";
+import OfficeHoursSummary from "@/components/common/OfficeHoursSummary";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import RelatedServices, { type RelatedServiceLink } from "@/components/common/RelatedServices";
 import StructuredData from "@/components/seo/StructuredData";
@@ -202,13 +203,10 @@ const DentistSunnyvale = () => {
                     <p className="text-sm font-semibold tracking-wide text-slate-900 uppercase">
                       Hours
                     </p>
-                    <p className="mt-2 text-slate-700 leading-relaxed text-sm">
-                      Mon-Thu: {officeInfo.hours.monday}
-                      <br />
-                      Fri: {officeInfo.hours.friday}
-                      <br />
-                      Sat-Sun: {officeInfo.hours.saturday}
-                    </p>
+                    <OfficeHoursSummary
+                      className="mt-2 text-slate-700 text-sm"
+                      noteClassName="text-slate-500"
+                    />
                   </div>
                 </div>
               </div>

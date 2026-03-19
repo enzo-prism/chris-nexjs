@@ -1,6 +1,7 @@
 import dynamic from "next/dynamic";
 import { CheckCircle, Phone } from "lucide-react";
 import { officeInfo } from "@/lib/data";
+import OfficeHoursSummary from "@/components/common/OfficeHoursSummary";
 import { motion } from "@/lib/motion-lite";
 
 const AppointmentForm = dynamic(
@@ -99,14 +100,11 @@ const AppointmentSection = () => {
               {/* Office hours card */}
               <div className="p-5 bg-blue-900 bg-opacity-50 rounded-lg mb-6">
                 <h3 className="font-bold mb-3 text-sm sm:text-base">Office Hours</h3>
-                <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm">
-                  <div className="font-medium">Monday - Thursday</div>
-                  <div>{officeInfo.hours.monday}</div>
-                  <div className="font-medium">Friday</div>
-                  <div>{officeInfo.hours.friday}</div>
-                  <div className="font-medium">Saturday - Sunday</div>
-                  <div>Closed</div>
-                </div>
+                <OfficeHoursSummary
+                  variant="grid"
+                  hoursClassName="text-xs text-white sm:text-sm"
+                  noteClassName="text-[11px] text-blue-100 sm:text-xs"
+                />
               </div>
               
               {/* Contact options */}

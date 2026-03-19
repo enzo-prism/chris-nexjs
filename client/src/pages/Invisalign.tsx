@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { CheckCircle, ArrowRight, Shield, Clock, Star, Users, Smile, MapPin, Phone } from "lucide-react";
+import OfficeHoursSummary from "@/components/common/OfficeHoursSummary";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import StructuredData from "@/components/seo/StructuredData";
@@ -434,13 +435,10 @@ const Invisalign = () => {
                     <p className="text-sm font-semibold tracking-wide text-slate-900 uppercase">
                       Hours
                     </p>
-                    <p className="mt-2 text-slate-700 leading-relaxed text-sm">
-                      Mon–Thu: {officeInfo.hours.monday}
-                      <br />
-                      Fri: {officeInfo.hours.friday}
-                      <br />
-                      Sat–Sun: {officeInfo.hours.saturday}
-                    </p>
+                    <OfficeHoursSummary
+                      className="mt-2 text-slate-700 text-sm"
+                      noteClassName="text-slate-500"
+                    />
                   </div>
                 </div>
               </div>

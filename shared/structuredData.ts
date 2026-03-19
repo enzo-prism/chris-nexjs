@@ -27,6 +27,7 @@ export function buildDentistJsonLd(): JsonLdObject {
     medicalSpecialty: "https://schema.org/Dentistry",
     sameAs: instagram ? [instagram] : undefined,
     openingHoursSpecification: officeInfo.openingHoursSpecification,
+    specialOpeningHoursSpecification: officeInfo.specialOpeningHoursSpecification,
   };
 }
 

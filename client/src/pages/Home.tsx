@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Service, Testimonial } from "@shared/schema";
-import { officeInfo } from "@/lib/data";
+import { holidayHours, officeInfo } from "@/lib/data";
 import { isNoAdditionalCommentPlaceholder } from "@/lib/testimonialText";
 import {
   buildFAQSchema,
@@ -378,13 +378,17 @@ const Home = (props: any) => {
                   <h3 className="text-sm font-semibold tracking-wide text-slate-900 uppercase">
                     Hours
                   </h3>
-                  <p className="mt-2 text-slate-700 leading-relaxed text-sm">
-                    Mon–Thu: {officeInfo.hours.monday}
-                    <br />
-                    Fri: {officeInfo.hours.friday}
-                    <br />
-                    Sat–Sun: {officeInfo.hours.saturday}
-                  </p>
+                  <div className="mt-2 text-slate-700 text-sm leading-relaxed">
+                    <div>Mon-Thu: {officeInfo.hours.monday}</div>
+                    <div>Fri: {officeInfo.hours.friday}</div>
+                    <div>Sat-Sun: {officeInfo.hours.saturday}</div>
+                  </div>
+                  {holidayHours.active ? (
+                    <p className="mt-3 text-xs leading-relaxed text-slate-500">
+                      <span className="font-semibold">Temporary update:</span>{" "}
+                      {holidayHours.shortNotice}
+                    </p>
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -743,7 +747,7 @@ const Home = (props: any) => {
                 </div>
                 <div className="mb-6 rounded-lg bg-blue-900 p-4 bg-opacity-50">
                   <h3 className="mb-2 font-bold">Office Hours</h3>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="grid grid-cols-2 gap-2 text-sm text-white">
                     <div>Monday - Thursday</div>
                     <div>{officeInfo.hours.monday}</div>
                     <div>Friday</div>
@@ -751,6 +755,12 @@ const Home = (props: any) => {
                     <div>Saturday - Sunday</div>
                     <div>{officeInfo.hours.saturday}</div>
                   </div>
+                  {holidayHours.active ? (
+                    <p className="mt-3 text-xs leading-relaxed text-blue-100">
+                      <span className="font-semibold">Temporary update:</span>{" "}
+                      {holidayHours.shortNotice}
+                    </p>
+                  ) : null}
                 </div>
                 <a
                   href={`tel:${officeInfo.phoneE164}`}

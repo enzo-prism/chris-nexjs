@@ -1,6 +1,7 @@
 import { Clock, Mail, MapPin, Phone, ArrowRight } from "lucide-react";
 import OptimizedImage from "@/components/seo/OptimizedImage";
 import { officeInfo } from "@/lib/data";
+import OfficeHoursSummary from "@/components/common/OfficeHoursSummary";
 import { cn } from "@/lib/utils";
 
 type OfficeVisitSectionProps = {
@@ -119,13 +120,10 @@ export default function OfficeVisitSection({
               <Clock className="mr-3 mt-1 h-6 w-6 flex-shrink-0 text-primary" aria-hidden="true" />
               <div>
                 <h3 className="mb-1 font-semibold text-[#333333]">Office Hours</h3>
-                <p className="text-[#333333]">
-                  Monday - Thursday: {officeInfo.hours.monday}
-                  <br />
-                  Friday: {officeInfo.hours.friday}
-                  <br />
-                  Saturday - Sunday: {officeInfo.hours.saturday}
-                </p>
+                <OfficeHoursSummary
+                  className="text-[#333333]"
+                  noteClassName="text-slate-500"
+                />
               </div>
             </div>
 

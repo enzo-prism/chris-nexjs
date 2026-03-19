@@ -139,6 +139,7 @@ export const buildOrganizationSchema = (options?: {
     medicalSpecialty: "https://schema.org/Dentistry",
     isAcceptingNewPatients: true,
     openingHoursSpecification: officeInfo.openingHoursSpecification,
+    specialOpeningHoursSpecification: officeInfo.specialOpeningHoursSpecification,
     contactPoint: [
       {
         "@type": "ContactPoint",

@@ -4,6 +4,7 @@ import { Phone, Clock, AlertTriangle, CheckCircle, ArrowRight, Shield, Heart } f
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import MetaTags from "@/components/common/MetaTags";
+import OfficeHoursSummary from "@/components/common/OfficeHoursSummary";
 import StructuredData from "@/components/seo/StructuredData";
 import { motion } from "@/lib/motion-lite";
 import TestimonialQuote from "@/components/testimonials/TestimonialQuote";
@@ -312,13 +313,10 @@ const EmergencyDental = () => {
               </div>
               <div>
                 <p className="text-sm font-semibold tracking-wide text-slate-900 uppercase">Hours</p>
-                <p className="mt-2 text-slate-700 leading-relaxed text-sm">
-                  Mon–Thu: {officeInfo.hours.monday}
-                  <br />
-                  Fri: {officeInfo.hours.friday}
-                  <br />
-                  Sat–Sun: {officeInfo.hours.saturday}
-                </p>
+                <OfficeHoursSummary
+                  className="mt-2 text-slate-700 text-sm"
+                  noteClassName="text-slate-500"
+                />
               </div>
               <p className="text-xs text-slate-500">Reviewed by Dr. Wong · Last updated: {lastUpdated}</p>
             </div>

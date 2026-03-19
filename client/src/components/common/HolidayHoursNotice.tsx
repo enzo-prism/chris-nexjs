@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 type HolidayEntry = {
   day: string;
   hours: string;
+  status: "closed" | "varies" | "regular";
+  badge?: string;
 };
 
 type HolidayHoursNoticeProps = {
@@ -53,12 +55,32 @@ const HolidayHoursNotice = ({
         hours: typeof entry === "object" && entry !== null && "hours" in entry
           ? String((entry as { hours: unknown }).hours)
           : "",
+        status:
+          typeof entry === "object" &&
+          entry !== null &&
+          "status" in entry &&
+          typeof (entry as { status: unknown }).status === "string"
+            ? ((entry as { status: "closed" | "varies" | "regular" }).status)
+            : String(
+                typeof entry === "object" && entry !== null && "hours" in entry
+                  ? (entry as { hours: unknown }).hours
+                  : "",
+              ).toLowerCase().includes("closed")
+              ? "closed"
+              : "varies",
+        badge:
+          typeof entry === "object" &&
+          entry !== null &&
+          "badge" in entry &&
+          typeof (entry as { badge: unknown }).badge === "string"
+            ? String((entry as { badge: unknown }).badge)
+            : undefined,
       }) as HolidayEntry,
   );
-  const hasClosedEntry = normalizedEntries.some((entry) =>
-    entry.hours.toLowerCase().includes("closed"),
-  );
-  const noticeLabel = hasClosedEntry ? "Office Closed" : "Hours Update";
+  const hasClosedEntry = normalizedEntries.some((entry) => entry.status === "closed");
+  const hasVariableEntry = normalizedEntries.some((entry) => entry.status === "varies");
+  const noticeLabel =
+    hasClosedEntry || hasVariableEntry ? "Schedule Update" : "Hours Update";
 
   if (variant === "card") {
     return (
@@ -86,9 +108,12 @@ const HolidayHoursNotice = ({
           <p className="text-slate-600 mb-5 leading-relaxed">{holidayHours.description}</p>
 
           <ul className="space-y-3">
-            {normalizedEntries.map((entry, idx) => {
-              const isClosed = entry.hours.toLowerCase().includes("closed");
-              const isReopening = idx === normalizedEntries.length - 1 && !isClosed;
+            {normalizedEntries.map((entry) => {
+              const isClosed = entry.status === "closed";
+              const isVariable = entry.status === "varies";
+              const badgeText =
+                entry.badge ??
+                (isClosed ? "Closed" : isVariable ? "Hours vary" : undefined);
               return (
                 <li
                   key={entry.day}
@@ -96,13 +121,19 @@ const HolidayHoursNotice = ({
                     "relative overflow-hidden rounded-2xl border px-4 py-3",
                     isClosed
                       ? "border-amber-200 bg-amber-50/70"
-                      : "border-slate-200/80 bg-white/80"
+                      : isVariable
+                        ? "border-blue-200 bg-blue-50/70"
+                        : "border-slate-200/80 bg-white/80"
                   )}
                 >
                   <span
                     className={cn(
                       "absolute left-0 top-0 h-full w-1",
-                      isClosed ? "bg-amber-400" : "bg-blue-200"
+                      isClosed
+                        ? "bg-amber-400"
+                        : isVariable
+                          ? "bg-blue-400"
+                          : "bg-blue-200"
                     )}
                     aria-hidden="true"
                   />
@@ -111,22 +142,30 @@ const HolidayHoursNotice = ({
                     <span
                       className={cn(
                         "sm:text-right",
-                        isClosed ? "text-amber-900 font-semibold" : "text-slate-600"
+                        isClosed
+                          ? "text-amber-900 font-semibold"
+                          : isVariable
+                            ? "text-blue-900 font-semibold"
+                            : "text-slate-600"
                       )}
                     >
                       {entry.hours}
                     </span>
                   </div>
-                  {isClosed && (
-                    <span className="mt-2 inline-flex w-fit items-center gap-2 rounded-full border border-amber-200 bg-amber-100/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-900">
-                      Closed
+                  {badgeText ? (
+                    <span
+                      className={cn(
+                        "mt-2 inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em]",
+                        isClosed
+                          ? "border-amber-200 bg-amber-100/80 text-amber-900"
+                          : isVariable
+                            ? "border-blue-200 bg-blue-100/80 text-blue-900"
+                            : "border-slate-200 bg-slate-100 text-slate-700",
+                      )}
+                    >
+                      {badgeText}
                     </span>
-                  )}
-                  {isReopening && (
-                    <span className="mt-2 inline-flex w-fit items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-blue-700">
-                      Reopens
-                    </span>
-                  )}
+                  ) : null}
                 </li>
               );
             })}
@@ -142,7 +181,11 @@ const HolidayHoursNotice = ({
                 {holidayHours.cta.label}
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </a>
-              <span className="text-xs text-slate-500">We’ll confirm when the office reopens.</span>
+              {holidayHours.footerNote ? (
+                <span className="text-xs text-slate-500">
+                  {holidayHours.footerNote}
+                </span>
+              ) : null}
             </div>
           )}
         </div>
@@ -185,12 +228,14 @@ const HolidayHoursNotice = ({
           </div>
 
           <div className="flex flex-wrap items-center gap-2 text-slate-600">
-            {normalizedEntries.map((entry, idx) => {
-              const isClosed = entry.hours.toLowerCase().includes("closed");
-              const isReopening = idx === normalizedEntries.length - 1 && !isClosed;
+            {normalizedEntries.map((entry) => {
+              const isClosed = entry.status === "closed";
+              const isVariable = entry.status === "varies";
               const badgeColor = isClosed
                 ? "border-amber-200 bg-amber-50 text-amber-900"
-                : "border-slate-200 bg-white/80 text-slate-700";
+                : isVariable
+                  ? "border-blue-200 bg-blue-50 text-blue-900"
+                  : "border-slate-200 bg-white/80 text-slate-700";
               return (
                 <span
                   key={entry.day}
@@ -202,14 +247,25 @@ const HolidayHoursNotice = ({
                   <span
                     className={cn(
                       "h-1.5 w-1.5 rounded-full",
-                      isClosed ? "bg-amber-500" : "bg-blue-500"
+                      isClosed ? "bg-amber-500" : isVariable ? "bg-blue-500" : "bg-slate-400"
                     )}
                     aria-hidden="true"
                   />
                   {entry.day}: <span className="font-medium">{entry.hours}</span>
-                  {isReopening && (
-                    <span className="text-[11px] uppercase tracking-[0.18em] text-blue-700">Reopens</span>
-                  )}
+                  {entry.badge ? (
+                    <span
+                      className={cn(
+                        "text-[11px] uppercase tracking-[0.18em]",
+                        isClosed
+                          ? "text-amber-800"
+                          : isVariable
+                            ? "text-blue-700"
+                            : "text-slate-500",
+                      )}
+                    >
+                      {entry.badge}
+                    </span>
+                  ) : null}
                 </span>
               );
             })}
