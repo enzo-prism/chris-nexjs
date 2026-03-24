@@ -29,7 +29,12 @@ const NewsletterForm = () => {
         title: "Subscribed!",
         description: "Thank you for subscribing to our newsletter.",
       });
-      trackGAEvent("generate_lead");
+      trackGAEvent("generate_lead", {
+        form_name: "newsletter_form",
+        lead_type: "newsletter_signup",
+        page_path:
+          typeof window !== "undefined" ? window.location.pathname : "/",
+      });
       form.reset();
       setIsSubmitting(false);
     },

@@ -857,6 +857,16 @@ const AppointmentForm = ({ className = "" }: AppointmentFormProps) => {
         ...analyticsContext,
       });
 
+      trackGAEvent("generate_lead", {
+        form_name: "schedule_request_form",
+        lead_type: "appointment_request",
+        page_path:
+          typeof window !== "undefined" ? window.location.pathname : "/schedule",
+        appointment_type: rawData.appointmentType,
+        scheduling_mode: rawData.schedulingMode,
+        urgent_flag: rawData.isEmergency ? "true" : "false",
+      });
+
       trackGAEvent("schedule_submit", {
         appointment_type: rawData.appointmentType,
         insurance_status: rawData.insuranceProvider ?? "not provided",

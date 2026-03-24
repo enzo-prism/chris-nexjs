@@ -10,7 +10,6 @@ import dynamic from "next/dynamic";
 import NotFound from "@/pages/not-found";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import GoogleAnalytics from "@/components/common/GoogleAnalytics";
 import HotjarTracking from "@/components/common/HotjarTracking";
 import SitemapLink from "@/components/common/SitemapLink";
 import Favicons from "@/components/common/Favicons";
@@ -70,6 +69,10 @@ const AnalyticsMinimal = React.lazy(() => import("@/pages/AnalyticsMinimal"));
 const GATestPage = React.lazy(() => import("@/pages/GATestPage"));
 const AnalyticsConsentBanner = dynamic(
   () => import("@/components/common/AnalyticsConsentBanner"),
+  { ssr: false, loading: () => null },
+);
+const GoogleAnalytics = dynamic(
+  () => import("@/components/common/GoogleAnalytics"),
   { ssr: false, loading: () => null },
 );
 

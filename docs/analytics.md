@@ -24,9 +24,18 @@ Behavior:
 - The Google tag bootstrap is injected globally from the root layout.
 - `gtag('config', ...)` sets `send_page_view: false`, so page views are not auto-fired by GA.
 - SPA page views are sent manually by `GoogleAnalytics.tsx` after consent is granted.
+- Manual page views include `page_referrer`, so GA4 can reconstruct in-app navigation correctly.
 - Consent defaults to denied and is persisted in `localStorage` under `analytics_consent`.
 - Consent updates emit `analytics-consent-updated`, which re-triggers a page view for the current route once analytics is granted.
-- Custom GA events should continue to flow through `trackGAEvent(...)`.
+- Custom GA events only fire after analytics consent is granted.
+- High-value link interactions are tracked globally from the document layer:
+  - `tel_click`
+  - `email_click`
+  - `book_appointment_click`
+  - `outbound_click`
+- Lead forms emit GA4 `generate_lead` for contact, newsletter, and appointment-request completions.
+- Internal staff/test routes (`/analytics`, `/ga-test`) are excluded from GA4 page-view and click-event reporting.
+- The hardcoded GA fallback is only honored on known production hosts; local or ad-hoc environments must set `NEXT_PUBLIC_GA_MEASUREMENT_ID` explicitly to emit GA hits.
 
 ### 2. Vercel Web Analytics
 

@@ -37,7 +37,12 @@ const ContactForm = () => {
         description: "We will get back to you as soon as possible.",
         variant: "default",
       });
-      trackGAEvent("generate_lead");
+      trackGAEvent("generate_lead", {
+        form_name: "contact_form",
+        lead_type: "contact_request",
+        page_path:
+          typeof window !== "undefined" ? window.location.pathname : "/contact",
+      });
       form.reset();
       setIsSubmitting(false);
     },
