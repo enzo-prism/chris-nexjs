@@ -16,6 +16,7 @@ Command reference for contract, UI, SEO, and performance checks.
 - `pnpm run check`
   - Runs hard-coded business-info guard and TypeScript compile checks.
   - Requires generated Next route types in `.next/types`; if missing, run `pnpm run build` once.
+  - Do not run it in parallel with `build`, `build:perf`, `test:bundle`, or `test:production`, because `.next/types` can be missing or mid-regeneration and produce misleading failures.
 
 ### API and routing contracts
 
@@ -110,6 +111,18 @@ Baseline gate:
 pnpm run test:production
 ```
 
+Sequencing note:
+
+- `pnpm run check` depends on `.next/types`.
+- Keep `check` and build-backed scripts sequential, not parallel.
+- If `check` suddenly reports missing Next route types, run:
+
+```bash
+rm -rf .next
+pnpm run build
+pnpm run check
+```
+
 Extended release gate:
 
 ```bash
@@ -155,7 +168,7 @@ Manual QA:
 Audit reporting:
 
 - After schedule-related releases, write or refresh a dated schedule audit report in `docs/` (example:
-  [scheduling-audit-2026-03-04.md](/Users/enzo/chris-nextjs/docs/scheduling-audit-2026-03-04.md))
+  [scheduling-audit-2026-03-04.md](/Users/enzo/chris-website/docs/scheduling-audit-2026-03-04.md))
   with:
   - localhost runtime status checks (`/schedule` and `/api/schedule-request`)
   - Lighthouse category scores + key timing metrics

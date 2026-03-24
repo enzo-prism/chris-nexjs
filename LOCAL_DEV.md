@@ -64,6 +64,18 @@ pnpm run test:design-system
 pnpm run test:images
 ```
 
+Sequencing note:
+
+- `pnpm run check` reads generated Next route types from `.next/types`.
+- Run `check` sequentially, not in parallel with `pnpm run build`, `pnpm run build:perf`, `pnpm run test:bundle`, or `pnpm run test:production`.
+- If the route types are missing or look stale, regenerate them with:
+
+```bash
+rm -rf .next
+pnpm run build
+pnpm run check
+```
+
 Visual motion checks (when SVG/UI animation is touched):
 
 1. Run the app in dev and verify key animated surfaces at `sm`, `md`, and `lg` breakpoints.
@@ -176,6 +188,11 @@ IMAGE_AUDIT_BASE_URL=http://localhost:5000 pnpm run test:images
   - hard refresh browser tab
 - `pnpm run check` fails with missing `.next/types/*` files:
   - run `pnpm run build` once to regenerate Next route type artifacts
+- `pnpm run check` fails while another build-backed script is running:
+  - stop the overlapping build/test process
+  - run `rm -rf .next`
+  - run `pnpm run build`
+  - rerun `pnpm run check`
 - Port already in use:
   - change `PORT` in `.env` or stop conflicting process
 - Redirect/canonical mismatch:

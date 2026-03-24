@@ -6,6 +6,9 @@ Use this file as the central index for project documentation.
 
 - `../README.md`  
   Top-level project overview, architecture summary, command map.
+- `codex-operator-guide.md`
+  Fastest path for future Codex/operator sessions.
+  Covers orientation order, safe release behavior, analytics ownership, and repo-specific gotchas.
 - `../LOCAL_DEV.md`  
   Local setup and development workflows.
 - `analytics.md`

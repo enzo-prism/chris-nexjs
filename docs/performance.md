@@ -43,7 +43,7 @@ Feature route:
 - Defer non-critical third-party scripts (reviews widget) until section intersection or explicit user action.
 - Keep mobile interaction responsive while keyboard is open (sticky action bar must not block submit controls).
 - Keep a dated `/schedule` performance snapshot in docs for each major UX release (see
-  [scheduling-audit-2026-03-04.md](/Users/enzo/chris-nextjs/docs/scheduling-audit-2026-03-04.md)).
+  [scheduling-audit-2026-03-04.md](/Users/enzo/chris-website/docs/scheduling-audit-2026-03-04.md)).
 
 ## SVG animation performance policy
 

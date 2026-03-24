@@ -66,6 +66,17 @@ Behavior:
 - Vercel custom-event properties are kept flat and intentionally exclude phone numbers, email addresses, message text, and full external URLs.
 - It is additive to GA4 and does not replace the current GA consent/event implementation.
 
+Event ownership map:
+
+- Add or update client-side click events in:
+  - `client/src/components/common/GoogleAnalytics.tsx`
+  - `client/src/lib/analytics.ts`
+- Add or update server-confirmed conversion events in:
+  - `server/vercelAnalytics.ts`
+  - the corresponding `app/api/*/route.ts` handler after successful writes
+- Keep shared names, exclusions, and sanitization helpers aligned in:
+  - `shared/analytics.ts`
+
 ## Privacy model
 
 - GA4 is consent-gated in this app and should stay that way.

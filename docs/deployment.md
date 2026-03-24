@@ -23,7 +23,8 @@ Repository of record:
 
 ## Preconditions
 
-- Local repo is clean and synced.
+- For the default Git-based release flow, local repo may contain unrelated work, but the release commit must be intentionally committed and pushed.
+- For a manual local `vercel --prod --yes` deploy, local repo must be clean and synced.
 - Release commit is already on `origin/main`.
 - Required quality gates pass.
 - Required environment variables are configured in Vercel when needed.
@@ -76,13 +77,49 @@ Expected:
 - Repo is `enzo-prism/chris-nexjs`.
 - Default branch is `main`.
 
-## Deploy process (primary public production)
+## Default deploy process (primary public production)
+
+Preferred path: push a reviewed commit to `main` and verify the Git-triggered Vercel deployment for `chris-wong-dds`.
 
 1. Run preflight checks locally (or in CI):
    - `pnpm run test:production`
    - `pnpm run test:gallery` (if gallery media changed)
    - `pnpm run test:reviews` (if review source/import changed)
    - perf suite (`build:perf`, `test:bundle`, `perf:smoke`, `perf:lighthouse`) for performance-sensitive releases
+2. Confirm the release commit is on `origin/main`:
+
+```bash
+git fetch origin
+git rev-parse HEAD
+git rev-parse origin/main
+```
+
+3. Wait for or inspect the production deployment:
+
+```bash
+vercel ls chris-wong-dds --prod
+vercel inspect https://www.chriswongdds.com
+```
+
+4. Verify host behavior:
+
+```bash
+curl -I https://chriswongdds.com
+curl -I https://www.chriswongdds.com
+curl -sS https://www.chriswongdds.com/robots.txt
+curl -I https://www.chriswongdds.com/about
+```
+
+Expected:
+
+- `https://chriswongdds.com/*` returns a permanent redirect (`301` or `308`) to `https://www.chriswongdds.com/*`.
+- `https://www.chriswongdds.com/*` returns `200`.
+
+## Manual CLI production deploy (use sparingly)
+
+Only use this path when the local workspace is clean and you intentionally want the deploy to come from local CLI state rather than a pushed Git commit.
+
+1. Run the same preflight checks listed above.
 2. Link CLI to the primary production project:
 
 ```bash
@@ -109,11 +146,6 @@ curl -I https://www.chriswongdds.com
 curl -sS https://www.chriswongdds.com/robots.txt
 curl -I https://www.chriswongdds.com/about
 ```
-
-Expected:
-
-- `https://chriswongdds.com/*` returns a permanent redirect (`301` or `308`) to `https://www.chriswongdds.com/*`.
-- `https://www.chriswongdds.com/*` returns `200`.
 
 ## Optional mirror sync deploys
 
@@ -249,6 +281,7 @@ Keep these files aligned whenever routes or SEO paths change:
 
 - `.vercel/project.json` determines the default target for `vercel` commands run without explicit project relinking.
 - For safest release behavior in this repo, keep local link pointed at primary public production (`chris-wong-dds`) unless intentionally working on mirror-specific deploy tasks.
+- Before any manual CLI deploy, inspect `git status --short` so unrelated local changes are not accidentally shipped.
 
 ## Editorial compliance note
 

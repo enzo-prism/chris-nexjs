@@ -52,7 +52,8 @@ The app runs on Next.js App Router with API route handlers, centralized SEO meta
 
 Release default:
 
-- Link and deploy to `chris-wong-dds` for public production pushes.
+- Preferred: commit and push to `main`, then verify the Git-triggered Vercel production deploy for `chris-wong-dds`.
+- Use local `vercel --prod --yes` only when the workspace is clean and a manual CLI deploy is intentional.
 - Use mirror deployments only when explicit cross-project sync is required.
 
 ## Quick start
@@ -221,16 +222,17 @@ Never combine `Dr.` and `DDS` in the same line.
 
 ## Documentation index
 
-- Local development: `/Users/enzo/chris-nextjs/LOCAL_DEV.md`
-- Deployment runbook: `/Users/enzo/chris-nextjs/docs/deployment.md`
-- Analytics guide: `/Users/enzo/chris-nextjs/docs/analytics.md`
-- Testing guide: `/Users/enzo/chris-nextjs/docs/testing.md`
-- Performance workflow: `/Users/enzo/chris-nextjs/docs/performance.md`
-- Production readiness spec: `/Users/enzo/chris-nextjs/docs/production-readiness-spec.md`
-- SEO growth plan: `/Users/enzo/chris-nextjs/docs/seo-growth-plan.md`
-- SEO keyword map: `/Users/enzo/chris-nextjs/docs/seo-keyword-map.md`
-- SEO implementation backlog: `/Users/enzo/chris-nextjs/docs/seo-implementation-backlog.md`
-- Gallery feature guide: `/Users/enzo/chris-nextjs/docs/gallery.md`
-- Review data runbook: `/Users/enzo/chris-nextjs/docs/reviews-data.md`
-- Changelog operations guide: `/Users/enzo/chris-nextjs/docs/changelog.md`
-- SVG animation system guide: `/Users/enzo/chris-nextjs/docs/svg-animation-system.md`
+- Codex/operator guide: `/Users/enzo/chris-website/docs/codex-operator-guide.md`
+- Local development: `/Users/enzo/chris-website/LOCAL_DEV.md`
+- Deployment runbook: `/Users/enzo/chris-website/docs/deployment.md`
+- Analytics guide: `/Users/enzo/chris-website/docs/analytics.md`
+- Testing guide: `/Users/enzo/chris-website/docs/testing.md`
+- Performance workflow: `/Users/enzo/chris-website/docs/performance.md`
+- Production readiness spec: `/Users/enzo/chris-website/docs/production-readiness-spec.md`
+- SEO growth plan: `/Users/enzo/chris-website/docs/seo-growth-plan.md`
+- SEO keyword map: `/Users/enzo/chris-website/docs/seo-keyword-map.md`
+- SEO implementation backlog: `/Users/enzo/chris-website/docs/seo-implementation-backlog.md`
+- Gallery feature guide: `/Users/enzo/chris-website/docs/gallery.md`
+- Review data runbook: `/Users/enzo/chris-website/docs/reviews-data.md`
+- Changelog operations guide: `/Users/enzo/chris-website/docs/changelog.md`
+- SVG animation system guide: `/Users/enzo/chris-website/docs/svg-animation-system.md`

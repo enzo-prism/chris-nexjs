@@ -53,7 +53,7 @@ If `schedulingMode=first_available`, the flow skips Step 3 and submits from Step
 
 ## Data contract
 
-Canonical frontend payload is `ScheduleRequestV2` in [scheduleRequest.ts](/Users/enzo/chris-nextjs/shared/scheduleRequest.ts):
+Canonical frontend payload is `ScheduleRequestV2` in [scheduleRequest.ts](/Users/enzo/chris-website/shared/scheduleRequest.ts):
 
 - `firstName` (required)
 - `lastName` (required)
@@ -71,7 +71,7 @@ Canonical frontend payload is `ScheduleRequestV2` in [scheduleRequest.ts](/Users
 - `sourceUrl` (optional)
 - `utmParams` (optional)
 
-Legacy payloads are still accepted by [route.ts](/Users/enzo/chris-nextjs/app/api/schedule-request/route.ts) and normalized into v2.
+Legacy payloads are still accepted by [route.ts](/Users/enzo/chris-website/app/api/schedule-request/route.ts) and normalized into v2.
 
 ## API compatibility and normalization
 
@@ -91,7 +91,7 @@ Legacy payloads are still accepted by [route.ts](/Users/enzo/chris-nextjs/app/ap
 
 Latest measured audit snapshot is documented in:
 
-- [scheduling-audit-2026-03-04.md](/Users/enzo/chris-nextjs/docs/scheduling-audit-2026-03-04.md)
+- [scheduling-audit-2026-03-04.md](/Users/enzo/chris-website/docs/scheduling-audit-2026-03-04.md)
 
 ## Verification checklist
 
