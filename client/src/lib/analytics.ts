@@ -1,6 +1,9 @@
 import {
   ANALYTICS_CONSENT_EVENT,
   ANALYTICS_CONSENT_STORAGE_KEY,
+  isAnalyticsPathExcluded,
+  sanitizeAnalyticsEventName,
+  sanitizeAnalyticsEventProperties,
   type AnalyticsConsentState,
 } from "@shared/analytics";
 
@@ -10,6 +13,8 @@ const FALLBACK_GA_ALLOWED_HOSTS = new Set([
   "chris-nextjs.vercel.app",
   "chriswongdds.vercel.app",
 ]);
+let vercelAnalyticsModulePromise: Promise<typeof import("@vercel/analytics")> | null =
+  null;
 
 export function isAnalyticsRuntimeEnabled(): boolean {
   if (typeof window === "undefined") return false;
@@ -46,6 +51,38 @@ export function trackGAEvent(action: string, params: Record<string, any> = {}): 
   }
 
   window.gtag("event", action, params);
+}
+
+function canTrackVercelEvent(): boolean {
+  if (typeof window === "undefined") return false;
+  if (!hasAnalyticsConsent()) return false;
+  return !isAnalyticsPathExcluded(window.location.pathname);
+}
+
+function loadVercelAnalyticsClient() {
+  if (!vercelAnalyticsModulePromise) {
+    vercelAnalyticsModulePromise = import("@vercel/analytics");
+  }
+
+  return vercelAnalyticsModulePromise;
+}
+
+export function trackVercelEvent(
+  eventName: string,
+  properties: Record<string, unknown> = {},
+): void {
+  const sanitizedEventName = sanitizeAnalyticsEventName(eventName);
+  if (!sanitizedEventName || !canTrackVercelEvent()) return;
+
+  const sanitizedProperties = sanitizeAnalyticsEventProperties(properties);
+
+  void loadVercelAnalyticsClient()
+    .then(({ track }) => {
+      track(sanitizedEventName, sanitizedProperties);
+    })
+    .catch(() => {
+      // Ignore Vercel analytics load failures so product flows never fail.
+    });
 }
 
 export function setAnalyticsConsent(granted: boolean): void {

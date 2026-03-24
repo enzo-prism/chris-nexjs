@@ -11,6 +11,7 @@ import {
   hasAnalyticsConsent,
   isAnalyticsRuntimeEnabled,
   trackGAEvent,
+  trackVercelEvent,
 } from "@/lib/analytics";
 
 const GA_MEASUREMENT_ID =
@@ -142,6 +143,9 @@ const GoogleAnalytics = () => {
           phone_number: rawHref.replace(/^tel:/i, ""),
           page_path: normalizedPathname,
         });
+        trackVercelEvent("phone_call_click", {
+          page_path: normalizedPathname,
+        });
         return;
       }
 
@@ -149,6 +153,9 @@ const GoogleAnalytics = () => {
         trackGAEvent("email_click", {
           email_address: rawHref.replace(/^mailto:/i, ""),
           link_text: linkText,
+          page_path: normalizedPathname,
+        });
+        trackVercelEvent("email_click", {
           page_path: normalizedPathname,
         });
         return;
@@ -169,6 +176,10 @@ const GoogleAnalytics = () => {
           link_text: linkText,
           page_path: normalizedPathname,
         });
+        trackVercelEvent("book_appointment_click", {
+          destination_path: destinationPath,
+          page_path: normalizedPathname,
+        });
         return;
       }
 
@@ -177,6 +188,10 @@ const GoogleAnalytics = () => {
           destination_host: destinationUrl.hostname,
           destination_url: destinationUrl.href,
           link_text: linkText,
+          page_path: normalizedPathname,
+        });
+        trackVercelEvent("outbound_click", {
+          destination_host: destinationUrl.hostname,
           page_path: normalizedPathname,
         });
       }

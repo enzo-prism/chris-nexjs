@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fromZodError } from "zod-validation-error";
 import { ZodError } from "zod";
+import { getAnalyticsPathFromUrl } from "@shared/analytics";
 import { insertNewsletterSubscriptionSchema } from "@shared/schema";
 import { getStorage } from "../../../server/storage/repository";
+import { trackVercelServerEvent } from "../../../server/vercelAnalytics";
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,6 +23,13 @@ export async function POST(request: NextRequest) {
     }
 
     const subscription = await storage.createNewsletterSubscription(payload);
+
+    await trackVercelServerEvent(request, "newsletter_signup", {
+      form_name: "newsletter_form",
+      lead_type: "newsletter_signup",
+      page_path: getAnalyticsPathFromUrl(request.headers.get("referer")) ?? "/",
+    });
+
     return NextResponse.json(subscription, { status: 201 });
   } catch (error) {
     if (error instanceof ZodError) {

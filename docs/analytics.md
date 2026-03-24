@@ -5,7 +5,7 @@ Operational guide for the two analytics layers currently installed on the site.
 ## What is live
 
 - GA4 is installed for consent-aware marketing analytics and custom event tracking.
-- Vercel Web Analytics is installed for privacy-friendly page-view reporting in Vercel.
+- Vercel Web Analytics is installed for privacy-friendly page-view reporting in Vercel, plus a small set of key custom events.
 - The internal `/analytics` route is a staff-facing dashboard page and is unrelated to Vercel Web Analytics.
 
 ## Current architecture
@@ -42,19 +42,36 @@ Behavior:
 Files:
 
 - `app/layout.tsx`
+- `client/src/components/common/VercelAnalytics.tsx`
+- `client/src/components/common/GoogleAnalytics.tsx`
+- `client/src/lib/analytics.ts`
+- `server/vercelAnalytics.ts`
 - `package.json`
 
 Behavior:
 
-- `<Analytics />` from `@vercel/analytics/next` is mounted in the root layout so all App Router routes are covered.
+- `<Analytics />` from `@vercel/analytics/next` is mounted through `VercelAnalytics.tsx`.
 - Vercel Web Analytics automatically tracks page views on Vercel deployments.
+- `beforeSend` drops staff/test routes (`/analytics`, `/ga-test`) from Vercel page-view reporting.
 - It does not track traffic in local development mode.
+- Client-side key events are emitted for:
+  - `phone_call_click`
+  - `email_click`
+  - `book_appointment_click`
+  - `outbound_click`
+- Server-side key events are emitted after successful API writes for:
+  - `contact_form_submit`
+  - `newsletter_signup`
+  - `appointment_request_submit`
+- Vercel custom-event properties are kept flat and intentionally exclude phone numbers, email addresses, message text, and full external URLs.
 - It is additive to GA4 and does not replace the current GA consent/event implementation.
 
 ## Privacy model
 
 - GA4 is consent-gated in this app and should stay that way.
-- Vercel Web Analytics is intentionally lightweight and does not use the site's GA consent storage/event plumbing.
+- Vercel page views remain lightweight and independent from the site's GA consent plumbing.
+- Vercel custom key events are gated behind the same client-side analytics consent checks as GA4 when they originate in the browser.
+- Vercel server-side lead events do not include personal data and only fire after successful server-side writes.
 - Do not remove the existing GA consent controls just because Vercel Web Analytics is present.
 
 ## Verification workflow
@@ -95,6 +112,16 @@ curl -sL https://DEPLOYMENT_URL/ \
 
 4. Visit multiple pages on the deployment and then confirm Vercel Analytics starts receiving page views in the Vercel dashboard.
 
+5. Trigger the key actions on the deployed site and confirm the Vercel Analytics dashboard begins showing custom events:
+
+- `phone_call_click`
+- `email_click`
+- `book_appointment_click`
+- `outbound_click`
+- `contact_form_submit`
+- `newsletter_signup`
+- `appointment_request_submit`
+
 Notes:
 
 - Vercel Web Analytics is injected client-side from the app layout bundle, so a raw `curl` of the SSR HTML may not show the final script tag.
@@ -104,8 +131,9 @@ Notes:
 
 - Keep GA4 bootstrap in `app/layout.tsx`.
 - Keep `GoogleAnalytics.tsx` mounted so consent-aware SPA page views continue working.
-- Keep `<Analytics />` mounted in the root layout.
+- Keep `VercelAnalytics.tsx` mounted in the root layout.
 - Run `pnpm run check`, `pnpm run test:api`, `pnpm run test:routes`, and `pnpm run test:seo:all` before a production push.
 - After deployment, verify both:
   - GA4 bootstrap markers are present in the HTML.
   - Vercel Web Analytics runtime is present in the browser after hydration and requests `/_vercel/insights/script.js`.
+  - Vercel custom events appear in the Analytics dashboard after real interactions on a deployed environment.

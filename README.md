@@ -200,8 +200,16 @@ Write endpoints:
 - Global click instrumentation captures `tel_click`, `email_click`, `book_appointment_click`, and `outbound_click`.
 - Internal staff/test routes (`/analytics`, `/ga-test`) are excluded from GA4 reporting.
 - The fallback GA measurement ID is only active on the known production hosts; any other environment should set `NEXT_PUBLIC_GA_MEASUREMENT_ID` explicitly if GA collection is desired.
-- Vercel Web Analytics is also mounted from the root layout via `@vercel/analytics/next` for deployment-level page-view reporting on Vercel.
-- Vercel Web Analytics is separate from GA4 consent/event plumbing and does not replace the internal `/analytics` dashboard route.
+- Vercel Web Analytics is mounted from the root layout via `@vercel/analytics/next`, with `beforeSend` filtering that excludes `/analytics` and `/ga-test` from Vercel page-view reporting.
+- Vercel custom key events are now wired for:
+  - `phone_call_click`
+  - `email_click`
+  - `book_appointment_click`
+  - `outbound_click`
+  - `contact_form_submit`
+  - `newsletter_signup`
+  - `appointment_request_submit`
+- Vercel custom-event payloads are intentionally flat and scrubbed of phone numbers, email addresses, free-text messages, and full outbound URLs.
 
 ## Naming rule (editorial and compliance)
 

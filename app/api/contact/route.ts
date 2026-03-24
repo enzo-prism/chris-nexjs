@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fromZodError } from "zod-validation-error";
 import { ZodError } from "zod";
-import {
-  insertContactMessageSchema,
-} from "@shared/schema";
+import { getAnalyticsPathFromUrl } from "@shared/analytics";
+import { insertContactMessageSchema } from "@shared/schema";
 import { getStorage } from "../../../server/storage/repository";
+import { trackVercelServerEvent } from "../../../server/vercelAnalytics";
 import { z } from "zod";
 
 const contactPayloadSchema = insertContactMessageSchema.extend({
@@ -34,6 +34,13 @@ export async function POST(request: NextRequest) {
     const data = contactPayloadSchema.parse(body);
     const storage = await getStorage();
     const message = await storage.createContactMessage(data);
+
+    await trackVercelServerEvent(request, "contact_form_submit", {
+      form_name: "contact_form",
+      lead_type: "contact_request",
+      page_path: getAnalyticsPathFromUrl(request.headers.get("referer")) ?? "/contact",
+    });
+
     return NextResponse.json(message, { status: 201 });
   } catch (error) {
     if (error instanceof ZodError) {

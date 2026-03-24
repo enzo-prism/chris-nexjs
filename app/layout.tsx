@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { Analytics } from "@vercel/analytics/next";
 import { getSeoForPath } from "@/lib/seo";
 import CopyDashSanitizer from "@/components/common/CopyDashSanitizer";
+import VercelAnalytics from "@/components/common/VercelAnalytics";
 import {
   ANALYTICS_CONSENT_EVENT,
   ANALYTICS_CONSENT_STORAGE_KEY,
@@ -118,7 +118,7 @@ export default function RootLayout({
       <body className="antialiased">
         <CopyDashSanitizer />
         {children}
-        <Analytics />
+        <VercelAnalytics />
       </body>
     </html>
   );
