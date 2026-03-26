@@ -9,6 +9,7 @@ import {
   buildExcerpt,
   NOINDEX_ROBOTS,
 } from "@shared/seo";
+import { getBlogSeoMetadata } from "@shared/blogSeo";
 import LegacyShell from "./legacy-shell";
 
 const CANONICAL_ORIGIN = "https://www.chriswongdds.com";
@@ -59,13 +60,15 @@ export async function generateMetadata({
       const absoluteImage = image.startsWith("http")
         ? image
         : `${CANONICAL_ORIGIN}${image.startsWith("/") ? image : `/${image}`}`;
-      const excerpt = buildExcerpt(post.content);
+      const blogSeo = getBlogSeoMetadata(post);
+      const pageTitle = blogSeo?.title ?? `${post.title} | Christopher B. Wong, DDS`;
+      const excerpt = blogSeo?.description ?? buildExcerpt(post.content);
       const published = Number.isNaN(Date.parse(post.date))
         ? undefined
         : new Date(post.date).toISOString();
 
       return {
-        title: `${post.title} | Christopher B. Wong, DDS`,
+        title: pageTitle,
         description: excerpt,
         robots: DEFAULT_ROBOTS,
         alternates: {
@@ -77,7 +80,7 @@ export async function generateMetadata({
         openGraph: {
           type: "article",
           url: seoMetadata.canonical,
-          title: `${post.title} | Christopher B. Wong, DDS`,
+          title: pageTitle,
           description: excerpt,
           images: [absoluteImage],
           publishedTime: published,
@@ -88,7 +91,7 @@ export async function generateMetadata({
         twitter: {
           card: "summary_large_image",
           site: "@chriswongdds",
-          title: `${post.title} | Christopher B. Wong, DDS`,
+          title: pageTitle,
           description: excerpt,
           images: [absoluteImage],
         },

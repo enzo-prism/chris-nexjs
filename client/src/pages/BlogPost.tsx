@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { RouteComponentProps, useLocation } from "wouter";
 import Link from "next/link";
+import { getBlogSeoMetadata } from "@shared/blogSeo";
 import type { BlogPost as BlogPostRecord } from "@shared/schema";
 import { useBlogPosts } from "@/hooks/useBlogPosts";
 import MetaTags from "@/components/common/MetaTags";
@@ -154,6 +155,55 @@ function isLegacyHeading(line: string): boolean {
   );
 }
 
+function renderInlineMarkdown(text: string): React.ReactNode {
+  const nodes: React.ReactNode[] = [];
+  const linkPattern = /\[([^\]]+)\]\((\/[^)\s]*|https?:\/\/[^)\s]+)\)/g;
+  let lastIndex = 0;
+
+  for (const match of text.matchAll(linkPattern)) {
+    const rawIndex = match.index ?? 0;
+    if (rawIndex > lastIndex) {
+      nodes.push(text.slice(lastIndex, rawIndex));
+    }
+
+    const label = match[1];
+    const href = match[2];
+    const key = `${href}-${rawIndex}`;
+
+    if (href.startsWith("/")) {
+      nodes.push(
+        <Link
+          key={key}
+          href={href}
+          className="font-medium text-primary underline decoration-primary/40 underline-offset-4 hover:decoration-primary"
+        >
+          {label}
+        </Link>,
+      );
+    } else {
+      nodes.push(
+        <a
+          key={key}
+          href={href}
+          className="font-medium text-primary underline decoration-primary/40 underline-offset-4 hover:decoration-primary"
+          target="_blank"
+          rel="noreferrer"
+        >
+          {label}
+        </a>,
+      );
+    }
+
+    lastIndex = rawIndex + match[0].length;
+  }
+
+  if (lastIndex < text.length) {
+    nodes.push(text.slice(lastIndex));
+  }
+
+  return nodes.length > 0 ? <>{nodes}</> : text;
+}
+
 type BlogPostPageProps = RouteComponentProps<Params> & {
   initialPosts?: BlogPostRecord[];
 };
@@ -171,10 +221,10 @@ const BlogPost = ({ params, initialPosts }: BlogPostPageProps) => {
     return posts.filter((candidate) => candidate.slug !== post.slug).slice(0, 3);
   }, [post, posts]);
 
-  const pageTitle = post ? `${post.title} | Christopher B. Wong, DDS` : pageTitles.blog;
-  const pageDescription = post?.content
-    ? buildExcerpt(post.content)
-    : pageDescriptions.blog;
+  const blogSeo = useMemo(() => getBlogSeoMetadata(post), [post]);
+
+  const pageTitle = blogSeo?.title ?? pageTitles.blog;
+  const pageDescription = blogSeo?.description ?? pageDescriptions.blog;
   const blogOgImage = getSeoForPath("/blog").ogImage;
   const pageUrl = absoluteUrl(`/blog/${slug}`);
   const blogSchema = post
@@ -414,7 +464,7 @@ const BlogPost = ({ params, initialPosts }: BlogPostPageProps) => {
         blocks.push(
           <ul key={`ul-${blocks.length}`}>
             {bulletList.map((item, idx) => (
-              <li key={idx}>{item}</li>
+              <li key={idx}>{renderInlineMarkdown(item)}</li>
             ))}
           </ul>,
         );
@@ -423,7 +473,7 @@ const BlogPost = ({ params, initialPosts }: BlogPostPageProps) => {
         blocks.push(
           <ol key={`ol-${blocks.length}`}>
             {orderedList.map((item, idx) => (
-              <li key={idx}>{item}</li>
+              <li key={idx}>{renderInlineMarkdown(item)}</li>
             ))}
           </ol>,
         );
@@ -466,7 +516,7 @@ const BlogPost = ({ params, initialPosts }: BlogPostPageProps) => {
         );
       } else {
         blocks.push(
-          <p key={`p-${blocks.length}`}>{line}</p>,
+          <p key={`p-${blocks.length}`}>{renderInlineMarkdown(line)}</p>,
         );
       }
     });

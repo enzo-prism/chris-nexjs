@@ -13,6 +13,7 @@ import {
   pageDescriptions,
   pageTitles,
 } from "@shared/metaContent";
+import { getBlogSeoMetadata } from "@shared/blogSeo";
 import { storage } from "./storage";
 import { DEFAULT_ROBOTS, NOINDEX_ROBOTS, getSeoForPath, seoByPath } from "@shared/seo";
 
@@ -70,9 +71,10 @@ async function resolveMetaForUrl(url: string): Promise<HtmlMeta> {
     if (slug) {
       const post = await storage.getBlogPostBySlug(slug);
       if (post) {
+        const blogSeo = getBlogSeoMetadata(post);
         return {
-          title: `${post.title} | Christopher B. Wong, DDS`,
-          description: buildExcerpt(post.content),
+          title: blogSeo?.title ?? `${post.title} | Christopher B. Wong, DDS`,
+          description: blogSeo?.description ?? buildExcerpt(post.content),
           canonicalPath: pathname,
           ogImage: post.image || fallbackOgImage,
           type: "article",
