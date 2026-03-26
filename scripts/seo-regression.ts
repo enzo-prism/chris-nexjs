@@ -158,7 +158,15 @@ async function main(): Promise<void> {
     const disallow = new Set(disallowValues);
     getPublicRobotsDisallowPaths().forEach((entry) => {
       if (!disallow.has(entry)) {
-        warnings.push(`Noindex path is not explicitly blocked in robots: ${entry}`);
+        warnings.push(`Utility path is not explicitly blocked in robots: ${entry}`);
+      }
+    });
+
+    noindexPaths.forEach((entry) => {
+      if (disallow.has(entry)) {
+        errors.push({
+          message: `Public noindex path should stay crawlable instead of being blocked in robots: ${entry}`,
+        });
       }
     });
   }

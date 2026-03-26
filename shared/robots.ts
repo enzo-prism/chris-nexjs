@@ -1,5 +1,3 @@
-import { seoByPath } from "./seo";
-
 export const CANONICAL_HOST = "www.chriswongdds.com";
 export const GOOGLE_CRAWLER_USER_AGENTS = [
   "Googlebot",
@@ -12,10 +10,9 @@ export const BLOCKED_BOT_USER_AGENTS = [
 ] as const;
 
 export function getPublicRobotsDisallowPaths(): string[] {
-  return Object.values(seoByPath)
-    .filter((entry) => !entry.indexable)
-    .map((entry) => entry.canonicalPath)
-    .concat("/api/");
+  // Keep public noindex pages crawlable so Google can read their noindex tags.
+  // Only block utility routes that should never be crawled or indexed.
+  return ["/api/"];
 }
 
 type RobotsRule = {
