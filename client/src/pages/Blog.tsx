@@ -9,9 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLocation, type RouteComponentProps } from "wouter";
 import BlogPostCard from "@/components/common/BlogPostCard";
+import AbstractBlogArt from "@/components/blog/AbstractBlogArt";
 import MetaTags from "@/components/common/MetaTags";
 import { buildExcerpt, pageTitles, pageDescriptions } from "@/lib/metaContent";
-import OptimizedImage from "@/components/seo/OptimizedImage";
 import { normalizeBlogCategory, useBlogPosts } from "@/hooks/useBlogPosts";
 import StructuredData from "@/components/seo/StructuredData";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
@@ -173,16 +173,15 @@ const Blog = ({ initialPosts }: BlogProps) => {
               <div className="w-24 h-1 bg-primary mx-auto"></div>
             </div>
             
-            <div className="bg-white rounded-lg shadow-xl overflow-hidden">
+            <div className="overflow-hidden rounded-[28px] border border-sky-100/80 bg-white/95 shadow-[0_34px_90px_-48px_rgba(15,23,42,0.42)] backdrop-blur-sm">
               <div className="md:flex">
-                <div className="md:w-1/2">
-                  <OptimizedImage
-                    src={featuredPost.image}
-                    alt={featuredPost.title}
-                    className="w-full aspect-[4/3] object-cover"
+                <div className="border-b border-sky-100/80 bg-[#f7fbff] md:w-[48%] md:border-b-0 md:border-r">
+                  <AbstractBlogArt
+                    slug={featuredPost.slug}
+                    className="h-full min-h-[300px] md:min-h-[100%]"
                   />
                 </div>
-                <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
+                <div className="flex flex-col justify-center p-8 md:w-[52%] md:p-12">
                   <div className="flex items-center text-sm text-gray-500 mb-4">
                     <Calendar className="h-4 w-4 mr-2" />
                     <span>{featuredPost.date}</span>

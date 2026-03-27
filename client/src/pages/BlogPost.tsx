@@ -4,18 +4,19 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getBlogSeoMetadata } from "@shared/blogSeo";
+import { getBlogArtImagePath } from "@shared/blogArt";
 import type { BlogPost as BlogPostRecord } from "@shared/schema";
 import { useBlogPosts } from "@/hooks/useBlogPosts";
 import MetaTags from "@/components/common/MetaTags";
 import { buildExcerpt, pageDescriptions, pageTitles } from "@/lib/metaContent";
 import { getSeoForPath } from "@/lib/seo";
-import OptimizedImage from "@/components/seo/OptimizedImage";
 import { ArrowLeft, Calendar, Clock, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import StructuredData from "@/components/seo/StructuredData";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import AuthorBox from "@/components/blog/AuthorBox";
+import AbstractBlogArt from "@/components/blog/AbstractBlogArt";
 import RelatedServices, {
   type RelatedServiceLink,
 } from "@/components/common/RelatedServices";
@@ -234,7 +235,7 @@ const BlogPost = ({ params, initialPosts }: BlogPostPageProps) => {
         "@type": "BlogPosting",
         headline: post.title,
         description: pageDescription,
-        image: absoluteUrl(post.image),
+        image: absoluteUrl(getBlogArtImagePath(post.slug)),
         datePublished: post.date,
         dateModified: post.date,
         author: {
@@ -555,13 +556,14 @@ const BlogPost = ({ params, initialPosts }: BlogPostPageProps) => {
 
   const supplementalContent = getBlogSupplementalContent(post.category);
   const articleSummary = buildExcerpt(post.content, 180);
+  const articleArtImage = getBlogArtImagePath(post.slug);
 
   return (
     <>
       <MetaTags
         title={pageTitle}
         description={pageDescription}
-        image={post.image || blogOgImage}
+        image={articleArtImage || blogOgImage}
         type="article"
         url={pageUrl}
       />
@@ -600,15 +602,12 @@ const BlogPost = ({ params, initialPosts }: BlogPostPageProps) => {
           <p className="text-lg text-gray-600 max-w-3xl mb-8">
             {articleSummary}
           </p>
-          {post.image ? (
-            <div className="mb-10 rounded-2xl overflow-hidden shadow-lg border border-white/70">
-                <OptimizedImage
-                  src={post.image}
-                  alt={post.title}
-                  className="w-full h-56 sm:h-72 md:h-[420px] object-cover"
-                />
-            </div>
-          ) : null}
+          <div className="mb-10 overflow-hidden rounded-[32px] border border-sky-100/80 bg-white shadow-[0_30px_90px_-48px_rgba(15,23,42,0.4)]">
+            <AbstractBlogArt
+              slug={post.slug}
+              className="h-56 sm:h-72 md:h-[420px]"
+            />
+          </div>
           <article
 	            className={cn(
 	              "bg-white rounded-3xl shadow-xl border border-[#E5E7EB]/80",

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BlogPost } from "@shared/schema";
-import OptimizedImage from "@/components/seo/OptimizedImage";
+import AbstractBlogArt from "@/components/blog/AbstractBlogArt";
 import { buildExcerpt } from "@/lib/metaContent";
 
 interface BlogPostCardProps {
@@ -16,22 +16,18 @@ const BlogPostCard = ({ post }: BlogPostCardProps) => {
 
   return (
     <Card 
-      className="ui-card-interactive h-full rounded-xl border flex flex-col group" 
+      className="ui-card-interactive h-full rounded-2xl border border-sky-100/80 bg-white/95 shadow-[0_24px_60px_-38px_rgba(15,23,42,0.38)] flex flex-col group backdrop-blur-sm" 
       id={post.slug}
     >
-      {/* Image container with responsive height */}
-      <div className="relative h-48 overflow-hidden">
-        <OptimizedImage
-          src={post.image}
-          alt={post.title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+      <div className="relative h-48 overflow-hidden rounded-t-2xl border-b border-sky-100/80 bg-[#f7fbff]">
+        <AbstractBlogArt
+          slug={post.slug}
+          className="absolute inset-0 transition-transform duration-500 group-hover:scale-[1.04]"
         />
         
-        {/* Subtle gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-900/30 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/12 via-transparent to-white/18"></div>
         
-        {/* Category Badge */}
-        <Badge className="absolute top-3 left-3 bg-white/90 text-primary hover:bg-white px-2 py-0.5 text-xs font-medium rounded-full">
+        <Badge className="absolute top-3 left-3 rounded-full border border-white/80 bg-white/88 px-2.5 py-0.5 text-xs font-medium text-sky-900 shadow-sm hover:bg-white">
           {category}
         </Badge>
       </div>
