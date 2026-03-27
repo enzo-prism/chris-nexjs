@@ -52,6 +52,9 @@ const About = () => {
   
   // Using the team members from shared data
   const { teamMembers: sharedTeamMembers } = data;
+  const aboutPageTeamMembers = sharedTeamMembers.filter(
+    (member) => member.name !== "Dr. Hamamoto",
+  );
   const spotlightTestimonials = getTestimonialsByNames([
     "Anat Sipres",
     "Loretta Guarino Reid",
@@ -66,7 +69,7 @@ const About = () => {
       image: drWongImages.drWongPortrait1,
       bio: "Dr Christopher Wong was born and raised in Sacramento and earned his bachelor's degree in Biology from UC Davis. He graduated from the University of the Pacific School of Dentistry in San Francisco in 2018. He specializes in conservative dentistry, Invisalign, and implant restoration while practicing ethical and non-invasive care."
     },
-    ...sharedTeamMembers
+    ...aboutPageTeamMembers
   ];
   const profileHighlights = [
     {
