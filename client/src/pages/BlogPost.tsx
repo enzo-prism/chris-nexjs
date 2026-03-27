@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import { RouteComponentProps, useLocation } from "wouter";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { getBlogSeoMetadata } from "@shared/blogSeo";
 import type { BlogPost as BlogPostRecord } from "@shared/schema";
 import { useBlogPosts } from "@/hooks/useBlogPosts";
@@ -204,14 +204,15 @@ function renderInlineMarkdown(text: string): React.ReactNode {
   return nodes.length > 0 ? <>{nodes}</> : text;
 }
 
-type BlogPostPageProps = RouteComponentProps<Params> & {
+type BlogPostPageProps = {
+  params?: Params;
   initialPosts?: BlogPostRecord[];
 };
 
 const BlogPost = ({ params, initialPosts }: BlogPostPageProps) => {
   const { slug } = params ?? { slug: "" };
   const { posts, isLoading } = useBlogPosts(initialPosts);
-  const [, setLocation] = useLocation();
+  const router = useRouter();
 
   const post = useMemo(() => {
     return posts.find((candidate) => candidate.slug === slug);
@@ -544,7 +545,7 @@ const BlogPost = ({ params, initialPosts }: BlogPostPageProps) => {
       <section className="py-24">
         <div className="max-w-4xl mx-auto px-4 text-center space-y-4">
           <p className="text-gray-500">We couldn't find that article.</p>
-          <Button onClick={() => setLocation("/blog")} className="bg-primary text-white">
+          <Button onClick={() => router.push("/blog")} className="bg-primary text-white">
             Back to Blog
           </Button>
         </div>
@@ -572,7 +573,7 @@ const BlogPost = ({ params, initialPosts }: BlogPostPageProps) => {
         <div className="max-w-5xl mx-auto px-4">
           <Button
             variant="ghost"
-            onClick={() => setLocation("/blog")}
+            onClick={() => router.push("/blog")}
             className="mb-6 inline-flex items-center text-primary hover:bg-primary/5"
           >
             <ArrowLeft className="h-4 w-4 mr-2" /> Back to Blog

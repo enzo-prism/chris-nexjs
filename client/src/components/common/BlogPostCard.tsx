@@ -1,7 +1,7 @@
 import { ArrowRight, Calendar, Clock } from "lucide-react";
+import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "wouter";
 import { BlogPost } from "@shared/schema";
 import OptimizedImage from "@/components/seo/OptimizedImage";
 import { buildExcerpt } from "@/lib/metaContent";

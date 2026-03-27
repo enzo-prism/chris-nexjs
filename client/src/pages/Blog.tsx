@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import NextLink from "next/link";
 import { ArrowRight, Tag, Clock, Calendar, Search } from "lucide-react";
 import type { BlogPost as BlogPostRecord } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Link, useLocation, type RouteComponentProps } from "wouter";
+import { useLocation, type RouteComponentProps } from "wouter";
 import BlogPostCard from "@/components/common/BlogPostCard";
 import MetaTags from "@/components/common/MetaTags";
 import { buildExcerpt, pageTitles, pageDescriptions } from "@/lib/metaContent";
@@ -192,12 +193,12 @@ const Blog = ({ initialPosts }: BlogProps) => {
                   <h3 className="text-2xl md:text-3xl font-bold font-heading text-[#333333] mb-4">{featuredPost.title}</h3>
                   <p className="text-[#333333] mb-6">{featuredDescription}</p>
                   <div className="mt-auto">
-                    <Link href={`/blog/${featuredPost.slug}`}>
-                      <Button className="ui-btn-primary inline-flex items-center font-semibold">
+                    <Button asChild className="ui-btn-primary inline-flex items-center font-semibold">
+                      <NextLink href={`/blog/${featuredPost.slug}`}>
                         Read Full Article
                         <ArrowRight className="h-4 w-4 ml-2" />
-                      </Button>
-                    </Link>
+                      </NextLink>
+                    </Button>
                   </div>
                 </div>
               </div>

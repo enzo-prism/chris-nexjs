@@ -1,5 +1,6 @@
 "use client";
 
+import NextLink from "next/link";
 import MetaTags from "@/components/common/MetaTags";
 import OfficeHoursSummary from "@/components/common/OfficeHoursSummary";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
@@ -470,19 +471,19 @@ const TeethWhiteningPaloAlto = () => {
             </h2>
             <ul className="space-y-2 text-slate-700">
               <li>
-                <Link href="/blog/how-long-does-teeth-whitening-last" className="ui-link-premium">
+                <NextLink href="/blog/how-long-does-teeth-whitening-last" className="ui-link-premium">
                   How long does teeth whitening last?
-                </Link>
+                </NextLink>
               </li>
               <li>
-                <Link href="/blog/teeth-whitening-sensitivity-what-helps" className="ui-link-premium">
+                <NextLink href="/blog/teeth-whitening-sensitivity-what-helps" className="ui-link-premium">
                   Teeth whitening sensitivity: what helps
-                </Link>
+                </NextLink>
               </li>
               <li>
-                <Link href="/blog/in-office-whitening-vs-take-home-trays" className="ui-link-premium">
+                <NextLink href="/blog/in-office-whitening-vs-take-home-trays" className="ui-link-premium">
                   In‑office whitening vs take‑home trays: what to expect
-                </Link>
+                </NextLink>
               </li>
             </ul>
           </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -82,13 +82,12 @@ const SearchForm = () => {
                       <ul>
                         {searchResults.services.map((service) => (
                           <li key={service.id}>
-                            <Link href={`/services#${service.slug}`}>
-                              <a 
-                                className="block px-4 py-2 hover:bg-gray-100 text-sm"
-                                onClick={() => setShowResults(false)}
-                              >
-                                {service.title}
-                              </a>
+                            <Link
+                              href={`/services#${service.slug}`}
+                              className="block px-4 py-2 hover:bg-gray-100 text-sm"
+                              onClick={() => setShowResults(false)}
+                            >
+                              {service.title}
                             </Link>
                           </li>
                         ))}
@@ -102,13 +101,12 @@ const SearchForm = () => {
                       <ul>
                         {searchResults.blogPosts.map((post) => (
                           <li key={post.id}>
-                            <Link href={`/blog/${post.slug}`}>
-                              <a 
-                                className="block px-4 py-2 hover:bg-gray-100 text-sm"
-                                onClick={() => setShowResults(false)}
-                              >
-                                {post.title}
-                              </a>
+                            <Link
+                              href={`/blog/${post.slug}`}
+                              className="block px-4 py-2 hover:bg-gray-100 text-sm"
+                              onClick={() => setShowResults(false)}
+                            >
+                              {post.title}
                             </Link>
                           </li>
                         ))}

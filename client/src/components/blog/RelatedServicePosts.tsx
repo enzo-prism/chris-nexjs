@@ -1,5 +1,5 @@
 import { AlertCircle, ArrowRight } from "lucide-react";
-import { Link } from "wouter";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import BlogPostCard from "@/components/common/BlogPostCard";
 import { normalizeBlogCategory, useBlogPosts } from "@/hooks/useBlogPosts";
@@ -112,14 +112,14 @@ const RelatedServicePosts = ({
               {serviceName.toLowerCase()}.
             </p>
           </div>
-          <Link href={ctaHref}>
-            <Button className="ui-btn-primary mt-6 inline-flex items-center sm:mt-0">
+          <Button asChild className="ui-btn-primary mt-6 inline-flex items-center sm:mt-0">
+            <Link href={ctaHref}>
               {normalizedCategory
                 ? `View all ${serviceName} articles`
                 : "View All Articles"}
               <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
 
         {isError
