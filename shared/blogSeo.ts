@@ -36,6 +36,22 @@ const BLOG_SEO_OVERRIDES: Record<string, BlogSeoOverride> = {
     description:
       "Comparing dental implants and dental bridges for people in Palo Alto. Learn the pros, timeline, costs, and what to expect so you can choose the right long-term tooth replacement for your smile.",
   },
+  "seasonal-allergies-oral-health-palo-alto": {
+    description:
+      "Seasonal allergies can lead to dry mouth, sinus-related tooth pain, bad breath, and irritated gums. Learn what Palo Alto patients can do and when to see Dr. Christopher B. Wong.",
+  },
+  "crown-fell-off-palo-alto": {
+    description:
+      "If your dental crown feels loose or falls off, quick steps can protect the tooth until you are seen. Learn what to do, what to avoid, and when to call Chris Wong DDS in Palo Alto.",
+  },
+  "lost-retainer-palo-alto": {
+    description:
+      "Lost your retainer? Learn what Palo Alto patients should do right away, how fast teeth can shift, and when to call Dr. Christopher B. Wong for a replacement.",
+  },
+  "food-gets-stuck-between-teeth-palo-alto": {
+    description:
+      "Food getting stuck between your teeth in Palo Alto can point to a cavity, worn filling, gum recession, or bite issue. Learn what causes it and when to book a dental visit.",
+  },
 };
 
 export function getBlogSeoMetadata(post?: BlogSeoInput | null): {
