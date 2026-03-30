@@ -14,16 +14,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - name: Install
         run: pnpm install --frozen-lockfile
@@ -35,12 +35,11 @@ jobs:
           pnpm run test:routes
           pnpm run test:seo
           pnpm run test:design-system
-          pnpm run test:images
 
       - name: Build app for runtime SEO audits
         run: pnpm run build
 
-      - name: Runtime SEO audits
+      - name: Runtime SEO and image audits
         run: |
           PORT=3200 pnpm run start &
           SERVER_PID=$!
@@ -49,6 +48,7 @@ jobs:
           SEO_AUDIT_BASE_URL=http://localhost:3200 pnpm run test:seo:onpage
           SEO_AUDIT_BASE_URL=http://localhost:3200 pnpm run test:seo:links
           SEO_AUDIT_BASE_URL=http://localhost:3200 pnpm run test:seo:schema
+          IMAGE_AUDIT_BASE_URL=http://localhost:3200 pnpm run test:images
 
   perf:
     runs-on: ubuntu-latest
@@ -57,16 +57,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - name: Install
         run: pnpm install --frozen-lockfile
