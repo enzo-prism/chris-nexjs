@@ -9,7 +9,7 @@ export const generateMetadata = async () =>
 
 export default function SchedulePage() {
   return (
-    <RouteShell ssrPath="/schedule">
+    <RouteShell ssrPath="/schedule" chromeVariant="conversion">
       <Schedule />
     </RouteShell>
   );

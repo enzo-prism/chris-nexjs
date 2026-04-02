@@ -23,6 +23,7 @@ import HolidayHoursNotice from "@/components/common/HolidayHoursNotice";
 import ButtonLink from "@/components/common/ButtonLink";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import type { ChromeVariant } from "@/lib/chrome";
 
 type NavChild = {
   readonly href: string;
@@ -77,7 +78,11 @@ const navLinks: readonly NavLink[] = [
 const slugifyLabel = (label: string): string =>
   label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
-const Header = () => {
+type HeaderProps = {
+  readonly variant?: ChromeVariant;
+};
+
+const Header = ({ variant = "default" }: HeaderProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname() || "/";
   const [scrolled, setScrolled] = useState(false);
@@ -174,7 +179,7 @@ const Header = () => {
       }
       window.removeEventListener("resize", onResize);
     };
-  }, [pathname, scrolled]);
+  }, [pathname, scrolled, variant]);
 
   // Handle scroll effect for sticky header.
   useEffect(() => {
@@ -233,6 +238,14 @@ const Header = () => {
     setExpandedMenus([]);
     setMobileMenuOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    if (variant === "conversion") {
+      setOpenDesktopSubmenu(null);
+      setExpandedMenus([]);
+      setMobileMenuOpen(false);
+    }
+  }, [variant]);
 
   // Global escape closes any open menu.
   useEffect(() => {
@@ -305,6 +318,64 @@ const Header = () => {
     const trigger = document.getElementById(triggerId);
     trigger?.focus();
   };
+
+  if (variant === "conversion") {
+    return (
+      <header
+        ref={headerRef}
+        className="fixed left-0 right-0 top-0 z-[100] isolation-auto"
+      >
+        <div
+          className={cn(
+            "relative z-[101] w-full border-b border-slate-200/80 bg-white/95 backdrop-blur transition-[box-shadow,padding] duration-300",
+            scrolled ? "py-2 shadow-lg" : "py-3 shadow-sm",
+          )}
+        >
+          <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+            <Link href="/" className="group relative z-[102] min-w-0 shrink">
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white ring-1 ring-slate-200 transition-colors group-hover:bg-slate-50 sm:h-11 sm:w-11">
+                  {!logoLoadFailed ? (
+                    <img
+                      src="/favicon.png"
+                      alt="Christopher B. Wong, DDS logo"
+                      width={44}
+                      height={44}
+                      loading="lazy"
+                      decoding="async"
+                      className="h-full w-full object-contain p-1"
+                      onError={() => setLogoLoadFailed(true)}
+                    />
+                  ) : (
+                    <span className="font-serif text-sm font-semibold tracking-wide text-primary">
+                      CW
+                    </span>
+                  )}
+                </div>
+                <div className="flex min-w-0 flex-col">
+                  <span className="truncate font-serif text-sm tracking-wide text-slate-900 transition-colors group-hover:text-primary sm:text-lg">
+                    Christopher B. Wong, DDS
+                  </span>
+                  <span className="hidden truncate text-[10px] uppercase tracking-[0.22em] text-slate-500 sm:block">
+                    Palo Alto Dentistry
+                  </span>
+                </div>
+              </div>
+            </Link>
+
+            <a
+              href={`tel:${officeInfo.phoneE164}`}
+              className="ui-focus-premium inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-primary/15 bg-primary px-4 py-2 text-sm font-semibold text-white shadow-[0_18px_38px_-24px_rgba(37,99,235,0.7)] transition-transform hover:-translate-y-0.5 hover:bg-primary/95 sm:px-5"
+            >
+              <Phone className="h-4 w-4" aria-hidden="true" />
+              <span className="sm:hidden">Call</span>
+              <span className="hidden sm:inline">Call {officeInfo.phone}</span>
+            </a>
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header

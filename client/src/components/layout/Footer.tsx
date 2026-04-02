@@ -1,13 +1,22 @@
 import { Link } from "wouter";
 import { Phone, MapPin, ExternalLink, Instagram } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { officeInfo } from "@/lib/data";
+import type { ChromeVariant } from "@/lib/chrome";
 
-const Footer = () => {
+type FooterProps = {
+  readonly variant?: ChromeVariant;
+};
+
+const Footer = ({ variant = "default" }: FooterProps) => {
   const currentYear = new Date().getFullYear();
 
-  // Footer link sections
   const quickLinks = [
     { href: "/", label: "Home" },
     { href: "/about", label: "Dr. Wong" },
@@ -27,7 +36,7 @@ const Footer = () => {
     { href: "/dentist-atherton", label: "Atherton Patients" },
     { href: "/dentist-redwood-shores", label: "Redwood Shores Patients" },
     { href: "/locations", label: "All Locations" },
-    { href: "/contact", label: "Contact" }
+    { href: "/contact", label: "Contact" },
   ];
 
   const internalLinks = [{ href: "/changelog", label: "Changelog" }];
@@ -40,33 +49,95 @@ const Footer = () => {
     { href: "/restorative-dentistry", label: "Restorative Dentistry" },
     { href: "/pediatric-dentistry", label: "Pediatric Dentistry" },
     { href: "/dental-implants", label: "Dental Implants" },
-    { href: "/emergency-dental", label: "Emergency Dentist" }
+    { href: "/emergency-dental", label: "Emergency Dentist" },
   ];
 
   const legalLinks = [
     { href: "/privacy-policy", label: "Privacy Policy" },
     { href: "/terms", label: "Terms of Service" },
     { href: "/hipaa", label: "HIPAA Notice" },
-    { href: "/accessibility", label: "Accessibility" }
+    { href: "/accessibility", label: "Accessibility" },
   ];
 
-  // Social media links
   const socialMedia = [
-    { icon: <Instagram className="h-4 w-4" />, href: officeInfo.socialMedia.instagram, label: "Instagram", rel: "noopener noreferrer" }
+    {
+      icon: <Instagram className="h-4 w-4" />,
+      href: officeInfo.socialMedia.instagram,
+      label: "Instagram",
+      rel: "noopener noreferrer",
+    },
   ];
 
   const businessUrl = "https://www.chriswongdds.com";
 
+  if (variant === "conversion") {
+    return (
+      <footer className="border-t border-slate-200 bg-white/95">
+        <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div className="space-y-3">
+              <div>
+                <p className="text-sm font-semibold text-slate-900">
+                  Christopher B. Wong, DDS
+                </p>
+                <p className="mt-1 text-sm text-slate-600">
+                  Palo Alto dental care with thoughtful, conservative treatment.
+                </p>
+              </div>
+              <div className="flex flex-col gap-3 text-sm text-slate-600 sm:flex-row sm:flex-wrap sm:items-center">
+                <a
+                  href={`tel:${officeInfo.phoneE164}`}
+                  className="ui-focus-premium inline-flex items-center gap-2 text-slate-700 transition-colors hover:text-primary"
+                >
+                  <Phone className="h-4 w-4 text-primary" aria-hidden="true" />
+                  {officeInfo.phone}
+                </a>
+                <a
+                  href={officeInfo.mapUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ui-focus-premium inline-flex items-center gap-2 text-slate-700 transition-colors hover:text-primary"
+                >
+                  <MapPin className="h-4 w-4 text-primary" aria-hidden="true" />
+                  {officeInfo.address.line1}, {officeInfo.address.city}
+                </a>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-slate-600">
+              {legalLinks.slice(0, 3).map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="ui-link-premium px-1 py-0.5 text-slate-600"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <Separator className="my-6 bg-slate-200" />
+
+          <div className="flex flex-col gap-2 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+            <p>&copy; {currentYear} Christopher B. Wong, DDS. All rights reserved.</p>
+            <p>Regular privacy, HIPAA, and accessibility details remain available site-wide.</p>
+          </div>
+        </div>
+      </footer>
+    );
+  }
+
   return (
     <footer className="bg-primary bg-opacity-95 text-white">
-      {/* Desktop footer - hidden on mobile */}
-      <div className="hidden md:block py-12">
+      <div className="hidden py-12 md:block">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10">
-            {/* Practice Info */}
             <div itemScope itemType="https://schema.org/Dentist">
               <meta itemProp="url" content={businessUrl} />
-              <h3 className="text-lg font-medium tracking-tight mb-4" itemProp="name">Dr. Christopher B. Wong</h3>
+              <h3 className="text-lg font-medium tracking-tight mb-4" itemProp="name">
+                Dr. Christopher B. Wong
+              </h3>
               <p className="text-sm text-white/80 mb-6 leading-relaxed">
                 Comprehensive dental care in a comfortable, state-of-the-art environment.
               </p>
@@ -102,9 +173,9 @@ const Footer = () => {
                 </div>
                 <div className="flex space-x-3 mt-3">
                   {socialMedia.map((social, index) => (
-                    <a 
-                      key={index} 
-                      href={social.href} 
+                    <a
+                      key={index}
+                      href={social.href}
                       className="ui-link-premium-dark rounded-full bg-white/10 p-2 text-white/80"
                       aria-label={social.label}
                       rel="noopener noreferrer"
@@ -117,14 +188,16 @@ const Footer = () => {
                 </div>
               </div>
             </div>
-            
-            {/* Quick Links */}
+
             <div>
               <h3 className="text-sm uppercase tracking-wider mb-4 font-medium">Quick Links</h3>
               <ul className="space-y-3">
                 {quickLinks.map((link, index) => (
                   <li key={index} className="text-sm text-white/80">
-                    <Link href={link.href} className="group inline-flex items-center ui-link-premium-dark px-1 py-0.5 text-white/80">
+                    <Link
+                      href={link.href}
+                      className="group inline-flex items-center ui-link-premium-dark px-1 py-0.5 text-white/80"
+                    >
                       <span>{link.label}</span>
                       <ExternalLink
                         className="ml-1 h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100"
@@ -135,8 +208,7 @@ const Footer = () => {
                 ))}
               </ul>
             </div>
-            
-            {/* Services */}
+
             <div>
               <h3 className="text-sm uppercase tracking-wider mb-4 font-medium">Services</h3>
               <ul className="space-y-3">
@@ -150,9 +222,9 @@ const Footer = () => {
               </ul>
             </div>
           </div>
-          
+
           <Separator className="my-8 bg-white/20" />
-          
+
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex flex-col items-center md:items-start">
               <p className="text-xs text-white/70">&copy; {currentYear} Christopher B. Wong, DDS. All rights reserved.</p>
@@ -161,9 +233,9 @@ const Footer = () => {
               </p>
               <p className="text-xs text-white/50 mt-1">
                 website built by{" "}
-                <a 
-                  href="https://www.design-prism.com/case-studies/dr-christopher-wong?utm_source=drwong&utm_medium=referral&utm_campaign=drwong_2025-07" 
-                  target="_blank" 
+                <a
+                  href="https://www.design-prism.com/case-studies/dr-christopher-wong?utm_source=drwong&utm_medium=referral&utm_campaign=drwong_2025-07"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="ui-link-premium-dark px-1 py-0.5 text-white/70"
                 >
@@ -195,19 +267,18 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* Mobile footer - visible only on mobile */}
-      <div className="md:hidden py-8">
+      <div className="py-8 md:hidden">
         <div className="max-w-md mx-auto px-5">
           <div className="text-center mb-8" itemScope itemType="https://schema.org/Dentist">
             <meta itemProp="url" content={businessUrl} />
             <h3 className="text-lg font-medium mb-2" itemProp="name">Dr. Christopher B. Wong</h3>
             <p className="text-sm text-white/80 mb-4">Comprehensive dental care in Palo Alto</p>
-            
+
             <div className="flex justify-center space-x-3 mb-4">
               {socialMedia.map((social, index) => (
-                <a 
-                  key={index} 
-                  href={social.href} 
+                <a
+                  key={index}
+                  href={social.href}
                   className="ui-link-premium-dark rounded-full bg-white/10 p-2 text-white/80"
                   aria-label={social.label}
                   rel="noopener noreferrer"
@@ -218,8 +289,7 @@ const Footer = () => {
               ))}
             </div>
           </div>
-          
-          {/* Contact info for mobile */}
+
           <div className="bg-white/10 rounded-lg p-4 mb-6">
             <div className="space-y-3">
               <p className="flex items-center text-sm">
@@ -253,8 +323,7 @@ const Footer = () => {
               </div>
             </div>
           </div>
-          
-          {/* Accordion menu for mobile */}
+
           <Accordion type="single" collapsible className="mb-8">
             <AccordionItem value="quick-links" className="border-white/20">
               <AccordionTrigger className="text-sm py-3 text-white hover:text-white">
@@ -272,7 +341,7 @@ const Footer = () => {
                 </ul>
               </AccordionContent>
             </AccordionItem>
-            
+
             <AccordionItem value="services" className="border-white/20">
               <AccordionTrigger className="text-sm py-3 text-white hover:text-white">
                 Our Services
@@ -290,9 +359,9 @@ const Footer = () => {
               </AccordionContent>
             </AccordionItem>
           </Accordion>
-          
+
           <Separator className="bg-white/20 mb-6" />
-          
+
           <div className="text-center">
             <p className="text-xs text-white/70 mb-2">&copy; {currentYear} Christopher B. Wong, DDS. All rights reserved.</p>
             <p className="text-xs text-white/50 mb-2">
@@ -300,9 +369,9 @@ const Footer = () => {
             </p>
             <p className="text-xs text-white/50 mb-4">
               website built by{" "}
-              <a 
-                href="https://www.design-prism.com/case-studies/dr-christopher-wong?utm_source=drwong&utm_medium=referral&utm_campaign=drwong_2025-07" 
-                target="_blank" 
+              <a
+                href="https://www.design-prism.com/case-studies/dr-christopher-wong?utm_source=drwong&utm_medium=referral&utm_campaign=drwong_2025-07"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="ui-link-premium-dark px-1 py-0.5 text-white/70"
               >

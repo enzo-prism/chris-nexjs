@@ -4,7 +4,18 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type Control, type FieldPath, useForm } from "react-hook-form";
 import { z } from "zod";
-import { CheckCircle2, ChevronLeft, ChevronRight, PhoneCall, TriangleAlert } from "lucide-react";
+import {
+  CalendarDays,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  Clock3,
+  Mail,
+  Phone,
+  PhoneCall,
+  ShieldCheck,
+  TriangleAlert,
+} from "lucide-react";
 import { trackGAEvent } from "@/lib/analytics";
 import { officeInfo } from "@/lib/data";
 import { Button } from "@/components/ui/button";
@@ -55,7 +66,9 @@ const scheduleFormSchema = z
         (value) =>
           value === undefined ||
           value === "" ||
-          preferredTimeOptions.includes(value as (typeof preferredTimeOptions)[number]),
+          preferredTimeOptions.includes(
+            value as (typeof preferredTimeOptions)[number],
+          ),
         { message: "Please select a preferred time." },
       ),
     firstName: z.string().trim().min(1, "First name is required.").max(40),
@@ -103,8 +116,17 @@ type ScheduleFormValues = z.infer<typeof scheduleFormSchema>;
 
 type SubmitStatus = "idle" | "submitting" | "success" | "error";
 type StepName = "visit_needs" | "contact_details" | "scheduling_preferences";
-type StepMeta = { index: number; name: StepName; title: string; description: string };
-type FieldErrorSummary = { field: FieldPath<ScheduleFormValues>; message: string };
+type StepMeta = {
+  index: number;
+  name: StepName;
+  title: string;
+  description: string;
+};
+type FieldErrorSummary = {
+  field: FieldPath<ScheduleFormValues>;
+  message: string;
+};
+type FormPresentation = "default" | "funnel";
 
 const extractUtmParams = (url: string): Record<string, string> => {
   try {
@@ -112,14 +134,18 @@ const extractUtmParams = (url: string): Record<string, string> => {
     const params = new URLSearchParams(parsed.search);
     const utmValues: Record<string, string> = {};
 
-    ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"].forEach(
-      (key) => {
-        const value = params.get(key);
-        if (value) {
-          utmValues[key] = value;
-        }
-      },
-    );
+    [
+      "utm_source",
+      "utm_medium",
+      "utm_campaign",
+      "utm_term",
+      "utm_content",
+    ].forEach((key) => {
+      const value = params.get(key);
+      if (value) {
+        utmValues[key] = value;
+      }
+    });
 
     return utmValues;
   } catch {
@@ -129,6 +155,7 @@ const extractUtmParams = (url: string): Record<string, string> => {
 
 type AppointmentFormProps = {
   readonly className?: string;
+  readonly presentation?: FormPresentation;
 };
 
 const visitNeedsFields: FieldPath<ScheduleFormValues>[] = [
@@ -148,9 +175,30 @@ const contactFields: FieldPath<ScheduleFormValues>[] = [
 const preferenceFields: FieldPath<ScheduleFormValues>[] = [
   "preferredDays",
   "preferredTime",
-  "insuranceProvider",
-  "message",
 ];
+
+const schedulingModeDetails: Record<ScheduleFormValues["schedulingMode"], {
+  title: string;
+  description: string;
+  icon: typeof Clock3;
+}> = {
+  first_available: {
+    title: "First available opening",
+    description: "Best if you want the quickest visit with the fewest choices.",
+    icon: Clock3,
+  },
+  choose_preferences: {
+    title: "Choose days and times",
+    description: "Best if you want to share windows that fit your schedule.",
+    icon: CalendarDays,
+  },
+};
+
+const contactPreferenceHints: Record<string, string> = {
+  phone: "Best for quick confirmations",
+  text: "Great for short updates",
+  email: "Best if you prefer written details",
+};
 
 const getDeviceType = (): "mobile" | "tablet" | "desktop" | "unknown" => {
   if (typeof window === "undefined") {
@@ -168,20 +216,157 @@ const getDeviceType = (): "mobile" | "tablet" | "desktop" | "unknown" => {
   return "desktop";
 };
 
-type VisitNeedsStepProps = {
+const getChoiceCardClasses = (
+  presentation: FormPresentation,
+  selected: boolean,
+  centered = false,
+): string =>
+  cn(
+    presentation === "funnel"
+      ? [
+          "ui-focus-premium flex min-h-14 cursor-pointer rounded-[22px] border px-4 py-4 transition-[border-color,background-color,box-shadow,transform]",
+          centered ? "flex-col items-start text-left sm:items-center sm:text-center" : "items-start justify-start text-left",
+          selected
+            ? "border-primary/45 bg-primary/[0.07] shadow-[0_18px_36px_-28px_rgba(37,99,235,0.65)]"
+            : "border-slate-200 bg-white hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/[0.02]",
+        ]
+      : [
+          "ui-chip-interactive flex min-h-11 cursor-pointer px-4 py-3 text-sm font-medium focus-within:border-primary focus-within:shadow-[var(--ui-focus-shadow)]",
+          centered ? "items-center justify-center text-center" : "items-center justify-start",
+        ],
+  );
+
+const getFunnelInputClasses = (): string =>
+  "h-12 rounded-2xl border-slate-200 bg-slate-50/75 px-4 text-[15px] text-slate-900 placeholder:text-slate-400 hover:border-primary/30 focus-visible:bg-white";
+
+const getFunnelTextareaClasses = (): string =>
+  "rounded-2xl border-slate-200 bg-slate-50/75 px-4 py-3 text-[15px] text-slate-900 placeholder:text-slate-400 hover:border-primary/30 focus-visible:bg-white";
+
+type OptionalDetailsFieldsProps = {
   control: Control<ScheduleFormValues>;
+  presentation: FormPresentation;
+  remainingNotesCharacters: number;
+  collapsible?: boolean;
 };
 
-const VisitNeedsStep = ({ control }: VisitNeedsStepProps) => {
+const OptionalDetailsFields = ({
+  control,
+  presentation,
+  remainingNotesCharacters,
+  collapsible = false,
+}: OptionalDetailsFieldsProps) => {
+  const fieldContent = (
+    <div className={cn(presentation === "funnel" ? "space-y-5" : "space-y-6")}>
+      <FormField
+        control={control}
+        name="insuranceProvider"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Dental Insurance Provider (Optional)</FormLabel>
+            <FormControl>
+              <Input
+                inputMode="text"
+                autoComplete="organization"
+                placeholder="Delta Dental, MetLife, Aetna..."
+                maxLength={80}
+                className={
+                  presentation === "funnel" ? getFunnelInputClasses() : "h-11"
+                }
+                {...field}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={control}
+        name="message"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Additional Notes (Optional)</FormLabel>
+            <FormControl>
+              <Textarea
+                placeholder="Share anything helpful such as pain, referral details, treatment goals, or insurance notes."
+                maxLength={300}
+                rows={presentation === "funnel" ? 5 : 4}
+                className={
+                  presentation === "funnel" ? getFunnelTextareaClasses() : undefined
+                }
+                {...field}
+                value={field.value ?? ""}
+              />
+            </FormControl>
+            <p className="mt-1 text-xs text-slate-500">
+              {remainingNotesCharacters} characters left.
+            </p>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </div>
+  );
+
+  if (!collapsible) {
+    return fieldContent;
+  }
+
   return (
-    <div className="space-y-6">
+    <details className="group rounded-[24px] border border-dashed border-slate-300 bg-slate-50/70 open:bg-white">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 [&::-webkit-details-marker]:hidden">
+        <div>
+          <p className="text-sm font-semibold text-slate-900">Optional details</p>
+          <p className="mt-1 text-sm leading-6 text-slate-600">
+            Add insurance information or anything else you want our team to know.
+          </p>
+        </div>
+        <ChevronRight className="h-4 w-4 shrink-0 text-slate-400 transition-transform group-open:rotate-90" aria-hidden="true" />
+      </summary>
+      <div className="border-t border-slate-200 px-5 py-5">{fieldContent}</div>
+    </details>
+  );
+};
+
+type VisitNeedsStepProps = {
+  control: Control<ScheduleFormValues>;
+  presentation: FormPresentation;
+};
+
+const VisitNeedsStep = ({ control, presentation }: VisitNeedsStepProps) => {
+  const funnelIntro =
+    presentation === "funnel" ? (
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary/70">
+            Visit Details
+          </p>
+          <h3 className="text-xl font-semibold tracking-tight text-slate-950 sm:text-2xl">
+            What can we help you with?
+          </h3>
+          <p className="max-w-2xl text-sm leading-6 text-slate-600">
+            Choose the visit you need, then decide whether you want the first opening or your own preferred times.
+          </p>
+        </div>
+      </div>
+    ) : null;
+
+  return (
+    <div className={cn(presentation === "funnel" ? "space-y-8" : "space-y-6")}>
+      {funnelIntro}
+
       <FormField
         control={control}
         name="isEmergency"
         render={({ field }) => (
           <FormItem>
             <label
-              className="ui-focus-premium flex min-h-11 items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 transition-[border-color,background-color,box-shadow] hover:border-primary/40 focus-within:border-primary focus-within:shadow-[var(--ui-focus-shadow)]"
+              className={cn(
+                "ui-focus-premium flex min-h-11 items-start gap-3 transition-[border-color,background-color,box-shadow] focus-within:border-primary focus-within:shadow-[var(--ui-focus-shadow)]",
+                presentation === "funnel"
+                  ? "rounded-[24px] border border-rose-200 bg-rose-50/70 px-5 py-4 hover:border-rose-300"
+                  : "rounded-xl border border-slate-200 bg-slate-50 p-3 hover:border-primary/40",
+              )}
             >
               <FormControl>
                 <Checkbox
@@ -189,10 +374,10 @@ const VisitNeedsStep = ({ control }: VisitNeedsStepProps) => {
                   onCheckedChange={(checked) => field.onChange(Boolean(checked))}
                   id="appointment-emergency"
                   aria-describedby="appointment-emergency-help"
-                  className="h-5 w-5"
+                  className="mt-0.5 h-5 w-5"
                 />
               </FormControl>
-              <div className="text-sm text-[#333333]">
+              <div className={cn("text-sm", presentation === "funnel" ? "text-slate-700" : "text-[#333333]")}>
                 <Label
                   htmlFor="appointment-emergency"
                   className="font-semibold leading-relaxed"
@@ -201,9 +386,12 @@ const VisitNeedsStep = ({ control }: VisitNeedsStepProps) => {
                 </Label>
                 <p
                   id="appointment-emergency-help"
-                  className="mt-1 text-xs text-slate-500"
+                  className={cn(
+                    "mt-1 text-xs",
+                    presentation === "funnel" ? "text-rose-700/80" : "text-slate-500",
+                  )}
                 >
-                  Select this and we&apos;ll prioritize your request.
+                  Select this and we&apos;ll prioritize the earliest appropriate follow-up.
                 </p>
               </div>
             </label>
@@ -216,10 +404,17 @@ const VisitNeedsStep = ({ control }: VisitNeedsStepProps) => {
         name="appointmentType"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Appointment Type</FormLabel>
+            <div className="space-y-2">
+              <FormLabel>Appointment Type</FormLabel>
+              {presentation === "funnel" ? (
+                <p className="text-sm leading-6 text-slate-600">
+                  Pick the option that best matches why you&apos;re reaching out.
+                </p>
+              ) : null}
+            </div>
             <FormControl>
               <RadioGroup
-                className="grid gap-2"
+                className={cn(presentation === "funnel" ? "grid gap-3" : "grid gap-2")}
                 value={field.value}
                 onValueChange={field.onChange}
                 aria-label="Appointment Type"
@@ -230,14 +425,22 @@ const VisitNeedsStep = ({ control }: VisitNeedsStepProps) => {
                     <label
                       key={option}
                       data-selected={isSelected ? "true" : "false"}
-                      className="ui-chip-interactive flex min-h-11 cursor-pointer items-center justify-start px-4 py-3 text-sm font-medium focus-within:border-primary focus-within:shadow-[var(--ui-focus-shadow)]"
+                      className={getChoiceCardClasses(presentation, isSelected)}
                     >
                       <RadioGroupItem
                         value={option}
                         id={`appointment-type-${option.replace(/\W+/g, "-").toLowerCase()}`}
                         className="sr-only"
                       />
-                      <span>{option}</span>
+                      <span
+                        className={cn(
+                          presentation === "funnel"
+                            ? "text-sm font-semibold leading-6 text-slate-900"
+                            : "text-sm font-medium",
+                        )}
+                      >
+                        {option}
+                      </span>
                     </label>
                   );
                 })}
@@ -253,36 +456,64 @@ const VisitNeedsStep = ({ control }: VisitNeedsStepProps) => {
         name="schedulingMode"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Scheduling Preference</FormLabel>
+            <div className="space-y-2">
+              <FormLabel>Scheduling Preference</FormLabel>
+              {presentation === "funnel" ? (
+                <p className="text-sm leading-6 text-slate-600">
+                  Keep it simple with the first opening, or share the windows that fit your calendar.
+                </p>
+              ) : null}
+            </div>
             <FormControl>
               <RadioGroup
-                className="grid grid-cols-1 gap-2 sm:grid-cols-2"
+                className={cn(
+                  presentation === "funnel" ? "grid gap-3 sm:grid-cols-2" : "grid grid-cols-1 gap-2 sm:grid-cols-2",
+                )}
                 value={field.value}
                 onValueChange={field.onChange}
                 aria-label="Scheduling preference"
               >
-                <label
-                  data-selected={field.value === "first_available" ? "true" : "false"}
-                  className="ui-chip-interactive flex min-h-11 cursor-pointer items-center justify-start px-4 py-3 text-sm font-medium focus-within:border-primary focus-within:shadow-[var(--ui-focus-shadow)]"
-                >
-                  <RadioGroupItem
-                    value="first_available"
-                    id="scheduling-mode-first-available"
-                    className="sr-only"
-                  />
-                  <span>Give me the first available opening</span>
-                </label>
-                <label
-                  data-selected={field.value === "choose_preferences" ? "true" : "false"}
-                  className="ui-chip-interactive flex min-h-11 cursor-pointer items-center justify-start px-4 py-3 text-sm font-medium focus-within:border-primary focus-within:shadow-[var(--ui-focus-shadow)]"
-                >
-                  <RadioGroupItem
-                    value="choose_preferences"
-                    id="scheduling-mode-choose-preferences"
-                    className="sr-only"
-                  />
-                  <span>I want to choose preferred days and times</span>
-                </label>
+                {(Object.entries(schedulingModeDetails) as Array<[
+                  ScheduleFormValues["schedulingMode"],
+                  (typeof schedulingModeDetails)[ScheduleFormValues["schedulingMode"]],
+                ]>).map(([value, meta]) => {
+                  const isSelected = field.value === value;
+                  const Icon = meta.icon;
+                  return (
+                    <label
+                      key={value}
+                      data-selected={isSelected ? "true" : "false"}
+                      className={getChoiceCardClasses(presentation, isSelected)}
+                    >
+                      <RadioGroupItem
+                        value={value}
+                        id={`scheduling-mode-${value}`}
+                        className="sr-only"
+                      />
+                      {presentation === "funnel" ? (
+                        <div className="flex items-start gap-3">
+                          <div className="mt-0.5 rounded-full bg-primary/[0.08] p-2 text-primary">
+                            <Icon className="h-4 w-4" aria-hidden="true" />
+                          </div>
+                          <div>
+                            <span className="block text-sm font-semibold leading-6 text-slate-900">
+                              {meta.title}
+                            </span>
+                            <span className="mt-1 block text-sm leading-6 text-slate-600">
+                              {meta.description}
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <span>
+                          {value === "first_available"
+                            ? "Give me the first available opening"
+                            : "I want to choose preferred days and times"}
+                        </span>
+                      )}
+                    </label>
+                  );
+                })}
               </RadioGroup>
             </FormControl>
             <FormMessage />
@@ -295,12 +526,37 @@ const VisitNeedsStep = ({ control }: VisitNeedsStepProps) => {
 
 type ContactStepProps = {
   control: Control<ScheduleFormValues>;
+  presentation: FormPresentation;
+  remainingNotesCharacters: number;
 };
 
-const ContactStep = ({ control }: ContactStepProps) => {
+const ContactStep = ({
+  control,
+  presentation,
+  remainingNotesCharacters,
+}: ContactStepProps) => {
   return (
-    <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2">
+    <div className={cn(presentation === "funnel" ? "space-y-8" : "space-y-6")}>
+      {presentation === "funnel" ? (
+        <div className="space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary/70">
+            Contact Details
+          </p>
+          <h3 className="text-xl font-semibold tracking-tight text-slate-950 sm:text-2xl">
+            How should we reach you?
+          </h3>
+          <p className="max-w-2xl text-sm leading-6 text-slate-600">
+            We&apos;ll only use this information to confirm your visit and answer scheduling questions.
+          </p>
+        </div>
+      ) : null}
+
+      <div
+        className={cn(
+          "grid md:grid-cols-2",
+          presentation === "funnel" ? "gap-5" : "gap-4",
+        )}
+      >
         <FormField
           control={control}
           name="firstName"
@@ -313,7 +569,9 @@ const ContactStep = ({ control }: ContactStepProps) => {
                   placeholder="Jane"
                   maxLength={40}
                   autoComplete="given-name"
-                  className="h-11"
+                  className={
+                    presentation === "funnel" ? getFunnelInputClasses() : "h-11"
+                  }
                   {...field}
                 />
               </FormControl>
@@ -333,7 +591,62 @@ const ContactStep = ({ control }: ContactStepProps) => {
                   placeholder="Doe"
                   maxLength={40}
                   autoComplete="family-name"
-                  className="h-11"
+                  className={
+                    presentation === "funnel" ? getFunnelInputClasses() : "h-11"
+                  }
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
+      <div
+        className={cn(
+          "grid md:grid-cols-2",
+          presentation === "funnel" ? "gap-5" : "gap-4",
+        )}
+      >
+        <FormField
+          control={control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Phone Number</FormLabel>
+              <FormControl>
+                <Input
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  placeholder="(650) 555-1234"
+                  className={
+                    presentation === "funnel" ? getFunnelInputClasses() : "h-11"
+                  }
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  placeholder="jane.doe@example.com"
+                  className={
+                    presentation === "funnel" ? getFunnelInputClasses() : "h-11"
+                  }
                   {...field}
                 />
               </FormControl>
@@ -345,73 +658,55 @@ const ContactStep = ({ control }: ContactStepProps) => {
 
       <FormField
         control={control}
-        name="phone"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Phone Number</FormLabel>
-            <FormControl>
-              <Input
-                type="tel"
-                inputMode="tel"
-                autoComplete="tel"
-                placeholder="(650) 555-1234"
-                className="h-11"
-                {...field}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={control}
-        name="email"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Email</FormLabel>
-            <FormControl>
-              <Input
-                type="email"
-                inputMode="email"
-                autoComplete="email"
-                placeholder="jane.doe@example.com"
-                className="h-11"
-                {...field}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={control}
         name="contactPreference"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Preferred Contact Method</FormLabel>
+            <div className="space-y-2">
+              <FormLabel>Preferred Contact Method</FormLabel>
+              {presentation === "funnel" ? (
+                <p className="text-sm leading-6 text-slate-600">
+                  We&apos;ll try this option first when confirming your appointment.
+                </p>
+              ) : null}
+            </div>
             <FormControl>
               <RadioGroup
-                className="grid grid-cols-1 gap-2 sm:grid-cols-3"
+                className={cn(
+                  presentation === "funnel" ? "grid grid-cols-1 gap-3 sm:grid-cols-3" : "grid grid-cols-1 gap-2 sm:grid-cols-3",
+                )}
                 value={field.value}
                 onValueChange={field.onChange}
                 aria-label="Preferred contact method"
               >
                 {contactPreferenceOptions.map((option) => {
                   const isSelected = field.value === option;
+                  const Icon = option === "email" ? Mail : Phone;
                   return (
                     <label
                       key={option}
                       data-selected={isSelected ? "true" : "false"}
-                      className="ui-chip-interactive flex min-h-11 cursor-pointer items-center justify-center px-3 py-3 text-sm font-medium capitalize focus-within:border-primary focus-within:shadow-[var(--ui-focus-shadow)]"
+                      className={getChoiceCardClasses(presentation, isSelected, true)}
                     >
                       <RadioGroupItem
                         value={option}
                         id={`contact-preference-${option}`}
                         className="sr-only"
                       />
-                      <span>{option}</span>
+                      {presentation === "funnel" ? (
+                        <>
+                          <span className="inline-flex rounded-full bg-primary/[0.08] p-2 text-primary">
+                            <Icon className="h-4 w-4" aria-hidden="true" />
+                          </span>
+                          <span className="mt-3 block text-sm font-semibold capitalize leading-6 text-slate-900">
+                            {option}
+                          </span>
+                          <span className="mt-1 block text-xs leading-5 text-slate-500">
+                            {contactPreferenceHints[option] ?? "We'll use this to follow up."}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-sm font-medium capitalize">{option}</span>
+                      )}
                     </label>
                   );
                 })}
@@ -421,18 +716,46 @@ const ContactStep = ({ control }: ContactStepProps) => {
           </FormItem>
         )}
       />
+
+      {presentation === "funnel" ? (
+        <OptionalDetailsFields
+          control={control}
+          presentation={presentation}
+          remainingNotesCharacters={remainingNotesCharacters}
+          collapsible
+        />
+      ) : null}
     </div>
   );
 };
 
 type PreferenceStepProps = {
   control: Control<ScheduleFormValues>;
+  presentation: FormPresentation;
   remainingNotesCharacters: number;
 };
 
-const PreferenceStep = ({ control, remainingNotesCharacters }: PreferenceStepProps) => {
+const PreferenceStep = ({
+  control,
+  presentation,
+  remainingNotesCharacters,
+}: PreferenceStepProps) => {
   return (
-    <div className="space-y-6">
+    <div className={cn(presentation === "funnel" ? "space-y-8" : "space-y-6")}>
+      {presentation === "funnel" ? (
+        <div className="space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary/70">
+            Scheduling Preferences
+          </p>
+          <h3 className="text-xl font-semibold tracking-tight text-slate-950 sm:text-2xl">
+            Share the times that work best
+          </h3>
+          <p className="max-w-2xl text-sm leading-6 text-slate-600">
+            Pick up to three days and the part of the day that usually works best.
+          </p>
+        </div>
+      ) : null}
+
       <FormField
         control={control}
         name="preferredDays"
@@ -440,8 +763,15 @@ const PreferenceStep = ({ control, remainingNotesCharacters }: PreferenceStepPro
           const values: Array<(typeof preferredDayOptions)[number]> = field.value ?? [];
           return (
             <FormItem>
+              <div className="space-y-2">
               <FormLabel>Preferred Days (choose up to 3)</FormLabel>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {presentation === "funnel" ? (
+                <p className="text-sm leading-6 text-slate-600">
+                  Friday visits are usually available through early afternoon.
+                </p>
+              ) : null}
+            </div>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {preferredDayOptions.map((day) => {
                   const checked = values.includes(day);
                   return (
@@ -449,9 +779,9 @@ const PreferenceStep = ({ control, remainingNotesCharacters }: PreferenceStepPro
                       key={day}
                       htmlFor={`preferred-day-${day}`}
                       data-selected={checked ? "true" : "false"}
-                      className="ui-chip-interactive flex min-h-11 cursor-pointer items-center justify-between px-4 py-3 text-sm font-medium focus-within:border-primary focus-within:shadow-[var(--ui-focus-shadow)]"
+                      className={getChoiceCardClasses(presentation, checked)}
                     >
-                      <span>{day}</span>
+                      <span className="text-sm font-semibold text-slate-900">{day}</span>
                       <Checkbox
                         id={`preferred-day-${day}`}
                         checked={checked}
@@ -461,15 +791,17 @@ const PreferenceStep = ({ control, remainingNotesCharacters }: PreferenceStepPro
                             : values.filter((value) => value !== day);
                           field.onChange(nextValues);
                         }}
-                        className="h-5 w-5"
+                        className="ml-auto h-5 w-5"
                       />
                     </label>
                   );
                 })}
               </div>
-              <p className="text-xs text-slate-500">
-                Friday appointments are available through early afternoon.
-              </p>
+              {presentation === "default" ? (
+                <p className="text-xs text-slate-500">
+                  Friday appointments are available through early afternoon.
+                </p>
+              ) : null}
               <FormMessage />
             </FormItem>
           );
@@ -481,10 +813,17 @@ const PreferenceStep = ({ control, remainingNotesCharacters }: PreferenceStepPro
         name="preferredTime"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Preferred Time of Day</FormLabel>
+            <div className="space-y-2">
+              <FormLabel>Preferred Time of Day</FormLabel>
+              {presentation === "funnel" ? (
+                <p className="text-sm leading-6 text-slate-600">
+                  Choose the window that is easiest for you and we&apos;ll do our best to match it.
+                </p>
+              ) : null}
+            </div>
             <FormControl>
               <RadioGroup
-                className="grid grid-cols-1 gap-2"
+                className={cn(presentation === "funnel" ? "grid gap-3" : "grid grid-cols-1 gap-2")}
                 value={field.value}
                 onValueChange={field.onChange}
                 aria-label="Preferred Time of Day"
@@ -495,14 +834,14 @@ const PreferenceStep = ({ control, remainingNotesCharacters }: PreferenceStepPro
                     <label
                       key={option}
                       data-selected={isSelected ? "true" : "false"}
-                      className="ui-chip-interactive flex min-h-11 cursor-pointer items-center justify-start px-4 py-3 text-sm font-medium focus-within:border-primary focus-within:shadow-[var(--ui-focus-shadow)]"
+                      className={getChoiceCardClasses(presentation, isSelected)}
                     >
                       <RadioGroupItem
                         value={option}
                         id={`preferred-time-${option.replace(/\W+/g, "-").toLowerCase()}`}
                         className="sr-only"
                       />
-                      <span>{option}</span>
+                      <span className="text-sm font-semibold text-slate-900">{option}</span>
                     </label>
                   );
                 })}
@@ -513,54 +852,21 @@ const PreferenceStep = ({ control, remainingNotesCharacters }: PreferenceStepPro
         )}
       />
 
-      <FormField
-        control={control}
-        name="insuranceProvider"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Dental Insurance Provider (Optional)</FormLabel>
-            <FormControl>
-              <Input
-                inputMode="text"
-                autoComplete="organization"
-                placeholder="Delta Dental, MetLife, Aetna..."
-                maxLength={80}
-                className="h-11"
-                {...field}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={control}
-        name="message"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Additional Notes (Optional)</FormLabel>
-            <FormControl>
-              <Textarea
-                placeholder="Share anything helpful (pain, referral, treatment goals, insurance details, etc.)"
-                maxLength={300}
-                rows={4}
-                {...field}
-                value={field.value ?? ""}
-              />
-            </FormControl>
-            <p className="mt-1 text-xs text-slate-500">
-              {remainingNotesCharacters} characters left.
-            </p>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      {presentation === "default" ? (
+        <OptionalDetailsFields
+          control={control}
+          presentation={presentation}
+          remainingNotesCharacters={remainingNotesCharacters}
+        />
+      ) : null}
     </div>
   );
 };
 
-const AppointmentForm = ({ className = "" }: AppointmentFormProps) => {
+const AppointmentForm = ({
+  className = "",
+  presentation = "default",
+}: AppointmentFormProps) => {
   const [step, setStep] = useState<number>(1);
   const [status, setStatus] = useState<SubmitStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -569,7 +875,7 @@ const AppointmentForm = ({ className = "" }: AppointmentFormProps) => {
   const hasTrackedView = useRef(false);
   const completionStateRef = useRef(false);
   const abandonmentTimersRef = useRef<number[]>([]);
-  const lastStepViewRef = useRef<string>("");
+  const lastStepViewRef = useRef("");
   const stepTrackingRef = useRef<{ index: number; name: StepName }>({
     index: 1,
     name: "visit_needs",
@@ -916,61 +1222,143 @@ const AppointmentForm = ({ className = "" }: AppointmentFormProps) => {
     }
   };
 
+  const onInvalidSubmit = () => {
+    const currentFields = fieldsForStep(activeStep);
+    const errors = updateErrorSummary(currentFields);
+    trackFieldErrors(errors);
+    if (errors[0]) {
+      setFocus(errors[0].field);
+    }
+  };
+
   if (status === "success") {
     return (
       <div
-        className="rounded-xl border border-emerald-100 bg-emerald-50 p-6 text-center"
+        className={cn(
+          presentation === "funnel"
+            ? "rounded-[28px] border border-emerald-100 bg-[linear-gradient(180deg,#f3fbf6_0%,#ffffff_100%)] px-6 py-10 text-center shadow-[0_30px_90px_-60px_rgba(22,101,52,0.45)] sm:px-10"
+            : "rounded-xl border border-emerald-100 bg-emerald-50 p-6 text-center",
+        )}
         role="status"
       >
-        <div className="inline-flex items-center justify-center rounded-full bg-emerald-100 p-2">
+        <div className="inline-flex items-center justify-center rounded-full bg-emerald-100 p-3">
           <CheckCircle2 className="h-8 w-8 text-emerald-600" aria-hidden="true" />
         </div>
-        <h3 className="mt-4 text-xl font-bold text-[#164f37]">
-          Thanks — we&apos;ll be in touch shortly.
+        <p className="mt-5 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">
+          Request Received
+        </p>
+        <h3 className="mt-3 text-2xl font-bold tracking-tight text-slate-950">
+          We&apos;ll confirm your appointment shortly.
         </h3>
-        <p className="mt-3 text-sm text-[#145a2f]">
-          Our team will call or text you within one business day to confirm your appointment.
+        <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-slate-600">
+          Our team will follow up within one business day by phone or email to lock in your visit and answer any final questions.
         </p>
-        <p className="mt-4 text-lg font-semibold text-[#0f3f2a]">
-          Call us anytime at <a href={`tel:${officeInfo.phoneE164}`}>{officeInfo.phone}</a>
-        </p>
+        <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <a
+            href={`tel:${officeInfo.phoneE164}`}
+            className="ui-focus-premium inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5 hover:bg-primary/95"
+          >
+            <PhoneCall className="h-4 w-4" aria-hidden="true" />
+            Call {officeInfo.phone}
+          </a>
+          <a
+            href="/contact"
+            className="ui-focus-premium inline-flex min-h-11 items-center gap-2 rounded-full border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition-colors hover:border-primary/35 hover:text-primary"
+          >
+            View office details
+          </a>
+        </div>
       </div>
     );
   }
 
+  const progressWidth = `${(activeStep / totalSteps) * 100}%`;
+  const formClasses = cn(
+    presentation === "funnel" ? "space-y-8" : "space-y-6",
+    className,
+  );
+  const footerHint =
+    presentation === "funnel"
+      ? activeStep < totalSteps
+        ? "Most patients finish this form in under a minute."
+        : "We'll confirm your request by phone or email within one business day."
+      : "Response in one business day";
+
   return (
     <Form {...form}>
       <form
-        onSubmit={handleSubmit(onSubmit)}
-        className={className ? `space-y-6 ${className}` : "space-y-6"}
+        onSubmit={handleSubmit(onSubmit, onInvalidSubmit)}
+        className={formClasses}
         autoComplete="on"
       >
-        <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-            Step {activeStep} of {totalSteps}
-          </p>
-          <h4 className="mt-1 text-lg font-semibold text-[#333333]">{stepMeta.title}</h4>
-          <p className="mt-1 text-sm text-slate-600">{stepMeta.description}</p>
-          <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200">
-            <div
-              className="h-full rounded-full bg-primary transition-all duration-300 ease-out"
-              style={{ width: `${(activeStep / totalSteps) * 100}%` }}
-            />
+        {presentation === "funnel" ? (
+          <div className="space-y-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/70">
+                  Step {activeStep} of {totalSteps}
+                </p>
+                <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">
+                  {stepMeta.title}
+                </h2>
+              </div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-500">
+                <ShieldCheck className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+                Secure request
+              </div>
+            </div>
+            <p className="max-w-2xl text-sm leading-6 text-slate-600">
+              {stepMeta.description}
+            </p>
+            <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
+              <div
+                className="h-full rounded-full bg-primary transition-all duration-300 ease-out"
+                style={{ width: progressWidth }}
+              />
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+              Step {activeStep} of {totalSteps}
+            </p>
+            <h4 className="mt-1 text-lg font-semibold text-[#333333]">{stepMeta.title}</h4>
+            <p className="mt-1 text-sm text-slate-600">{stepMeta.description}</p>
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200">
+              <div
+                className="h-full rounded-full bg-primary transition-all duration-300 ease-out"
+                style={{ width: progressWidth }}
+              />
+            </div>
+          </div>
+        )}
 
-        {activeStep === 1 ? <VisitNeedsStep control={control} /> : null}
-        {activeStep === 2 ? <ContactStep control={control} /> : null}
+        {activeStep === 1 ? (
+          <VisitNeedsStep control={control} presentation={presentation} />
+        ) : null}
+        {activeStep === 2 ? (
+          <ContactStep
+            control={control}
+            presentation={presentation}
+            remainingNotesCharacters={remainingNotesCharacters}
+          />
+        ) : null}
         {activeStep === 3 ? (
           <PreferenceStep
             control={control}
+            presentation={presentation}
             remainingNotesCharacters={remainingNotesCharacters}
           />
         ) : null}
 
         {errorSummary.length > 0 ? (
           <div
-            className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"
+            className={cn(
+              "rounded-lg border p-3 text-sm",
+              presentation === "funnel"
+                ? "border-amber-200 bg-amber-50/90 text-amber-950"
+                : "border-amber-200 bg-amber-50 text-amber-900",
+            )}
             role="alert"
             aria-live="assertive"
           >
@@ -1001,56 +1389,103 @@ const AppointmentForm = ({ className = "" }: AppointmentFormProps) => {
           </p>
         ) : null}
 
-        <div
-          className={cn(
-            "sticky bottom-0 z-10 -mx-2 border-t border-slate-200 bg-white/95 px-2 pt-3 backdrop-blur",
-            "pb-[calc(env(safe-area-inset-bottom)+0.75rem)] sm:-mx-0 sm:px-0",
-          )}
-        >
-          <div className="mb-2 flex items-center justify-between gap-2">
-            <a
-              href={`tel:${officeInfo.phoneE164}`}
-              className="ui-focus-premium inline-flex min-h-11 items-center gap-2 rounded-lg border border-primary/30 px-3 py-2 text-sm font-semibold text-primary transition-colors hover:border-primary hover:bg-primary/5"
-            >
-              <PhoneCall className="h-4 w-4" aria-hidden="true" />
-              Need urgent help? Call now
-            </a>
-            <span className="text-xs text-slate-500">Response in one business day</span>
+        {presentation === "funnel" ? (
+          <div className="rounded-[24px] border border-slate-200 bg-slate-50/80 p-4 sm:p-5">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="max-w-md text-sm leading-6 text-slate-600">
+                {footerHint}
+              </div>
+              <div className="flex gap-2 sm:min-w-[300px] sm:justify-end">
+                {activeStep > 1 ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="ui-focus-premium min-h-11 flex-1 sm:flex-none"
+                    onClick={goToPreviousStep}
+                    disabled={isSubmitting || status === "submitting"}
+                  >
+                    <ChevronLeft className="mr-1 h-4 w-4" aria-hidden="true" />
+                    Back
+                  </Button>
+                ) : (
+                  <div className="hidden sm:block sm:flex-1" aria-hidden="true" />
+                )}
+                {activeStep < totalSteps ? (
+                  <Button
+                    type="button"
+                    className="ui-btn-primary min-h-11 flex-1 text-base font-semibold sm:min-w-[180px]"
+                    onClick={goToNextStep}
+                    disabled={isSubmitting || status === "submitting"}
+                  >
+                    Continue
+                    <ChevronRight className="ml-1 h-4 w-4" aria-hidden="true" />
+                  </Button>
+                ) : (
+                  <Button
+                    type="submit"
+                    className="ui-btn-primary min-h-11 flex-1 text-base font-semibold sm:min-w-[220px]"
+                    disabled={isSubmitting || status === "submitting"}
+                  >
+                    {isSubmitting || status === "submitting"
+                      ? "Submitting..."
+                      : "Request My Appointment"}
+                  </Button>
+                )}
+              </div>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              className="ui-focus-premium min-h-11 flex-1"
-              onClick={goToPreviousStep}
-              disabled={activeStep === 1 || isSubmitting || status === "submitting"}
-            >
-              <ChevronLeft className="mr-1 h-4 w-4" aria-hidden="true" />
-              Back
-            </Button>
-            {activeStep < totalSteps ? (
+        ) : (
+          <div
+            className={cn(
+              "sticky bottom-0 z-10 -mx-2 border-t border-slate-200 bg-white/95 px-2 pt-3 backdrop-blur",
+              "pb-[calc(env(safe-area-inset-bottom)+0.75rem)] sm:-mx-0 sm:px-0",
+            )}
+          >
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <a
+                href={`tel:${officeInfo.phoneE164}`}
+                className="ui-focus-premium inline-flex min-h-11 items-center gap-2 rounded-lg border border-primary/30 px-3 py-2 text-sm font-semibold text-primary transition-colors hover:border-primary hover:bg-primary/5"
+              >
+                <PhoneCall className="h-4 w-4" aria-hidden="true" />
+                Need urgent help? Call now
+              </a>
+              <span className="text-xs text-slate-500">{footerHint}</span>
+            </div>
+            <div className="flex gap-2">
               <Button
                 type="button"
-                className="ui-btn-primary min-h-11 flex-1 text-base font-semibold"
-                onClick={goToNextStep}
-                disabled={isSubmitting || status === "submitting"}
+                variant="outline"
+                className="ui-focus-premium min-h-11 flex-1"
+                onClick={goToPreviousStep}
+                disabled={activeStep === 1 || isSubmitting || status === "submitting"}
               >
-                Continue
-                <ChevronRight className="ml-1 h-4 w-4" aria-hidden="true" />
+                <ChevronLeft className="mr-1 h-4 w-4" aria-hidden="true" />
+                Back
               </Button>
-            ) : (
-              <Button
-                type="submit"
-                className="ui-btn-primary min-h-11 flex-1 text-base font-semibold"
-                disabled={isSubmitting || status === "submitting"}
-              >
-                {isSubmitting || status === "submitting"
-                  ? "Submitting…"
-                  : "Request My Appointment"}
-              </Button>
-            )}
+              {activeStep < totalSteps ? (
+                <Button
+                  type="button"
+                  className="ui-btn-primary min-h-11 flex-1 text-base font-semibold"
+                  onClick={goToNextStep}
+                  disabled={isSubmitting || status === "submitting"}
+                >
+                  Continue
+                  <ChevronRight className="ml-1 h-4 w-4" aria-hidden="true" />
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  className="ui-btn-primary min-h-11 flex-1 text-base font-semibold"
+                  disabled={isSubmitting || status === "submitting"}
+                >
+                  {isSubmitting || status === "submitting"
+                    ? "Submitting..."
+                    : "Request My Appointment"}
+                </Button>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </form>
     </Form>
   );

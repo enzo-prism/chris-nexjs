@@ -13,6 +13,7 @@ import SupplementalContent from "@/components/common/SupplementalContent";
 import StructuredData from "@/components/seo/StructuredData";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import type { ChromeVariant } from "@/lib/chrome";
 import {
   buildOrganizationSchema,
   buildPersonSchema,
@@ -40,6 +41,7 @@ type AppPageShellProps = {
   readonly helmetContext?: unknown;
   readonly enableQueryClient?: boolean;
   readonly enableHelmet?: boolean;
+  readonly chromeVariant?: ChromeVariant;
   readonly children?: ReactNode;
 };
 
@@ -72,6 +74,7 @@ export function AppPageShell({
   helmetContext,
   enableQueryClient = true,
   enableHelmet = true,
+  chromeVariant = "default",
   children,
 }: AppPageShellProps) {
   const client = queryClientOverride ?? queryClient;
@@ -91,12 +94,12 @@ export function AppPageShell({
         ]}
         id="global-organization-schema"
       />
-      <Header />
+      <Header variant={chromeVariant} />
       <main style={{ paddingTop: "var(--header-height, 110px)" }}>
         {children}
       </main>
-      <Footer />
-      <SupplementalContent />
+      <Footer variant={chromeVariant} />
+      {chromeVariant === "default" ? <SupplementalContent /> : null}
     </WouterRouter>
   );
 
