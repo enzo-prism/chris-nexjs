@@ -41,7 +41,7 @@ export const officeInfo = {
     },
   ],
   phone: "(650) 326-6319",
-  email: "info@drwongdental.com",
+  email: "chrisbwongdds@gmail.com",
   socialMedia: {
     facebook: "https://facebook.com/drwongdental",
     twitter: "https://twitter.com/drwongdental",
@@ -55,16 +55,16 @@ export type OfficeInfo = typeof officeInfo;
 export const holidayHours = {
   active: true,
   id: "office-hours-2026-04-06-through-2026-04-17",
-  title: "Temporary schedule update: April 6-17, 2026",
+  title: "Temporary schedule update: April 6 to April 17, 2026",
   description:
     "Dr. Wong will be out of the office during this stretch, so appointment availability and office hours may vary. The office will be fully closed Thursday, April 9, 2026 and Friday, April 10, 2026. Please call before visiting if you need to confirm availability or request the soonest appointment.",
   shortNotice:
-    "Dr. Wong will be out April 6-17, 2026. Availability may vary, and the office will be closed Thursday, April 9 and Friday, April 10. Please call to confirm before visiting.",
+    "Dr. Wong will be out from April 6 to April 17, 2026. Availability may vary, and the office will be closed Thursday, April 9 and Friday, April 10. Please call to confirm before visiting.",
   footerNote:
-    "Outside April 6-17, 2026, regular weekly hours apply.",
+    "Outside April 6 to April 17, 2026, regular weekly hours apply.",
   entries: [
     {
-      day: "Mon-Wed, Apr 6-8",
+      day: "Mon, Apr 6 to Wed, Apr 8",
       hours: "Hours may vary",
       status: "varies",
       badge: "Call to confirm",
@@ -80,7 +80,7 @@ export const holidayHours = {
       status: "closed",
     },
     {
-      day: "Mon-Fri, Apr 13-17",
+      day: "Mon, Apr 13 to Fri, Apr 17",
       hours: "Hours may vary",
       status: "varies",
       badge: "Limited availability",
