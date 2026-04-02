@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Mail, MapPin, Phone } from "lucide-react";
 import AppointmentSection from "@/components/sections/AppointmentSection";
 import OfficeVisitSection from "@/components/sections/OfficeVisitSection";
 import InsuranceInfoSection from "@/components/sections/InsuranceInfoSection";
@@ -59,6 +59,61 @@ const Contact = () => {
               {officeInfo.address.city}, {officeInfo.address.region} {officeInfo.address.postalCode}.
               We offer flexible appointment times for new and returning patients.
             </p>
+            <div className="mt-10 grid gap-4 md:grid-cols-3">
+              <a
+                href={`tel:${officeInfo.phoneE164}`}
+                className="ui-focus-premium rounded-3xl border border-slate-200 bg-white px-6 py-5 text-left shadow-[0_20px_50px_-40px_rgba(15,23,42,0.32)] transition-transform hover:-translate-y-0.5 hover:border-primary/30"
+              >
+                <div className="inline-flex rounded-full bg-primary/[0.08] p-3 text-primary">
+                  <Phone className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <p className="mt-4 text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  Call the office
+                </p>
+                <p className="mt-2 text-lg font-semibold text-slate-900">{officeInfo.phone}</p>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Best for urgent questions or same-week availability checks.
+                </p>
+              </a>
+
+              <a
+                href={`mailto:${officeInfo.email}`}
+                className="ui-focus-premium rounded-3xl border border-slate-200 bg-white px-6 py-5 text-left shadow-[0_20px_50px_-40px_rgba(15,23,42,0.32)] transition-transform hover:-translate-y-0.5 hover:border-primary/30"
+              >
+                <div className="inline-flex rounded-full bg-primary/[0.08] p-3 text-primary">
+                  <Mail className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <p className="mt-4 text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  Email the practice
+                </p>
+                <p className="mt-2 break-all text-lg font-semibold text-slate-900">
+                  {officeInfo.email}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Great for records questions, referrals, and non-urgent follow-up.
+                </p>
+              </a>
+
+              <a
+                href={officeInfo.mapUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ui-focus-premium rounded-3xl border border-slate-200 bg-white px-6 py-5 text-left shadow-[0_20px_50px_-40px_rgba(15,23,42,0.32)] transition-transform hover:-translate-y-0.5 hover:border-primary/30"
+              >
+                <div className="inline-flex rounded-full bg-primary/[0.08] p-3 text-primary">
+                  <MapPin className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <p className="mt-4 text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  Visit the office
+                </p>
+                <p className="mt-2 text-lg font-semibold text-slate-900">
+                  {officeInfo.address.line1}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  {officeInfo.address.city}, {officeInfo.address.region} {officeInfo.address.postalCode}
+                </p>
+              </a>
+            </div>
           </div>
         </div>
       </section>

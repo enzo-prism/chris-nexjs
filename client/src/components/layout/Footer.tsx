@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Phone, MapPin, ExternalLink, Instagram } from "lucide-react";
+import { Phone, MapPin, Mail, ExternalLink, Instagram } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import {
   Accordion,
@@ -101,6 +101,13 @@ const Footer = ({ variant = "default" }: FooterProps) => {
                   <MapPin className="h-4 w-4 text-primary" aria-hidden="true" />
                   {officeInfo.address.line1}, {officeInfo.address.city}
                 </a>
+                <a
+                  href={`mailto:${officeInfo.email}`}
+                  className="ui-focus-premium inline-flex items-center gap-2 text-slate-700 transition-colors hover:text-primary"
+                >
+                  <Mail className="h-4 w-4 text-primary" aria-hidden="true" />
+                  {officeInfo.email}
+                </a>
               </div>
             </div>
 
@@ -150,6 +157,17 @@ const Footer = ({ variant = "default" }: FooterProps) => {
                     itemProp="telephone"
                   >
                     {officeInfo.phone}
+                  </a>
+                </p>
+
+                <p className="flex items-center text-sm text-white/90">
+                  <Mail className="h-4 w-4 mr-3 flex-shrink-0 text-white/70" />
+                  <a
+                    href={`mailto:${officeInfo.email}`}
+                    className="ui-link-premium-dark break-all px-1 py-0.5 text-white/90"
+                    itemProp="email"
+                  >
+                    {officeInfo.email}
                   </a>
                 </p>
 
@@ -300,6 +318,17 @@ const Footer = ({ variant = "default" }: FooterProps) => {
                   itemProp="telephone"
                 >
                   {officeInfo.phone}
+                </a>
+              </p>
+
+              <p className="flex items-center text-sm">
+                <Mail className="h-4 w-4 mr-3 flex-shrink-0 text-white/70" />
+                <a
+                  href={`mailto:${officeInfo.email}`}
+                  className="ui-link-premium-dark break-all px-1 py-0.5 text-white/90"
+                  itemProp="email"
+                >
+                  {officeInfo.email}
                 </a>
               </p>
 
