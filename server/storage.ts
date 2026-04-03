@@ -2639,6 +2639,474 @@ An exam can clarify whether the issue is a cavity, a worn restoration, gum reces
         readTime: 7,
         relatedServices: ["restorative-dentistry","preventive-dentistry"],
       },
+      {
+        title: "What Should You Do If a Filling Cracks in Palo Alto? A Practical Guide to Fast, Conservative Repair",
+        content: `If a filling suddenly feels rough, sharp, or painful when you bite down, it is easy to hope it will settle down on its own. Usually, it does not. A cracked filling can leave the tooth underneath exposed to pressure, temperature changes, and bacteria. The good news is that when you catch it early, treatment is often straightforward.
+
+At Christopher B. Wong, DDS, we take a conservative approach to restorative dentistry in Palo Alto. That means looking carefully at what is damaged, protecting healthy tooth structure whenever possible, and recommending the simplest treatment that will hold up well over time.
+
+## Common signs that a filling may be cracked
+
+Not every cracked filling is obvious in the mirror. In many cases, patients notice changes in how the tooth feels before they can see anything.
+
+Signs to watch for include:
+
+- Sharp pain when biting down
+- A rough edge you can feel with your tongue
+- Sudden sensitivity to cold drinks or sweets
+- Food getting trapped around one tooth more than usual
+- A feeling that something is off when you chew
+- A small piece that seems to have chipped away
+
+Sometimes an old filling does not fully crack but starts to wear down, leak around the edges, or loosen. From your point of view, the experience can feel very similar. Either way, it is worth having it checked.
+
+## Why fillings crack
+
+Fillings go through a lot. Every day they absorb pressure from chewing, deal with hot and cold foods, and sometimes take the hit from clenching or grinding.
+
+A filling may crack because:
+
+- It is old and has reached the end of its useful life
+- You bit into something hard like ice, nuts, or hard candy
+- The tooth has a large filling and less natural structure left to support it
+- Nighttime grinding or daytime clenching puts extra stress on the area
+- The tooth itself has a crack, which makes the filling unstable
+- Decay has formed around the edges of the filling
+
+Dr. Wong's site emphasizes careful diagnostics and long term stability, and this is exactly the kind of issue where that matters. The right fix depends on whether the problem is only the filling, the underlying tooth, or both.
+
+## Is a cracked filling a dental emergency?
+
+Sometimes yes, sometimes no.
+
+If the area is mildly sensitive but you are otherwise comfortable, you may not need same day care. Still, it is smart to schedule an appointment soon. Small problems can get bigger fast when a tooth is no longer sealed properly.
+
+You should call promptly if you have:
+
+- Pain that lingers or gets worse
+- Pain when biting that makes it hard to chew
+- Visible loss of part of the filling
+- Swelling in the gum or face
+- A bad taste that could suggest leakage or decay
+- Sensitivity that is intense enough to interrupt eating or sleeping
+
+Even when it is not a true emergency, a cracked filling deserves attention. Waiting too long can turn a simple replacement into a larger restoration.
+
+## What to do before your appointment
+
+If you think you have a broken filling, keep things simple and protective.
+
+1. Avoid chewing on that side if possible.
+2. Skip very hard, sticky, or crunchy foods.
+3. Rinse gently with warm water to keep the area clean.
+4. Brush carefully and floss with a light touch.
+5. If the tooth is sensitive, avoid very hot, very cold, or very sweet foods.
+6. If you grind your teeth at night and already have a night guard, keep wearing it.
+
+Do not try to file the area down yourself. Do not glue anything into place. And do not ignore sharp pain that starts to build.
+
+## How a dentist repairs a cracked filling
+
+The treatment depends on how much of the tooth and filling are involved.
+
+### If the damage is small
+A small chipped or leaking filling may be replaced with a new tooth colored filling. This is often the simplest option and helps reseal the tooth before bacteria get underneath.
+
+### If the filling is large or the tooth is weakened
+When a lot of the tooth structure is involved, a filling may not be the most durable answer. In that case, Dr. Wong may recommend a crown to protect the tooth from further fracture.
+
+### If there is decay underneath
+Sometimes the filling cracks because new decay has formed around the margins. The decay has to be removed first, then the tooth can be rebuilt with the right restoration.
+
+### If the tooth itself is cracked
+This is where a careful exam matters. What feels like a cracked filling may actually be a cracked tooth. Treatment can range from a new restoration to more advanced care depending on how deep the crack goes.
+
+## Why conservative dentistry matters here
+
+Patients in Palo Alto often want the same thing Dr. Wong's practice is known for: clear explanations, modern technology, and treatment that makes sense without overselling. A conservative dentist does not jump to the biggest procedure first. Instead, the goal is to preserve healthy enamel, restore comfort, and choose an option that fits how the tooth functions long term.
+
+That approach is especially important with fillings because the best repair is not always the biggest repair. Sometimes a straightforward replacement is enough. Sometimes protecting the tooth with a crown is the smarter move. The difference comes from diagnosis, not guesswork.
+
+## Can you prevent fillings from cracking?
+
+You cannot control every surprise, but you can lower the odds.
+
+Helpful habits include:
+
+- Keeping regular exams and cleanings so worn fillings are caught early
+- Avoiding chewing ice and other very hard foods
+- Wearing a night guard if you clench or grind
+- Addressing bite problems that put excess force on one tooth
+- Getting new sensitivity checked before it becomes a bigger issue
+
+Routine visits matter because many failing fillings are spotted before they become painful.
+
+## When to schedule an exam
+
+If something feels different, trust that signal. Teeth rarely become less complicated by waiting.
+
+If you live in Palo Alto, Stanford, Menlo Park, or nearby Peninsula communities and think you may have a cracked filling, schedule an exam with Christopher B. Wong, DDS. We can identify what is going on, explain your options clearly, and repair the tooth with a conservative plan focused on comfort and long term stability.
+
+A small crack today is much easier to handle than a bigger fracture next month. No mystery, no drama, just the right fix before the problem snowballs.
+
+## FAQ
+
+### Can a cracked filling heal on its own?
+No. A filling will not repair itself, and the seal around the tooth will not improve without treatment.
+
+### How long can I wait to fix a cracked filling?
+If you are not in severe pain, it may not require same day treatment, but you should still schedule an appointment soon. Delays increase the risk of deeper decay or a broken tooth.
+
+### Will I always need a crown if a filling cracks?
+No. Many cracked fillings can be replaced with a new filling. A crown is more likely when the tooth has a large existing restoration, a fracture, or significant structural weakness.
+
+### What if my tooth only hurts when I bite?
+Pain on biting can be a sign of a cracked filling, a cracked tooth, or a bite issue. It is worth an exam because the cause is not always obvious at home.
+
+### Does insurance usually help with this?
+Many PPO dental plans help cover restorative care, though benefits vary. Dr. Wong's team can help verify coverage and explain your options before treatment.`,
+        image: "/images/dr-wong-lab-1.png",
+        date: "March 31, 2026",
+        slug: "cracked-filling-palo-alto",
+        category: "Restorative Dentistry",
+        readTime: 6,
+        relatedServices: ["restorative-dentistry", "emergency-dental"],
+      },
+      {
+        title: "Is Cosmetic Bonding or a Veneer Better for One Chipped Front Tooth in Palo Alto?",
+        content: `A small chip on a front tooth can feel much bigger than it looks. It catches light differently, changes the edge of your smile, and can make you hesitate before photos, meetings, or even a simple coffee run on University Avenue.
+
+For many Palo Alto patients, the first question is not whether to fix it. It is how. The two most common cosmetic options are dental bonding and porcelain veneers. Both can improve the look of a chipped front tooth, but they are not interchangeable. The right choice depends on how large the chip is, how the tooth bites, whether the tooth has old dental work, and how conservative you want the repair to be.
+
+At Christopher B. Wong, DDS, the site emphasizes modern, conservative care. That matters here. If a simpler repair can give you a strong, natural-looking result, that is often the best place to start. If a veneer will deliver better long-term esthetics and durability, that may be the better investment.
+
+## When cosmetic bonding makes sense
+
+Dental bonding uses tooth-colored composite resin to rebuild the chipped area directly on the tooth. It is shaped by hand, polished, and matched to the surrounding enamel.
+
+Bonding is often a strong option when:
+
+- The chip is small to moderate
+- Most of the natural tooth is healthy
+- You want the most conservative treatment possible
+- You want a faster and usually lower-cost fix
+- The tooth is not under heavy bite stress
+
+For the right case, bonding can look excellent. It is especially useful when the chip is limited to the edge of the tooth and the rest of the tooth shape still looks balanced.
+
+Another advantage is that bonding usually requires little to no enamel removal. That fits well with a conservative practice philosophy. If your goal is to repair one area while keeping as much natural tooth structure as possible, bonding deserves a serious look.
+
+## When a veneer may be the better choice
+
+A porcelain veneer is a thin custom shell that covers the front surface of the tooth. Veneers are often chosen when the chip is only part of the problem.
+
+A veneer may make more sense when:
+
+- The tooth has a larger chip or multiple cosmetic issues
+- There is visible discoloration that bonding will not fully hide
+- The tooth shape is uneven or worn
+- You want a more dramatic cosmetic upgrade
+- You want better stain resistance over time
+
+Porcelain reflects light more like natural enamel than composite does. It also tends to hold polish and color better over the long term. For patients who want a refined cosmetic result, especially in the smile zone, a veneer can offer a more predictable finish.
+
+That said, veneers are not automatically the best answer for every chip. If the issue is truly small and isolated, a veneer can be more treatment than you need. The best cosmetic dentistry is not the flashiest option. It is the option that matches the tooth.
+
+## The bite matters more than most patients realize
+
+One of the biggest reasons a front tooth chip happens is bite pressure. You may have a small edge-to-edge bite issue, nighttime clenching, or a habit of biting nails, pens, or hard foods. If the underlying force is still there, both bonding and veneers can be stressed.
+
+This is where a careful exam matters. A dentist should look at:
+
+- Where your front teeth contact when you bite and slide
+- Whether the chipped tooth has thin enamel or old dental work
+- Signs of grinding or clenching
+- Whether neighboring teeth are also worn or uneven
+
+If the tooth keeps taking force every day, simply patching the chip without addressing the cause can turn into a repeat problem. In some cases, the best plan may include reshaping the bite slightly, monitoring wear, or discussing a custom night guard if grinding is part of the picture.
+
+## Bonding vs veneers for one chipped front tooth
+
+Here is the practical difference most Palo Alto patients care about:
+
+### Choose bonding if you want:
+
+- A conservative repair
+- Less alteration to the tooth
+- A fast cosmetic fix
+- A good option for a smaller chip
+
+### Choose a veneer if you want:
+
+- A bigger cosmetic upgrade
+- Better long-term stain resistance
+- A solution for a chip plus shape or color concerns
+- A result that blends a broader smile design issue
+
+There is also a middle ground. Sometimes a patient comes in asking for a veneer, but bonding is enough. Other times a patient hopes bonding will solve everything, but a veneer will look smoother and last better given the condition of the tooth. The right answer comes from matching the treatment to the tooth, not forcing every case into the same menu.
+
+## What to expect at your consultation
+
+A good consultation should be straightforward, not salesy. You should leave knowing what the chip means structurally, what your cosmetic options are, and what each option will realistically look like.
+
+At a visit, your dentist may evaluate:
+
+- The size and location of the chip
+- Whether the tooth is sensitive or cracked deeper than it appears
+- Your bite and wear pattern
+- Shade match and smile line
+- Whether conservative repair or a veneer fits your goals better
+
+If you value natural-looking dentistry, this conversation matters a lot. A beautiful result is not just about making the tooth white or smooth. It is about restoring symmetry while keeping the smile believable.
+
+## Why this topic matters in Palo Alto
+
+Palo Alto patients often want dentistry that looks polished but not obvious. That is a different standard from simply making the chip disappear. You want the repaired tooth to fit your face, your bite, and the rest of your smile.
+
+That is why the live site's focus on modern, conservative care is such a strong fit for this topic. Patients searching for help with one chipped front tooth are usually not looking for a dramatic makeover first. They want a thoughtful answer, a natural result, and a clear explanation of whether a simple fix will hold up.
+
+## FAQ
+
+### Can bonding look natural on a front tooth?
+
+Yes, in the right case it can look very natural. Shade matching, polishing, and shaping are key, especially on the front teeth where light reflection matters.
+
+### Does a veneer last longer than bonding?
+
+In many cases, yes. Porcelain veneers generally resist staining and wear better than bonding. Longevity still depends on your bite, habits, and home care.
+
+### Is bonding always cheaper than a veneer?
+
+Bonding is usually less expensive up front, but the best value depends on how long the result lasts and whether the tooth needs a more comprehensive cosmetic correction.
+
+### Should a chipped front tooth be fixed quickly?
+
+Usually yes. Even a small chip can create roughness, sensitivity, or more visible wear if left alone. A prompt exam helps confirm whether it is a simple cosmetic issue or something deeper.
+
+## A conservative cosmetic plan starts with the right diagnosis
+
+If you chipped a front tooth and are weighing bonding versus a veneer, the smartest next step is not guessing from photos online. It is getting a careful exam that looks at the tooth, the bite, and your long-term goals.
+
+Christopher B. Wong, DDS provides modern, conservative dentistry for Palo Alto patients who want clear guidance and natural-looking results. If you are deciding between bonding and a veneer for one chipped front tooth, schedule a visit and get a plan that fits your smile instead of a one-size-fits-all answer.`,
+        image: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1763577353/Gemini_Generated_Image_ta4fp4ta4fp4ta4f_xlkjgw.webp",
+        date: "April 1, 2026",
+        slug: "cosmetic-bonding-vs-veneer-for-one-chipped-front-tooth-palo-alto",
+        category: "Cosmetic Dentistry",
+        readTime: 6,
+        relatedServices: ["dental-veneers", "cosmetic-dentistry"],
+      },
+      {
+        title: "Why Does My Bite Feel Off After a Filling or Crown in Palo Alto?",
+        content: `If your teeth do not seem to come together the same way after a filling or crown, you are not imagining it. Many patients describe it the same way: one tooth touches first, chewing feels awkward, or there is a sharp jolt when they bite down. In Palo Alto, this kind of concern often shows up right after restorative dental work, and in many cases it can be corrected with a simple adjustment.
+
+At Christopher B. Wong, DDS, the approach to restorative dentistry is conservative and practical. The goal is not just to fix a cavity or protect a damaged tooth. It is to help your bite feel balanced, comfortable, and stable over time.
+
+## What does it mean when your bite feels off?
+Your bite is the way your upper and lower teeth meet when you close your mouth, chew, and speak. Even a very small change in the height or shape of a filling or crown can make one area absorb more pressure than it should.
+
+Patients often notice:
+
+- A tooth that hits before the rest
+- Pain when chewing on one side
+- Pressure or soreness after the numbness wears off
+- A feeling that the new filling or crown is too high
+- Mild jaw tension because the bite no longer feels even
+
+Fresh dental work can also leave a tooth slightly sensitive for a short time. That part can be normal. What matters is the pattern. If the problem shows up mainly when you bite down or tap your teeth together, the bite itself may need to be adjusted.
+
+## What is normal after a filling or crown?
+Some short term sensitivity can happen after restorative treatment, especially if the cavity was deep or the tooth was already irritated before treatment. It is common to notice temporary sensitivity to cold, sweets, or pressure for a brief period.
+
+Outside research this morning also lines up with what dentists see in practice. WebMD notes that sensitivity after a filling often settles within a few weeks, but pain when biting can point to a filling that is interfering with the bite and may need reshaping.
+
+That is why context matters. A tooth that feels mildly aware for a few days is different from a tooth that feels like it lands first every time you chew.
+
+## Signs your bite may need a simple adjustment
+A small bite adjustment is often the fix when symptoms look like this:
+
+- The discomfort began soon after a filling or crown
+- The pain is strongest when chewing, not at rest
+- The tooth feels tall or bulky
+- You keep avoiding one side when eating
+- Your jaw feels tired because you are subconsciously shifting your bite
+
+When the bite is high, the periodontal ligament around the tooth can get overloaded. That tissue is sensitive to pressure, so even a tiny discrepancy can make the tooth feel surprisingly sore.
+
+## When it may be more than a bite issue
+Not every post treatment toothache is caused by a high spot. Sometimes a tooth has a deeper crack, an inflamed nerve, or existing damage that only became obvious after treatment.
+
+Call your dentist sooner if you have:
+
+- Lingering heat pain that lasts after the source is gone
+- Throbbing pain that keeps building
+- Swelling
+- Pain that wakes you up
+- A crown that feels loose
+- A filling that feels rough, fractured, or mobile
+
+These signs deserve an exam because the tooth may need more than a simple adjustment.
+
+## Why conservative dentists pay close attention to bite balance
+Dr. Wong's website emphasizes conservative dentistry for a reason. Preserving healthy tooth structure is only part of the job. A well planned restoration also has to work with the way you naturally chew.
+
+If a filling is slightly too high and stays that way, the tooth can keep absorbing extra force day after day. That can lead to ongoing soreness, fracture risk, or unnecessary stress on the tooth and surrounding bite.
+
+In a practice that values long term stability, it makes sense to check the bite carefully, make a precise adjustment if needed, and monitor how the tooth settles after treatment.
+
+## What to do at home before your visit
+If your bite feels off after recent dental work, a few simple steps can help until you are seen:
+
+1. Eat softer foods for a day or two if chewing is uncomfortable.
+2. Avoid repeatedly testing the tooth by clenching or tapping it.
+3. Notice whether the pain happens with biting, temperature, or both.
+4. Make note of whether the tooth feels high all the time or only in certain chewing positions.
+5. Call sooner rather than later if the symptoms are clear and consistent.
+
+The goal is not to tough it out. It is to give your dentist useful information and avoid extra pressure on the area.
+
+## How a bite adjustment usually works
+Patients are often relieved to hear that a bite adjustment is usually straightforward. Your dentist will have you bite on articulating paper to see where the pressure is landing, then make very small refinements to the filling or crown so your teeth meet more evenly.
+
+In many cases, this takes far less time than patients expect. The key is accuracy. Removing too much is not the goal. Restoring even contact and comfortable function is.
+
+## Why this topic matters in Palo Alto right now
+Chris Wong DDS serves busy adults and families from Palo Alto, Stanford, Menlo Park, and nearby Peninsula communities. People here do not want vague answers or unnecessary treatment. They want to know what is normal, what is fixable, and how to protect their teeth early.
+
+That is exactly why this topic fits the practice. It is practical, local, and tied directly to restorative care already highlighted on the site. It also creates a natural path to related pages like restorative dentistry and recent content about cracked fillings.
+
+## FAQ
+### How long should my tooth feel sore after a filling?
+Mild sensitivity can settle over days to a few weeks. If the main problem is pain when biting or the tooth feels too high, call your dentist sooner.
+
+### Can a crown make my bite feel uneven?
+Yes. If a crown is slightly high or your bite needs refining after placement, chewing can feel off until it is adjusted.
+
+### Is a bite adjustment painful?
+Most patients tolerate it very well. It is usually a quick, precise correction rather than a major procedure.
+
+### Should I wait and see if it improves?
+If symptoms are mild and fading, brief observation can be reasonable. If biting pain is clear, consistent, or worsening, it is smarter to schedule an exam.
+
+## Get a balanced, comfortable bite again
+If your bite feels off after a filling or crown, it is worth checking. A small issue can feel big inside your mouth, and early adjustment may prevent longer lasting irritation. If you are in Palo Alto or nearby and want a conservative evaluation, contact Christopher B. Wong, DDS to schedule a visit and get your bite back to feeling natural.`,
+        image: "/images/dr-wong-lab-1.png",
+        date: "April 2, 2026",
+        slug: "bite-feels-off-after-filling-or-crown-palo-alto",
+        category: "Restorative Dentistry",
+        readTime: 5,
+        relatedServices: ["restorative-dentistry", "emergency-dental"],
+      },
+      {
+        title: "How Long After a Tooth Extraction Can You Get a Dental Implant in Palo Alto?",
+        content: `If you know a tooth needs to come out, one of the next questions is usually fast and practical: how long do I need to wait before getting a dental implant? For many Palo Alto patients, the answer is not one fixed number. It depends on the condition of the tooth, whether there is infection, how much healthy bone is present, and whether the site is stable enough for long term success.
+
+At Christopher B. Wong, DDS, that kind of decision fits the practice's overall style. The website consistently emphasizes conservative, well planned care instead of rushing into treatment that looks convenient today but creates problems later. With implants, timing matters for exactly that reason.
+
+## The short answer
+In some cases, an implant can be placed the same day as the extraction. In other cases, it makes more sense to wait several weeks or a few months. Fresh web research this morning showed a pattern that is consistent across current patient education sources: immediate placement can work in the right situation, but many cases still call for a healing window, often around 3 to 6 months, especially when bone loss, infection, or grafting is involved.
+
+So the real answer is this: the best timing is the one that gives you the strongest, healthiest foundation for the implant.
+
+## Why some patients can get an implant right away
+An immediate implant means the implant is placed at or very near the extraction appointment. This can be a good option when:
+
+- the tooth is being removed in a controlled, clean way
+- the surrounding bone is still strong
+- there is no major active infection compromising the site
+- the bite forces and tooth position make immediate placement predictable
+- the patient is a good fit for careful healing and follow up
+
+The appeal is obvious. You may reduce the total number of surgical stages, shorten the overall timeline, and limit how much bone resorbs after the tooth is removed.
+
+But immediate does not automatically mean better. If the socket is not stable, forcing the timeline can make the case more complicated.
+
+## Why waiting is sometimes the smarter move
+A delayed implant plan is often recommended when the extraction site needs time to settle. That may happen if:
+
+- there is infection or inflammation around the tooth
+- the tooth broke in a way that damaged surrounding bone
+- the site needs bone grafting
+- the gums need time to heal and reshape
+- the bite or cosmetic zone needs more careful planning
+
+This is where a conservative dentist earns their keep. The goal is not just getting an implant in place. The goal is placing it in the right position, with the right support, so it feels stable, functions well, and looks natural.
+
+## Common timelines patients hear about
+While every case is individual, most implant conversations fall into a few broad buckets.
+
+### Same day or immediate placement
+This may work when the socket is healthy and there is enough bone for good initial stability. Not every tooth or every patient qualifies.
+
+### Early placement after initial healing
+Sometimes dentists wait several weeks to a couple of months so soft tissue can calm down and the site becomes easier to evaluate. This can be useful when you want some healing without waiting too long.
+
+### Delayed placement after fuller healing
+This is often the plan when there has been infection, bone loss, or a more complex extraction. In many cases, that means a healing period of a few months before implant placement.
+
+### Delayed placement with grafting
+If bone volume is limited, grafting may be part of the plan. That can extend the timeline, but it may also produce a much better long term result.
+
+## What actually affects your timeline
+Patients often assume the timing depends only on calendar days. In reality, dentists are looking at a handful of clinical factors.
+
+### 1. Bone quality and volume
+Implants need support. If the jawbone around the missing tooth is thin, soft, or already shrinking, the site may need healing or grafting before it can reliably hold an implant.
+
+### 2. Infection
+If the tooth being removed has a large infection, cyst, or deep inflammation, your dentist may recommend clearing that problem first rather than placing an implant into a compromised environment.
+
+### 3. Location in the mouth
+Front teeth, molars, and visible smile zone teeth can each change the strategy. Cosmetic demands and bite forces are different depending on where the tooth is located.
+
+### 4. Gum health
+Healthy gums help create a cleaner, more stable implant environment. If gum disease is active, that often needs to be addressed as part of the plan.
+
+### 5. Your overall healing pattern
+Smoking, uncontrolled diabetes, immune issues, and other health factors can affect how quickly tissue and bone recover.
+
+## Why waiting too long is not ideal either
+There is another side to this conversation. Waiting forever is not the goal. After an extraction, the jawbone in that area starts to remodel. Over time, that can mean loss of width or height, which may make implant placement more complicated later.
+
+That does not mean you should rush into treatment blindly. It means it is worth talking through the implant plan early, even if the actual placement will happen later. Planning ahead gives you more options.
+
+## What a Palo Alto patient visit usually involves
+At a practice like Chris Wong DDS, a thoughtful implant timing conversation would usually start with an exam, imaging, and a discussion of what the tooth looks like today. The office already highlights digital technology and long term planning across its site, and that matters here.
+
+Patients usually want clear answers to practical questions:
+
+- Can this tooth be saved, or does it need extraction?
+- If it comes out, do I qualify for immediate implant placement?
+- Will I need a graft?
+- What will I use in the meantime if the implant is delayed?
+- What timeline makes the most sense for comfort, cost, and predictability?
+
+That is the right framework. It moves the conversation from guesswork to a real plan.
+
+## A simple rule of thumb
+If the site is healthy and stable, faster treatment may be possible. If the site is infected, damaged, or lacking bone, a staged approach is often the safer path. Either way, the best answer comes from evaluating the actual extraction site, not forcing a one size fits all timeline.
+
+## FAQ
+### Can an implant be placed the same day a tooth is removed?
+Yes, in some cases. Immediate placement is possible when the bone and gum conditions are favorable and the site can support the implant predictably.
+
+### How long do many patients wait after extraction?
+Many patients end up in a healing window that ranges from several weeks to a few months. A common delayed timeline is around 3 to 6 months, depending on the case.
+
+### Do I always need a bone graft before an implant?
+No. Some extraction sites have enough healthy bone already. Others need grafting to improve long term support.
+
+### Is it bad to wait too long after losing a tooth?
+It can be. Bone changes over time after a tooth is removed, which may make implant treatment more involved later.
+
+## Plan the timing, not just the procedure
+If you may need an extraction and want to replace the tooth with an implant, the smartest move is to plan early. A well timed implant can protect bone, restore function, and keep the treatment path simpler. If you are in Palo Alto or nearby, contact Christopher B. Wong, DDS to schedule an evaluation and get a conservative, step by step plan for what comes next.`,
+        image: "/images/dr-wong-office-1.png",
+        date: "April 3, 2026",
+        slug: "dental-implant-after-extraction-palo-alto",
+        category: "Restorative Dentistry",
+        readTime: 6,
+        relatedServices: ["restorative-dentistry"],
+      },
     ];
 
     blogPostsList.forEach(post => {
