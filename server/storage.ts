@@ -3107,6 +3107,253 @@ If you may need an extraction and want to replace the tooth with an implant, the
         readTime: 6,
         relatedServices: ["restorative-dentistry"],
       },
+      {
+        title: "Should You Replace Old Silver Fillings in Palo Alto?",
+        content: `If you have older silver fillings, you have probably wondered at some point whether they should stay or go. Maybe one looks dark around the edges. Maybe food catches near it. Maybe you have heard concerns about mercury and want a straight answer. For many Palo Alto patients, the real question is not, "Are silver fillings automatically bad?" It is, "Is this filling still doing its job safely and predictably?"
+
+That is an important distinction. Christopher B. Wong, DDS positions the practice around modern, conservative care, and this topic fits that approach perfectly. The best decision is usually not to replace every old filling on sight. It is to evaluate the filling's condition, the amount of healthy tooth left, your symptoms, and your long term risk.
+
+## The short answer
+Old silver fillings do not always need to be replaced just because they are old. If they are intact, stable, and not causing problems, they may simply need monitoring. Current FDA guidance is also practical here: the agency does not recommend removing intact amalgam fillings in good condition just to reduce mercury exposure, because removal can temporarily increase mercury vapor exposure and may remove healthy tooth structure.
+
+In other words, a filling should usually be replaced because it is failing, leaking, cracked, trapping decay, or no longer supporting the tooth well, not because the calendar says it is old.
+
+## What silver fillings actually are
+Silver fillings are dental amalgam restorations made from a mix of metals, including mercury, silver, tin, and copper. They have been used for a long time because they are durable and hold up well under chewing pressure.
+
+Many older adults in Palo Alto still have them, especially on back teeth. Some have lasted for years without trouble. Others begin to show wear, margin breakdown, or damage in the surrounding tooth.
+
+So the conversation is less about panic and more about condition.
+
+## When replacement makes sense
+There are several common reasons a dentist may recommend replacing an old silver filling.
+
+### 1. The filling is cracked, loose, or worn down
+Fillings take a lot of force over time. If a filling has started to fracture, shift, or flatten out, bacteria can work into the tiny gaps. That can lead to new decay or a bigger break in the tooth.
+
+### 2. There is decay around the edges
+A filling may still be physically present but no longer seal the tooth well. If decay forms around it, replacement is often the most conservative way to stop the problem before it turns into a larger restoration.
+
+### 3. The tooth itself is cracking
+Sometimes the issue is not only the filling. Older amalgam restorations can be associated with cracks in the surrounding tooth structure, especially if the filling is large. If the tooth is weakened, simply watching it may not be the safest move.
+
+### 4. You have symptoms
+Pain when biting, cold sensitivity, food trapping, or a rough edge can all be signs that the filling or the tooth around it needs attention. Symptoms do not always mean emergency treatment, but they do mean the tooth deserves a careful look.
+
+### 5. The filling is affecting your bite or long term plan
+In some cases, a filling is not failing dramatically but is no longer the best restoration for the tooth. A tooth with a very large old filling may be better protected with a different type of restoration if the goal is long term stability.
+
+## When replacement may not be necessary
+This is the part patients often appreciate hearing. Not every old silver filling needs to be drilled out. If the filling is intact, the tooth is healthy, the margins look stable, and you have no symptoms, monitoring may be the better call.
+
+That fits Dr. Wong's style. The site repeatedly emphasizes conservative dentistry, careful planning, and explaining options clearly. Replacing a filling that is still serving the tooth well can remove healthy structure without creating much benefit.
+
+A good dentist is not just looking for something to do. A good dentist is deciding whether treatment helps more than it harms.
+
+## What the FDA says about mercury concerns
+This is where things get more nuanced. The FDA has said that dental amalgam releases low levels of mercury vapor, but current evidence does not show adverse health effects for the general population from existing fillings in good condition. The agency also says some higher risk groups should avoid getting new amalgam fillings when appropriate, including pregnant women, children under six, people with certain neurologic conditions, people with impaired kidney function, and those with known mercury sensitivity.
+
+For patients who already have old amalgam fillings, the practical takeaway is this: intact fillings in good condition are usually monitored, not automatically removed.
+
+That is an especially helpful point for patients who are worried but do not want to over treat a tooth.
+
+## What a conservative evaluation looks like
+At a practice like Chris Wong DDS, a thoughtful evaluation would usually focus on a few simple questions:
+
+- Is the filling still sealed well?
+- Is there decay under or around it?
+- Is the tooth cracked or structurally weakened?
+- Are you having symptoms?
+- Would replacing it now likely prevent a bigger problem later?
+
+That kind of exam often includes imaging, bite evaluation, and a close visual check. The goal is to figure out whether the tooth can continue to be monitored, needs a new filling, or would be better served by a crown or another restorative option.
+
+## What replacement usually involves
+If a silver filling does need to be replaced, the next step depends on how much healthy tooth remains.
+
+### Small to moderate replacement
+If the tooth is still strong, a tooth colored filling may be enough to rebuild it.
+
+### Larger or more compromised tooth
+If a large portion of the tooth is weakened, a crown may be the safer option for long term chewing strength.
+
+### If there is deeper damage
+If decay, fracture, or nerve irritation has spread further, treatment may become more involved. That is exactly why catching a failing filling early matters.
+
+## Signs you should schedule an exam soon
+You do not need to stare at your fillings in the mirror like a tiny forensic scientist. But you should book an exam if you notice:
+
+- pain when chewing
+- cold sensitivity that lingers
+- food constantly getting stuck in the same spot
+- a visible crack, dark line, or broken edge
+- a filling that feels rough or different than before
+- a piece of filling missing
+
+These do not always mean something major is wrong, but they are common signs that a filling should be checked before the tooth gets worse.
+
+## FAQ
+### How long do silver fillings usually last?
+Many last well over 10 years, and some last much longer. Longevity depends on the size of the filling, your bite forces, grinding habits, and how much healthy tooth structure remains.
+
+### Should I replace silver fillings because of mercury?
+Not automatically. Current FDA guidance does not recommend removing intact amalgam fillings in good condition solely for that reason.
+
+### Can a silver filling be replaced with a tooth colored filling?
+Often, yes. That depends on the size of the old filling and whether the tooth is still strong enough for a filling rather than a crown.
+
+### What if my old filling is not hurting?
+That is good, but it does not always mean the filling is perfect. Some failing fillings cause no symptoms at first, which is why routine exams are useful.
+
+## Replace the failing filling, not the healthy tooth structure
+For most Palo Alto patients, the smartest approach to old silver fillings is simple: do not ignore them, but do not rush to replace them without a reason either. If a filling is stable, it may just need monitoring. If it is cracked, leaking, trapping decay, or weakening the tooth, early replacement can prevent a much bigger repair later.
+
+If you have an older filling that looks questionable or feels different, contact Christopher B. Wong, DDS to schedule an exam. A conservative evaluation can tell you whether it is time to replace the filling, or whether the best move is simply to keep an eye on it and protect the healthy tooth you still have.`,
+        image: "/images/dr-wong-office-1.png",
+        date: "April 4, 2026",
+        slug: "should-you-replace-old-silver-fillings-palo-alto",
+        category: "Restorative Dentistry",
+        readTime: 7,
+        relatedServices: ["restorative-dentistry","cosmetic-dentistry"],
+      },
+      {
+        title: "Can a Tooth Abscess Cause Facial Swelling or Fever in Palo Alto?",
+        content: `A bad toothache can be miserable. But when that pain comes with swelling, a bad taste in your mouth, or even a fever, the question changes fast. You are not just wondering how to get comfortable. You are wondering if this is something that needs urgent treatment.
+
+In many cases, yes.
+
+A tooth abscess is a bacterial infection that forms around the tooth or root. Left untreated, it can damage nearby tissue and spread beyond the tooth itself. That matters for any patient, but it is especially important for families trying to decide whether they should wait, call the office, or head somewhere immediately.
+
+This topic fits Christopher B. Wong, DDS closely. The live site emphasizes modern, conservative care, same day emergency support when possible, and clear guidance for urgent problems like pain, swelling, and infection. It also specifically lists dental abscesses as a true emergency. For Palo Alto patients, that is exactly the kind of practical information worth having before a small problem becomes a much bigger one.
+
+## The short answer
+Yes. A tooth abscess can cause facial swelling, fever, swollen lymph nodes, a foul taste in the mouth, and severe throbbing pain. Current patient guidance from Mayo Clinic warns that fever, facial swelling, trouble swallowing, or trouble breathing can signal a more serious infection that needs prompt care. Cleveland Clinic's updated 2026 patient education says clearly that an abscessed tooth should be treated as soon as possible and should not be ignored.
+
+In other words, this is not a wait and see situation if the symptoms are building.
+
+## What a tooth abscess actually is
+A tooth abscess is a pocket of infection, usually caused when bacteria get into the inner part of the tooth through deep decay, a crack, an old restoration that is failing, or advanced gum problems. Once infection reaches the pulp or the tissues around the root, pressure and inflammation build. That is when the pain often goes from annoying to savage.
+
+Mayo Clinic notes that this infection can start from an untreated cavity, a chip or crack, or prior dental work. That lines up with what many general and restorative dentists see every day. The abscess is rarely random. It usually starts with a problem that was small enough to manage more simply earlier on.
+
+## Common tooth abscess symptoms
+Not every patient gets the exact same pattern, but several symptoms show up again and again.
+
+### Severe throbbing tooth pain
+This is often the symptom people notice first. The pain may feel deep, persistent, and hard to ignore. It can stay in one tooth or radiate toward the jaw, ear, or neck.
+
+### Swelling in the gums, cheek, or face
+Swelling is one of the biggest red flags. Chris Wong DDS already highlights facial swelling as an urgent issue on the emergency page, and for good reason. When swelling is spreading or becoming visible from the outside, the infection may be advancing beyond the tooth itself.
+
+### Fever or feeling run down
+Fever is not just a side detail. It can be a sign that the infection is affecting more than one small area. If you have a dental infection and also feel sick, shaky, or unusually tired, it is smart to call right away.
+
+### Bad taste or foul smelling fluid
+If an abscess drains, you may notice a sudden bad taste, salty fluid, or temporary drop in pressure. That does not mean the problem solved itself. It usually means the infection found a place to drain, but still needs treatment.
+
+### Pain when chewing or biting
+Pressure often makes an infected tooth hurt more. If you cannot chew normally on one side without sharp pain, that is a common sign the tooth needs prompt evaluation.
+
+### Swollen glands under the jaw
+Mayo Clinic includes tender lymph nodes under the jaw or in the neck among common symptoms. Patients do not always connect that with a tooth problem, but it can absolutely happen.
+
+## When an abscess becomes an emergency
+A tooth abscess is always a problem that should be treated. But some symptoms move it into urgent territory very quickly.
+
+Call a dentist right away if you have:
+
+- severe or constant tooth pain
+- swelling around the tooth or gums
+- a visible pimple or bump near the tooth
+- bad taste or drainage in the mouth
+- pain with biting
+- fever
+
+Seek emergency medical care right away if you have:
+
+- rapidly worsening facial swelling
+- trouble swallowing
+- trouble breathing
+- swelling extending into the jaw, cheek, or neck
+
+That distinction matters. A dental office can often help with same day emergency evaluation and next steps. But if breathing or swallowing is affected, you are in medical emergency territory. No gold star for trying to tough it out.
+
+## Why fast treatment matters
+Patients sometimes hesitate because the pain comes and goes, or because the swelling improves a little after drainage. Unfortunately, the infection itself does not usually disappear without treatment.
+
+Fresh research from Cleveland Clinic and Mayo Clinic both says the same thing in slightly different language: untreated abscesses can spread and lead to serious complications. Mayo Clinic even notes that infection can spread into the jaw, head, neck, or elsewhere in the body.
+
+That is one reason Dr. Wong's site leans into urgent guidance and same day support. The goal is not drama. The goal is to catch the problem before it escalates.
+
+## What causes a tooth abscess?
+Several common dental problems can lead to an abscess:
+
+- untreated cavities
+- cracked or chipped teeth
+- deep decay under an old filling or crown
+- severe gum disease
+- trauma to the tooth
+- delayed treatment after persistent tooth pain
+
+For a practice built around preventive, restorative, and emergency care, this creates natural internal links. Some patients need a filling or crown. Others may need root canal treatment through a specialist or, in some cases, extraction and a tooth replacement plan later. The right next step depends on how much healthy tooth remains and how advanced the infection is.
+
+## What should you do at home before your visit?
+Home care is not treatment, but it can help you stay safer and more comfortable while you arrange care.
+
+You can:
+
+- rinse gently with warm salt water
+- take over the counter pain medication as directed
+- use a cold compress on the outside of the cheek for swelling
+- avoid chewing on the painful side
+- call your dentist as soon as possible
+
+You should not:
+
+- ignore swelling because the pain eased up
+- put aspirin directly on the gums
+- start random leftover antibiotics
+- assume the tooth will settle down on its own
+
+The Chris Wong DDS emergency page recommends salt water rinses, pain medication, and prompt contact with the office. That is a practical, conservative message, and it is the right one.
+
+## What treatment usually looks like
+Treatment depends on the source and severity of the infection.
+
+A dentist may recommend:
+
+- draining the abscess
+- antibiotics when indicated
+- treating the tooth with root canal therapy
+- removing a hopeless tooth if it cannot be predictably saved
+- restoring the tooth afterward with a filling or crown when appropriate
+
+A conservative office will usually try to preserve a tooth when that is realistic and healthy. But the more the infection spreads, the fewer simple options remain. That is why early diagnosis matters so much.
+
+## FAQ
+### Can a tooth abscess go away on its own?
+Not reliably. The pressure may change if it drains, but the infection still needs professional treatment.
+
+### Is facial swelling from a tooth infection serious?
+Yes. Facial swelling is one of the clearest signs you should contact a dentist promptly. If swelling is worsening or affects breathing or swallowing, seek emergency medical care right away.
+
+### Can a tooth abscess cause fever?
+Yes. Fever is a known symptom and may suggest the infection is becoming more serious.
+
+### Should I call the dentist if the pain stopped after drainage?
+Yes. Relief after drainage does not mean the infection is gone.
+
+## Do not wait for a tooth infection to get louder
+A tooth abscess is one of those problems that rarely rewards patience. If you have severe tooth pain, swelling, fever, or a bad taste that seems tied to one tooth, get it checked quickly. Early treatment can protect your health, reduce pain, and improve the chances of saving the tooth.
+
+If you need urgent dental guidance in Palo Alto, contact Christopher B. Wong, DDS. The office provides same day emergency support whenever possible and can help you understand whether the problem needs immediate dental care, specialist treatment, or emergency medical evaluation.`,
+        image: "/images/dr-wong-lab-1.png",
+        date: "April 5, 2026",
+        slug: "tooth-abscess-symptoms-palo-alto",
+        category: "Emergency Dentistry",
+        readTime: 7,
+        relatedServices: ["emergency-dental","restorative-dentistry"],
+      }
     ];
 
     blogPostsList.forEach(post => {
