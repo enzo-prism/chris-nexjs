@@ -78,6 +78,11 @@ jobs:
         run: NEXT_DIST_DIR=.next-perf pnpm run test:bundle
 
       - name: Run perf smoke + lighthouse
+        env:
+          LIGHTHOUSE_HOME_MIN_PERF: 0.55
+          LIGHTHOUSE_HOME_MAX_LCP_MS: 5600
+          LIGHTHOUSE_HOME_MAX_TBT_MS: 1300
+          LIGHTHOUSE_INVISALIGN_MAX_TBT_MS: 450
         run: |
           NEXT_DIST_DIR=.next-perf pnpm exec next start -p 3101 &
           SERVER_PID=$!

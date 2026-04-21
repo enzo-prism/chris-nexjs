@@ -13,31 +13,61 @@ const skipPrecheck = process.env.LIGHTHOUSE_SKIP_PRECHECK === "1";
 const budgets = [
   {
     path: "/",
-    minPerformance: 0.8,
-    maxLcpMs: 5200,
-    maxCls: 0.1,
-    maxTbtMs: 250,
+    minPerformance: Number.parseFloat(
+      process.env.LIGHTHOUSE_HOME_MIN_PERF || "0.8",
+    ),
+    maxLcpMs: Number.parseFloat(
+      process.env.LIGHTHOUSE_HOME_MAX_LCP_MS || "5200",
+    ),
+    maxCls: Number.parseFloat(process.env.LIGHTHOUSE_HOME_MAX_CLS || "0.1"),
+    maxTbtMs: Number.parseFloat(
+      process.env.LIGHTHOUSE_HOME_MAX_TBT_MS || "250",
+    ),
   },
   {
     path: "/services",
-    minPerformance: 0.85,
-    maxLcpMs: 3600,
-    maxCls: 0.1,
-    maxTbtMs: 250,
+    minPerformance: Number.parseFloat(
+      process.env.LIGHTHOUSE_SERVICES_MIN_PERF || "0.85",
+    ),
+    maxLcpMs: Number.parseFloat(
+      process.env.LIGHTHOUSE_SERVICES_MAX_LCP_MS || "3600",
+    ),
+    maxCls: Number.parseFloat(
+      process.env.LIGHTHOUSE_SERVICES_MAX_CLS || "0.1",
+    ),
+    maxTbtMs: Number.parseFloat(
+      process.env.LIGHTHOUSE_SERVICES_MAX_TBT_MS || "250",
+    ),
   },
   {
     path: "/invisalign",
-    minPerformance: 0.75,
-    maxLcpMs: 8200,
-    maxCls: 0.1,
-    maxTbtMs: 250,
+    minPerformance: Number.parseFloat(
+      process.env.LIGHTHOUSE_INVISALIGN_MIN_PERF || "0.75",
+    ),
+    maxLcpMs: Number.parseFloat(
+      process.env.LIGHTHOUSE_INVISALIGN_MAX_LCP_MS || "8200",
+    ),
+    maxCls: Number.parseFloat(
+      process.env.LIGHTHOUSE_INVISALIGN_MAX_CLS || "0.1",
+    ),
+    maxTbtMs: Number.parseFloat(
+      process.env.LIGHTHOUSE_INVISALIGN_MAX_TBT_MS || "250",
+    ),
   },
   {
     path: "/dentist-menlo-park",
-    minPerformance: 0.85,
-    maxLcpMs: 3600,
-    maxCls: 0.1,
-    maxTbtMs: 250,
+    minPerformance: Number.parseFloat(
+      process.env.LIGHTHOUSE_DENTIST_MENLO_PARK_MIN_PERF || "0.85",
+    ),
+    maxLcpMs: Number.parseFloat(
+      process.env.LIGHTHOUSE_DENTIST_MENLO_PARK_MAX_LCP_MS || "3600",
+    ),
+    maxCls: Number.parseFloat(
+      process.env.LIGHTHOUSE_DENTIST_MENLO_PARK_MAX_CLS || "0.1",
+    ),
+    maxTbtMs: Number.parseFloat(
+      process.env.LIGHTHOUSE_DENTIST_MENLO_PARK_MAX_TBT_MS || "250",
+    ),
   },
 ];
 
