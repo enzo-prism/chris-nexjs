@@ -2,6 +2,7 @@
 
 import MetaTags from "@/components/common/MetaTags";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
+import OptimizedImage from "@/components/seo/OptimizedImage";
 import StructuredData from "@/components/seo/StructuredData";
 import { Button } from "@/components/ui/button";
 import { officeInfo } from "@/lib/data";
@@ -133,28 +134,68 @@ const Locations = () => {
       <PageBreadcrumbs items={breadcrumbItems} />
 
       <section className="bg-[#F5F9FC] py-12 md:py-20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-          <h1 className="text-4xl md:text-5xl font-bold font-heading text-[#1F2933]">Locations We Serve</h1>
-          <p className="text-lg text-slate-700 max-w-3xl mx-auto">
-            Our Palo Alto dental office welcomes patients from across the Peninsula. Use the links below to find
-            location-specific FAQs, service highlights, and planning tips for your community.
-          </p>
-          <div className="inline-flex items-center gap-2 text-slate-700">
-            <MapPin className="h-5 w-5 text-primary" />
-            <span>
-              {officeInfo.address.line1}, {officeInfo.address.city}, {officeInfo.address.region} {officeInfo.address.postalCode}
-            </span>
-          </div>
-          <div className="flex flex-col sm:flex-row justify-center gap-3">
-            <Link href="/schedule#appointment">
-              <Button className="ui-btn-primary">Request an appointment</Button>
-            </Link>
-            <a href={`tel:${officeInfo.phoneE164}`}>
-              <Button variant="outline" className="ui-btn-outline">
-                Call {officeInfo.phone}
-                <Phone className="ml-2 h-4 w-4" />
-              </Button>
-            </a>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-10 lg:grid-cols-12 lg:items-center">
+            <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">
+                <MapPin className="h-4 w-4" aria-hidden="true" />
+                Serving Palo Alto and nearby communities
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold font-heading text-[#1F2933]">Locations We Serve</h1>
+              <p className="text-lg text-slate-700 max-w-3xl mx-auto lg:mx-0">
+                Our Palo Alto dental office welcomes patients from across the Peninsula. Use the links below to find
+                location-specific FAQs, service highlights, and planning tips for your community.
+              </p>
+              <div className="inline-flex items-center gap-2 text-slate-700">
+                <MapPin className="h-5 w-5 text-primary" aria-hidden="true" />
+                <span>
+                  {officeInfo.address.line1}, {officeInfo.address.city}, {officeInfo.address.region}{" "}
+                  {officeInfo.address.postalCode}
+                </span>
+              </div>
+              <div className="flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
+                <Link href="/schedule#appointment">
+                  <Button className="ui-btn-primary">Request an appointment</Button>
+                </Link>
+                <a href={`tel:${officeInfo.phoneE164}`}>
+                  <Button variant="outline" className="ui-btn-outline">
+                    Call {officeInfo.phone}
+                    <Phone className="ml-2 h-4 w-4" />
+                  </Button>
+                </a>
+              </div>
+            </div>
+
+            <div className="lg:col-span-5">
+              <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
+                <div className="relative">
+                  <OptimizedImage
+                    src="/images/palo-alto-community-serving.png"
+                    alt="Illustrated scene of a Palo Alto dental team welcoming local families and nearby communities"
+                    width={1536}
+                    height={1024}
+                    priority
+                    fetchPriority="high"
+                    sizes="(max-width: 1024px) 100vw, 38vw"
+                    quality={72}
+                    className="aspect-[3/2] w-full"
+                    objectPosition="50% 50%"
+                  />
+                  <div className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-slate-900 shadow-sm">
+                    Community care
+                  </div>
+                </div>
+                <div className="border-t border-slate-100 px-5 py-4">
+                  <p className="text-sm font-semibold text-slate-900">
+                    One Palo Alto office, care for families across the Peninsula
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                    This visual reinforces what this page is for: helping Palo Alto, Stanford, Menlo Park, Mountain
+                    View, Los Altos, and nearby patients find the clearest path into care.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

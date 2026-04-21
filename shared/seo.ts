@@ -262,7 +262,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "Stanford students and families choose Dr. Wong in Palo Alto for cleanings, Invisalign, restorations, and same‑day emergency visits.",
     canonicalPath: "/dentist-stanford",
-    ogImage: DEFAULT_OG_IMAGE,
+    ogImage: "/images/stanford-dentist.png",
   },
   "/dentist-mountain-view": {
     title: "Mountain View Family Dentist | Nearby Palo Alto Care | Christopher B. Wong, DDS",
@@ -325,7 +325,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "Explore the Peninsula locations we serve from our Palo Alto dental office, including Menlo Park, Stanford, Mountain View, Los Altos, and more.",
     canonicalPath: "/locations",
-    ogImage: DEFAULT_OG_IMAGE,
+    ogImage: "/images/palo-alto-community-serving.png",
   },
   "/dental-implants": {
     title: "Dental Implants in Palo Alto | Implant Restoration | Christopher B. Wong, DDS",
