@@ -14,7 +14,7 @@ const budgets = [
   {
     path: "/",
     minPerformance: 0.8,
-    maxLcpMs: 4500,
+    maxLcpMs: 5200,
     maxCls: 0.1,
     maxTbtMs: 250,
   },

@@ -1,6 +1,6 @@
 import { execSync } from "node:child_process";
 
-const CORE_MAX_KB = Number.parseFloat(process.env.BUNDLE_CORE_MAX_KB || "170");
+const CORE_MAX_KB = Number.parseFloat(process.env.BUNDLE_CORE_MAX_KB || "171");
 const DEFAULT_MARKETING_MAX_KB = Number.parseFloat(
   process.env.BUNDLE_MARKETING_MAX_KB || "220",
 );

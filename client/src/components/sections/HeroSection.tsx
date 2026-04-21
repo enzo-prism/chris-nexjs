@@ -6,7 +6,7 @@ import OptimizedImage from "@/components/seo/OptimizedImage";
 import AnimatedDentalAura from "@/components/common/animated/AnimatedDentalAura";
 
 const HERO_IMAGE_SRC =
-  "https://res.cloudinary.com/dhqpqfw6w/image/upload/f_auto,q_auto:eco,w_1120/v1762989226/Post-11_nohz6f";
+  "https://res.cloudinary.com/dhqpqfw6w/image/upload/f_auto,q_auto:eco,w_960/v1762989226/Post-11_nohz6f";
 
 type HeroSectionProps = {
   reviewCount?: number;
@@ -146,11 +146,11 @@ const HeroSection = ({ reviewCount = 0 }: HeroSectionProps) => {
             <div className="relative rounded-2xl overflow-hidden shadow-lg ring-1 ring-white/10 mb-12">
               <OptimizedImage
                 src={HERO_IMAGE_SRC}
-                width={1120}
-                height={747}
+                width={960}
+                height={640}
                 priority
                 fetchPriority="high"
-                sizes="(max-width: 1024px) 100vw, 60vw"
+                sizes="(max-width: 1024px) 100vw, 56vw"
                 quality={70}
                 alt="Dr. Wong's modern Palo Alto dental office"
                 className="w-full h-auto object-cover rounded-2xl aspect-[4/3]"

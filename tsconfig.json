@@ -5,7 +5,8 @@
     "scripts/**/*",
     "shared/**/*",
     "server/**/*",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    ".next-perf/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

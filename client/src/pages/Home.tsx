@@ -135,46 +135,46 @@ const Home = (props: any) => {
   const trackTranslatePercent =
     testimonialCount > 0 ? (activeTestimonial * 100) / testimonialCount : 0;
 
-    const homeFaqs: FAQEntry[] = [
-      {
-        question: "Where is your Palo Alto dental office located?",
-        answer: `Our office is located at ${officeInfo.address.line1}, ${officeInfo.address.line2}. Use the directions link on this page or call our team if you’d like parking tips before your visit.`,
-      },
-      {
-        question: "Are you accepting new patients?",
-        answer:
-          "Yes—new patients are welcome. We’ll start with a thorough exam and a clear conversation about your goals, concerns, and the next best steps.",
-      },
-      {
-        question: "What services do you offer?",
-        answer:
-          "We offer preventive checkups and cleanings, cosmetic dentistry, Invisalign, restorative care, and emergency dental visits. Explore our services page for details and common next steps.",
-      },
-      {
-        question: "Do you accept dental insurance?",
-        answer:
-          "We work with many PPO insurance plans. If you share your plan information, our team can help verify benefits and walk through expected costs before you commit to treatment.",
-      },
-      {
-        question: "What if I have a dental emergency?",
-        answer:
-          "If you have significant pain, swelling, or a broken tooth, call our office as soon as possible. We’ll help you understand what to do next and schedule urgent care when available.",
-      },
-      {
-        question: "How do I schedule an appointment?",
-        answer:
-          "You can request an appointment online or call our office. We’ll confirm a time and help you prepare for your first visit.",
-      },
-    ];
+  const homeFaqs: FAQEntry[] = [
+    {
+      question: "Where is your Palo Alto dental office located?",
+      answer: `Our office is located at ${officeInfo.address.line1}, ${officeInfo.address.line2}. Use the directions link on this page or call our team if you’d like parking tips before your visit.`,
+    },
+    {
+      question: "Are you accepting new patients?",
+      answer:
+        "Yes—new patients are welcome. We’ll start with a thorough exam and a clear conversation about your goals, concerns, and the next best steps.",
+    },
+    {
+      question: "What services do you offer?",
+      answer:
+        "We offer preventive checkups and cleanings, cosmetic dentistry, Invisalign, restorative care, and emergency dental visits. Explore our services page for details and common next steps.",
+    },
+    {
+      question: "Do you accept dental insurance?",
+      answer:
+        "We work with many PPO insurance plans. If you share your plan information, our team can help verify benefits and walk through expected costs before you commit to treatment.",
+    },
+    {
+      question: "What if I have a dental emergency?",
+      answer:
+        "If you have significant pain, swelling, or a broken tooth, call our office as soon as possible. We’ll help you understand what to do next and schedule urgent care when available.",
+    },
+    {
+      question: "How do I schedule an appointment?",
+      answer:
+        "You can request an appointment online or call our office. We’ll confirm a time and help you prepare for your first visit.",
+    },
+  ];
 
-    const schemaNodes = [];
-    const faqSchema = buildFAQSchema(homeFaqs, "/");
-    if (faqSchema) {
-      schemaNodes.push(faqSchema);
-    }
+  const schemaNodes = [];
+  const faqSchema = buildFAQSchema(homeFaqs, "/");
+  if (faqSchema) {
+    schemaNodes.push(faqSchema);
+  }
 
-	  return (
-	    <>
+  return (
+    <>
       <StructuredData data={schemaNodes} />
       <HeroSection reviewCount={initialTestimonials.length} />
 

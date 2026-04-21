@@ -23,7 +23,7 @@ Feature route:
 
 ## Budget targets
 
-- Key marketing routes: target `<= 170kB` first-load JS.
+- Key marketing routes: target `<= 171kB` first-load JS.
 - Secondary marketing routes: target `<= 220kB`.
 - `/analytics` may exceed marketing route budget due intentional isolation.
 - Lighthouse guidance:

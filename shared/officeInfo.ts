@@ -33,13 +33,7 @@ export const officeInfo = {
       closes: "14:00",
     },
   ],
-  specialOpeningHoursSpecification: [
-    {
-      "@type": "OpeningHoursSpecification",
-      validFrom: "2026-04-09",
-      validThrough: "2026-04-10",
-    },
-  ],
+  specialOpeningHoursSpecification: [],
   phone: "(650) 326-6319",
   email: "chrisbwongdds@gmail.com",
   socialMedia: {
@@ -53,7 +47,7 @@ export const officeInfo = {
 export type OfficeInfo = typeof officeInfo;
 
 export const holidayHours = {
-  active: true,
+  active: false,
   id: "office-hours-2026-04-06-through-2026-04-17",
   title: "Temporary schedule update: April 6 to April 17, 2026",
   description:
