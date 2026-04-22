@@ -245,12 +245,77 @@ async function testDefaultFormspreeFallback() {
   }
 }
 
+async function testBlankEnvironmentFallsBackToDefaultFormspreeEndpoint() {
+  const originalFetch = globalThis.fetch;
+  const originalScheduleEndpoint = process.env.SCHEDULE_FORM_ENDPOINT;
+  const originalPublicEndpoint = process.env.NEXT_PUBLIC_FORM_ENDPOINT;
+  const calls: RecordedCall[] = [];
+
+  process.env.SCHEDULE_FORM_ENDPOINT = "   ";
+  process.env.NEXT_PUBLIC_FORM_ENDPOINT = "";
+
+  globalThis.fetch = async (input: URL | RequestInfo, init?: RequestInit) => {
+    const url =
+      typeof input === "string"
+        ? input
+        : input instanceof URL
+          ? input.toString()
+          : input.url;
+    const method = init?.method ?? "GET";
+    const body =
+      typeof init?.body === "string" && init.body.length > 0
+        ? (JSON.parse(init.body) as Record<string, unknown>)
+        : {};
+
+    calls.push({ url, method, body });
+
+    return new Response(JSON.stringify({ ok: true }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  };
+
+  try {
+    const response = await postScheduleRequest(
+      requestWithBody({
+        isEmergency: false,
+        appointmentType: "New Patient Exam & Cleaning",
+        schedulingMode: "first_available",
+        firstName: "Blank",
+        lastName: "Environment",
+        phone: "6505551212",
+        email: "blank.environment@example.com",
+        contactPreference: "phone",
+      }),
+    );
+
+    assert.equal(response.status, 201);
+    assert.equal(calls.length, 1, "expected exactly one webhook call");
+    assert.equal(calls[0].url, "https://formspree.io/f/xojnrjna");
+  } finally {
+    globalThis.fetch = originalFetch;
+
+    if (originalScheduleEndpoint === undefined) {
+      delete process.env.SCHEDULE_FORM_ENDPOINT;
+    } else {
+      process.env.SCHEDULE_FORM_ENDPOINT = originalScheduleEndpoint;
+    }
+
+    if (originalPublicEndpoint === undefined) {
+      delete process.env.NEXT_PUBLIC_FORM_ENDPOINT;
+    } else {
+      process.env.NEXT_PUBLIC_FORM_ENDPOINT = originalPublicEndpoint;
+    }
+  }
+}
+
 (async function run() {
   await testLegacyPayloadCompatibility();
   await testV2PayloadCompatibility();
   await testFirstAvailableMode();
   await testValidationFailures();
   await testDefaultFormspreeFallback();
+  await testBlankEnvironmentFallsBackToDefaultFormspreeEndpoint();
 
   console.log("Schedule request contract checks passed.");
 })().catch((error: unknown) => {
