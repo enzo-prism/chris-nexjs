@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { fromZodError } from "zod-validation-error";
 import { ZodError } from "zod";
 import { getAnalyticsPathFromUrl } from "@shared/analytics";
+import { getScheduleFormspreeEndpoint } from "@shared/formspree";
 import {
   legacyScheduleRequestSchema,
   normalizeSchedulePhone,
@@ -242,10 +243,7 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString(),
     };
 
-    const formspreeEndpoint =
-      process.env.SCHEDULE_FORM_ENDPOINT ??
-      process.env.NEXT_PUBLIC_FORM_ENDPOINT ??
-      "";
+    const formspreeEndpoint = getScheduleFormspreeEndpoint();
 
     if (!formspreeEndpoint) {
       return NextResponse.json(

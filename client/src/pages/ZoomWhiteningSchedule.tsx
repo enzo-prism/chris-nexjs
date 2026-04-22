@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { officeInfo } from "@/lib/data";
+import { getPublicFormspreeEndpoint } from "@shared/formspree";
 
 const WEEKDAY_TIME_WINDOWS = [
   { value: "8:00 AM - 9:00 AM", label: "8:00 AM - 9:00 AM" },
@@ -27,8 +28,7 @@ const FRIDAY_TIME_WINDOWS = WEEKDAY_TIME_WINDOWS.slice(0, 6);
 const selectClassName =
   "h-12 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
 
-const FORM_ENDPOINT =
-  process.env.NEXT_PUBLIC_FORM_ENDPOINT ?? "https://formspree.io/f/xojnrjna";
+const FORM_ENDPOINT = getPublicFormspreeEndpoint();
 
 const getDayOfWeek = (value: string): number | null => {
   if (!value) return null;
