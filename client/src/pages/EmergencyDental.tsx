@@ -286,9 +286,6 @@ const EmergencyDental = () => {
               <SupportImageCard
                 src="/images/generated/services/emergency-dental.webp"
                 alt="Dentist reassuring a patient during a same-day emergency visit in a modern Palo Alto treatment room"
-                eyebrow="Urgent help"
-                title="Fast guidance with a calm, professional visit"
-                description="This image supports the page’s tone: same-day emergency care should feel efficient and reassuring, not chaotic or dramatic."
                 priority
                 objectPosition="50% 48%"
               />

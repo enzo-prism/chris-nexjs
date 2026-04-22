@@ -162,9 +162,6 @@ const DentistMountainView = () => {
               <SupportImageCard
                 src="/images/generated/locations/dentist-mountain-view.webp"
                 alt="Adult patient talking with a dentist during a routine checkup in a bright premium Palo Alto treatment room"
-                eyebrow="Near Mountain View"
-                title="Nearby care that fits a busy Mountain View schedule"
-                description="The goal here is to make the page feel practical and reassuring for adults and families who want modern care close by, without a rushed or corporate feel."
                 priority
                 objectPosition="50% 48%"
               />

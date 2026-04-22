@@ -136,9 +136,6 @@ const PreventiveDentistry = () => {
               <SupportImageCard
                 src="/images/generated/services/preventive-dentistry.webp"
                 alt="Preventive dentistry consultation in a bright modern Palo Alto treatment room"
-                eyebrow="Routine care"
-                title="A calm visit built around catching problems early"
-                description="This image supports the real value of preventive care on the page: comfortable cleanings, clear exams, and early treatment before bigger issues develop."
                 priority
                 objectPosition="50% 48%"
               />

@@ -168,32 +168,18 @@ const Locations = () => {
 
             <div className="lg:col-span-5">
               <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
-                <div className="relative">
-                  <OptimizedImage
-                    src="/images/palo-alto-community-serving.png"
-                    alt="Illustrated scene of a Palo Alto dental team welcoming local families and nearby communities"
-                    width={1536}
-                    height={1024}
-                    priority
-                    fetchPriority="high"
-                    sizes="(max-width: 1024px) 100vw, 38vw"
-                    quality={72}
-                    className="aspect-[3/2] w-full"
-                    objectPosition="50% 50%"
-                  />
-                  <div className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-slate-900 shadow-sm">
-                    Community care
-                  </div>
-                </div>
-                <div className="border-t border-slate-100 px-5 py-4">
-                  <p className="text-sm font-semibold text-slate-900">
-                    One Palo Alto office, care for families across the Peninsula
-                  </p>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                    This visual reinforces what this page is for: helping Palo Alto, Stanford, Menlo Park, Mountain
-                    View, Los Altos, and nearby patients find the clearest path into care.
-                  </p>
-                </div>
+                <OptimizedImage
+                  src="/images/palo-alto-community-serving.png"
+                  alt="Illustrated scene of a Palo Alto dental team welcoming local families and nearby communities"
+                  width={1536}
+                  height={1024}
+                  priority
+                  fetchPriority="high"
+                  sizes="(max-width: 1024px) 100vw, 38vw"
+                  quality={72}
+                  className="aspect-[3/2] w-full"
+                  objectPosition="50% 50%"
+                />
               </div>
             </div>
           </div>

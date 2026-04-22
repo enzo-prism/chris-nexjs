@@ -162,9 +162,6 @@ const DentistLosAltos = () => {
               <SupportImageCard
                 src="/images/generated/locations/dentist-los-altos.webp"
                 alt="Adult patient consulting with a dentist in a serene upscale Palo Alto treatment room with warm daylight"
-                eyebrow="Near Los Altos"
-                title="A polished consult experience for prevention and cosmetic goals"
-                description="This image supports the page’s message for Los Altos patients who want conservative care, clear answers, and a calm environment that still feels elevated."
                 priority
                 objectPosition="50% 45%"
               />

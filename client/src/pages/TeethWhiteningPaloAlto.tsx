@@ -205,9 +205,6 @@ const TeethWhiteningPaloAlto = () => {
               <SupportImageCard
                 src="/images/generated/services/teeth-whitening-palo-alto.webp"
                 alt="Editorial diagram showing professional teeth whitening, stain sources, and a brighter natural result"
-                eyebrow="Whitening plan"
-                title="The right whitening plan is about fit, limits, and upkeep"
-                description="This visual supports the page’s practical guidance: who whitening helps most, what it does not change, and why dentist supervision matters."
                 priority
                 objectPosition="50% 50%"
               />

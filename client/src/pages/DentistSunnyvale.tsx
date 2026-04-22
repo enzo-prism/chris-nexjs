@@ -162,9 +162,6 @@ const DentistSunnyvale = () => {
               <SupportImageCard
                 src="/images/generated/locations/dentist-sunnyvale.webp"
                 alt="Dentist talking with a Sunnyvale teen and parent in a bright comfortable Palo Alto treatment room"
-                eyebrow="Near Sunnyvale"
-                title="Approachable family dentistry without sacrificing quality"
-                description="This page now gets a visual that matches the copy: modern, nearby care for Sunnyvale families with enough warmth to feel easy and enough polish to feel trustworthy."
                 priority
                 objectPosition="50% 48%"
               />

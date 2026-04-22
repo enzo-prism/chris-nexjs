@@ -121,9 +121,6 @@ const CavityFillingsPaloAlto = () => {
               <SupportImageCard
                 src="/images/generated/services/cavity-fillings-palo-alto.webp"
                 alt="Editorial diagram showing early cavity treatment, a conservative filling, and how delay can lead to larger repairs"
-                eyebrow="Early treatment"
-                title="A small repair is usually the easiest repair"
-                description="This illustration supports the page’s core message: when decay is caught early, treatment stays simpler, more conservative, and easier on the tooth."
                 priority
                 objectPosition="50% 50%"
               />

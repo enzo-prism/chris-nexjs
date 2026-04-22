@@ -182,9 +182,6 @@ const DentistMenloPark = () => {
               <SupportImageCard
                 src="/images/generated/locations/dentist-menlo-park.webp"
                 alt="Dentist speaking with a Menlo Park parent and child in a warm modern Palo Alto treatment room"
-                eyebrow="Near Menlo Park"
-                title="Family-focused care that still feels calm and polished"
-                description="This visual reinforces the kind of visit Menlo Park families are looking for: nearby, modern, prevention-first care with clear guidance for both parents and kids."
                 priority
                 objectPosition="50% 48%"
               />

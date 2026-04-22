@@ -165,32 +165,18 @@ const DentistStanford = () => {
 
             <div className="lg:col-span-5 space-y-6">
               <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
-                <div className="relative">
-                  <OptimizedImage
-                    src="/images/stanford-dentist.png"
-                    alt="Stanford student speaking with the dental team in our Palo Alto office with Hoover Tower visible outside"
-                    width={1536}
-                    height={1024}
-                    priority
-                    fetchPriority="high"
-                    sizes="(max-width: 1024px) 100vw, 38vw"
-                    quality={72}
-                    className="aspect-[3/2] w-full"
-                    objectPosition="58% 50%"
-                  />
-                  <div className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-slate-900 shadow-sm">
-                    Near campus
-                  </div>
-                </div>
-                <div className="border-t border-slate-100 px-5 py-4">
-                  <p className="text-sm font-semibold text-slate-900">
-                    A Palo Alto dental visit that feels easy to fit into Stanford life
-                  </p>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                    This page is for students, faculty, staff, and families who want a calm office close to campus,
-                    with modern care and straightforward next steps.
-                  </p>
-                </div>
+                <OptimizedImage
+                  src="/images/stanford-dentist.png"
+                  alt="Stanford student speaking with the dental team in our Palo Alto office with Hoover Tower visible outside"
+                  width={1536}
+                  height={1024}
+                  priority
+                  fetchPriority="high"
+                  sizes="(max-width: 1024px) 100vw, 38vw"
+                  quality={72}
+                  className="aspect-[3/2] w-full"
+                  objectPosition="58% 50%"
+                />
               </div>
 
               <div className="space-y-6 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
