@@ -9,7 +9,7 @@ import {
   buildExcerpt,
   NOINDEX_ROBOTS,
 } from "@shared/seo";
-import { getBlogArtImagePath } from "@shared/blogArt";
+import { resolveBlogImagePath } from "@shared/blogArt";
 import { getBlogSeoMetadata } from "@shared/blogSeo";
 import LegacyShell from "./legacy-shell";
 
@@ -57,7 +57,9 @@ export async function generateMetadata({
     const post = await storage.getBlogPostBySlug(postSlug);
 
     if (post) {
-      const absoluteImage = toAbsoluteUrl(getBlogArtImagePath(post.slug));
+      const absoluteImage = toAbsoluteUrl(
+        resolveBlogImagePath(post) ?? "/images/dr_wong_polaroids.png",
+      );
       const blogSeo = getBlogSeoMetadata(post);
       const pageTitle = blogSeo?.title ?? `${post.title} | Christopher B. Wong, DDS`;
       const excerpt = blogSeo?.description ?? buildExcerpt(post.content);

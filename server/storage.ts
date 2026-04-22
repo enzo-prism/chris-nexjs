@@ -362,7 +362,7 @@ export class MemStorage implements IStorage {
       {
         title: "Emergency Dental Care",
         description: "Same-day emergency dental services for urgent problems including severe toothaches, trauma, broken teeth, and infections.",
-        image: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1763585455/Gemini_Generated_Image_3fvkl73fvkl73fvk_sbv4kj.webp",
+        image: "/images/generated/blog/emergency-dental-care-palo-alto.webp",
         slug: "emergency-dental",
         featured: true
       }
@@ -492,7 +492,7 @@ Visit us: 409 Cambridge Ave, Palo Alto, CA 94306
 Book online: www.chriswongdds.com/schedule
 
 We are here to help quickly, safely, and with compassion.`,
-        image: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1763585455/Gemini_Generated_Image_3fvkl73fvkl73fvk_sbv4kj.webp",
+        image: "/images/generated/blog/emergency-dental-care-palo-alto.webp",
         date: "March 5, 2025",
         slug: "emergency-dental-care-palo-alto",
         category: "Emergency Dental",
@@ -641,7 +641,7 @@ A hospital ER is usually not the best place for routine tooth fractures. Call a 
 In many cases, yes. A crown can protect a weakened tooth and help prevent the crack from worsening, depending on how deep the damage goes.
 
 If you think you may have cracked a tooth, contact Chris Wong DDS to schedule an evaluation and get a clear, conservative treatment plan.`,
-        image: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1763585455/Gemini_Generated_Image_3fvkl73fvkl73fvk_sbv4kj.webp",
+        image: "/images/generated/blog/cracked-tooth-emergency-dentist-palo-alto.webp",
         date: "March 15, 2026",
         slug: "cracked-tooth-emergency-dentist-palo-alto",
         category: "Emergency Dental",
@@ -1167,7 +1167,7 @@ Sometimes. If the adjacent teeth have been reduced for crowns, conversion is pos
 If you are deciding between an implant and a bridge, book a focused consult with Dr. Wong. Digital imaging and clear estimates make it easier to compare outcomes, timelines, and costs without pressure.
 
 If you want help thinking through which tooth replacement option fits your goals, [contact the office](/contact) to schedule a visit. The goal is a clear plan, not a sales pitch.`,
-        image: "/images/dr-wong-office-1.png",
+        image: "/images/generated/blog/dental-implants-vs-bridge-palo-alto.webp",
         date: "March 26, 2026",
         slug: "dental-implants-vs-bridge-palo-alto",
         category: "Restorative Dentistry",
@@ -1456,7 +1456,7 @@ If it is occasional and improving, you may monitor it briefly. If it keeps retur
 If you have a tooth sensitive to cold in Palo Alto, the safest move is to get it checked before the issue becomes more painful or more expensive to fix. Chris Wong DDS provides modern, conservative care for children, teens, and adults, with treatment plans built around long-term comfort and clarity.
 
 [Contact the office](/contact) to schedule an evaluation. You will get a clear explanation of what may be causing the sensitivity and what the most practical next step looks like for your smile.`,
-        image: "/images/dr-wong-office-1.png",
+        image: "/images/generated/blog/why-is-my-tooth-sensitive-to-cold-palo-alto.webp",
         date: "March 26, 2026",
         slug: "why-is-my-tooth-sensitive-to-cold-palo-alto",
         category: "Restorative Dentistry",
@@ -2050,7 +2050,7 @@ When should you whiten again?
 If you notice your shade drifting or you have an upcoming event, we can help you plan a safe touch‑up schedule. If you’re prone to sensitivity, a slower approach may be more comfortable.
 
 If you’re considering teeth whitening in Palo Alto, the best next step is a quick evaluation to confirm whitening is appropriate for your enamel, gums, and any existing restorations.`,
-        image: "/images/dr-wong-office-2.png",
+        image: "/images/generated/blog/how-long-does-teeth-whitening-last.webp",
         date: "December 1, 2025",
         slug: "how-long-does-teeth-whitening-last",
         category: "Teeth Whitening",
@@ -2888,7 +2888,7 @@ Usually yes. Even a small chip can create roughness, sensitivity, or more visibl
 If you chipped a front tooth and are weighing bonding versus a veneer, the smartest next step is not guessing from photos online. It is getting a careful exam that looks at the tooth, the bite, and your long-term goals.
 
 Christopher B. Wong, DDS provides modern, conservative dentistry for Palo Alto patients who want clear guidance and natural-looking results. If you are deciding between bonding and a veneer for one chipped front tooth, schedule a visit and get a plan that fits your smile instead of a one-size-fits-all answer.`,
-        image: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1763577353/Gemini_Generated_Image_ta4fp4ta4fp4ta4f_xlkjgw.webp",
+        image: "/images/generated/blog/cosmetic-bonding-vs-veneer-for-one-chipped-front-tooth-palo-alto.webp",
         date: "April 1, 2026",
         slug: "cosmetic-bonding-vs-veneer-for-one-chipped-front-tooth-palo-alto",
         category: "Cosmetic Dentistry",

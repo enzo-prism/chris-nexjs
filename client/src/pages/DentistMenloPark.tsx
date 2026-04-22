@@ -4,6 +4,7 @@ import MetaTags from "@/components/common/MetaTags";
 import OfficeHoursSummary from "@/components/common/OfficeHoursSummary";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import RelatedServices, { type RelatedServiceLink } from "@/components/common/RelatedServices";
+import SupportImageCard from "@/components/common/SupportImageCard";
 import StructuredData from "@/components/seo/StructuredData";
 import TestimonialQuote from "@/components/testimonials/TestimonialQuote";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -177,7 +178,16 @@ const DentistMenloPark = () => {
               </ul>
             </div>
 
-            <div className="lg:col-span-5">
+            <div className="lg:col-span-5 space-y-6">
+              <SupportImageCard
+                src="/images/generated/locations/dentist-menlo-park.webp"
+                alt="Dentist speaking with a Menlo Park parent and child in a warm modern Palo Alto treatment room"
+                eyebrow="Near Menlo Park"
+                title="Family-focused care that still feels calm and polished"
+                description="This visual reinforces the kind of visit Menlo Park families are looking for: nearby, modern, prevention-first care with clear guidance for both parents and kids."
+                priority
+                objectPosition="50% 48%"
+              />
               <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm space-y-6">
                 <div className="flex items-start gap-3">
                   <MapPin className="h-5 w-5 text-primary mt-0.5 shrink-0" aria-hidden="true" />

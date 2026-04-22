@@ -4,6 +4,7 @@ import MetaTags from "@/components/common/MetaTags";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import RelatedServices, { type RelatedServiceLink } from "@/components/common/RelatedServices";
 import RelatedServicePosts from "@/components/blog/RelatedServicePosts";
+import SupportImageCard from "@/components/common/SupportImageCard";
 import StructuredData from "@/components/seo/StructuredData";
 import FAQSection from "@/components/common/FAQSection";
 import { Button } from "@/components/ui/button";
@@ -97,27 +98,51 @@ const PreventiveDentistry = () => {
       <PageBreadcrumbs items={breadcrumbItems} />
 
       <section className="bg-gradient-to-b from-[#F5F9FC] to-white py-12 md:py-20">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-          <h1 className="text-4xl md:text-5xl font-bold font-heading text-slate-900">
-            Preventive Dentistry in Palo Alto
-          </h1>
-          <p className="text-lg md:text-xl text-slate-700 leading-relaxed max-w-3xl mx-auto">
-            Preventive dentistry is the simplest way to protect your teeth, avoid
-            surprise emergencies, and keep your smile healthy long‑term. Dr. Christopher
-            B. Wong and our team focus on thorough, comfortable checkups that catch
-            issues early—when they’re easiest to treat.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/schedule#appointment">
-              <Button className="ui-btn-primary">
-                Book a checkup
-              </Button>
-            </Link>
-            <Link href="/contact">
-              <Button variant="outline" className="ui-btn-outline">
-                Ask a question
-              </Button>
-            </Link>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-10 lg:grid-cols-12 lg:items-start">
+            <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+              <div className="inline-flex items-center rounded-full bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">
+                Prevention first
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold font-heading text-slate-900">
+                Preventive Dentistry in Palo Alto
+              </h1>
+              <p className="text-lg md:text-xl text-slate-700 leading-relaxed max-w-3xl mx-auto lg:mx-0">
+                Preventive dentistry is the simplest way to protect your teeth, avoid
+                surprise emergencies, and keep your smile healthy long‑term. Dr.
+                Christopher B. Wong and our team focus on thorough, comfortable
+                checkups that catch issues early, when they are easiest to treat.
+              </p>
+              <p className="text-lg text-slate-700 leading-relaxed max-w-3xl mx-auto lg:mx-0">
+                Most preventive visits combine a professional cleaning, a detailed
+                exam, and digital imaging when needed so we can catch small problems
+                before they become painful or expensive.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+                <Link href="/schedule#appointment">
+                  <Button className="ui-btn-primary">
+                    Book a checkup
+                  </Button>
+                </Link>
+                <Link href="/contact">
+                  <Button variant="outline" className="ui-btn-outline">
+                    Ask a question
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            <div className="lg:col-span-5">
+              <SupportImageCard
+                src="/images/generated/services/preventive-dentistry.webp"
+                alt="Preventive dentistry consultation in a bright modern Palo Alto treatment room"
+                eyebrow="Routine care"
+                title="A calm visit built around catching problems early"
+                description="This image supports the real value of preventive care on the page: comfortable cleanings, clear exams, and early treatment before bigger issues develop."
+                priority
+                objectPosition="50% 48%"
+              />
+            </div>
           </div>
         </div>
       </section>

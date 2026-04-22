@@ -4,6 +4,7 @@ import MetaTags from "@/components/common/MetaTags";
 import OfficeHoursSummary from "@/components/common/OfficeHoursSummary";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import RelatedServices, { type RelatedServiceLink } from "@/components/common/RelatedServices";
+import SupportImageCard from "@/components/common/SupportImageCard";
 import StructuredData from "@/components/seo/StructuredData";
 import TestimonialQuote from "@/components/testimonials/TestimonialQuote";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -157,7 +158,16 @@ const DentistSunnyvale = () => {
               </ul>
             </div>
 
-            <div className="lg:col-span-5">
+            <div className="lg:col-span-5 space-y-6">
+              <SupportImageCard
+                src="/images/generated/locations/dentist-sunnyvale.webp"
+                alt="Dentist talking with a Sunnyvale teen and parent in a bright comfortable Palo Alto treatment room"
+                eyebrow="Near Sunnyvale"
+                title="Approachable family dentistry without sacrificing quality"
+                description="This page now gets a visual that matches the copy: modern, nearby care for Sunnyvale families with enough warmth to feel easy and enough polish to feel trustworthy."
+                priority
+                objectPosition="50% 48%"
+              />
               <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm space-y-6">
                 <div className="flex items-start gap-3">
                   <MapPin className="h-5 w-5 text-primary mt-0.5 shrink-0" aria-hidden="true" />

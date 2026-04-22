@@ -3,6 +3,7 @@
 import MetaTags from "@/components/common/MetaTags";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import RelatedServices, { type RelatedServiceLink } from "@/components/common/RelatedServices";
+import SupportImageCard from "@/components/common/SupportImageCard";
 import StructuredData from "@/components/seo/StructuredData";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
@@ -82,34 +83,51 @@ const CavityFillingsPaloAlto = () => {
       <PageBreadcrumbs items={breadcrumbItems} />
 
       <section className="bg-[#F5F9FC] py-12 md:py-20">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          <h1 className="text-4xl md:text-5xl font-bold font-heading text-[#1F2933]">
-            Cavity Fillings in Palo Alto
-          </h1>
-          <p className="text-lg text-slate-700 leading-relaxed">
-            Cavities are common, but treating them early keeps your smile strong.
-            Dr. Christopher B. Wong provides conservative, tooth‑colored fillings in
-            Palo Alto that restore a tooth’s strength while blending naturally with
-            your enamel.
-          </p>
-          <p className="text-lg text-slate-700 leading-relaxed">
-            A cavity starts when bacteria wear through the outer enamel. At first it
-            may not hurt, which is why routine exams and X‑rays matter. If we catch
-            decay early, we remove only the damaged portion and rebuild the tooth
-            with composite resin that bonds to the structure underneath.
-          </p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-10 lg:grid-cols-12 lg:items-start">
+            <div className="lg:col-span-7 space-y-6">
+              <h1 className="text-4xl md:text-5xl font-bold font-heading text-[#1F2933]">
+                Cavity Fillings in Palo Alto
+              </h1>
+              <p className="text-lg text-slate-700 leading-relaxed max-w-3xl">
+                Cavities are common, but treating them early keeps your smile strong.
+                Dr. Christopher B. Wong provides conservative, tooth‑colored
+                fillings in Palo Alto that restore a tooth’s strength while blending
+                naturally with your enamel.
+              </p>
+              <p className="text-lg text-slate-700 leading-relaxed max-w-3xl">
+                A cavity starts when bacteria wear through the outer enamel. At
+                first it may not hurt, which is why routine exams and X‑rays
+                matter. If we catch decay early, we remove only the damaged
+                portion and rebuild the tooth with composite resin that bonds to
+                the structure underneath.
+              </p>
 
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Link href="/schedule#appointment">
-              <Button className="ui-btn-primary">
-                Schedule a filling visit
-              </Button>
-            </Link>
-            <a href={`tel:${officeInfo.phoneE164}`}>
-              <Button variant="outline" className="ui-btn-outline">
-                Call {officeInfo.phone}
-              </Button>
-            </a>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Link href="/schedule#appointment">
+                  <Button className="ui-btn-primary">
+                    Schedule a filling visit
+                  </Button>
+                </Link>
+                <a href={`tel:${officeInfo.phoneE164}`}>
+                  <Button variant="outline" className="ui-btn-outline">
+                    Call {officeInfo.phone}
+                  </Button>
+                </a>
+              </div>
+            </div>
+
+            <div className="lg:col-span-5">
+              <SupportImageCard
+                src="/images/generated/services/cavity-fillings-palo-alto.webp"
+                alt="Editorial diagram showing early cavity treatment, a conservative filling, and how delay can lead to larger repairs"
+                eyebrow="Early treatment"
+                title="A small repair is usually the easiest repair"
+                description="This illustration supports the page’s core message: when decay is caught early, treatment stays simpler, more conservative, and easier on the tooth."
+                priority
+                objectPosition="50% 50%"
+              />
+            </div>
           </div>
         </div>
       </section>

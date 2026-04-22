@@ -4,7 +4,10 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getBlogSeoMetadata } from "@shared/blogSeo";
-import { getBlogArtImagePath } from "@shared/blogArt";
+import {
+  getCustomBlogImagePath,
+  resolveBlogImagePath,
+} from "@shared/blogArt";
 import type { BlogPost as BlogPostRecord } from "@shared/schema";
 import { useBlogPosts } from "@/hooks/useBlogPosts";
 import MetaTags from "@/components/common/MetaTags";
@@ -17,6 +20,7 @@ import StructuredData from "@/components/seo/StructuredData";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import AuthorBox from "@/components/blog/AuthorBox";
 import AbstractBlogArt from "@/components/blog/AbstractBlogArt";
+import OptimizedImage from "@/components/seo/OptimizedImage";
 import RelatedServices, {
   type RelatedServiceLink,
 } from "@/components/common/RelatedServices";
@@ -229,13 +233,16 @@ const BlogPost = ({ params, initialPosts }: BlogPostPageProps) => {
   const pageDescription = blogSeo?.description ?? pageDescriptions.blog;
   const blogOgImage = getSeoForPath("/blog").ogImage;
   const pageUrl = absoluteUrl(`/blog/${slug}`);
+  const resolvedBlogImage = resolveBlogImagePath(post);
   const blogSchema = post
     ? {
         "@context": "https://schema.org",
         "@type": "BlogPosting",
         headline: post.title,
         description: pageDescription,
-        image: absoluteUrl(getBlogArtImagePath(post.slug)),
+        image: absoluteUrl(
+          resolvedBlogImage ?? blogOgImage ?? "/images/dr_wong_polaroids.png",
+        ),
         datePublished: post.date,
         dateModified: post.date,
         author: {
@@ -556,7 +563,9 @@ const BlogPost = ({ params, initialPosts }: BlogPostPageProps) => {
 
   const supplementalContent = getBlogSupplementalContent(post.category);
   const articleSummary = buildExcerpt(post.content, 180);
-  const articleArtImage = getBlogArtImagePath(post.slug);
+  const articleArtImage =
+    resolvedBlogImage ?? blogOgImage ?? "/images/dr_wong_polaroids.png";
+  const customArticleImage = getCustomBlogImagePath(post);
 
   return (
     <>
@@ -603,10 +612,22 @@ const BlogPost = ({ params, initialPosts }: BlogPostPageProps) => {
             {articleSummary}
           </p>
           <div className="mb-10 overflow-hidden rounded-[32px] border border-sky-100/80 bg-white shadow-[0_30px_90px_-48px_rgba(15,23,42,0.4)]">
-            <AbstractBlogArt
-              slug={post.slug}
-              className="h-56 sm:h-72 md:h-[420px]"
-            />
+            {customArticleImage ? (
+              <OptimizedImage
+                src={customArticleImage}
+                alt={`Editorial illustration for ${post.title}`}
+                width={1200}
+                height={675}
+                sizes="(max-width: 1024px) 100vw, 960px"
+                className="h-56 w-full sm:h-72 md:h-[420px]"
+                objectPosition="50% 50%"
+              />
+            ) : (
+              <AbstractBlogArt
+                slug={post.slug}
+                className="h-56 sm:h-72 md:h-[420px]"
+              />
+            )}
           </div>
           <article
 	            className={cn(

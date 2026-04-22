@@ -7,6 +7,7 @@ import MetaTags from "@/components/common/MetaTags";
 import OfficeHoursSummary from "@/components/common/OfficeHoursSummary";
 import StructuredData from "@/components/seo/StructuredData";
 import { motion } from "@/lib/motion-lite";
+import SupportImageCard from "@/components/common/SupportImageCard";
 import TestimonialQuote from "@/components/testimonials/TestimonialQuote";
 import { getTestimonialsByNames } from "@/lib/testimonials";
 import {
@@ -224,55 +225,75 @@ const EmergencyDental = () => {
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-orange-50 to-white py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center"
-          >
-            <div className="flex justify-center mb-6">
-              <AlertTriangle className="h-16 w-16 text-orange-600" />
-            </div>
-            <h1 className="text-4xl md:text-5xl font-bold font-heading text-[#333333] mb-6">
-              Emergency Dentist in Palo Alto, CA
-            </h1>
-            <p className="text-xl text-[#333333] max-w-4xl mx-auto mb-8">
-              If you need an emergency dentist in Palo Alto, Dr. Christopher B. Wong provides same-day care
-              for urgent toothaches, broken teeth, swelling, and dental trauma. Call now so we can guide you
-              to fast relief and clear next steps.
-            </p>
-            
-            {/* Emergency Contact */}
-            <div className="bg-primary text-white rounded-lg p-6 max-w-2xl mx-auto mb-8">
-              <div className="flex items-center justify-center mb-4">
-                <Phone className="h-8 w-8 mr-3" />
-                <div>
-                  <h3 className="text-xl font-bold">Emergency Line</h3>
-                  <p className="text-blue-100">Call for same-day emergency dental care</p>
-                </div>
+          <div className="grid gap-10 lg:grid-cols-12 lg:items-start">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="lg:col-span-7"
+            >
+              <div className="inline-flex items-center gap-2 rounded-full bg-orange-100 px-4 py-2 text-sm font-semibold text-orange-700">
+                <AlertTriangle className="h-4 w-4" />
+                Same-day emergency care
               </div>
-              <a
-                href={`tel:${officeInfo.phoneE164}`}
-                className="text-3xl font-bold hover:text-blue-100 transition-colors"
-              >
-                {officeInfo.phone}
-              </a>
-            </div>
+              <h1 className="mt-6 text-4xl md:text-5xl font-bold font-heading text-[#333333] mb-6">
+                Emergency Dentist in Palo Alto, CA
+              </h1>
+              <p className="text-xl text-[#333333] max-w-4xl mb-8">
+                If you need an emergency dentist in Palo Alto, Dr. Christopher B.
+                Wong provides same-day care for urgent toothaches, broken teeth,
+                swelling, and dental trauma. Call now so we can guide you to fast
+                relief and clear next steps.
+              </p>
+              
+              <div className="bg-primary text-white rounded-lg p-6 max-w-2xl mb-8">
+                <div className="flex items-center mb-4">
+                  <Phone className="h-8 w-8 mr-3" />
+                  <div>
+                    <h3 className="text-xl font-bold">Emergency Line</h3>
+                    <p className="text-blue-100">Call for same-day emergency dental care</p>
+                  </div>
+                </div>
+                <a
+                  href={`tel:${officeInfo.phoneE164}`}
+                  className="text-3xl font-bold hover:text-blue-100 transition-colors"
+                >
+                  {officeInfo.phone}
+                </a>
+              </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href={`tel:${officeInfo.phoneE164}`}>
-                <Button className="bg-orange-600 hover:bg-orange-700 text-white font-medium px-8 py-3">
-                  Call Emergency Line
-                  <Phone className="ml-2 h-5 w-5" />
-                </Button>
-              </a>
-              <Link href="/contact">
-                <Button variant="outline" className="border-orange-600 text-orange-600 hover:bg-orange-50 px-8 py-3">
-                  Contact Information
-                </Button>
-              </Link>
-            </div>
-          </motion.div>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <a href={`tel:${officeInfo.phoneE164}`}>
+                  <Button className="bg-orange-600 hover:bg-orange-700 text-white font-medium px-8 py-3">
+                    Call Emergency Line
+                    <Phone className="ml-2 h-5 w-5" />
+                  </Button>
+                </a>
+                <Link href="/contact">
+                  <Button variant="outline" className="border-orange-600 text-orange-600 hover:bg-orange-50 px-8 py-3">
+                    Contact Information
+                  </Button>
+                </Link>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="lg:col-span-5"
+            >
+              <SupportImageCard
+                src="/images/generated/services/emergency-dental.webp"
+                alt="Dentist reassuring a patient during a same-day emergency visit in a modern Palo Alto treatment room"
+                eyebrow="Urgent help"
+                title="Fast guidance with a calm, professional visit"
+                description="This image supports the page’s tone: same-day emergency care should feel efficient and reassuring, not chaotic or dramatic."
+                priority
+                objectPosition="50% 48%"
+              />
+            </motion.div>
+          </div>
         </div>
       </section>
 

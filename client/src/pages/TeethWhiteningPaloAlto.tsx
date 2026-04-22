@@ -5,6 +5,7 @@ import MetaTags from "@/components/common/MetaTags";
 import OfficeHoursSummary from "@/components/common/OfficeHoursSummary";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import RelatedServices, { type RelatedServiceLink } from "@/components/common/RelatedServices";
+import SupportImageCard from "@/components/common/SupportImageCard";
 import StructuredData from "@/components/seo/StructuredData";
 import TestimonialQuote from "@/components/testimonials/TestimonialQuote";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -200,7 +201,16 @@ const TeethWhiteningPaloAlto = () => {
               </div>
             </div>
 
-            <div className="lg:col-span-5">
+            <div className="lg:col-span-5 space-y-6">
+              <SupportImageCard
+                src="/images/generated/services/teeth-whitening-palo-alto.webp"
+                alt="Editorial diagram showing professional teeth whitening, stain sources, and a brighter natural result"
+                eyebrow="Whitening plan"
+                title="The right whitening plan is about fit, limits, and upkeep"
+                description="This visual supports the page’s practical guidance: who whitening helps most, what it does not change, and why dentist supervision matters."
+                priority
+                objectPosition="50% 50%"
+              />
               <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm space-y-6">
                 <div className="flex items-start gap-3">
                   <MapPin className="h-5 w-5 text-primary mt-0.5 shrink-0" aria-hidden="true" />

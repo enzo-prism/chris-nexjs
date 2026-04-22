@@ -3,6 +3,8 @@ export const BLOG_ART_VIEWBOX = {
   height: 720,
 } as const;
 
+export const GENERATED_BLOG_IMAGE_PREFIX = "/images/generated/blog/";
+
 type BlogArtPalette = Readonly<{
   backgroundStart: string;
   backgroundMid: string;
@@ -150,6 +152,31 @@ function buildWavePath(
 
 export function getBlogArtImagePath(slug: string): string {
   return `/blog/${slug}/opengraph-image`;
+}
+
+export type BlogImageSource = Readonly<{
+  slug: string;
+  image?: string | null;
+}>;
+
+export function getCustomBlogImagePath(
+  source?: BlogImageSource | null,
+): string | null {
+  const image = source?.image?.trim();
+  return image?.startsWith(GENERATED_BLOG_IMAGE_PREFIX) ? image : null;
+}
+
+export function resolveBlogImagePath(
+  source?: BlogImageSource | null,
+): string | null {
+  if (!source?.slug) return null;
+
+  const image = getCustomBlogImagePath(source);
+  if (image) {
+    return image;
+  }
+
+  return getBlogArtImagePath(source.slug);
 }
 
 export function getBlogArtSpec(slug: string): BlogArtSpec {

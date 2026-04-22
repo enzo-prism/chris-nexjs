@@ -4,6 +4,7 @@ import MetaTags from "@/components/common/MetaTags";
 import OfficeHoursSummary from "@/components/common/OfficeHoursSummary";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import RelatedServices, { type RelatedServiceLink } from "@/components/common/RelatedServices";
+import SupportImageCard from "@/components/common/SupportImageCard";
 import StructuredData from "@/components/seo/StructuredData";
 import TestimonialQuote from "@/components/testimonials/TestimonialQuote";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -157,7 +158,16 @@ const DentistLosAltos = () => {
               </ul>
             </div>
 
-            <div className="lg:col-span-5">
+            <div className="lg:col-span-5 space-y-6">
+              <SupportImageCard
+                src="/images/generated/locations/dentist-los-altos.webp"
+                alt="Adult patient consulting with a dentist in a serene upscale Palo Alto treatment room with warm daylight"
+                eyebrow="Near Los Altos"
+                title="A polished consult experience for prevention and cosmetic goals"
+                description="This image supports the page’s message for Los Altos patients who want conservative care, clear answers, and a calm environment that still feels elevated."
+                priority
+                objectPosition="50% 45%"
+              />
               <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm space-y-6">
                 <div className="flex items-start gap-3">
                   <MapPin className="h-5 w-5 text-primary mt-0.5 shrink-0" aria-hidden="true" />

@@ -4,6 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BlogPost } from "@shared/schema";
 import AbstractBlogArt from "@/components/blog/AbstractBlogArt";
+import OptimizedImage from "@/components/seo/OptimizedImage";
+import { getCustomBlogImagePath } from "@shared/blogArt";
 import { buildExcerpt } from "@/lib/metaContent";
 
 interface BlogPostCardProps {
@@ -13,6 +15,7 @@ interface BlogPostCardProps {
 const BlogPostCard = ({ post }: BlogPostCardProps) => {
   // Extract category from post if available
   const category = post.category || "Dental Health";
+  const customImage = getCustomBlogImagePath(post);
 
   return (
     <Card 
@@ -20,10 +23,22 @@ const BlogPostCard = ({ post }: BlogPostCardProps) => {
       id={post.slug}
     >
       <div className="relative h-48 overflow-hidden rounded-t-2xl border-b border-sky-100/80 bg-[#f7fbff]">
-        <AbstractBlogArt
-          slug={post.slug}
-          className="absolute inset-0 transition-transform duration-500 group-hover:scale-[1.04]"
-        />
+        {customImage ? (
+          <OptimizedImage
+            src={customImage}
+            alt={`Editorial illustration for ${post.title}`}
+            width={1200}
+            height={675}
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className="absolute inset-0 h-full w-full transition-transform duration-500 group-hover:scale-[1.04]"
+            objectPosition="50% 50%"
+          />
+        ) : (
+          <AbstractBlogArt
+            slug={post.slug}
+            className="absolute inset-0 transition-transform duration-500 group-hover:scale-[1.04]"
+          />
+        )}
         
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/12 via-transparent to-white/18"></div>
         

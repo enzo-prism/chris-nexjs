@@ -4,6 +4,7 @@ import MetaTags from "@/components/common/MetaTags";
 import OfficeHoursSummary from "@/components/common/OfficeHoursSummary";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import RelatedServices, { type RelatedServiceLink } from "@/components/common/RelatedServices";
+import SupportImageCard from "@/components/common/SupportImageCard";
 import StructuredData from "@/components/seo/StructuredData";
 import TestimonialQuote from "@/components/testimonials/TestimonialQuote";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -157,7 +158,16 @@ const DentistMountainView = () => {
               </ul>
             </div>
 
-            <div className="lg:col-span-5">
+            <div className="lg:col-span-5 space-y-6">
+              <SupportImageCard
+                src="/images/generated/locations/dentist-mountain-view.webp"
+                alt="Adult patient talking with a dentist during a routine checkup in a bright premium Palo Alto treatment room"
+                eyebrow="Near Mountain View"
+                title="Nearby care that fits a busy Mountain View schedule"
+                description="The goal here is to make the page feel practical and reassuring for adults and families who want modern care close by, without a rushed or corporate feel."
+                priority
+                objectPosition="50% 48%"
+              />
               <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm space-y-6">
                 <div className="flex items-start gap-3">
                   <MapPin className="h-5 w-5 text-primary mt-0.5 shrink-0" aria-hidden="true" />

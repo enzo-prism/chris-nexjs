@@ -13,6 +13,7 @@ import {
   pageDescriptions,
   pageTitles,
 } from "@shared/metaContent";
+import { resolveBlogImagePath } from "@shared/blogArt";
 import { getBlogSeoMetadata } from "@shared/blogSeo";
 import { storage } from "./storage";
 import { DEFAULT_ROBOTS, NOINDEX_ROBOTS, getSeoForPath, seoByPath } from "@shared/seo";
@@ -76,7 +77,7 @@ async function resolveMetaForUrl(url: string): Promise<HtmlMeta> {
           title: blogSeo?.title ?? `${post.title} | Christopher B. Wong, DDS`,
           description: blogSeo?.description ?? buildExcerpt(post.content),
           canonicalPath: pathname,
-          ogImage: post.image || fallbackOgImage,
+          ogImage: resolveBlogImagePath(post) ?? fallbackOgImage,
           type: "article",
           robots: DEFAULT_ROBOTS,
         };
