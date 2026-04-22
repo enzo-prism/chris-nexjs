@@ -5,11 +5,12 @@ import { ArrowRight } from "lucide-react";
 import ButtonLink from "@/components/common/ButtonLink";
 import Link from "next/link";
 import ServiceCard from "@/components/common/ServiceCard";
-import { Service } from "@shared/schema";
+import type { InsertTestimonial, Service } from "@shared/schema";
 import OptimizedImage from "@/components/seo/OptimizedImage";
 import StructuredData from "@/components/seo/StructuredData";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import FAQSection from "@/components/common/FAQSection";
+import TestimonialSection from "@/components/testimonials/TestimonialSection";
 import {
   buildBreadcrumbSchema,
   buildCollectionPageSchema,
@@ -43,6 +44,30 @@ const preventiveDentistryFaqs: FAQEntry[] = [
     question: "What if I haven’t been to the dentist in a while?",
     answer:
       "You’re not alone. We’ll start with a comfortable, judgment‑free exam and a plan that prioritizes your needs. Even after a long gap, preventive care is the best first step to get back on track.",
+  },
+];
+
+const serviceHubTestimonials: readonly InsertTestimonial[] = [
+  {
+    name: "Steve Collins",
+    rating: 5,
+    location: "Google Review",
+    image: "",
+    text: "High skill level, modern tools, helpful guidance and a friendly demeanor. An excellent experience for cleanings and fillings. Strong recommend.",
+  },
+  {
+    name: "Sandi Spires",
+    rating: 5,
+    location: "Google Review",
+    image: "",
+    text: "Just had my 3rd crown installed. Dr. Kris takes great care to make the fit & bite perfect.",
+  },
+  {
+    name: "Michael Austin",
+    rating: 5,
+    location: "Google Review",
+    image: "",
+    text: "Been getting my dental care at this office for nearly 30 years, and both my parents did so before me. Kind and caring, gentle and good, and reasonably priced!",
   },
 ];
 
@@ -271,6 +296,14 @@ const Services = () => {
           </div>
         </div>
       </section>
+
+      <TestimonialSection
+        eyebrow="Google Reviews"
+        title="Patients notice the same things we focus on"
+        subtitle="Across preventive visits, restorative treatment, and family care, patients consistently call out thoughtful guidance, durable work, and a team that makes visits feel easy."
+        testimonials={serviceHubTestimonials}
+        className="bg-[#F5F9FC]"
+      />
 
       <FAQSection
         title="Preventive dentistry FAQs"

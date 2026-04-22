@@ -7,6 +7,7 @@ import RelatedServicePosts from "@/components/blog/RelatedServicePosts";
 import SupportImageCard from "@/components/common/SupportImageCard";
 import StructuredData from "@/components/seo/StructuredData";
 import FAQSection from "@/components/common/FAQSection";
+import TestimonialSection from "@/components/testimonials/TestimonialSection";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import {
@@ -16,6 +17,7 @@ import {
   type FAQEntry,
 } from "@/lib/structuredData";
 import { getSeoForPath } from "@/lib/seo";
+import { getTestimonialCollection } from "@/lib/testimonials";
 
 const preventiveFaqs: FAQEntry[] = [
   {
@@ -47,6 +49,7 @@ const preventiveFaqs: FAQEntry[] = [
 
 const PreventiveDentistry = () => {
   const seo = getSeoForPath("/preventive-dentistry");
+  const preventiveTestimonials = getTestimonialCollection("preventiveDentistry");
 
   const breadcrumbItems = [
     { name: "Home", path: "/" },
@@ -178,6 +181,15 @@ const PreventiveDentistry = () => {
           </p>
         </div>
       </section>
+
+      <TestimonialSection
+        eyebrow="Google Reviews"
+        title="Patients value prevention that feels practical"
+        subtitle="The strongest preventive reviews consistently mention clear guidance, comfortable cleanings, and recommendations that feel thoughtful instead of pushy."
+        testimonials={preventiveTestimonials}
+        className="bg-[#F5F9FC]"
+        containerClassName="max-w-6xl"
+      />
 
       <FAQSection items={preventiveFaqs} title="Preventive dentistry FAQs" />
 

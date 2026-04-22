@@ -4,15 +4,18 @@ import MetaTags from "@/components/common/MetaTags";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import RelatedServices, { type RelatedServiceLink } from "@/components/common/RelatedServices";
 import StructuredData from "@/components/seo/StructuredData";
+import TestimonialSection from "@/components/testimonials/TestimonialSection";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { officeInfo } from "@/lib/data";
 import { getSeoForPath } from "@/lib/seo";
+import { getTestimonialCollection } from "@/lib/testimonials";
 import { buildBreadcrumbSchema, buildFAQSchema, type StructuredDataNode } from "@/lib/structuredData";
 import { Link } from "wouter";
 
 const PediatricDentistPaloAlto = () => {
   const seo = getSeoForPath("/pediatric-dentist-palo-alto");
+  const pediatricTestimonials = getTestimonialCollection("pediatricDentistry");
   const breadcrumbItems = [
     { name: "Home", path: "/" },
     { name: "Pediatric Dentist in Palo Alto", path: "/pediatric-dentist-palo-alto" },
@@ -174,6 +177,14 @@ const PediatricDentistPaloAlto = () => {
           </p>
         </div>
       </section>
+
+      <TestimonialSection
+        className="bg-[#F5F9FC]"
+        eyebrow="Google Reviews"
+        title="Families call out the same things parents care about"
+        subtitle="On family-focused visits, the strongest reviews mention gentle care, practical guidance, and a team that makes kids and parents feel comfortable coming back."
+        testimonials={pediatricTestimonials}
+      />
 
       <section className="py-12 bg-[#F5F9FC]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">

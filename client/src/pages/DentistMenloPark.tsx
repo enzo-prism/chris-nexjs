@@ -1,46 +1,28 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import MetaTags from "@/components/common/MetaTags";
 import OfficeHoursSummary from "@/components/common/OfficeHoursSummary";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import RelatedServices, { type RelatedServiceLink } from "@/components/common/RelatedServices";
-import SupportImageCard from "@/components/common/SupportImageCard";
+import OptimizedImage from "@/components/seo/OptimizedImage";
 import StructuredData from "@/components/seo/StructuredData";
-import TestimonialQuote from "@/components/testimonials/TestimonialQuote";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { officeInfo } from "@/lib/data";
 import { getSeoForPath } from "@/lib/seo";
-import type { InsertTestimonial } from "@shared/schema";
 import { ArrowRight, CheckCircle, Clock, MapPin, Phone } from "lucide-react";
-import {  buildBreadcrumbSchema,
-  buildFAQSchema,  buildReviewSchemas,  type StructuredDataNode,
+import {
+  buildBreadcrumbSchema,
+  buildFAQSchema,
+  type StructuredDataNode,
 } from "@/lib/structuredData";
 import { Link } from "wouter";
 
-const familyTestimonials: InsertTestimonial[] = [
-  {
-    name: "Michael Austin",
-    rating: 5,
-    location: "Google Review",
-    image: "",
-    text: "Been getting my dental care at this office for nearly 30 years, and both my parents did so before me. Kind, caring, gentle, and reasonably priced!",
-  },
-  {
-    name: "Ashley Chung",
-    rating: 5,
-    location: "Google Review",
-    image: "",
-    text: "Been going here for 10+ years since I was a kid. Great establishment and excellent teeth cleaning and guidance!",
-  },
-  {
-    name: "Giordano Bruno Beretta",
-    rating: 5,
-    location: "Google Review",
-    image: "",
-    text: "They have been taking good care of my teeth since 1984 and they are in good shape. I highly recommend Dr. Hamamoto for her expertise and humanity.",
-  },
-];
+const MenloParkFamilyTestimonials = dynamic(
+  () => import("@/components/testimonials/MenloParkFamilyTestimonials"),
+  { ssr: false, loading: () => null },
+);
 
 const DentistMenloPark = () => {
   const seo = getSeoForPath("/dentist-menlo-park");
@@ -88,7 +70,6 @@ const DentistMenloPark = () => {
   const faqSchema = buildFAQSchema(faqs, "/dentist-menlo-park");
   if (breadcrumbSchema) structuredDataNodes.push(breadcrumbSchema);
   if (faqSchema) structuredDataNodes.push(faqSchema);
-  structuredDataNodes.push(...buildReviewSchemas(familyTestimonials));
 
   const relatedServices: RelatedServiceLink[] = [
     {
@@ -117,8 +98,6 @@ const DentistMenloPark = () => {
       description: "Same‑day help for toothaches, broken teeth, and trauma.",
     },
   ];
-
-  const lastUpdated = "December 2025";
 
   return (
     <>
@@ -179,12 +158,20 @@ const DentistMenloPark = () => {
             </div>
 
             <div className="lg:col-span-5 space-y-6">
-              <SupportImageCard
-                src="/images/generated/locations/dentist-menlo-park.webp"
-                alt="Dentist speaking with a Menlo Park parent and child in a warm modern Palo Alto treatment room"
-                priority
-                objectPosition="50% 48%"
-              />
+              <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
+                <OptimizedImage
+                  src="/images/generated/locations/dentist-menlo-park.webp"
+                  alt="Dentist speaking with a Menlo Park parent and child in a warm modern Palo Alto treatment room"
+                  width={1536}
+                  height={1024}
+                  priority
+                  fetchPriority="high"
+                  sizes="(max-width: 1024px) 100vw, 40vw"
+                  quality={72}
+                  className="aspect-[3/2] w-full"
+                  objectPosition="50% 48%"
+                />
+              </div>
               <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm space-y-6">
                 <div className="flex items-start gap-3">
                   <MapPin className="h-5 w-5 text-primary mt-0.5 shrink-0" aria-hidden="true" />
@@ -379,29 +366,7 @@ const DentistMenloPark = () => {
       </section>
 
       {/* Patient trust */}
-      <section className="py-12 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-bold font-heading text-[#1F2933]">
-              Trusted by families across the Peninsula
-            </h2>
-            <p className="mt-4 text-sm text-[#4B5563] sm:text-base max-w-3xl mx-auto">
-              Patients appreciate the calm environment, conservative care, and clear explanations—whether they’re coming
-              in for a first visit or continuing long‑term maintenance.
-            </p>
-          </div>
-
-          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-            {familyTestimonials.map((testimonial) => (
-              <TestimonialQuote key={testimonial.name} testimonial={testimonial} />
-            ))}
-          </div>
-
-          <p className="mt-8 text-xs text-slate-500 text-center">
-            Last updated: {lastUpdated}
-          </p>
-        </div>
-      </section>
+      <MenloParkFamilyTestimonials />
 
       <section className="py-12 bg-[#F5F9FC]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">

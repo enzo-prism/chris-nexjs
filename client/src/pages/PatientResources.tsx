@@ -14,6 +14,8 @@ import { pageTitles, pageDescriptions } from "@/lib/metaContent";
 import { officeInfo, faqItems, patientResources } from "@/lib/data";
 import StructuredData from "@/components/seo/StructuredData";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
+import TestimonialSection from "@/components/testimonials/TestimonialSection";
+import { getTestimonialCollection } from "@/lib/testimonials";
 import {
   buildBreadcrumbSchema,
   buildFAQSchema,
@@ -22,6 +24,7 @@ import {
 
 const PatientResources = () => {
   const [activeTab, setActiveTab] = useState("forms");
+  const patientResourceTestimonials = getTestimonialCollection("patientResources");
 
   const faqs = [
     {
@@ -370,6 +373,14 @@ const PatientResources = () => {
           </Tabs>
         </div>
       </section>
+
+      <TestimonialSection
+        className="bg-white"
+        eyebrow="Google Reviews"
+        title="New patients often mention how easy the first visit feels"
+        subtitle="The reviews that fit this page best talk about clear answers, welcoming staff, thoughtful treatment planning, and help navigating insurance and next steps."
+        testimonials={patientResourceTestimonials}
+      />
 
       {/* CTA Section */}
       <section className="py-16 bg-[#F5F9FC]">

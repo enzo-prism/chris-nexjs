@@ -5,15 +5,18 @@ import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import RelatedServices, { type RelatedServiceLink } from "@/components/common/RelatedServices";
 import SupportImageCard from "@/components/common/SupportImageCard";
 import StructuredData from "@/components/seo/StructuredData";
+import TestimonialSection from "@/components/testimonials/TestimonialSection";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { officeInfo } from "@/lib/data";
 import { getSeoForPath } from "@/lib/seo";
 import { buildBreadcrumbSchema, buildFAQSchema, type StructuredDataNode } from "@/lib/structuredData";
+import { getTestimonialCollection } from "@/lib/testimonials";
 import { Link } from "wouter";
 
 const CavityFillingsPaloAlto = () => {
   const seo = getSeoForPath("/cavity-fillings-palo-alto");
+  const fillingTestimonials = getTestimonialCollection("cavityFillings");
   const breadcrumbItems = [
     { name: "Home", path: "/" },
     { name: "Cavity Fillings in Palo Alto", path: "/cavity-fillings-palo-alto" },
@@ -181,6 +184,15 @@ const CavityFillingsPaloAlto = () => {
           </p>
         </div>
       </section>
+
+      <TestimonialSection
+        eyebrow="Google Reviews"
+        title="Patients appreciate conservative restorative care"
+        subtitle="For fillings and early repairs, the strongest reviews mention practical guidance, gentle treatment, and getting small issues handled before they become bigger problems."
+        testimonials={fillingTestimonials}
+        className="bg-[#F5F9FC]"
+        containerClassName="max-w-6xl"
+      />
 
       <section className="py-12 bg-[#F5F9FC]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">

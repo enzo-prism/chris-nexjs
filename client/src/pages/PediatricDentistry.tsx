@@ -6,6 +6,7 @@ import RelatedServices, { type RelatedServiceLink } from "@/components/common/Re
 import RelatedServicePosts from "@/components/blog/RelatedServicePosts";
 import StructuredData from "@/components/seo/StructuredData";
 import FAQSection from "@/components/common/FAQSection";
+import TestimonialSection from "@/components/testimonials/TestimonialSection";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import {
@@ -15,6 +16,7 @@ import {
   type FAQEntry,
 } from "@/lib/structuredData";
 import { getSeoForPath } from "@/lib/seo";
+import { getTestimonialCollection } from "@/lib/testimonials";
 
 const pediatricFaqs: FAQEntry[] = [
   {
@@ -46,6 +48,7 @@ const pediatricFaqs: FAQEntry[] = [
 
 const PediatricDentistry = () => {
   const seo = getSeoForPath("/pediatric-dentistry");
+  const pediatricTestimonials = getTestimonialCollection("pediatricDentistry");
 
   const breadcrumbItems = [
     { name: "Home", path: "/" },
@@ -158,6 +161,14 @@ const PediatricDentistry = () => {
           </p>
         </div>
       </section>
+
+      <TestimonialSection
+        className="bg-[#F5F9FC]"
+        eyebrow="Google Reviews"
+        title="Parents consistently mention comfort, trust, and long-term care"
+        subtitle="The best family-oriented reviews point to gentle visits, clear guidance, and a practice that becomes the steady dental home for parents and kids alike."
+        testimonials={pediatricTestimonials}
+      />
 
       <FAQSection items={pediatricFaqs} title="Pediatric dentistry FAQs" />
 

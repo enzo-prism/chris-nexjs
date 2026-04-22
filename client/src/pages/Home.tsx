@@ -17,7 +17,7 @@ import {
   Quote,
 } from "lucide-react";
 import Link from "next/link";
-import { Service, Testimonial } from "@shared/schema";
+import type { InsertTestimonial, Service, Testimonial } from "@shared/schema";
 import { holidayHours, officeInfo } from "@/lib/data";
 import { isNoAdditionalCommentPlaceholder } from "@/lib/testimonialText";
 import {
@@ -59,12 +59,57 @@ type HomeProps = {
   initialTestimonials?: Testimonial[];
 };
 
+const homeSpotlightTestimonials: readonly InsertTestimonial[] = [
+  {
+    name: "Anne Starr",
+    rating: 5,
+    location: "Google Review",
+    image: "",
+    text: "Dr. Hamamoto did great passing her practice to Dr. Wong! He is great! Helen and Angelisa are the best dental hygienists!",
+  },
+  {
+    name: "Anat Sipres",
+    rating: 5,
+    location: "Google Review",
+    image: "",
+    text: "I can't say enough good things about Dr. Wong's and the entire team. From the warm welcome at the front desk to the thorough care provided by the hygienist, every visit is a pleasure. Highly recommended!",
+  },
+  {
+    name: "Amy Hamachi",
+    rating: 5,
+    location: "Google Review",
+    image: "",
+    text: "Dr. Wong was very pleasant and seemed willing to listen to any questions that I had. He was easy to talk to and had a reasonable plan of care of my teeth. I would recommend him.",
+  },
+  {
+    name: "Sarah Chase",
+    rating: 5,
+    location: "Google Review",
+    image: "",
+    text: "Excellent care, I never worry about if I'm getting the best care or suggestions. I am always confident that the right amount of solutions are recommended. All the newest proven tech and services.",
+  },
+  {
+    name: "Michael Austin",
+    rating: 5,
+    location: "Google Review",
+    image: "",
+    text: "Been getting my dental care at this office for nearly 30 years, and both my parents did so before me. Kind and caring, gentle and good, and reasonably priced!",
+  },
+  {
+    name: "Alan Truscott",
+    rating: 5,
+    location: "Google Review",
+    image: "",
+    text: "Great Dentist, and a great staff. We found Kris on Yelp, and she is perfect for our family. Everyone is easy to work with and the hygienists are awesome. Highly recommend Kris Hamamoto and her Team.",
+  },
+];
+
 const Home = (props: any) => {
   const {
     initialServices = [],
     initialTestimonials = [],
   } = (props ?? {}) as HomeProps;
-  const testimonialsToShow = initialTestimonials.slice(0, 10);
+  const testimonialsToShow = homeSpotlightTestimonials;
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const testimonialCount = testimonialsToShow.length;
   const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -547,7 +592,7 @@ const Home = (props: any) => {
                 >
                   {testimonialsToShow.map((testimonial, index) => (
                     <article
-                      key={`slide-${testimonial.id}-${index}`}
+                      key={`slide-${testimonial.name}-${index}`}
                       className="shrink-0 px-6 pb-10 pt-8 sm:px-10 md:px-16 md:pb-12 md:pt-10"
                       style={{ width: `${slideWidthPercent}%` }}
                     >
@@ -558,7 +603,7 @@ const Home = (props: any) => {
                         <div className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-amber-600">
                           {Array.from({ length: 5 }).map((_, starIndex) => (
                             <span
-                              key={`active-star-${testimonial.id}-${starIndex}`}
+                              key={`active-star-${testimonial.name}-${starIndex}`}
                               className="text-base leading-none"
                             >
                               {starIndex < testimonial.rating ? "★" : "☆"}
@@ -594,7 +639,7 @@ const Home = (props: any) => {
                   return (
                     <button
                       type="button"
-                      key={`preview-${card.id}-${offset}`}
+                      key={`preview-${card.name}-${offset}`}
                       className="rounded-2xl border border-slate-200/90 bg-white/80 px-5 py-4 text-left shadow-sm transition-colors hover:bg-white"
                       onClick={() => setActiveTestimonial(cardIndex)}
                     >
@@ -633,7 +678,7 @@ const Home = (props: any) => {
           <div className="mt-8 flex items-center justify-center gap-2">
             {testimonialsToShow.map((testimonial, index) => (
               <button
-                key={`carousel-dot-${testimonial.id}-${index}`}
+                key={`carousel-dot-${testimonial.name}-${index}`}
                 type="button"
                 aria-label={`Go to testimonial ${index + 1}`}
                 onClick={() => setActiveTestimonial(index)}

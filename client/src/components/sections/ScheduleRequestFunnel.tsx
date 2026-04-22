@@ -11,6 +11,8 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { holidayHours, officeInfo } from "@/lib/data";
+import TestimonialSection from "@/components/testimonials/TestimonialSection";
+import { getTestimonialCollection } from "@/lib/testimonials";
 
 const AppointmentForm = dynamic(
   () => import("@/components/forms/AppointmentForm"),
@@ -26,6 +28,8 @@ const AppointmentForm = dynamic(
 );
 
 const ScheduleRequestFunnel = () => {
+  const scheduleTestimonials = getTestimonialCollection("scheduleFunnel");
+
   return (
     <section
       id="appointment"
@@ -100,6 +104,16 @@ const ScheduleRequestFunnel = () => {
         <div className="mt-8 rounded-[32px] border border-slate-200/80 bg-white px-5 py-6 shadow-[0_30px_90px_-60px_rgba(15,23,42,0.5)] sm:px-8 sm:py-8">
           <AppointmentForm presentation="funnel" />
         </div>
+
+        <TestimonialSection
+          className="pb-0 pt-10"
+          containerClassName="max-w-none px-0"
+          gridClassName="xl:grid-cols-3"
+          eyebrow="Google Reviews"
+          title="Patients say the process feels straightforward from the start"
+          subtitle="For new-patient booking, the strongest reviews mention clear guidance, a caring team, and visits that feel easy to navigate instead of stressful."
+          testimonials={scheduleTestimonials}
+        />
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
           <Link href="/contact">

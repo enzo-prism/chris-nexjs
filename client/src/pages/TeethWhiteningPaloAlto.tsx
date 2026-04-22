@@ -7,12 +7,12 @@ import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import RelatedServices, { type RelatedServiceLink } from "@/components/common/RelatedServices";
 import SupportImageCard from "@/components/common/SupportImageCard";
 import StructuredData from "@/components/seo/StructuredData";
-import TestimonialQuote from "@/components/testimonials/TestimonialQuote";
+import TestimonialSection from "@/components/testimonials/TestimonialSection";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { officeInfo } from "@/lib/data";
 import { getSeoForPath } from "@/lib/seo";
-import { getTestimonialsByNames } from "@/lib/testimonials";
+import { getTestimonialCollection } from "@/lib/testimonials";
 import {
   buildBreadcrumbSchema,
   buildFAQSchema,  buildServiceSchema,  type StructuredDataNode,
@@ -22,12 +22,7 @@ import { Link } from "wouter";
 
 const TeethWhiteningPaloAlto = () => {
   const seo = getSeoForPath("/teeth-whitening-palo-alto");
-
-  const whiteningTestimonials = getTestimonialsByNames([
-    "Kat Vasilakos",
-    "Kevin Zhang",
-    "Ashley Chung",
-  ]);
+  const whiteningTestimonials = getTestimonialCollection("teethWhitening");
 
   const breadcrumbItems = [
     { name: "Home", path: "/" },
@@ -79,8 +74,6 @@ const TeethWhiteningPaloAlto = () => {
     "Whether you have restorations that may need to be color-matched afterward",
     "Insurance/FSA/HSA considerations (most whitening is cosmetic)",
   ];
-
-  const lastUpdated = "December 2025";
 
   const faqs = [
     {
@@ -497,29 +490,13 @@ const TeethWhiteningPaloAlto = () => {
         </div>
       </section>
 
-      <section className="py-12 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-bold font-heading text-[#1F2933]">
-              Trusted cosmetic care in Palo Alto
-            </h2>
-            <p className="mt-4 text-sm text-[#4B5563] sm:text-base max-w-3xl mx-auto">
-              Patients appreciate the calm environment, clear explanations, and natural-looking results across whitening
-              and other cosmetic services.
-            </p>
-          </div>
-
-          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-            {whiteningTestimonials.map((testimonial) => (
-              <TestimonialQuote key={testimonial.name} testimonial={testimonial} />
-            ))}
-          </div>
-
-          <p className="mt-8 text-xs text-slate-500 text-center">
-            Last updated: {lastUpdated}
-          </p>
-        </div>
-      </section>
+      <TestimonialSection
+        eyebrow="Google Reviews"
+        title="Patients notice brighter results and a low-pressure approach"
+        subtitle="For whitening and other cosmetic visits, patients consistently mention better-than-expected stain removal, clear expectations, and results that still feel natural."
+        testimonials={whiteningTestimonials}
+        className="bg-white"
+      />
 
       <section className="py-12 bg-[#F5F9FC]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">

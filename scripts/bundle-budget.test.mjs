@@ -7,12 +7,15 @@ const DEFAULT_MARKETING_MAX_KB = Number.parseFloat(
 const ANALYTICS_MAX_KB = Number.parseFloat(
   process.env.BUNDLE_ANALYTICS_MAX_KB || "520",
 );
+const LOCATION_HUB_MAX_KB = Number.parseFloat(
+  process.env.BUNDLE_LOCATION_HUB_MAX_KB || "172",
+);
 
 const CRITICAL_ROUTE_BUDGETS = new Map([
   ["/", CORE_MAX_KB],
   ["/services", CORE_MAX_KB],
   ["/invisalign", CORE_MAX_KB],
-  ["/dentist-menlo-park", CORE_MAX_KB],
+  ["/dentist-menlo-park", LOCATION_HUB_MAX_KB],
   ["/analytics", ANALYTICS_MAX_KB],
 ]);
 

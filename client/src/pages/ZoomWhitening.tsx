@@ -6,9 +6,10 @@ import { Link } from "wouter";
 import MetaTags from "@/components/common/MetaTags";
 import StructuredData from "@/components/seo/StructuredData";
 import OptimizedImage from "@/components/seo/OptimizedImage";
+import TestimonialSection from "@/components/testimonials/TestimonialSection";
 import { pageTitles, pageDescriptions } from "@/lib/metaContent";
 import { buildBreadcrumbSchema, buildServiceSchema } from "@/lib/structuredData";
-import { getTestimonialsByNames } from "@/lib/testimonials";
+import { getTestimonialCollection } from "@/lib/testimonials";
 import { motion } from "framer-motion";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import RelatedServices, {
@@ -41,11 +42,7 @@ const ZoomWhitening = () => {
     { title: "Fluoride & post-care", description: "Sensitivity care, custom shade check, and at-home guidance to keep results bright." },
   ];
 
-  const whiteningTestimonials = getTestimonialsByNames([
-    "Kat Vasilakos",
-    "Kevin Zhang",
-    "Ashley Chung",
-  ]);
+  const whiteningTestimonials = getTestimonialCollection("zoomWhitening");
 
   const serviceSchema = buildServiceSchema({
     name: "ZOOM! Teeth Whitening",
@@ -288,30 +285,14 @@ const ZoomWhitening = () => {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-bold font-heading text-gray-900 mb-3">
-              Patients love their brighter smiles
-            </h2>
-            <p className="text-gray-600">Real feedback from patients who trust Dr. Wong for cosmetic care.</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {whiteningTestimonials.map((testimonial, index) => (
-              <div key={testimonial.name} className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-                <div className="flex items-center gap-2 text-blue-500 mb-3">
-                  {[...Array(5)].map((_, i) => (
-                    <Sparkles key={i} className={`h-4 w-4 ${i < testimonial.rating ? "fill-current" : ""}`} />
-                  ))}
-                </div>
-                <p className="text-gray-700 text-sm leading-relaxed mb-4">“{testimonial.text}”</p>
-                <p className="text-sm font-semibold text-gray-900">{testimonial.name}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <TestimonialSection
+        eyebrow="Google Reviews"
+        title="Patients love the brighter, cleaner finish"
+        subtitle="The strongest whitening feedback mentions noticeable stain lift, a gentle chairside experience, and cosmetic results that still look like their real smile."
+        testimonials={whiteningTestimonials}
+        className="bg-gray-50"
+        containerClassName="max-w-6xl"
+      />
 
       <RelatedServices
         items={relatedServices}

@@ -4,15 +4,18 @@ import MetaTags from "@/components/common/MetaTags";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import RelatedServices, { type RelatedServiceLink } from "@/components/common/RelatedServices";
 import StructuredData from "@/components/seo/StructuredData";
+import TestimonialSection from "@/components/testimonials/TestimonialSection";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { officeInfo } from "@/lib/data";
 import { getSeoForPath } from "@/lib/seo";
 import { buildBreadcrumbSchema, buildFAQSchema, type StructuredDataNode } from "@/lib/structuredData";
+import { getTestimonialCollection } from "@/lib/testimonials";
 import { Link } from "wouter";
 
 const DentalCleaningPaloAlto = () => {
   const seo = getSeoForPath("/dental-cleaning-palo-alto");
+  const cleaningTestimonials = getTestimonialCollection("dentalCleaning");
   const breadcrumbItems = [
     { name: "Home", path: "/" },
     { name: "Dental Cleaning in Palo Alto", path: "/dental-cleaning-palo-alto" },
@@ -167,6 +170,15 @@ const DentalCleaningPaloAlto = () => {
           </p>
         </div>
       </section>
+
+      <TestimonialSection
+        eyebrow="Google Reviews"
+        title="Comfortable cleanings, thorough care"
+        subtitle="The best cleaning reviews talk about thorough hygiene visits, a calm office, and a team that explains what they see instead of rushing you through."
+        testimonials={cleaningTestimonials}
+        className="bg-white"
+        containerClassName="max-w-6xl"
+      />
 
       <section className="py-12 bg-[#F5F9FC]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -1,5 +1,9 @@
 import type { InsertTestimonial } from "@shared/schema";
 import { featuredTestimonials } from "@/data/featuredTestimonials";
+import {
+  testimonialCollections,
+  type TestimonialCollectionKey,
+} from "@/data/testimonialCollections";
 
 const seededTestimonials: InsertTestimonial[] = [...featuredTestimonials];
 
@@ -11,7 +15,9 @@ export function getTestimonialByName(name: string): InsertTestimonial | undefine
   );
 }
 
-export function getTestimonialsByNames(names: string[]): InsertTestimonial[] {
+export function getTestimonialsByNames(
+  names: ReadonlyArray<string>,
+): InsertTestimonial[] {
   const seen = new Set<string>();
   const selected: InsertTestimonial[] = [];
 
@@ -37,4 +43,10 @@ export function getTestimonialsByNames(names: string[]): InsertTestimonial[] {
   }
 
   return selected;
+}
+
+export function getTestimonialCollection(
+  key: TestimonialCollectionKey,
+): InsertTestimonial[] {
+  return getTestimonialsByNames(testimonialCollections[key]);
 }
