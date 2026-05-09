@@ -9,7 +9,8 @@ type OfficeHoursSummaryProps = {
 };
 
 const regularHours = [
-  { label: "Monday - Thursday", shortLabel: "Mon-Thu", value: officeInfo.hours.monday },
+  { label: "Monday, Tuesday, Thursday", shortLabel: "Mon, Tue, Thu", value: officeInfo.hours.monday },
+  { label: "Wednesday", shortLabel: "Wed", value: officeInfo.hours.wednesday },
   { label: "Friday", shortLabel: "Fri", value: officeInfo.hours.friday },
   { label: "Saturday - Sunday", shortLabel: "Sat-Sun", value: officeInfo.hours.saturday },
 ] as const;

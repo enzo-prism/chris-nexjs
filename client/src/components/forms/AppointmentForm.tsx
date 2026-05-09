@@ -767,7 +767,7 @@ const PreferenceStep = ({
               <FormLabel>Preferred Days (choose up to 3)</FormLabel>
               {presentation === "funnel" ? (
                 <p className="text-sm leading-6 text-slate-600">
-                  Friday visits are usually available through early afternoon.
+                  Wednesday visits wrap by 3:00 PM, and Friday visits wrap by 4:00 PM.
                 </p>
               ) : null}
             </div>
@@ -799,7 +799,7 @@ const PreferenceStep = ({
               </div>
               {presentation === "default" ? (
                 <p className="text-xs text-slate-500">
-                  Friday appointments are available through early afternoon.
+                  Wednesday appointments end at 3:00 PM, and Friday appointments end at 4:00 PM.
                 </p>
               ) : null}
               <FormMessage />

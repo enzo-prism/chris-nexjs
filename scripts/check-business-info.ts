@@ -11,6 +11,7 @@ const bannedLiterals = [
   officeInfo.address.line2,
   officeInfo.mapUrl,
   officeInfo.hours.monday,
+  officeInfo.hours.wednesday,
   officeInfo.hours.friday,
 ].filter(Boolean);
 

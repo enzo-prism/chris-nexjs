@@ -23,7 +23,8 @@ const WEEKDAY_TIME_WINDOWS = [
   { value: "4:00 PM - 5:00 PM", label: "4:00 PM - 5:00 PM" },
 ];
 
-const FRIDAY_TIME_WINDOWS = WEEKDAY_TIME_WINDOWS.slice(0, 6);
+const WEDNESDAY_TIME_WINDOWS = WEEKDAY_TIME_WINDOWS.slice(0, 7);
+const FRIDAY_TIME_WINDOWS = WEEKDAY_TIME_WINDOWS.slice(0, 8);
 
 const selectClassName =
   "h-12 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
@@ -41,11 +42,21 @@ const isWeekend = (dayOfWeek: number | null): boolean =>
   dayOfWeek === 0 || dayOfWeek === 6;
 
 const getTimeWindows = (dayOfWeek: number | null) => {
+  if (dayOfWeek === 3) return WEDNESDAY_TIME_WINDOWS;
   if (dayOfWeek === 5) return FRIDAY_TIME_WINDOWS;
-  if (dayOfWeek !== null && dayOfWeek >= 1 && dayOfWeek <= 4) {
+  if (dayOfWeek === 1 || dayOfWeek === 2 || dayOfWeek === 4) {
     return WEEKDAY_TIME_WINDOWS;
   }
   return [];
+};
+
+const getOfficeHoursHint = (dayOfWeek: number | null) => {
+  if (dayOfWeek === 3) return "Wednesday windows end at 3:00 PM.";
+  if (dayOfWeek === 5) return "Friday windows end at 4:00 PM.";
+  if (dayOfWeek === 1 || dayOfWeek === 2 || dayOfWeek === 4) {
+    return "Select a one-hour window within office hours.";
+  }
+  return "Select a date to see available time windows.";
 };
 
 type SubmissionStatus = "idle" | "submitting" | "success" | "error";
@@ -350,7 +361,7 @@ const ZoomWhiteningSchedule = () => {
                             </p>
                           ) : preferredDate1 ? (
                             <p className="text-xs text-slate-500">
-                              Friday windows end at 2:00 PM.
+                              {getOfficeHoursHint(preferredDay1)}
                             </p>
                           ) : (
                             <p className="text-xs text-slate-500">
@@ -405,7 +416,7 @@ const ZoomWhiteningSchedule = () => {
                             </p>
                           ) : preferredDate2 ? (
                             <p className="text-xs text-slate-500">
-                              Friday windows end at 2:00 PM.
+                              {getOfficeHoursHint(preferredDay2)}
                             </p>
                           ) : (
                             <p className="text-xs text-slate-500">

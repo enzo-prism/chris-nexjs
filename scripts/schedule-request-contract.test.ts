@@ -97,7 +97,7 @@ async function testV2PayloadCompatibility() {
         appointmentType: "Emergency Visit",
         schedulingMode: "choose_preferences",
         preferredDays: ["Tuesday", "Thursday"],
-        preferredTime: "Afternoon (2pm-5pm)",
+        preferredTime: "Afternoon (2pm-close)",
         firstName: "V2",
         lastName: "User",
         phone: "+1 (650) 555-1111",
@@ -117,6 +117,30 @@ async function testV2PayloadCompatibility() {
     assert.equal(formspree.body.contact_preference, "text");
     assert.equal(formspree.body.insurance_status, "Delta Dental");
     assert.equal(formspree.body.urgent, "Yes");
+    assert.equal(formspree.body.preferred_time_of_day, "Afternoon (2pm-close)");
+  });
+}
+
+async function testLegacyAfternoonPreferenceCompatibility() {
+  await withMockedFetch(async (calls) => {
+    const response = await postScheduleRequest(
+      requestWithBody({
+        isEmergency: false,
+        appointmentType: "Existing Patient Checkup",
+        schedulingMode: "choose_preferences",
+        preferredDays: ["Monday"],
+        preferredTime: "Afternoon (2pm-5pm)",
+        firstName: "Cached",
+        lastName: "Browser",
+        phone: "6505552424",
+        email: "cached.browser@example.com",
+        contactPreference: "phone",
+      }),
+    );
+
+    assert.equal(response.status, 201);
+    const formspree = assertFormspreeCall(calls);
+    assert.equal(formspree.body.preferred_time_of_day, "Afternoon (2pm-close)");
   });
 }
 
@@ -312,6 +336,7 @@ async function testBlankEnvironmentFallsBackToDefaultFormspreeEndpoint() {
 (async function run() {
   await testLegacyPayloadCompatibility();
   await testV2PayloadCompatibility();
+  await testLegacyAfternoonPreferenceCompatibility();
   await testFirstAvailableMode();
   await testValidationFailures();
   await testDefaultFormspreeFallback();

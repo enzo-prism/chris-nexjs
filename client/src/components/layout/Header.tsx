@@ -407,10 +407,11 @@ const Header = ({ variant = "default" }: HeaderProps) => {
               />
               <span>{officeInfo.phone}</span>
             </a>
-            <div className="hidden items-center text-white/60 sm:flex">
+            <div className="hidden items-center text-white/60 xl:flex">
               <Clock className="mr-2 h-3.5 w-3.5" aria-hidden="true" />
               <span>
-                Regular weekly hours: Mon-Thu {officeInfo.hours.monday} · Fri {officeInfo.hours.friday}
+                Regular weekly hours: Mon, Tue, Thu {officeInfo.hours.monday} · Wed{" "}
+                {officeInfo.hours.wednesday} · Fri {officeInfo.hours.friday}
               </span>
             </div>
           </div>

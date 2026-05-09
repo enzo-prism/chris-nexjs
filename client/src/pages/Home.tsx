@@ -424,7 +424,8 @@ const Home = (props: any) => {
                     Hours
                   </h3>
                   <div className="mt-2 text-slate-700 text-sm leading-relaxed">
-                    <div>Mon-Thu: {officeInfo.hours.monday}</div>
+                    <div>Mon, Tue, Thu: {officeInfo.hours.monday}</div>
+                    <div>Wed: {officeInfo.hours.wednesday}</div>
                     <div>Fri: {officeInfo.hours.friday}</div>
                     <div>Sat-Sun: {officeInfo.hours.saturday}</div>
                   </div>
@@ -793,8 +794,10 @@ const Home = (props: any) => {
                 <div className="mb-6 rounded-lg bg-blue-900 p-4 bg-opacity-50">
                   <h3 className="mb-2 font-bold">Office Hours</h3>
                   <div className="grid grid-cols-2 gap-2 text-sm text-white">
-                    <div>Monday - Thursday</div>
+                    <div>Monday, Tuesday, Thursday</div>
                     <div>{officeInfo.hours.monday}</div>
+                    <div>Wednesday</div>
+                    <div>{officeInfo.hours.wednesday}</div>
                     <div>Friday</div>
                     <div>{officeInfo.hours.friday}</div>
                     <div>Saturday - Sunday</div>

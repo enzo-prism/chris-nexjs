@@ -20,7 +20,7 @@ export const preferredDayOptions = [
 export const preferredTimeOptions = [
   "Morning (8am-11am)",
   "Midday (11am-2pm)",
-  "Afternoon (2pm-5pm)",
+  "Afternoon (2pm-close)",
   "First Available",
 ] as const;
 
@@ -37,6 +37,18 @@ const optionalText = (maxLength: number) =>
     .max(maxLength)
     .optional()
     .or(z.literal(""));
+
+const legacyPreferredTimeLabels: Record<string, (typeof preferredTimeOptions)[number]> = {
+  "Afternoon (2pm-5pm)": "Afternoon (2pm-close)",
+};
+
+const preferredTimeSchema = z.preprocess((value) => {
+  if (typeof value === "string" && value in legacyPreferredTimeLabels) {
+    return legacyPreferredTimeLabels[value];
+  }
+
+  return value;
+}, z.enum(preferredTimeOptions));
 
 export const normalizeSchedulePhone = (value: string): string | null => {
   const digits = value.replace(/\D/g, "");
@@ -69,7 +81,7 @@ export const scheduleRequestV2Schema = z
     isEmergency: z.boolean().default(false),
     schedulingMode: z.enum(schedulingModeOptions),
     preferredDays: z.array(z.enum(preferredDayOptions)).max(3).optional(),
-    preferredTime: z.enum(preferredTimeOptions).optional(),
+    preferredTime: preferredTimeSchema.optional(),
     contactPreference: z.enum(contactPreferenceOptions).default("phone"),
     insuranceProvider: optionalText(80),
     message: optionalText(300),
@@ -103,7 +115,7 @@ export const legacyScheduleRequestSchema = z.object({
   emergency: z.boolean(),
   appointmentType: z.enum(appointmentTypeOptions),
   preferredDays: z.array(z.enum(preferredDayOptions)).min(1),
-  preferredTimeOfDay: z.enum(preferredTimeOptions),
+  preferredTimeOfDay: preferredTimeSchema,
   firstName: z.string().trim().min(1).max(40),
   lastName: z.string().trim().min(1).max(40),
   phone: z.string().trim().min(1),
