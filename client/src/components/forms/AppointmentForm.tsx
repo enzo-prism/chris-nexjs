@@ -16,7 +16,11 @@ import {
   ShieldCheck,
   TriangleAlert,
 } from "lucide-react";
-import { trackGAEvent } from "@/lib/analytics";
+import {
+  trackAnalyticsEvent,
+  trackGAEvent,
+  trackLeadConversion,
+} from "@/lib/analytics";
 import { officeInfo } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,6 +45,7 @@ import {
   scheduleRequestV2Schema,
   type ScheduleRequestV2,
 } from "@shared/scheduleRequest";
+import { ANALYTICS_EVENTS, getAnalyticsPageContext } from "@shared/analytics";
 import { cn } from "@/lib/utils";
 
 const scheduleFormSchema = z
@@ -214,6 +219,21 @@ const getDeviceType = (): "mobile" | "tablet" | "desktop" | "unknown" => {
   }
 
   return "desktop";
+};
+
+const getScheduleFailureReason = (error: unknown): string => {
+  if (!(error instanceof Error)) {
+    return "unknown_error";
+  }
+
+  const message = error.message.toLowerCase();
+  if (message.includes("phone") || message.includes("valid")) {
+    return "validation_error";
+  }
+  if (message.includes("fetch") || message.includes("network")) {
+    return "network_error";
+  }
+  return "server_error";
 };
 
 const getChoiceCardClasses = (
@@ -918,15 +938,28 @@ const AppointmentForm = ({
   const activeStep = Math.min(step, totalSteps);
   const notesValue = formValues.message || "";
   const remainingNotesCharacters = Math.max(300 - notesValue.length, 0);
+  const pageContext = useMemo(
+    () =>
+      getAnalyticsPageContext(
+        typeof window !== "undefined" ? window.location.pathname : "/schedule",
+      ),
+    [],
+  );
 
   const analyticsContext = useMemo(
     () => ({
+      ...pageContext,
       device_type: getDeviceType(),
-      schedulingMode: formValues.schedulingMode,
-      appointmentType: formValues.appointmentType || "unselected",
-      isEmergency: formValues.isEmergency ? "true" : "false",
+      scheduling_mode: formValues.schedulingMode,
+      appointment_type: formValues.appointmentType || "unselected",
+      is_emergency: formValues.isEmergency ? "true" : "false",
     }),
-    [formValues.appointmentType, formValues.isEmergency, formValues.schedulingMode],
+    [
+      formValues.appointmentType,
+      formValues.isEmergency,
+      formValues.schedulingMode,
+      pageContext,
+    ],
   );
 
   const stepMeta: StepMeta = useMemo(() => {
@@ -971,7 +1004,7 @@ const AppointmentForm = ({
 
     if (!hasTrackedStart.current) {
       hasTrackedStart.current = true;
-      trackGAEvent("schedule_start", {
+      trackAnalyticsEvent(ANALYTICS_EVENTS.scheduleStart, {
         source: "schedule_page_form",
         ...analyticsContext,
       });
@@ -1015,10 +1048,11 @@ const AppointmentForm = ({
           seconds_elapsed: seconds,
           step_index: currentStep.index,
           step_name: currentStep.name,
-          schedulingMode: currentValues.schedulingMode,
-          appointmentType: currentValues.appointmentType || "unselected",
-          isEmergency: currentValues.isEmergency ? "true" : "false",
+          scheduling_mode: currentValues.schedulingMode,
+          appointment_type: currentValues.appointmentType || "unselected",
+          is_emergency: currentValues.isEmergency ? "true" : "false",
           device_type: getDeviceType(),
+          ...pageContext,
         });
       }, seconds * 1000),
     );
@@ -1027,7 +1061,7 @@ const AppointmentForm = ({
       abandonmentTimersRef.current.forEach((timerId) => window.clearTimeout(timerId));
       abandonmentTimersRef.current = [];
     };
-  }, [getValues]);
+  }, [getValues, pageContext]);
 
   const updateErrorSummary = (fields: FieldPath<ScheduleFormValues>[]) => {
     const nextErrors: FieldErrorSummary[] = [];
@@ -1159,30 +1193,31 @@ const AppointmentForm = ({
 
       trackGAEvent("schedule_submit_success", {
         source: "schedule_page_form",
-        contactPreference: rawData.contactPreference,
+        contact_preference: rawData.contactPreference,
         ...analyticsContext,
       });
 
-      trackGAEvent("generate_lead", {
+      trackLeadConversion(ANALYTICS_EVENTS.appointmentRequestSubmit, {
         form_name: "schedule_request_form",
         lead_type: "appointment_request",
-        page_path:
-          typeof window !== "undefined" ? window.location.pathname : "/schedule",
+        lead_source: "schedule_request_form",
         appointment_type: rawData.appointmentType,
         scheduling_mode: rawData.schedulingMode,
         urgent_flag: rawData.isEmergency ? "true" : "false",
+        contact_preference: rawData.contactPreference,
+        ...pageContext,
       });
 
       trackGAEvent("schedule_submit", {
         appointment_type: rawData.appointmentType,
-        insurance_status: rawData.insuranceProvider ?? "not provided",
+        insurance_status: rawData.insuranceProvider ? "provided" : "not_provided",
         urgent_flag: rawData.isEmergency ? "true" : "false",
       });
 
       if (rawData.isEmergency) {
         trackGAEvent("schedule_submit_emergency", {
           appointment_type: rawData.appointmentType,
-          insurance_status: rawData.insuranceProvider ?? "not provided",
+          insurance_status: rawData.insuranceProvider ? "provided" : "not_provided",
           urgent_flag: "true",
         });
       }
@@ -1190,7 +1225,7 @@ const AppointmentForm = ({
       if (rawData.appointmentType === "New Patient Exam & Cleaning") {
         trackGAEvent("schedule_submit_new_patient", {
           appointment_type: rawData.appointmentType,
-          insurance_status: rawData.insuranceProvider ?? "not provided",
+          insurance_status: rawData.insuranceProvider ? "provided" : "not_provided",
           urgent_flag: rawData.isEmergency ? "true" : "false",
         });
       }
@@ -1198,7 +1233,7 @@ const AppointmentForm = ({
       if (rawData.appointmentType === "Invisalign Consultation") {
         trackGAEvent("schedule_submit_invisalign", {
           appointment_type: rawData.appointmentType,
-          insurance_status: rawData.insuranceProvider ?? "not provided",
+          insurance_status: rawData.insuranceProvider ? "provided" : "not_provided",
           urgent_flag: rawData.isEmergency ? "true" : "false",
         });
       }
@@ -1213,9 +1248,9 @@ const AppointmentForm = ({
           ? error.message
           : "Something went wrong. Please try again.",
       );
-      trackGAEvent("schedule_submit_failure", {
+      trackAnalyticsEvent(ANALYTICS_EVENTS.scheduleSubmitFailure, {
         source: "schedule_page_form",
-        reason: error instanceof Error ? error.message : "unknown_error",
+        reason: getScheduleFailureReason(error),
         ...analyticsContext,
       });
       setStatus("error");

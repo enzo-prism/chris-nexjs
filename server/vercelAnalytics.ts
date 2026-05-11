@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 import { track } from "@vercel/analytics/server";
 import {
   sanitizeAnalyticsEventName,
-  sanitizeAnalyticsEventProperties,
+  sanitizeVercelEventProperties,
 } from "@shared/analytics";
 
 function canSendVercelServerAnalytics(): boolean {
@@ -19,7 +19,10 @@ export async function trackVercelServerEvent(
   const sanitizedEventName = sanitizeAnalyticsEventName(eventName);
   if (!sanitizedEventName || !canSendVercelServerAnalytics()) return;
 
-  const sanitizedProperties = sanitizeAnalyticsEventProperties(properties);
+  const sanitizedProperties = sanitizeVercelEventProperties(
+    sanitizedEventName,
+    properties,
+  );
 
   try {
     await track(sanitizedEventName, sanitizedProperties, {

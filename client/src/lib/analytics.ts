@@ -1,10 +1,13 @@
 import {
+  ANALYTICS_EVENTS,
   ANALYTICS_CONSENT_EVENT,
   ANALYTICS_CONSENT_STORAGE_KEY,
   isAnalyticsPathExcluded,
   sanitizeAnalyticsEventName,
   sanitizeAnalyticsEventProperties,
+  sanitizeVercelEventProperties,
   type AnalyticsConsentState,
+  type AnalyticsEventName,
 } from "@shared/analytics";
 
 const FALLBACK_GA_ALLOWED_HOSTS = new Set([
@@ -40,7 +43,7 @@ export function hasAnalyticsConsent(): boolean {
   return getAnalyticsConsentState() === "granted";
 }
 
-export function trackGAEvent(action: string, params: Record<string, any> = {}): void {
+export function trackGAEvent(action: string, params: Record<string, unknown> = {}): void {
   if (
     typeof window === "undefined" ||
     typeof window.gtag !== "function" ||
@@ -50,7 +53,11 @@ export function trackGAEvent(action: string, params: Record<string, any> = {}): 
     return;
   }
 
-  window.gtag("event", action, params);
+  const sanitizedEventName = sanitizeAnalyticsEventName(action);
+  const sanitizedProperties = sanitizeAnalyticsEventProperties(params);
+
+  if (!sanitizedEventName) return;
+  window.gtag("event", sanitizedEventName, sanitizedProperties);
 }
 
 function canTrackVercelEvent(): boolean {
@@ -68,13 +75,16 @@ function loadVercelAnalyticsClient() {
 }
 
 export function trackVercelEvent(
-  eventName: string,
+  eventName: AnalyticsEventName,
   properties: Record<string, unknown> = {},
 ): void {
   const sanitizedEventName = sanitizeAnalyticsEventName(eventName);
   if (!sanitizedEventName || !canTrackVercelEvent()) return;
 
-  const sanitizedProperties = sanitizeAnalyticsEventProperties(properties);
+  const sanitizedProperties = sanitizeVercelEventProperties(
+    sanitizedEventName,
+    properties,
+  );
 
   void loadVercelAnalyticsClient()
     .then(({ track }) => {
@@ -83,6 +93,33 @@ export function trackVercelEvent(
     .catch(() => {
       // Ignore Vercel analytics load failures so product flows never fail.
     });
+}
+
+export function trackAnalyticsEvent(
+  eventName: AnalyticsEventName,
+  properties: Record<string, unknown> = {},
+  options: {
+    readonly ga?: boolean;
+    readonly vercel?: boolean;
+  } = {},
+): void {
+  const { ga = true, vercel = true } = options;
+
+  if (ga) {
+    trackGAEvent(eventName, properties);
+  }
+
+  if (vercel) {
+    trackVercelEvent(eventName, properties);
+  }
+}
+
+export function trackLeadConversion(
+  eventName: AnalyticsEventName,
+  properties: Record<string, unknown>,
+): void {
+  trackAnalyticsEvent(eventName, properties, { ga: true, vercel: false });
+  trackGAEvent(ANALYTICS_EVENTS.generateLead, properties);
 }
 
 export function setAnalyticsConsent(granted: boolean): void {

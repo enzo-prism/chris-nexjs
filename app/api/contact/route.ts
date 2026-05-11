@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fromZodError } from "zod-validation-error";
 import { ZodError } from "zod";
-import { getAnalyticsPathFromUrl } from "@shared/analytics";
+import { ANALYTICS_EVENTS, getAnalyticsPathFromUrl } from "@shared/analytics";
 import { insertContactMessageSchema } from "@shared/schema";
 import { getStorage } from "../../../server/storage/repository";
 import { trackVercelServerEvent } from "../../../server/vercelAnalytics";
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     const storage = await getStorage();
     const message = await storage.createContactMessage(data);
 
-    await trackVercelServerEvent(request, "contact_form_submit", {
+    await trackVercelServerEvent(request, ANALYTICS_EVENTS.contactFormSubmit, {
       form_name: "contact_form",
       lead_type: "contact_request",
       page_path: getAnalyticsPathFromUrl(request.headers.get("referer")) ?? "/contact",

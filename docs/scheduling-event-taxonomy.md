@@ -8,9 +8,11 @@ Include these fields on all schedule events where possible:
 
 - `source`: `"schedule_page_form"` (or versioned source)
 - `device_type`: `mobile | tablet | desktop | unknown`
-- `schedulingMode`: `first_available | choose_preferences`
-- `appointmentType`: selected appointment type or `"unselected"`
-- `isEmergency`: `"true" | "false"`
+- `page_path`: normalized route path
+- `page_category`: route category from `shared/analytics.ts`
+- `scheduling_mode`: `first_available | choose_preferences`
+- `appointment_type`: selected appointment type or `"unselected"`
+- `is_emergency`: `"true" | "false"`
 
 ## Event definitions
 
@@ -82,6 +84,16 @@ The following events are still emitted for continuity with existing dashboards:
 - `schedule_submit_new_patient`
 - `schedule_submit_invisalign`
 
+## Vercel custom events
+
+Keep Vercel sparse so the dashboard stays readable. Only these schedule-related events go to Vercel:
+
+- `schedule_start`
+- `schedule_submit_failure`
+- `appointment_request_submit` from the server after successful `/api/schedule-request` handling
+
+Vercel custom data is capped at two flat primitive properties by `shared/analytics.ts`.
+
 ## QA checklist
 
 - Confirm all step events fire in correct order for:
@@ -90,3 +102,4 @@ The following events are still emitted for continuity with existing dashboards:
 - Confirm field error events include field keys and messages.
 - Confirm abandonment checkpoint events stop after successful submit.
 - Confirm `schedule_submit_success` and legacy submit events both fire on success.
+- Confirm Vercel receives only `schedule_start`, `schedule_submit_failure`, and server-confirmed `appointment_request_submit`.

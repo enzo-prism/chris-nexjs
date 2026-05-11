@@ -6,6 +6,14 @@ import {
   trackGAEvent,
   trackVercelEvent,
 } from "./analytics";
+import {
+  ANALYTICS_EVENTS,
+  getAnalyticsPageCategory,
+  getAnalyticsPageContext,
+  sanitizeAnalyticsEventName,
+  sanitizeAnalyticsEventProperties,
+  sanitizeVercelEventProperties,
+} from "@shared/analytics";
 
 const waitForAnalyticsFlush = () => new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -41,6 +49,51 @@ assert.strictEqual(getAnalyticsConsentState(), "granted");
 assert.strictEqual(hasAnalyticsConsent(), true);
 assert.strictEqual(isAnalyticsRuntimeEnabled(), true);
 
+assert.equal(getAnalyticsPageCategory("/"), "home");
+assert.equal(getAnalyticsPageCategory("/schedule"), "schedule");
+assert.equal(getAnalyticsPageCategory("/dentist-menlo-park"), "location");
+assert.deepStrictEqual(getAnalyticsPageContext("/contact"), {
+  page_path: "/contact",
+  page_category: "trust",
+});
+
+const sanitizedName = sanitizeAnalyticsEventName("1 bad event name with spaces");
+assert.ok(sanitizedName.startsWith("event_1_bad_event_name"));
+assert.ok(sanitizedName.length <= 40);
+
+assert.deepStrictEqual(
+  sanitizeAnalyticsEventProperties({
+    page_path: "/contact",
+    lead_type: "contact_request",
+    email: "patient@example.com",
+    phone_number: "6505551212",
+    contact_phone: "6505551212",
+    message: "Please call me",
+    error_message: "User-entered details should not be sent",
+    additional_notes: "Free-form notes should not be sent",
+    destination_url: "https://example.com/private-path",
+    full_url: "https://example.com/private-path",
+    nested: { unsafe: true },
+  }),
+  {
+    page_path: "/contact",
+    lead_type: "contact_request",
+  },
+);
+
+assert.deepStrictEqual(
+  sanitizeVercelEventProperties(ANALYTICS_EVENTS.outboundClick, {
+    page_path: "/",
+    page_category: "home",
+    destination_host: "maps.app.goo.gl",
+    cta_context: "header",
+  }),
+  {
+    page_path: "/",
+    destination_host: "maps.app.goo.gl",
+  },
+);
+
 gaCalled = null;
 (globalThis as any).window.localStorage.value = "denied";
 trackGAEvent("blocked_action", { blocked: true });
@@ -62,11 +115,13 @@ trackGAEvent("no_gtag");
 assert.strictEqual(gaCalled, null);
 
 vercelCalled = null;
-(globalThis as any).window.location.hostname = "www.chriswongdds.com";
+(globalThis as any).window.location.hostname = "localhost";
 (globalThis as any).window.location.pathname = "/contact";
-trackVercelEvent("contact_form_submit", {
+trackVercelEvent(ANALYTICS_EVENTS.contactFormSubmit, {
   form_name: "contact_form",
   lead_type: "contact_request",
+  page_path: "/contact",
+  page_category: "trust",
 });
 await waitForAnalyticsFlush();
 assert.deepStrictEqual(vercelCalled, [
@@ -74,7 +129,7 @@ assert.deepStrictEqual(vercelCalled, [
   {
     name: "contact_form_submit",
     data: {
-      form_name: "contact_form",
+      page_path: "/contact",
       lead_type: "contact_request",
     },
     options: undefined,

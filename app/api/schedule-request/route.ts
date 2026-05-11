@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fromZodError } from "zod-validation-error";
 import { ZodError } from "zod";
-import { getAnalyticsPathFromUrl } from "@shared/analytics";
+import { ANALYTICS_EVENTS, getAnalyticsPathFromUrl } from "@shared/analytics";
 import { getScheduleFormspreeEndpoint } from "@shared/formspree";
 import {
   legacyScheduleRequestSchema,
@@ -254,14 +254,18 @@ export async function POST(request: NextRequest) {
 
     await postToFormspree(formspreeEndpoint, payload);
 
-    await trackVercelServerEvent(request, "appointment_request_submit", {
-      appointment_type: payload.appointmentType,
-      scheduling_mode: payload.schedulingMode,
-      urgent_flag: payload.isEmergency,
-      lead_type: "appointment_request",
-      page_path: getAnalyticsPathFromUrl(sourceUrl) ?? "/schedule",
-      source: payload.source ?? "schedule_page_form",
-    });
+    await trackVercelServerEvent(
+      request,
+      ANALYTICS_EVENTS.appointmentRequestSubmit,
+      {
+        appointment_type: payload.appointmentType,
+        scheduling_mode: payload.schedulingMode,
+        urgent_flag: payload.isEmergency,
+        lead_type: "appointment_request",
+        page_path: getAnalyticsPathFromUrl(sourceUrl) ?? "/schedule",
+        source: payload.source ?? "schedule_page_form",
+      },
+    );
 
     const crmWebhookUrl = process.env.SCHEDULE_CRM_WEBHOOK_URL;
     const slackWebhookUrl = process.env.SCHEDULE_SLACK_WEBHOOK_URL;

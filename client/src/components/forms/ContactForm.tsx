@@ -11,8 +11,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { trackGAEvent } from "@/lib/analytics";
+import { trackLeadConversion } from "@/lib/analytics";
 import { officeInfo } from "@/lib/data";
+import { ANALYTICS_EVENTS, getAnalyticsPageContext } from "@shared/analytics";
 
 const ContactForm = () => {
   const { toast } = useToast();
@@ -37,11 +38,13 @@ const ContactForm = () => {
         description: "We will get back to you as soon as possible.",
         variant: "default",
       });
-      trackGAEvent("generate_lead", {
+      trackLeadConversion(ANALYTICS_EVENTS.contactFormSubmit, {
         form_name: "contact_form",
         lead_type: "contact_request",
-        page_path:
+        lead_source: "contact_form",
+        ...getAnalyticsPageContext(
           typeof window !== "undefined" ? window.location.pathname : "/contact",
+        ),
       });
       form.reset();
       setIsSubmitting(false);

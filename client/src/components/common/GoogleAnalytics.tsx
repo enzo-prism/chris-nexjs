@@ -3,15 +3,16 @@
 import { useEffect, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import {
+  ANALYTICS_EVENTS,
   ANALYTICS_CONSENT_EVENT,
+  getAnalyticsPageContext,
   isAnalyticsPathExcluded,
   normalizeAnalyticsPath,
 } from "@shared/analytics";
 import {
   hasAnalyticsConsent,
   isAnalyticsRuntimeEnabled,
-  trackGAEvent,
-  trackVercelEvent,
+  trackAnalyticsEvent,
 } from "@/lib/analytics";
 
 const GA_MEASUREMENT_ID =
@@ -21,15 +22,31 @@ const BOOKING_PATHS = new Set(["/schedule", "/zoom-whitening/schedule"]);
 
 const getAnchorLabel = (anchor: HTMLAnchorElement): string => {
   const text = anchor.textContent?.trim();
-  if (text) return text.slice(0, 120);
+  if (text) return text.slice(0, 80);
 
   const ariaLabel = anchor.getAttribute("aria-label")?.trim();
-  if (ariaLabel) return ariaLabel.slice(0, 120);
+  if (ariaLabel) return ariaLabel.slice(0, 80);
 
   const title = anchor.getAttribute("title")?.trim();
-  if (title) return title.slice(0, 120);
+  if (title) return title.slice(0, 80);
 
   return "unlabeled_link";
+};
+
+const getCtaContext = (anchor: HTMLAnchorElement): string => {
+  const declaredContext = (
+    anchor.closest("[data-analytics-context]") as HTMLElement | null
+  )?.dataset.analyticsContext?.trim();
+
+  if (declaredContext) {
+    return declaredContext.slice(0, 40);
+  }
+
+  if (anchor.closest("header")) return "header";
+  if (anchor.closest("footer")) return "footer";
+  if (anchor.closest("nav")) return "navigation";
+  if (anchor.closest("main")) return "body";
+  return "unknown";
 };
 
 const GoogleAnalytics = () => {
@@ -124,8 +141,6 @@ const GoogleAnalytics = () => {
         return;
       }
 
-      if (!isAnalyticsRuntimeEnabled()) return;
-
       const target = event.target;
       if (!(target instanceof Element)) return;
 
@@ -135,29 +150,20 @@ const GoogleAnalytics = () => {
       const rawHref = anchor.getAttribute("href")?.trim();
       if (!rawHref) return;
 
-      const linkText = getAnchorLabel(anchor);
+      const pageContext = getAnalyticsPageContext(normalizedPathname);
+      const clickContext = {
+        ...pageContext,
+        cta_context: getCtaContext(anchor),
+        link_text: getAnchorLabel(anchor),
+      };
 
       if (rawHref.startsWith("tel:")) {
-        trackGAEvent("tel_click", {
-          link_text: linkText,
-          phone_number: rawHref.replace(/^tel:/i, ""),
-          page_path: normalizedPathname,
-        });
-        trackVercelEvent("phone_call_click", {
-          page_path: normalizedPathname,
-        });
+        trackAnalyticsEvent(ANALYTICS_EVENTS.phoneCallClick, clickContext);
         return;
       }
 
       if (rawHref.startsWith("mailto:")) {
-        trackGAEvent("email_click", {
-          email_address: rawHref.replace(/^mailto:/i, ""),
-          link_text: linkText,
-          page_path: normalizedPathname,
-        });
-        trackVercelEvent("email_click", {
-          page_path: normalizedPathname,
-        });
+        trackAnalyticsEvent(ANALYTICS_EVENTS.emailClick, clickContext);
         return;
       }
 
@@ -171,28 +177,17 @@ const GoogleAnalytics = () => {
       const destinationPath = normalizeAnalyticsPath(destinationUrl.pathname);
 
       if (BOOKING_PATHS.has(destinationPath)) {
-        trackGAEvent("book_appointment_click", {
+        trackAnalyticsEvent(ANALYTICS_EVENTS.bookAppointmentClick, {
+          ...clickContext,
           destination_path: destinationPath,
-          link_text: linkText,
-          page_path: normalizedPathname,
-        });
-        trackVercelEvent("book_appointment_click", {
-          destination_path: destinationPath,
-          page_path: normalizedPathname,
         });
         return;
       }
 
       if (destinationUrl.origin !== window.location.origin) {
-        trackGAEvent("outbound_click", {
+        trackAnalyticsEvent(ANALYTICS_EVENTS.outboundClick, {
+          ...clickContext,
           destination_host: destinationUrl.hostname,
-          destination_url: destinationUrl.href,
-          link_text: linkText,
-          page_path: normalizedPathname,
-        });
-        trackVercelEvent("outbound_click", {
-          destination_host: destinationUrl.hostname,
-          page_path: normalizedPathname,
         });
       }
     };
