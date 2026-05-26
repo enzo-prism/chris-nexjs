@@ -19,6 +19,7 @@ import {
   buildPersonSchema,
   buildWebSiteSchema,
 } from "@/lib/structuredData";
+import { publishedTestimonialAggregateRating } from "@shared/reviewStats";
 
 const GoogleAnalytics = dynamic(
   () => import("@/components/common/GoogleAnalytics"),
@@ -88,7 +89,9 @@ export function AppPageShell({
       <HotjarTracking />
       <StructuredData
         data={[
-          buildOrganizationSchema(),
+          buildOrganizationSchema({
+            aggregateRating: publishedTestimonialAggregateRating,
+          }),
           buildPersonSchema(),
           buildWebSiteSchema(),
         ]}

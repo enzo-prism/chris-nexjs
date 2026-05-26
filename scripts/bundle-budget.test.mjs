@@ -1,6 +1,11 @@
 import { execSync } from "node:child_process";
 
 const CORE_MAX_KB = Number.parseFloat(process.env.BUNDLE_CORE_MAX_KB || "171");
+// The homepage deliberately server-renders its FAQ, service grid (internal
+// links), and About content for crawlability/indexing, which adds ~1KB to its
+// First Load JS over the shared core budget. This dedicated ceiling reflects
+// that trade-off while still guarding against further bloat.
+const HOME_MAX_KB = Number.parseFloat(process.env.BUNDLE_HOME_MAX_KB || "174");
 const DEFAULT_MARKETING_MAX_KB = Number.parseFloat(
   process.env.BUNDLE_MARKETING_MAX_KB || "220",
 );
@@ -12,7 +17,7 @@ const LOCATION_HUB_MAX_KB = Number.parseFloat(
 );
 
 const CRITICAL_ROUTE_BUDGETS = new Map([
-  ["/", CORE_MAX_KB],
+  ["/", HOME_MAX_KB],
   ["/services", CORE_MAX_KB],
   ["/invisalign", CORE_MAX_KB],
   ["/dentist-menlo-park", LOCATION_HUB_MAX_KB],

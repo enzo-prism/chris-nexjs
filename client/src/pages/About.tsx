@@ -27,7 +27,7 @@ import {
 
 const OfficeGallerySection = dynamic(
   () => import("@/components/sections/OfficeGallerySection"),
-  { ssr: false, loading: () => null },
+  { ssr: true, loading: () => null },
 );
 
 const weddingCarouselImages = [

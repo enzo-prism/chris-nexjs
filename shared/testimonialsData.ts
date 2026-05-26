@@ -1,5 +1,6 @@
 import type { InsertTestimonial } from "./schema";
 import { googleReviewSeedData } from "./googleReviewsData";
+import { PUBLISHED_REVIEW_COUNT } from "./reviewStats";
 
 type SeedTestimonial = Omit<InsertTestimonial, "location" | "image"> &
   Partial<Pick<InsertTestimonial, "location" | "image">>;
@@ -23,6 +24,18 @@ export const testimonialSeedData: SeedTestimonial[] =
   googleReviewSeedData.filter(isPublishedTestimonial);
 
 export const publishedTestimonialReviewCount = testimonialSeedData.length;
+
+// Build-time guard: the client-side structured data uses literal review stats
+// (see shared/reviewStats.ts) to keep the browser bundle free of the full review
+// corpus. Assert those literals stay in sync with the real published reviews so
+// the Dentist schema's aggregateRating never silently drifts after an import.
+if (publishedTestimonialReviewCount !== PUBLISHED_REVIEW_COUNT) {
+  throw new Error(
+    `Review aggregate drift: ${publishedTestimonialReviewCount} published reviews ` +
+      `but shared/reviewStats.ts declares ${PUBLISHED_REVIEW_COUNT}. ` +
+      `Update PUBLISHED_REVIEW_COUNT in shared/reviewStats.ts.`,
+  );
+}
 
 export const buildInsertTestimonial = (
   testimonial: SeedTestimonial,

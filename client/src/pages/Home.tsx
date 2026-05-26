@@ -27,19 +27,19 @@ import {
 
 const FeaturesSection = dynamic(
   () => import("@/components/sections/FeaturesSection"),
-  { ssr: false, loading: () => null },
+  { ssr: true, loading: () => null },
 );
 const AboutDoctorSection = dynamic(
   () => import("@/components/sections/AboutDoctorSection"),
-  { ssr: false, loading: () => null },
+  { ssr: true, loading: () => null },
 );
 const FAQSection = dynamic(
   () => import("@/components/common/FAQSection"),
-  { ssr: false, loading: () => null },
+  { ssr: true, loading: () => null },
 );
 const ServiceCard = dynamic(
   () => import("@/components/common/ServiceCard"),
-  { ssr: false, loading: () => null },
+  { ssr: true, loading: () => null },
 );
 const AppointmentForm = dynamic(
   () => import("@/components/forms/AppointmentForm"),

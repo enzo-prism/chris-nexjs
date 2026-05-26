@@ -20,23 +20,23 @@ import { doctorInfo, officeInfo } from "@/lib/data";
 
 const TestimonialQuote = dynamic(
   () => import("@/components/testimonials/TestimonialQuote"),
-  { ssr: false, loading: () => null },
+  { ssr: true, loading: () => null },
 );
 const FAQSection = dynamic(
   () => import("@/components/common/FAQSection"),
-  { ssr: false, loading: () => null },
+  { ssr: true, loading: () => null },
 );
 const RelatedServices = dynamic(
   () => import("@/components/common/RelatedServices"),
-  { ssr: false, loading: () => null },
+  { ssr: true, loading: () => null },
 );
 const RelatedServicePosts = dynamic(
   () => import("@/components/blog/RelatedServicePosts"),
-  { ssr: false, loading: () => null },
+  { ssr: true, loading: () => null },
 );
 const OptimizedImage = dynamic(
   () => import("@/components/seo/OptimizedImage"),
-  { ssr: false, loading: () => null },
+  { ssr: true, loading: () => null },
 );
 
 const invisalignTestimonials: InsertTestimonial[] = [

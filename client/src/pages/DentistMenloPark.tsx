@@ -21,7 +21,7 @@ import { Link } from "wouter";
 
 const MenloParkFamilyTestimonials = dynamic(
   () => import("@/components/testimonials/MenloParkFamilyTestimonials"),
-  { ssr: false, loading: () => null },
+  { ssr: true, loading: () => null },
 );
 
 const DentistMenloPark = () => {

@@ -21,6 +21,7 @@ import {
   buildPersonSchema,
   buildWebSiteSchema,
 } from "@/lib/structuredData";
+import { publishedTestimonialAggregateRating } from "@shared/reviewStats";
 import Home from "@/pages/Home";
 import About from "@/pages/About";
 import Services from "@/pages/Services";
@@ -187,7 +188,9 @@ export function AppShell({
           <WouterPathSync />
           <StructuredData
             data={[
-              buildOrganizationSchema(),
+              buildOrganizationSchema({
+                aggregateRating: publishedTestimonialAggregateRating,
+              }),
               buildPersonSchema(),
               buildWebSiteSchema(),
             ]}

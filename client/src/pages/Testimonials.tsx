@@ -7,6 +7,7 @@ import MetaTags from "@/components/common/MetaTags";
 import { pageTitles, pageDescriptions } from "@/lib/metaContent";
 import { useQuery } from "@tanstack/react-query";
 import TestimonialCard from "@/components/common/TestimonialCard";
+import HandwrittenLetter from "@/components/testimonials/HandwrittenLetter";
 import type { Testimonial } from "@shared/schema";
 import { useEffect, useState } from "react";
 import StructuredData from "@/components/seo/StructuredData";
@@ -117,6 +118,9 @@ const Testimonials = () => {
           </div>
         </section>
       )}
+
+      {/* Handwritten patient note */}
+      <HandwrittenLetter />
 
       {/* Patient Testimonials Main Section */}
       <section className="py-16 md:py-24 bg-white">
