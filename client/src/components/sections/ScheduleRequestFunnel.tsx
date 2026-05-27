@@ -1,16 +1,16 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Link } from "wouter";
+import Link from "next/link";
 import {
   ArrowLeft,
   ArrowUpRight,
-  Clock3,
   MapPin,
   PhoneCall,
   ShieldCheck,
 } from "lucide-react";
 import { holidayHours, officeInfo } from "@/lib/data";
+import { FeatureIcon } from "@/components/common/FeatureIcon";
 import TestimonialSection from "@/components/testimonials/TestimonialSection";
 import { getTestimonialCollection } from "@/lib/testimonials";
 
@@ -45,63 +45,49 @@ const ScheduleRequestFunnel = () => {
       />
 
       <div className="relative mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-        <div className="text-center">
+        <Link
+          href="/"
+          className="ui-focus-premium inline-flex items-center gap-1.5 rounded-full text-sm font-medium text-slate-500 transition-colors hover:text-primary"
+        >
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          Back to home
+        </Link>
+
+        <div className="mt-6 text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.32em] text-primary/75">
             Appointment Request
           </p>
           <h1 className="mt-4 font-heading text-4xl font-bold tracking-tight text-slate-950 sm:text-5xl">
             Request Your Appointment
           </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
-            Tell us what you need and we&apos;ll confirm by phone or email. Most
-            patients finish in under a minute.
+          <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-slate-600 sm:text-lg">
+            Answer a few quick questions and we&apos;ll confirm by phone or email
+            within one business day.
           </p>
-          <div className="mt-5 flex justify-center">
-            <Link
-              href="/"
-              className="ui-focus-premium inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-sm font-medium text-slate-600 transition-[border-color,color,transform,box-shadow] hover:-translate-y-0.5 hover:border-primary/25 hover:text-primary hover:shadow-[0_16px_40px_-30px_rgba(15,23,42,0.35)]"
-            >
-              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-              Back to home
-            </Link>
-          </div>
         </div>
 
-        <div className="mt-8 rounded-[24px] border border-slate-200/80 bg-white/88 p-5 shadow-[0_24px_70px_-52px_rgba(15,23,42,0.45)] backdrop-blur sm:p-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div className="space-y-3">
-              <div className="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-rose-700">
-                <PhoneCall className="h-3.5 w-3.5" aria-hidden="true" />
-                Need urgent care?
-              </div>
-              <div className="space-y-2 text-sm leading-6 text-slate-600">
-                <p className="flex items-start gap-2">
-                  <Clock3 className="mt-0.5 h-4 w-4 text-primary" aria-hidden="true" />
-                  <span>Our team usually replies within one business day.</span>
-                </p>
-                <p className="flex items-start gap-2">
-                  <ShieldCheck className="mt-0.5 h-4 w-4 text-primary" aria-hidden="true" />
-                  <span>Your request is sent through our secure intake form.</span>
-                </p>
-                {holidayHours.active ? (
-                  <p className="text-xs leading-5 text-slate-500">
-                    {holidayHours.shortNotice}
-                  </p>
-                ) : null}
-              </div>
-            </div>
+        <a
+          href={`tel:${officeInfo.phoneE164}`}
+          className="ui-focus-premium group mt-6 flex items-center justify-between gap-3 rounded-2xl border border-rose-200 bg-rose-50/70 px-4 py-3 transition-colors hover:border-rose-300 hover:bg-rose-50"
+        >
+          <span className="flex items-center gap-2.5 text-sm leading-5 text-rose-800">
+            <PhoneCall className="h-4 w-4 shrink-0 text-rose-600" aria-hidden="true" />
+            <span>
+              <span className="font-semibold">In pain or a dental emergency?</span>{" "}
+              Calling is the fastest way to be seen.
+            </span>
+          </span>
+          <span className="hidden shrink-0 items-center gap-1.5 rounded-full bg-rose-600 px-3.5 py-2 text-sm font-semibold text-white transition-transform group-hover:-translate-y-0.5 sm:inline-flex">
+            Call {officeInfo.phone}
+          </span>
+        </a>
+        {holidayHours.active ? (
+          <p className="mt-3 text-center text-xs leading-5 text-slate-500">
+            {holidayHours.shortNotice}
+          </p>
+        ) : null}
 
-            <a
-              href={`tel:${officeInfo.phoneE164}`}
-              className="ui-focus-premium inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-[0_18px_40px_-24px_rgba(37,99,235,0.7)] transition-transform hover:-translate-y-0.5 hover:bg-primary/95"
-            >
-              <PhoneCall className="h-4 w-4" aria-hidden="true" />
-              Call {officeInfo.phone}
-            </a>
-          </div>
-        </div>
-
-        <div className="mt-8 rounded-[32px] border border-slate-200/80 bg-white px-5 py-6 shadow-[0_30px_90px_-60px_rgba(15,23,42,0.5)] sm:px-8 sm:py-8">
+        <div className="mt-6 rounded-[28px] border border-slate-200/80 bg-white px-5 py-6 shadow-[0_30px_90px_-60px_rgba(15,23,42,0.5)] sm:px-8 sm:py-8">
           <AppointmentForm presentation="funnel" />
         </div>
 
@@ -120,9 +106,7 @@ const ScheduleRequestFunnel = () => {
             <div className="group rounded-[24px] border border-slate-200 bg-white/80 p-5 transition-[transform,box-shadow,border-color] hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-[0_24px_60px_-40px_rgba(15,23,42,0.35)]">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="inline-flex rounded-full bg-primary/[0.08] p-2 text-primary">
-                    <MapPin className="h-4 w-4" aria-hidden="true" />
-                  </div>
+                  <FeatureIcon icon={MapPin} size="sm" />
                   <p className="mt-3 text-sm font-semibold text-slate-900">
                     Need office details?
                   </p>
@@ -139,9 +123,7 @@ const ScheduleRequestFunnel = () => {
             <div className="group rounded-[24px] border border-slate-200 bg-white/80 p-5 transition-[transform,box-shadow,border-color] hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-[0_24px_60px_-40px_rgba(15,23,42,0.35)]">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="inline-flex rounded-full bg-primary/[0.08] p-2 text-primary">
-                    <ShieldCheck className="h-4 w-4" aria-hidden="true" />
-                  </div>
+                  <FeatureIcon icon={ShieldCheck} size="sm" tone="emerald" />
                   <p className="mt-3 text-sm font-semibold text-slate-900">
                     Insurance &amp; payment
                   </p>
