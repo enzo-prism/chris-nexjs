@@ -8,6 +8,7 @@ import MetaTags from "@/components/common/MetaTags";
 import { pageTitles, pageDescriptions } from "@/lib/metaContent";
 import HolidayHoursNotice from "@/components/common/HolidayHoursNotice";
 import StructuredData from "@/components/seo/StructuredData";
+import { FeatureIcon } from "@/components/common/FeatureIcon";
 import { holidayHours, officeInfo } from "@/lib/data";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import { Link } from "wouter";
@@ -64,9 +65,7 @@ const Contact = () => {
                 href={`tel:${officeInfo.phoneE164}`}
                 className="ui-focus-premium rounded-3xl border border-slate-200 bg-white px-6 py-5 text-left shadow-[0_20px_50px_-40px_rgba(15,23,42,0.32)] transition-transform hover:-translate-y-0.5 hover:border-primary/30"
               >
-                <div className="inline-flex rounded-full bg-primary/[0.08] p-3 text-primary">
-                  <Phone className="h-5 w-5" aria-hidden="true" />
-                </div>
+                <FeatureIcon icon={Phone} size="md" />
                 <p className="mt-4 text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
                   Call the office
                 </p>
@@ -80,9 +79,7 @@ const Contact = () => {
                 href={`mailto:${officeInfo.email}`}
                 className="ui-focus-premium rounded-3xl border border-slate-200 bg-white px-6 py-5 text-left shadow-[0_20px_50px_-40px_rgba(15,23,42,0.32)] transition-transform hover:-translate-y-0.5 hover:border-primary/30"
               >
-                <div className="inline-flex rounded-full bg-primary/[0.08] p-3 text-primary">
-                  <Mail className="h-5 w-5" aria-hidden="true" />
-                </div>
+                <FeatureIcon icon={Mail} size="md" tone="emerald" />
                 <p className="mt-4 text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
                   Email the practice
                 </p>
@@ -100,9 +97,7 @@ const Contact = () => {
                 rel="noopener noreferrer"
                 className="ui-focus-premium rounded-3xl border border-slate-200 bg-white px-6 py-5 text-left shadow-[0_20px_50px_-40px_rgba(15,23,42,0.32)] transition-transform hover:-translate-y-0.5 hover:border-primary/30"
               >
-                <div className="inline-flex rounded-full bg-primary/[0.08] p-3 text-primary">
-                  <MapPin className="h-5 w-5" aria-hidden="true" />
-                </div>
+                <FeatureIcon icon={MapPin} size="md" tone="amber" />
                 <p className="mt-4 text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
                   Visit the office
                 </p>

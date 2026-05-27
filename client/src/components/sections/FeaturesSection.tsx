@@ -1,19 +1,20 @@
-import { Heart, Star, Users } from "lucide-react";
+import { Heart, Star, Users, type LucideIcon } from "lucide-react";
+import { FeatureIcon } from "@/components/common/FeatureIcon";
 
 const FeaturesSection = () => {
-  const features = [
+  const features: { icon: LucideIcon; title: string; description: string }[] = [
     {
-      icon: <Star className="h-5 w-5 text-primary" />,
+      icon: Star,
       title: "Exceptional Results",
       description: "Our patients consistently achieve outstanding outcomes through our personalized care approach and attention to detail.",
     },
     {
-      icon: <Heart className="h-5 w-5 text-primary" />,
+      icon: Heart,
       title: "Patient-First Experience",
       description: "Every aspect of your visit is designed with your comfort and satisfaction in mind, from scheduling to treatment.",
     },
     {
-      icon: <Users className="h-5 w-5 text-primary" />,
+      icon: Users,
       title: "Community-Loved Team",
       description: "Our dedicated team has earned the trust and affection of the local community through years of compassionate service.",
     },
@@ -40,9 +41,11 @@ const FeaturesSection = () => {
               className="feature-reveal group rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-[box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:shadow md:p-8"
               style={{ animationDelay: `${index * 0.12}s` }}
             >
-              <div className="bg-primary/10 rounded-full p-3 w-12 h-12 flex items-center justify-center mb-5 group-hover:bg-primary/15 transition-colors">
-                {feature.icon}
-              </div>
+              <FeatureIcon
+                icon={feature.icon}
+                size="lg"
+                className="mb-5 transition-transform duration-300 group-hover:-translate-y-0.5"
+              />
               <h3 className="text-lg font-medium text-gray-900 mb-3 group-hover:text-primary transition-colors">{feature.title}</h3>
               <p className="text-sm text-gray-600 leading-relaxed">{feature.description}</p>
             </div>

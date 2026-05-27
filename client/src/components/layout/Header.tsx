@@ -515,11 +515,8 @@ const Header = ({ variant = "default" }: HeaderProps) => {
                       <Link
                         id={triggerId}
                         href={link.href}
-                        className={cn(
-                          "ui-focus-premium relative z-[102] flex cursor-pointer items-center gap-1 whitespace-nowrap rounded-xl px-2 py-2 text-[13px] font-medium tracking-wide text-slate-700 transition-[color,background-color,border-color,box-shadow] hover:bg-primary/5 hover:text-primary 2xl:gap-1.5 2xl:px-3 2xl:text-sm",
-                          active &&
-                            "bg-primary/10 text-primary shadow-[inset_0_0_0_1px_rgba(37,99,235,0.24)]",
-                        )}
+                        data-active={active ? "true" : undefined}
+                        className="ui-focus-premium ui-nav-link relative z-[102] flex cursor-pointer items-center gap-1 whitespace-nowrap rounded-xl px-2 py-2 text-[13px] font-medium tracking-wide text-slate-700 2xl:gap-1.5 2xl:px-3 2xl:text-sm"
                         aria-current={isActive(link.href) ? "page" : undefined}
                         aria-haspopup={hasSubmenu ? "menu" : undefined}
                         aria-expanded={hasSubmenu ? openDesktopSubmenu === link.label : undefined}
@@ -531,17 +528,26 @@ const Header = ({ variant = "default" }: HeaderProps) => {
                         {hasSubmenu && (
                           <ChevronDown
                             className={cn(
-                              "h-3 w-3 transition-transform duration-300",
-                              openDesktopSubmenu === link.label && "-rotate-180",
+                              "h-3 w-3 transition-[transform,color] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
+                              openDesktopSubmenu === link.label
+                                ? "-rotate-180 text-primary"
+                                : cn(
+                                    "text-slate-400 group-hover:translate-y-0.5 group-hover:text-primary",
+                                    active && "text-primary",
+                                  ),
                             )}
                             aria-hidden="true"
                           />
                         )}
                       </Link>
 
-                      {active && (
-                        <span className="absolute -bottom-1 left-2 right-2 z-[101] h-0.5 rounded-full bg-primary" />
-                      )}
+                      {/* Premium underline: wipes in from center on hover /
+                          focus and stays lit while active (styles in globals). */}
+                      <span
+                        aria-hidden="true"
+                        data-active={active ? "true" : undefined}
+                        className="ui-nav-underline z-[101]"
+                      />
 
                       {hasSubmenu && openDesktopSubmenu === link.label && (
                         <div
@@ -554,7 +560,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
                           }
                         >
                           <div className="-mt-4 h-4 w-full bg-transparent" />
-                          <div className="relative z-[103] overflow-hidden rounded-xl border border-white/10 bg-[#102a4a] p-2 shadow-2xl">
+                          <div className="relative z-[103] origin-top overflow-hidden rounded-xl border border-white/10 bg-[#102a4a] p-2 shadow-2xl duration-200 ease-out animate-in fade-in-0 zoom-in-95 slide-in-from-top-1 motion-reduce:animate-none">
                             {link.submenu?.map((subItem) => (
                               <Link
                                 key={subItem.href}

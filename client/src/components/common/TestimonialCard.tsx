@@ -28,7 +28,7 @@ const TestimonialCard = ({ testimonial, index = 0, disableAnimation = false }: T
     <Card className="ui-card-interactive relative h-full overflow-hidden border">
       <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass}`} aria-hidden="true" />
       <div className="absolute -top-8 -right-8 text-primary/5">
-        <Quote className="w-28 h-28" strokeWidth={1} aria-hidden="true" />
+        <Quote className="w-28 h-28" style={{ strokeWidth: 1 }} aria-hidden="true" />
       </div>
 
       <CardContent className="p-6 sm:p-7 relative z-10">
