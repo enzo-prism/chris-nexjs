@@ -61,29 +61,49 @@ function normalizeTree(root: ParentNode): void {
 
 export default function CopyDashSanitizer(): null {
   useEffect(() => {
-    normalizeTree(document.body);
+    let observer: MutationObserver | null = null;
 
-    const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        for (const node of mutation.addedNodes) {
-          if (node.nodeType === Node.TEXT_NODE) {
-            normalizeTextNode(node as Text);
-            continue;
-          }
+    // Rewriting text nodes is a DOM mutation, so it must not run while React is
+    // still hydrating: mutating "Patient-First" -> "Patient First" mid-hydration
+    // makes the live DOM diverge from React's expected (dash-containing) markup,
+    // which throws "Text content does not match" and forces Suspense boundaries
+    // to re-render on the client. Waiting for `load` guarantees hydration has
+    // committed before the first sweep; the observer then catches any text added
+    // afterwards (which is always post-hydration).
+    const start = () => {
+      normalizeTree(document.body);
 
-          if (node.nodeType === Node.ELEMENT_NODE) {
-            normalizeTree(node as Element);
+      observer = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+          for (const node of mutation.addedNodes) {
+            if (node.nodeType === Node.TEXT_NODE) {
+              normalizeTextNode(node as Text);
+              continue;
+            }
+
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              normalizeTree(node as Element);
+            }
           }
         }
-      }
-    });
+      });
 
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-    });
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+      });
+    };
 
-    return () => observer.disconnect();
+    if (document.readyState === "complete") {
+      start();
+    } else {
+      window.addEventListener("load", start, { once: true });
+    }
+
+    return () => {
+      window.removeEventListener("load", start);
+      observer?.disconnect();
+    };
   }, []);
 
   return null;

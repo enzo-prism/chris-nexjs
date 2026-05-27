@@ -46,28 +46,17 @@ const SERVICE_SLUG_TO_PATH: Record<string, string> = {
   "emergency-dental": "/emergency-dental",
 } as const;
 
-const normalizeHost = (hostname: string) => {
-  if (hostname === "chriswongdds.com") {
-    return PROD_DOMAIN;
-  }
-
-  if (hostname.endsWith("chriswongdds.com") && !hostname.startsWith("www.")) {
-    return PROD_DOMAIN;
-  }
-
-  return hostname;
-};
-
-export const getBaseUrl = () => {
-  if (typeof window === "undefined") {
-    return `https://${PROD_DOMAIN}`;
-  }
-
-  const { protocol, hostname, port } = window.location;
-  const normalizedHost = normalizeHost(hostname);
-  const includePort = normalizedHost === hostname && port ? `:${port}` : "";
-  return `${protocol}//${normalizedHost}${includePort}`;
-};
+// Structured data must reference canonical absolute URLs — the `@id` and `url`
+// fields are global identifiers, not the visitor's current host. Returning a
+// constant (instead of reading `window.location` on the client) is therefore
+// the SEO-correct behavior, and it also keeps the server-rendered JSON-LD
+// byte-identical to the client render. The previous host-aware version emitted
+// `https://www.chriswongdds.com` on the server but the live origin on the
+// client (e.g. `http://localhost:3000`, or a Vercel preview URL), which made
+// the <script type="application/ld+json"> text differ between server and
+// client and triggered React hydration-mismatch errors on every non-canonical
+// host.
+export const getBaseUrl = () => `https://${PROD_DOMAIN}`;
 
 export const absoluteUrl = (path = "/") => {
   if (path.startsWith("http://") || path.startsWith("https://")) {
