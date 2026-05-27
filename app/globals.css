@@ -451,6 +451,26 @@
   }
 }
 
+@keyframes feature-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer utilities {
+  /* Lightweight CSS replacement for the framer-motion stagger that previously
+     animated the homepage "Why Choose Dr. Wong" cards. Keeps the entrance
+     reveal without shipping/hydrating an animation library on the homepage. */
+  .feature-reveal {
+    animation: feature-reveal 0.5s ease-out both;
+  }
+}
+
 @keyframes svg-float-y {
   0%,
   100% {
@@ -537,5 +557,13 @@
   .svg-divider-wave .divider-wave,
   .svg-divider-wave .divider-dot {
     animation: none !important;
+  }
+
+  /* Show feature cards immediately rather than holding the staggered
+     pre-animation (opacity 0) state through their delay. */
+  .feature-reveal {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
