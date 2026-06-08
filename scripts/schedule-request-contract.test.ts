@@ -102,7 +102,7 @@ async function testV2PayloadCompatibility() {
         lastName: "User",
         phone: "+1 (650) 555-1111",
         email: "v2@example.com",
-        contactPreference: "text",
+        contactPreference: "email",
         insuranceProvider: "Delta Dental",
         message: "Need urgent support",
         source: "schedule_page_form_v2",
@@ -114,10 +114,31 @@ async function testV2PayloadCompatibility() {
     const formspree = assertFormspreeCall(calls);
     assert.equal(formspree.body.phone, "6505551111");
     assert.equal(formspree.body.scheduling_mode, "choose_preferences");
-    assert.equal(formspree.body.contact_preference, "text");
+    assert.equal(formspree.body.contact_preference, "email");
     assert.equal(formspree.body.insurance_status, "Delta Dental");
     assert.equal(formspree.body.urgent, "Yes");
     assert.equal(formspree.body.preferred_time_of_day, "Afternoon (2pm-close)");
+  });
+}
+
+async function testLegacyTextContactPreferenceFallback() {
+  await withMockedFetch(async (calls) => {
+    const response = await postScheduleRequest(
+      requestWithBody({
+        isEmergency: false,
+        appointmentType: "New Patient Exam & Cleaning",
+        schedulingMode: "first_available",
+        firstName: "Cached",
+        lastName: "Text",
+        phone: "6505553434",
+        email: "cached.text@example.com",
+        contactPreference: "text",
+      }),
+    );
+
+    assert.equal(response.status, 201);
+    const formspree = assertFormspreeCall(calls);
+    assert.equal(formspree.body.contact_preference, "phone");
   });
 }
 
@@ -336,6 +357,7 @@ async function testBlankEnvironmentFallsBackToDefaultFormspreeEndpoint() {
 (async function run() {
   await testLegacyPayloadCompatibility();
   await testV2PayloadCompatibility();
+  await testLegacyTextContactPreferenceFallback();
   await testLegacyAfternoonPreferenceCompatibility();
   await testFirstAvailableMode();
   await testValidationFailures();

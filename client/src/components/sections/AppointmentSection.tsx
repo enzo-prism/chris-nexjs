@@ -124,7 +124,7 @@ const AppointmentSection = () => {
               <div className="max-w-lg mx-auto">
                 <h3 className="text-2xl sm:text-3xl font-bold font-heading text-[#333333] mb-2 sm:mb-4">Request an Appointment</h3>
                 <p className="text-[#333333] mb-6 text-sm sm:text-base">
-                  Complete this simple form and we&apos;ll confirm your appointment by call or text within one business day.
+                  Complete this simple form and we&apos;ll confirm your appointment by phone or email within one business day.
                 </p>
                 <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
                   This should take about 30 seconds.

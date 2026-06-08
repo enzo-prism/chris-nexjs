@@ -25,7 +25,7 @@ export const preferredTimeOptions = [
 ] as const;
 
 export const schedulingModeOptions = ["first_available", "choose_preferences"] as const;
-export const contactPreferenceOptions = ["phone", "text", "email"] as const;
+export const contactPreferenceOptions = ["phone", "email"] as const;
 
 export type SchedulingMode = (typeof schedulingModeOptions)[number];
 export type ContactPreference = (typeof contactPreferenceOptions)[number];
@@ -82,7 +82,12 @@ export const scheduleRequestV2Schema = z
     schedulingMode: z.enum(schedulingModeOptions),
     preferredDays: z.array(z.enum(preferredDayOptions)).max(3).optional(),
     preferredTime: preferredTimeSchema.optional(),
-    contactPreference: z.enum(contactPreferenceOptions).default("phone"),
+    contactPreference: z
+      .preprocess(
+        (value) => (value === "text" ? "phone" : value),
+        z.enum(contactPreferenceOptions),
+      )
+      .default("phone"),
     insuranceProvider: optionalText(80),
     message: optionalText(300),
     source: z.string().trim().max(80).optional(),

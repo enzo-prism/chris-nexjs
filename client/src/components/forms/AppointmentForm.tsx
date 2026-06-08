@@ -203,7 +203,6 @@ const schedulingModeDetails: Record<ScheduleFormValues["schedulingMode"], {
 
 const contactPreferenceHints: Record<string, string> = {
   phone: "Quick confirmations",
-  text: "Short updates",
   email: "Written details",
 };
 
@@ -728,7 +727,7 @@ const ContactStep = ({
             <FormControl>
               <RadioGroup
                 className={cn(
-                  presentation === "funnel" ? "grid grid-cols-3 gap-2.5" : "grid grid-cols-1 gap-2 sm:grid-cols-3",
+                  presentation === "funnel" ? "grid grid-cols-2 gap-2.5" : "grid grid-cols-1 gap-2 sm:grid-cols-2",
                 )}
                 value={field.value}
                 onValueChange={field.onChange}
