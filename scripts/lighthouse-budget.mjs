@@ -77,6 +77,7 @@ function runLighthouse(url) {
     url,
     `--chrome-flags='${DEFAULT_CHROME_FLAGS}'`,
     "--only-categories=performance,seo",
+    "--throttling-method=provided",
     "--output=json",
     "--output-path=stdout",
     "--quiet",
