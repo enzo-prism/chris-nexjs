@@ -41,6 +41,16 @@ const getDayOfWeek = (value: string): number | null => {
 const isWeekend = (dayOfWeek: number | null): boolean =>
   dayOfWeek === 0 || dayOfWeek === 6;
 
+const isSpecialClosedDate = (value: string): boolean =>
+  Boolean(value) &&
+  officeInfo.specialOpeningHoursSpecification.some(
+    (entry) =>
+      entry.opens === "00:00" &&
+      entry.closes === "00:00" &&
+      value >= entry.validFrom &&
+      value <= entry.validThrough,
+  );
+
 const getTimeWindows = (dayOfWeek: number | null) => {
   if (dayOfWeek === 3) return WEDNESDAY_TIME_WINDOWS;
   if (dayOfWeek === 5) return FRIDAY_TIME_WINDOWS;
@@ -84,14 +94,16 @@ const ZoomWhiteningSchedule = () => {
 
   const preferredDay1 = getDayOfWeek(preferredDate1);
   const preferredDay2 = getDayOfWeek(preferredDate2);
-  const timeWindows1 = getTimeWindows(preferredDay1);
-  const timeWindows2 = getTimeWindows(preferredDay2);
+  const isClosedDate1 = isSpecialClosedDate(preferredDate1);
+  const isClosedDate2 = isSpecialClosedDate(preferredDate2);
+  const timeWindows1 = isClosedDate1 ? [] : getTimeWindows(preferredDay1);
+  const timeWindows2 = isClosedDate2 ? [] : getTimeWindows(preferredDay2);
   const isWeekend1 = isWeekend(preferredDay1);
   const isWeekend2 = isWeekend(preferredDay2);
 
   const handlePreferredDate1Change = (value: string) => {
     const day = getDayOfWeek(value);
-    const windows = getTimeWindows(day);
+    const windows = isSpecialClosedDate(value) ? [] : getTimeWindows(day);
     setPreferredDate1(value);
     setPreferredTime1((current) =>
       windows.some((window) => window.value === current) ? current : "",
@@ -100,7 +112,7 @@ const ZoomWhiteningSchedule = () => {
 
   const handlePreferredDate2Change = (value: string) => {
     const day = getDayOfWeek(value);
-    const windows = getTimeWindows(day);
+    const windows = isSpecialClosedDate(value) ? [] : getTimeWindows(day);
     setPreferredDate2(value);
     setPreferredTime2((current) =>
       windows.some((window) => window.value === current) ? current : "",
@@ -110,11 +122,15 @@ const ZoomWhiteningSchedule = () => {
   const timePlaceholder1 = preferredDate1
     ? isWeekend1
       ? "Office is closed on weekends"
+      : isClosedDate1
+        ? "Office is closed that day"
       : "Select a 1-hour window"
     : "Pick a date first";
   const timePlaceholder2 = preferredDate2
     ? isWeekend2
       ? "Office is closed on weekends"
+      : isClosedDate2
+        ? "Office is closed that day"
       : "Select a 1-hour window"
     : "Pick a date first";
 
@@ -355,7 +371,11 @@ const ZoomWhiteningSchedule = () => {
                               </option>
                             ))}
                           </select>
-                          {isWeekend1 && preferredDate1 ? (
+                          {isClosedDate1 && preferredDate1 ? (
+                            <p className="text-xs text-rose-600">
+                              Office is closed Friday, June 19, 2026 for Juneteenth. Please choose another date.
+                            </p>
+                          ) : isWeekend1 && preferredDate1 ? (
                             <p className="text-xs text-rose-600">
                               Office is closed on weekends. Please choose a weekday date.
                             </p>
@@ -410,7 +430,11 @@ const ZoomWhiteningSchedule = () => {
                               </option>
                             ))}
                           </select>
-                          {isWeekend2 && preferredDate2 ? (
+                          {isClosedDate2 && preferredDate2 ? (
+                            <p className="text-xs text-rose-600">
+                              Office is closed Friday, June 19, 2026 for Juneteenth. Please choose another date.
+                            </p>
+                          ) : isWeekend2 && preferredDate2 ? (
                             <p className="text-xs text-rose-600">
                               Office is closed on weekends. Please choose a weekday date.
                             </p>
