@@ -62,6 +62,14 @@ const getSpecialClosureMessage = (value: string): string =>
   specialClosureMessages[value] ??
   "Office is closed that day. Please choose another date.";
 
+const limitedHoursDates = new Set(["2026-06-24", "2026-06-25", "2026-06-26"]);
+
+const isLimitedHoursDate = (value: string): boolean =>
+  limitedHoursDates.has(value);
+
+const limitedHoursMessage =
+  "Office hours are limited Wednesday, June 24 through Friday, June 26. Please call to confirm availability around this window.";
+
 const getTimeWindows = (dayOfWeek: number | null) => {
   if (dayOfWeek === 3) return WEDNESDAY_TIME_WINDOWS;
   if (dayOfWeek === 5) return FRIDAY_TIME_WINDOWS;
@@ -107,6 +115,8 @@ const ZoomWhiteningSchedule = () => {
   const preferredDay2 = getDayOfWeek(preferredDate2);
   const isClosedDate1 = isSpecialClosedDate(preferredDate1);
   const isClosedDate2 = isSpecialClosedDate(preferredDate2);
+  const isLimitedHoursDate1 = isLimitedHoursDate(preferredDate1);
+  const isLimitedHoursDate2 = isLimitedHoursDate(preferredDate2);
   const timeWindows1 = isClosedDate1 ? [] : getTimeWindows(preferredDay1);
   const timeWindows2 = isClosedDate2 ? [] : getTimeWindows(preferredDay2);
   const isWeekend1 = isWeekend(preferredDay1);
@@ -390,6 +400,10 @@ const ZoomWhiteningSchedule = () => {
                             <p className="text-xs text-rose-600">
                               Office is closed on weekends. Please choose a weekday date.
                             </p>
+                          ) : isLimitedHoursDate1 ? (
+                            <p className="text-xs text-amber-700">
+                              {limitedHoursMessage}
+                            </p>
                           ) : preferredDate1 ? (
                             <p className="text-xs text-slate-500">
                               {getOfficeHoursHint(preferredDay1)}
@@ -448,6 +462,10 @@ const ZoomWhiteningSchedule = () => {
                           ) : isWeekend2 && preferredDate2 ? (
                             <p className="text-xs text-rose-600">
                               Office is closed on weekends. Please choose a weekday date.
+                            </p>
+                          ) : isLimitedHoursDate2 ? (
+                            <p className="text-xs text-amber-700">
+                              {limitedHoursMessage}
                             </p>
                           ) : preferredDate2 ? (
                             <p className="text-xs text-slate-500">

@@ -71,20 +71,26 @@ export type OfficeInfo = typeof officeInfo;
 
 export const holidayHours = {
   active: true,
-  id: "office-hours-2026-06-19-2026-07-03-holiday-closures",
-  title: "Temporary schedule update: Friday, June 19 and Friday, July 3, 2026",
+  id: "office-hours-2026-06-19-2026-07-03-holiday-limited-hours",
+  title: "Temporary schedule update: June 19, June 24-26, and July 3, 2026",
   description:
-    "The office will be closed Friday, June 19, 2026 for Juneteenth and Friday, July 3, 2026 for the July Fourth holiday. Regular weekly hours resume after each holiday. Please call before visiting if you need to confirm availability or request an appointment.",
+    "The office will be closed Friday, June 19, 2026 for Juneteenth, have limited office hours Wednesday, June 24 through Friday, June 26, and be closed Friday, July 3, 2026 for the July Fourth holiday. Please call before visiting if you need to confirm availability or request an appointment.",
   shortNotice:
-    "The office will be closed Friday, June 19, 2026 for Juneteenth and Friday, July 3, 2026 for the July Fourth holiday.",
+    "The office will be closed Friday, June 19 and Friday, July 3, with limited office hours Wednesday, June 24 through Friday, June 26.",
   footerNote:
-    "Regular weekly hours apply outside these holiday closure dates.",
+    "Regular weekly hours apply outside these temporary schedule updates.",
   entries: [
     {
       day: "Fri, Jun 19",
       hours: "Closed",
       status: "closed",
       badge: "Juneteenth",
+    },
+    {
+      day: "Wed-Fri, Jun 24-26",
+      hours: "Limited hours",
+      status: "varies",
+      badge: "Call to confirm",
     },
     {
       day: "Fri, Jul 3",
