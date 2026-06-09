@@ -51,6 +51,17 @@ const isSpecialClosedDate = (value: string): boolean =>
       value <= entry.validThrough,
   );
 
+const specialClosureMessages: Readonly<Record<string, string>> = {
+  "2026-06-19":
+    "Office is closed Friday, June 19, 2026 for Juneteenth. Please choose another date.",
+  "2026-07-03":
+    "Office is closed Friday, July 3, 2026 for the July Fourth holiday. Please choose another date.",
+};
+
+const getSpecialClosureMessage = (value: string): string =>
+  specialClosureMessages[value] ??
+  "Office is closed that day. Please choose another date.";
+
 const getTimeWindows = (dayOfWeek: number | null) => {
   if (dayOfWeek === 3) return WEDNESDAY_TIME_WINDOWS;
   if (dayOfWeek === 5) return FRIDAY_TIME_WINDOWS;
@@ -373,7 +384,7 @@ const ZoomWhiteningSchedule = () => {
                           </select>
                           {isClosedDate1 && preferredDate1 ? (
                             <p className="text-xs text-rose-600">
-                              Office is closed Friday, June 19, 2026 for Juneteenth. Please choose another date.
+                              {getSpecialClosureMessage(preferredDate1)}
                             </p>
                           ) : isWeekend1 && preferredDate1 ? (
                             <p className="text-xs text-rose-600">
@@ -432,7 +443,7 @@ const ZoomWhiteningSchedule = () => {
                           </select>
                           {isClosedDate2 && preferredDate2 ? (
                             <p className="text-xs text-rose-600">
-                              Office is closed Friday, June 19, 2026 for Juneteenth. Please choose another date.
+                              {getSpecialClosureMessage(preferredDate2)}
                             </p>
                           ) : isWeekend2 && preferredDate2 ? (
                             <p className="text-xs text-rose-600">
