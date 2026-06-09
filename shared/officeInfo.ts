@@ -39,7 +39,16 @@ export const officeInfo = {
       closes: "16:00",
     },
   ],
-  specialOpeningHoursSpecification: [],
+  specialOpeningHoursSpecification: [
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: "Friday",
+      opens: "00:00",
+      closes: "00:00",
+      validFrom: "2026-06-19",
+      validThrough: "2026-06-19",
+    },
+  ],
   phone: "(650) 326-6319",
   email: "chrisbwongdds@gmail.com",
   socialMedia: {
@@ -53,37 +62,21 @@ export const officeInfo = {
 export type OfficeInfo = typeof officeInfo;
 
 export const holidayHours = {
-  active: false,
-  id: "office-hours-2026-04-06-through-2026-04-17",
-  title: "Temporary schedule update: April 6 to April 17, 2026",
+  active: true,
+  id: "office-hours-2026-06-19-juneteenth",
+  title: "Temporary schedule update: Friday, June 19, 2026",
   description:
-    "Dr. Wong will be out of the office during this stretch, so appointment availability and office hours may vary. The office will be fully closed Thursday, April 9, 2026 and Friday, April 10, 2026. Please call before visiting if you need to confirm availability or request the soonest appointment.",
+    "The office will be closed Friday, June 19, 2026 for Juneteenth. Regular weekly hours resume after the holiday. Please call before visiting if you need to confirm availability or request an appointment.",
   shortNotice:
-    "Dr. Wong will be out from April 6 to April 17, 2026. Availability may vary, and the office will be closed Thursday, April 9 and Friday, April 10. Please call to confirm before visiting.",
+    "The office will be closed Friday, June 19, 2026 for Juneteenth. Regular weekly hours resume after the holiday.",
   footerNote:
-    "Outside April 6 to April 17, 2026, regular weekly hours apply.",
+    "Regular weekly hours apply outside Friday, June 19, 2026.",
   entries: [
     {
-      day: "Mon, Apr 6 to Wed, Apr 8",
-      hours: "Hours may vary",
-      status: "varies",
-      badge: "Call to confirm",
-    },
-    {
-      day: "Thu, Apr 9",
+      day: "Fri, Jun 19",
       hours: "Closed",
       status: "closed",
-    },
-    {
-      day: "Fri, Apr 10",
-      hours: "Closed",
-      status: "closed",
-    },
-    {
-      day: "Mon, Apr 13 to Fri, Apr 17",
-      hours: "Hours may vary",
-      status: "varies",
-      badge: "Limited availability",
+      badge: "Juneteenth",
     },
   ],
   cta: {
