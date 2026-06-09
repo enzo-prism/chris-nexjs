@@ -11,6 +11,7 @@ import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import SupplementalContent from "@/components/common/SupplementalContent";
 import StructuredData from "@/components/seo/StructuredData";
+import HolidayHoursNotice from "@/components/common/HolidayHoursNotice";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import type { ChromeVariant } from "@/lib/chrome";
@@ -99,6 +100,7 @@ export function AppPageShell({
       />
       <Header variant={chromeVariant} />
       <main style={{ paddingTop: "var(--header-height, 110px)" }}>
+        {chromeVariant === "default" ? <HolidayHoursNotice /> : null}
         {children}
       </main>
       <Footer variant={chromeVariant} />

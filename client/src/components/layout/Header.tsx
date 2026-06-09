@@ -19,7 +19,6 @@ import {
   Instagram,
 } from "lucide-react";
 import { officeInfo } from "@/lib/data";
-import HolidayHoursNotice from "@/components/common/HolidayHoursNotice";
 import ButtonLink from "@/components/common/ButtonLink";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -382,10 +381,6 @@ const Header = ({ variant = "default" }: HeaderProps) => {
       ref={headerRef}
       className="fixed left-0 right-0 top-0 z-[100] flex flex-col isolation-auto"
     >
-      <div className="relative z-[101]">
-        <HolidayHoursNotice />
-      </div>
-
       {/* Top Bar - Contact & Info */}
       <div
         className={cn(
