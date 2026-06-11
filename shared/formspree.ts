@@ -1,4 +1,7 @@
 export const DEFAULT_FORMSPREE_ENDPOINT = "https://formspree.io/f/xojnrjna";
+export const FORMSPREE_OPS_SITE = "chris-website";
+export const FORMSPREE_OPS_SCHEDULE_FORM_KEY = "schedule_request";
+export const FORMSPREE_OPS_QA_FIELD = "_codex_test";
 
 const getNormalizedEndpoint = (
   value: string | null | undefined,

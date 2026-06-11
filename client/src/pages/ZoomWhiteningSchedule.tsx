@@ -9,7 +9,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { officeInfo } from "@/lib/data";
-import { getPublicFormspreeEndpoint } from "@shared/formspree";
+import {
+  FORMSPREE_OPS_QA_FIELD,
+  FORMSPREE_OPS_SCHEDULE_FORM_KEY,
+  FORMSPREE_OPS_SITE,
+  getPublicFormspreeEndpoint,
+} from "@shared/formspree";
 
 const WEEKDAY_TIME_WINDOWS = [
   { value: "8:00 AM - 9:00 AM", label: "8:00 AM - 9:00 AM" },
@@ -30,6 +35,21 @@ const selectClassName =
   "h-12 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
 
 const FORM_ENDPOINT = getPublicFormspreeEndpoint();
+const FORMSPREE_OPS_UTM_FIELDS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"];
+
+function appendFormspreeOpsMetadata(formData: FormData) {
+  formData.set("site", FORMSPREE_OPS_SITE);
+  formData.set("form_key", FORMSPREE_OPS_SCHEDULE_FORM_KEY);
+  formData.set("environment", process.env.NEXT_PUBLIC_VERCEL_ENV ?? process.env.NODE_ENV ?? "production");
+  formData.set(FORMSPREE_OPS_QA_FIELD, "false");
+
+  const params = new URLSearchParams(window.location.search);
+  formData.set("page_path", window.location.pathname);
+  formData.set("referrer", document.referrer);
+  for (const field of FORMSPREE_OPS_UTM_FIELDS) {
+    formData.set(field, params.get(field) ?? "");
+  }
+}
 
 const getDayOfWeek = (value: string): number | null => {
   if (!value) return null;
@@ -163,6 +183,7 @@ const ZoomWhiteningSchedule = () => {
     setSubmissionError("");
 
     const formData = new FormData(form);
+    appendFormspreeOpsMetadata(formData);
 
     try {
       const response = await fetch(FORM_ENDPOINT, {

@@ -2,7 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { fromZodError } from "zod-validation-error";
 import { ZodError } from "zod";
 import { ANALYTICS_EVENTS, getAnalyticsPathFromUrl } from "@shared/analytics";
-import { getScheduleFormspreeEndpoint } from "@shared/formspree";
+import {
+  FORMSPREE_OPS_QA_FIELD,
+  FORMSPREE_OPS_SCHEDULE_FORM_KEY,
+  FORMSPREE_OPS_SITE,
+  getScheduleFormspreeEndpoint,
+} from "@shared/formspree";
 import {
   legacyScheduleRequestSchema,
   normalizeSchedulePhone,
@@ -192,6 +197,12 @@ const postToFormspree = async (
     utm_term: payload.utm.utm_term,
     utm_content: payload.utm.utm_content,
     additional_notes: payload.message ?? "",
+    site: FORMSPREE_OPS_SITE,
+    form_key: FORMSPREE_OPS_SCHEDULE_FORM_KEY,
+    page_path: getAnalyticsPathFromUrl(payload.sourceUrl) ?? "",
+    referrer: payload.sourceUrl,
+    environment: process.env.VERCEL_ENV ?? process.env.NODE_ENV ?? "production",
+    [FORMSPREE_OPS_QA_FIELD]: "false",
     _replyto: payload.email,
     _subject: `Appointment Request: ${payload.appointmentType}`,
     message: buildInboxMessage(payload),
