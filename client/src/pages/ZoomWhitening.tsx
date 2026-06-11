@@ -10,7 +10,7 @@ import TestimonialSection from "@/components/testimonials/TestimonialSection";
 import { pageTitles, pageDescriptions } from "@/lib/metaContent";
 import { buildBreadcrumbSchema, buildServiceSchema } from "@/lib/structuredData";
 import { getTestimonialCollection } from "@/lib/testimonials";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion-lite";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import RelatedServices, {
   type RelatedServiceLink,

@@ -1,21 +1,22 @@
-// Dr. Wong images
+// Dr. Wong images — self-hosted under public/images (migrated off imgur,
+// which has no hotlinking SLA and added a third-party origin to every fetch).
 export const drWongImages = {
-  polaroid: "https://i.imgur.com/mVvasLs.png",
+  polaroid: "/images/office/polaroid-collage.png",
   // Gallery images with new labels
-  drWongOffice1: "https://i.imgur.com/BeX3mhS.png", // Top Left: Reception Area with Dentist
-  drWongOffice2: "https://i.imgur.com/sW9DVZF.png", // Top Middle: Garden Courtyard View
-  drWongOffice3: "https://i.imgur.com/gqotbUv.png", // Top Right: Courtyard from Operatory View
-  drWongOffice4: "https://i.imgur.com/hYHYbBq.png", // Middle Left: Exterior Hallway View
-  drWongLab1: "https://i.imgur.com/qK5nPtS.png", // Bottom Left: Historical Photos
-  drWongLab2: "https://i.imgur.com/bUkVVSo.png", // Bottom Center: Dental Operatory Equipment
-  drWongLab3: "https://i.imgur.com/rIGaK9S.png", // Bottom Right: Reception Desk
+  drWongOffice1: "/images/office/reception-area.png", // Top Left: Reception Area with Dentist
+  drWongOffice2: "/images/office/garden-courtyard.png", // Top Middle: Garden Courtyard View
+  drWongOffice3: "/images/office/courtyard-operatory.png", // Top Right: Courtyard from Operatory View
+  drWongOffice4: "/images/office/exterior-hallway.png", // Middle Left: Exterior Hallway View
+  drWongLab1: "/images/office/historical-photos.png", // Bottom Left: Historical Photos
+  drWongLab2: "/images/office/operatory-equipment.png", // Bottom Center: Dental Operatory Equipment
+  drWongLab3: "/images/office/reception-desk.png", // Bottom Right: Reception Desk
   drWongPortrait1: "/images/dr_wong_polaroids.webp",
-  drWongPortrait2: "https://i.imgur.com/iqBXT9y.png",
-  drWongWaiting: "https://i.imgur.com/AC5lGu3.png", // Middle Right: Operatory Room
-  drWongReception: "https://i.imgur.com/nGlhUdH.png", // Middle Center: Exterior Signage and Entryway
+  drWongPortrait2: "/images/office/dr-wong-portrait-2.png",
+  drWongWaiting: "/images/office/operatory-room.png", // Middle Right: Operatory Room
+  drWongReception: "/images/office/exterior-entry.png", // Middle Center: Exterior Signage and Entryway
   drWongOffice: "/images/dr_wong_office.png", // Dr. Wong in his office
   heroImage: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1762989226/Post-11_nohz6f.webp",
-  teamPhoto: "https://i.imgur.com/ypt5eZ7.png",
-  officeEntrance: "https://i.imgur.com/wt7peyr.png",
+  teamPhoto: "/images/office/team-photo.png",
+  officeEntrance: "/images/office/office-entrance.png",
   treatmentRoom: "/images/hero-office-960.webp",
 };

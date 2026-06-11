@@ -36,6 +36,12 @@ export const motion = {
   div: MotionDiv,
 } as const;
 
-export function AnimatePresence({ children }: { children?: ReactNode }) {
+export function AnimatePresence({
+  children,
+}: {
+  children?: ReactNode;
+  mode?: "sync" | "wait" | "popLayout";
+  initial?: boolean;
+}) {
   return <>{children}</>;
 }

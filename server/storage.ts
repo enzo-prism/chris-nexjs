@@ -320,42 +320,42 @@ export class MemStorage implements IStorage {
       {
         title: "Preventive Dentistry",
         description: "Regular check-ups, cleanings, and screenings to maintain optimal oral health and prevent issues before they start.",
-        image: "https://i.imgur.com/MuWZWEY.jpg",
+        image: "/images/services/preventive-dentistry.jpg",
         slug: "preventive-dentistry",
         featured: true
       },
       {
         title: "Cosmetic Dentistry",
         description: "Teeth whitening, veneers, and other aesthetic procedures to enhance your smile and boost your confidence.",
-        image: "https://cdn.prod.website-files.com/6647633c9b317c62a46de335/67e98b5ee7cebcc5e1b3eae3_mode%3B.png",
+        image: "/images/services/cosmetic-dentistry.png",
         slug: "cosmetic-dentistry",
         featured: true
       },
       {
         title: "Restorative Dentistry",
         description: "Fillings, crowns, bridges, and implants to repair damage and restore full function to your teeth.",
-        image: "https://i.imgur.com/HcIu4Tr.jpg",
+        image: "/images/services/restorative-dentistry.jpg",
         slug: "restorative-dentistry",
         featured: false
       },
       {
         title: "Pediatric Dentistry",
         description: "Child-friendly dental care in a comfortable environment to establish good oral health habits early.",
-        image: "https://i.imgur.com/3iTw6Dx.jpg",
+        image: "/images/services/pediatric-dentistry.jpg",
         slug: "pediatric-dentistry",
         featured: true
       },
       {
         title: "Invisalign Clear Aligners",
         description: "Virtually invisible orthodontic treatment using custom clear aligners to straighten teeth discreetly for teens and adults.",
-        image: "https://i.imgur.com/XVLlcob.jpg",
+        image: "/images/services/invisalign-aligners.jpg",
         slug: "invisalign",
         featured: true
       },
       {
         title: "ZOOM! Teeth Whitening",
         description: "In-office ZOOM! whitening that lifts deep stains and brightens your smile in one visit with minimal sensitivity.",
-        image: "https://i.imgur.com/qK5nPtS.png",
+        image: "/images/office/historical-photos.png",
         slug: "zoom-whitening",
         featured: true
       },
@@ -1711,7 +1711,7 @@ Do Invisalign aligners hurt? You can expect mild pressure for a few days each ti
 
 Ready to Explore Invisalign in Palo Alto, CA?
 If you are curious whether Invisalign is right for you, the next step is a personalized consultation with a dentist who provides Invisalign treatment in Palo Alto. During your visit, you can expect a thorough exam, digital imaging, a custom treatment plan with an estimated timeline, and a transparent discussion of costs, insurance, and payment options. Call the office at (650) 326-6319 or request an appointment online to schedule your Invisalign consultation in Palo Alto, CA.`,
-        image: "https://i.imgur.com/XVLlcob.jpg",
+        image: "/images/services/invisalign-aligners.jpg",
         date: "January 15, 2025",
         slug: "invisalign-palo-alto",
         category: "Invisalign",

@@ -6,16 +6,18 @@ export default {
   theme: {
     extend: {
       fontFamily: {
+        // var(--font-sans) / var(--font-heading) are set by next/font in
+        // app/layout.tsx (self-hosted Source Sans 3 + Lato).
         sans: [
+          "var(--font-sans)",
           '"Source Sans Pro"',
-          "Lato",
           "ui-sans-serif",
           "system-ui",
           "sans-serif",
         ],
         heading: [
-          "Lato",
-          '"Source Sans Pro"',
+          "var(--font-heading)",
+          "var(--font-sans)",
           "ui-sans-serif",
           "system-ui",
           "sans-serif",

@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, Quote } from "lucide-react";
 import { Testimonial } from "@shared/schema";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion-lite";
 import OptimizedImage from "@/components/seo/OptimizedImage";
 import { isNoAdditionalCommentPlaceholder } from "@/lib/testimonialText";
 

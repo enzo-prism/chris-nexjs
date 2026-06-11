@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Lato, Source_Sans_3 } from "next/font/google";
 import { getSeoForPath } from "@/lib/seo";
 import CopyDashSanitizer from "@/components/common/CopyDashSanitizer";
 import VercelAnalytics from "@/components/common/VercelAnalytics";
@@ -7,6 +8,24 @@ import {
   ANALYTICS_CONSENT_STORAGE_KEY,
 } from "@shared/analytics";
 import "./globals.css";
+
+// Self-hosted via next/font: the Tailwind font stacks referenced these
+// families for years without any webfont actually loading (visitors saw
+// system-ui). next/font subsets, self-hosts, and generates size-adjusted
+// fallbacks, so the brand typography finally renders with no layout shift
+// and no third-party font request.
+const sourceSans = Source_Sans_3({
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+  variable: "--font-sans",
+  display: "swap",
+});
+const lato = Lato({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-heading",
+  display: "swap",
+});
 
 const googleSiteVerification =
   process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ??
@@ -58,6 +77,33 @@ const googleTagBootstrap = `
     allow_ad_personalization_signals: false,
     transport_type: 'beacon'
   });
+
+  // Load the external gtag.js on idle or first interaction instead of
+  // eagerly: the stub above queues every command in dataLayer, so nothing is
+  // lost, and ~100KB of third-party JS stays off the critical path.
+  (function () {
+    var gaLoaded = false;
+    var triggerEvents = ['pointerdown', 'keydown', 'touchstart', 'scroll'];
+    function loadGtagScript() {
+      if (gaLoaded) return;
+      gaLoaded = true;
+      triggerEvents.forEach(function (eventName) {
+        window.removeEventListener(eventName, loadGtagScript);
+      });
+      var script = document.createElement('script');
+      script.async = true;
+      script.src = 'https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}';
+      document.head.appendChild(script);
+    }
+    triggerEvents.forEach(function (eventName) {
+      window.addEventListener(eventName, loadGtagScript, { once: true, passive: true });
+    });
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(loadGtagScript, { timeout: 3000 });
+    } else {
+      setTimeout(loadGtagScript, 2500);
+    }
+  })();
 `;
 
 export const metadata: Metadata = {
@@ -99,7 +145,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${sourceSans.variable} ${lato.variable}`}>
       <head>
         <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="" />
         <link rel="dns-prefetch" href="//res.cloudinary.com" />
@@ -109,10 +155,6 @@ export default function RootLayout({
           crossOrigin=""
         />
         <link rel="dns-prefetch" href="//www.googletagmanager.com" />
-        <script
-          async
-          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-        />
         <script dangerouslySetInnerHTML={{ __html: googleTagBootstrap }} />
       </head>
       <body className="antialiased">

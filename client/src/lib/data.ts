@@ -16,7 +16,10 @@ export const doctorInfo = {
   ],
   profileUrl: "/about",
   image: drWongImages.drWongPortrait1,
-  sameAs: ["https://linkedin.com/in/drchristopherwong"],
+  sameAs: [
+    "https://linkedin.com/in/drchristopherwong",
+    officeInfo.socialMedia.instagram,
+  ],
   credentials: [
     "University of the Pacific Arthur A. Dugoni School of Dentistry Graduate",
     "American Dental Association",
@@ -37,19 +40,19 @@ export const teamMembers = [
   {
     name: "Dr. Hamamoto",
     role: "Dentist",
-    image: "https://cdn.prod.website-files.com/6647633c9b317c62a46de335/6654ce1938d7ef27a6854612_Screenshot%202024-05-27%20at%2011.16.44%20AM-p-800.png", // External headshot image
+    image: "/images/team/dr-hamamoto.png",
     bio: "Dr. Kris Hamamoto, a UCSF School of Dentistry graduate, served in the U.S. Navy before establishing her practice. She is dedicated to continuing education and enjoys outdoor activities, including marathons."
   },
   {
     name: "Dr. Pearl Tran",
     role: "Periodontist",
-    image: "https://cdn.prod.website-files.com/6647633c9b317c62a46de335/6654ce3ca8d5b7e52b0ba9a2_Screenshot%202024-05-27%20at%2011.17.22%20AM-p-800.png", // Updated headshot image
+    image: "/images/team/dr-pearl-tran.png",
     bio: "Dr. Tran, a DMD graduate, served in the Navy and specializes in periodontics and orofacial pain. She is a Diplomate of the American Board of Periodontology and loves re-establishing her practice in the Bay Area."
   },
   {
     name: "Kaye",
     role: "Registered Dental Hygienist",
-    image: "https://cdn.prod.website-files.com/6647633c9b317c62a46de335/6682f3e9ef1db58aafe7165c_palo%20alto%20dentist-p-800.jpeg", // Updated headshot image
+    image: "/images/team/kaye.jpeg",
     bio: "Kaye became part of our team in 2024 as a registered dental hygienist. She graduated with honors in Dental Hygiene from Carrington College in San Jose, California and is also a licensed Doctor of Dental Medicine in the Philippines."
   },
   {
@@ -61,25 +64,25 @@ export const teamMembers = [
   {
     name: "Rachel",
     role: "Insurance Coordinator",
-    image: "https://cdn.prod.website-files.com/6647633c9b317c62a46de335/6682f353af25e00b2a11953d_chris%20wong%20dental%20practice%20team%20in%20palo%20alot-p-800.jpeg", // Updated headshot image
+    image: "/images/team/rachel.jpeg",
     bio: "After graduating from San Jose State University, Rachel Hamamoto started working at the office in 2019. She currently works as Dr. Wong's insurance coordinator and front desk. She likes to do arts and crafts, watch Asian dramas and spend time with family and friends."
   },
   {
     name: "Kelty",
     role: "Scheduling Coordinator",
-    image: "https://cdn.prod.website-files.com/6647633c9b317c62a46de335/6688562093f736a3acf5cc97_2DF3B8DB-4D59-40C2-A5CD-12511AC46FD5-p-800.jpeg", // Updated headshot image
+    image: "/images/team/kelty.jpeg",
     bio: "Kelty is a native San Franciscan who graduated from Loyola Marymount University with a bachelor's degree in health and human sciences and a minor in psychology. She was first introduced into the dental field by her mother, a retired dentist and dental professor at the University of the Pacific."
   },
   {
     name: "Angelisa",
     role: "Registered Dental Hygienist",
-    image: "https://cdn.prod.website-files.com/6647633c9b317c62a46de335/67193243ca1a4de1d9de30fc_Facetune_18-10-2024-15-56-06-p-800.png", // Updated headshot image
+    image: "/images/team/angelisa.png",
     bio: "Angelisa has been a dedicated dental hygienist in our office since 2008. A proud mother of three boys, aged 21, 16, and 7, she loves spending quality time with her family and is committed to helping patients feel at ease while providing exceptional care."
   },
   {
     name: "Jamal",
     role: "Registered Dental Assistant",
-    image: "https://cdn.prod.website-files.com/6647633c9b317c62a46de335/675657f005f625f86a662b85_image2-p-800.jpeg", // Updated headshot image
+    image: "/images/team/jamal.jpeg",
     bio: "Jamal is our skilled Registered Dental Assistant who provides excellent chairside support to our dentists and ensures patients are comfortable during procedures."
   }
 ];

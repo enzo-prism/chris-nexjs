@@ -435,6 +435,44 @@ export const buildHowToSchema = (config: {
   };
 };
 
+type VideoMediaInput = {
+  id: string;
+  title: string;
+  description: string;
+  src: string;
+  poster?: string;
+};
+
+// Cloudinary delivery URLs embed the upload time as a unix-seconds version
+// segment (/v1772057711/), which gives VideoObject a real uploadDate without
+// maintaining dates by hand.
+const extractCloudinaryUploadDate = (src: string): string | null => {
+  const match = src.match(/\/v(\d{10})\//);
+  if (!match) return null;
+  return new Date(Number(match[1]) * 1000).toISOString().split("T")[0];
+};
+
+export const buildVideoObjectSchemas = (
+  videos: VideoMediaInput[],
+  pagePath: string,
+): StructuredDataNode[] =>
+  videos.map((video) => {
+    const uploadDate = extractCloudinaryUploadDate(video.src);
+    return {
+      "@context": "https://schema.org",
+      "@type": "VideoObject",
+      "@id": schemaId(pagePath, `video-${video.id}`),
+      name: video.title,
+      description: video.description,
+      contentUrl: video.src,
+      ...(video.poster ? { thumbnailUrl: absoluteUrl(video.poster) } : {}),
+      ...(uploadDate ? { uploadDate } : {}),
+      publisher: {
+        "@id": schemaId("/", "organization"),
+      },
+    };
+  });
+
 export const buildBreadcrumbSchema = (items: { name: string; path: string }[]) => {
   if (!items.length) return null;
   return {

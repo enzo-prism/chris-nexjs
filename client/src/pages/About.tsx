@@ -302,7 +302,7 @@ const About = () => {
                   <div className="absolute -inset-4 hidden md:block rounded-[32px] bg-white/40 blur-md"></div>
                   <div className="relative rounded-[28px] bg-white/70 backdrop-blur-sm shadow-xl border border-white/60 p-4 sm:p-6 flex items-center justify-center">
                     <OptimizedImage
-                      src="https://cdn.prod.website-files.com/6647633c9b317c62a46de335/67e986d38336152373ca94ad_Frame%201-min.png"
+                      src="/images/office/dr-wong-portrait-frame.png"
                       alt="Dr. Christopher B. Wong portrait"
                       className="w-full h-full object-contain max-h-[520px]"
                     />

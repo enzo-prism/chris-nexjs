@@ -94,6 +94,9 @@
 
 ## Machine-readable
 - [Sitemap](https://www.chriswongdds.com/sitemap.xml)
+- [Services sitemap](https://www.chriswongdds.com/sitemap-services.xml)
+- [Locations sitemap](https://www.chriswongdds.com/sitemap-locations.xml)
+- [Blog sitemap](https://www.chriswongdds.com/sitemap-blog.xml)
 - [Robots](https://www.chriswongdds.com/robots.txt)
 
 ## Notes for LLMs

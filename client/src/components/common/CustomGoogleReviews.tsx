@@ -1,5 +1,5 @@
 import { Star } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion } from "@/lib/motion-lite";
 
 // Types
 interface Review {

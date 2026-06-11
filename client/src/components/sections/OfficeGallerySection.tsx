@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from "@/lib/motion-lite";
 import { Camera, ArrowRight } from 'lucide-react';
 import ButtonLink from "@/components/common/ButtonLink";
 import GalleryTile from "@/components/gallery/GalleryTile";

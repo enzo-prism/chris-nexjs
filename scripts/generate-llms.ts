@@ -125,6 +125,9 @@ async function main(): Promise<void> {
 
   lines.push("## Machine-readable");
   lines.push(`- [Sitemap](${SITE_URL}/sitemap.xml)`);
+  lines.push(`- [Services sitemap](${SITE_URL}/sitemap-services.xml)`);
+  lines.push(`- [Locations sitemap](${SITE_URL}/sitemap-locations.xml)`);
+  lines.push(`- [Blog sitemap](${SITE_URL}/sitemap-blog.xml)`);
   lines.push(`- [Robots](${SITE_URL}/robots.txt)`);
   lines.push("");
 

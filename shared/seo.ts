@@ -81,21 +81,21 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "Palo Alto dentist Christopher B. Wong, DDS provides family, cosmetic & restorative dentistry, Invisalign, implants, and emergency care. Book online.",
     canonicalPath: "/",
-    ogImage: "https://i.imgur.com/BeX3mhS.png",
+    ogImage: "/images/office/reception-area.png",
   },
   "/about": {
     title: "Christopher B. Wong, DDS | Palo Alto Family Dentist",
     description:
       "Learn about Dr. Wong, a Palo Alto dentist focused on conservative care, Invisalign, and implant restoration. Looking for a Wong dentist in Palo Alto? Meet the team and our approach.",
     canonicalPath: "/about",
-    ogImage: "https://i.imgur.com/iqBXT9y.png",
+    ogImage: "/images/office/dr-wong-portrait-2.png",
   },
   "/services": {
     title: "Palo Alto Dental Services | Christopher B. Wong, DDS",
     description:
       "Complete dental services in Palo Alto: preventive care, cosmetic dentistry, restorative treatments, orthodontics & emergency dental care. Top Palo Alto dentist.",
     canonicalPath: "/services",
-    ogImage: "https://i.imgur.com/hO02YQ0.png",
+    ogImage: "/images/office/practice-og.png",
   },
   "/preventive-dentistry": {
     title: "Preventive Dentistry in Palo Alto | Christopher B. Wong, DDS",
@@ -123,14 +123,14 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "Patient forms, insurance info & visit preparation for Dr. Wong's Palo Alto dental practice. Convenient resources for our dental patients.",
     canonicalPath: "/patient-resources",
-    ogImage: "https://i.imgur.com/wt7peyr.png",
+    ogImage: "/images/office/office-entrance.png",
   },
   "/insurance": {
     title: "Insurance & Payment Options | Christopher B. Wong, DDS",
     description:
       "How dental insurance works at our Palo Alto office: PPO plans accepted out-of-network, benefits verified before your visit, plus flexible payment options.",
     canonicalPath: "/insurance",
-    ogImage: "https://i.imgur.com/wt7peyr.png",
+    ogImage: "/images/office/office-entrance.png",
     seoCluster: "trust",
     primaryKeyword: "dental insurance palo alto",
     secondaryKeywords: [
@@ -143,7 +143,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "Read patient reviews for Dr. Christopher Wong, trusted Palo Alto dentist. Real testimonials from satisfied patients in Palo Alto and surrounding areas.",
     canonicalPath: "/testimonials",
-    ogImage: "https://i.imgur.com/ypt5eZ7.png",
+    ogImage: "/images/office/team-photo.png",
   },
   "/patient-stories": {
     title: "Patient Stories & Transformations | Christopher B. Wong, DDS",
@@ -158,7 +158,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "Dental health tips and news from Dr. Wong's Palo Alto dental practice. Stay informed about oral health and dental technology advances.",
     canonicalPath: "/blog",
-    ogImage: "https://i.imgur.com/qK5nPtS.png",
+    ogImage: "/images/office/historical-photos.png",
   },
   "/changelog": {
     title: "Website Changelog | Christopher B. Wong, DDS",
@@ -173,21 +173,21 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "Take a look at our Palo Alto dental office, treatment rooms, and care-first environment through real photos and short walkthrough videos from Dr. Wong's team.",
     canonicalPath: "/gallery",
-    ogImage: "https://i.imgur.com/mVvasLs.png",
+    ogImage: "/images/office/polaroid-collage.png",
     seoCluster: "trust",
   },
   "/contact": {
     title: "Contact | Palo Alto Dentist | Christopher B. Wong, DDS",
     description: `Contact Palo Alto dentist Dr. Christopher Wong at ${officeInfo.address.line1}, ${officeInfo.address.line2}. Call ${officeInfo.phone} to schedule your visit.`,
     canonicalPath: "/contact",
-    ogImage: "https://i.imgur.com/nGlhUdH.png",
+    ogImage: "/images/office/exterior-entry.png",
   },
   "/schedule": {
     title: "Book an Appointment | Palo Alto | Christopher B. Wong, DDS",
     description:
       "Schedule your appointment with Palo Alto dentist Dr. Christopher Wong. New patients welcome. Easy online booking for dental care in Palo Alto.",
     canonicalPath: "/schedule",
-    ogImage: "https://i.imgur.com/AC5lGu3.png",
+    ogImage: "/images/office/operatory-room.png",
   },
   "/invisalign": {
     title: "Invisalign in Palo Alto, CA | Christopher B. Wong, DDS",
@@ -215,14 +215,14 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "In‑office ZOOM! whitening in Palo Alto for a noticeably brighter smile. Professional isolation, shade planning, and sensitivity management—book a visit.",
     canonicalPath: "/zoom-whitening",
-    ogImage: "https://i.imgur.com/qK5nPtS.png",
+    ogImage: "/images/office/historical-photos.png",
   },
   "/zoom-whitening/schedule": {
     title: "Invite Only - Whitening Appointment Schedule",
     description:
       "Private scheduling page for invited patients booking a complimentary in-office ZOOM! Whitening session with photo and video capture.",
     canonicalPath: "/zoom-whitening/schedule",
-    ogImage: "https://i.imgur.com/qK5nPtS.png",
+    ogImage: "/images/office/historical-photos.png",
     robots: NOINDEX_ROBOTS,
   },
   "/teeth-whitening-palo-alto": {
@@ -342,14 +342,14 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "Replace missing teeth with dental implants in Palo Alto. Dr. Wong offers implant planning, placement partners, and natural-looking restorations.",
     canonicalPath: "/dental-implants",
-    ogImage: "https://i.imgur.com/hO02YQ0.png",
+    ogImage: "/images/office/practice-og.png",
   },
   "/dental-veneers": {
     title: "Dental Veneers in Palo Alto | Christopher B. Wong, DDS",
     description:
       "Transform your smile with dental veneers in Palo Alto. Dr. Wong offers porcelain, composite, and no-prep options for beautiful results.",
     canonicalPath: "/dental-veneers",
-    ogImage: "https://i.imgur.com/hO02YQ0.png",
+    ogImage: "/images/office/practice-og.png",
   },
   "/accessibility": {
     title: "Accessibility Statement | Christopher B. Wong, DDS",
@@ -438,18 +438,22 @@ const CHANGEFREQ_OVERRIDES: Partial<
   "/blog": "weekly",
 };
 
+// Keep these honest: update when the page's rendered content actually
+// changes (scripts/seo-freshness-audit.ts fails the SEO gate when these
+// drift past the per-cluster staleness threshold). Last real change:
+// June 2026 office-hours/holiday-notice updates rendered on every page.
 const LASTMOD_OVERRIDES: Partial<Record<string, string>> = {
-  "/dentist-menlo-park": "2026-02-01",
-  "/dentist-stanford": "2026-02-01",
-  "/dentist-mountain-view": "2026-02-01",
-  "/dentist-los-altos": "2026-02-01",
-  "/dentist-los-altos-hills": "2026-02-01",
-  "/dentist-sunnyvale": "2026-02-01",
-  "/dentist-cupertino": "2026-02-01",
-  "/dentist-redwood-city": "2026-02-01",
-  "/dentist-atherton": "2026-02-01",
-  "/dentist-redwood-shores": "2026-02-01",
-  "/locations": "2026-02-01",
+  "/dentist-menlo-park": "2026-06-11",
+  "/dentist-stanford": "2026-06-11",
+  "/dentist-mountain-view": "2026-06-11",
+  "/dentist-los-altos": "2026-06-11",
+  "/dentist-los-altos-hills": "2026-06-11",
+  "/dentist-sunnyvale": "2026-06-11",
+  "/dentist-cupertino": "2026-06-11",
+  "/dentist-redwood-city": "2026-06-11",
+  "/dentist-atherton": "2026-06-11",
+  "/dentist-redwood-shores": "2026-06-11",
+  "/locations": "2026-06-11",
 };
 
 function resolveIndexable(entry: SeoDefinitionInput): boolean {

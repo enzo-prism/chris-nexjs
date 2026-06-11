@@ -2,8 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Volume2, VolumeOff, Camera, Video, LayoutGrid } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "@/lib/motion-lite";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
+import StructuredData from "@/components/seo/StructuredData";
+import { buildVideoObjectSchemas } from "@/lib/structuredData";
 import ButtonLink from "@/components/common/ButtonLink";
 import { cn } from "@/lib/utils";
 import {
@@ -120,8 +122,16 @@ export default function Gallery(): JSX.Element {
     (item) => activeCategory === "All" || item.category === activeCategory
   );
 
+  const videoSchemas = buildVideoObjectSchemas(
+    [heroVideo, ...galleryItems.filter((item) => item.kind === "video")],
+    "/gallery",
+  );
+
   return (
     <div className="bg-white">
+      {videoSchemas.length > 0 && (
+        <StructuredData data={videoSchemas} id="gallery-video-schema" />
+      )}
       <PageBreadcrumbs
         items={[
           { name: "Home", path: "/" },

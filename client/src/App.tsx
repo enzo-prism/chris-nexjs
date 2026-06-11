@@ -14,7 +14,6 @@ import HotjarTracking from "@/components/common/HotjarTracking";
 import SitemapLink from "@/components/common/SitemapLink";
 import Favicons from "@/components/common/Favicons";
 import SupplementalContent from "@/components/common/SupplementalContent";
-import PreloadResources from "@/components/seo/PreloadResources";
 import StructuredData from "@/components/seo/StructuredData";
 import {
   buildOrganizationSchema,
@@ -186,7 +185,6 @@ export function AppShell({
           <HotjarTracking />
           <SitemapLink />
           <Favicons />
-          <PreloadResources />
           <WouterPathSync />
           <StructuredData
             data={[

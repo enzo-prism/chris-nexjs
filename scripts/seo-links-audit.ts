@@ -158,23 +158,45 @@ async function main(): Promise<void> {
     });
   }
 
+  // Per-cluster internal-link thresholds (SEO backlog P0-3): service pages
+  // must link to at least 3 other service/location pages, location pages to
+  // at least 3 service pages.
+  const SERVICE_MIN_CLUSTER_LINKS = 3;
+  const LOCATION_MIN_SERVICE_LINKS = 3;
+
   const servicePaths = indexablePaths.filter(
     (path) => getSeoForPath(path).seoCluster === "service",
   );
+  const locationPaths = indexablePaths.filter(
+    (path) => getSeoForPath(path).seoCluster === "location",
+  );
+  const serviceSet = new Set(servicePaths);
+  const locationSet = new Set(locationPaths);
+
   for (const path of servicePaths) {
     const links = await fetchLinksForPath(path, linksCache, indexableSet, failures);
-    const supportingLinks = [...links].filter(
-      (link) => link !== path && indexableSet.has(link),
+    const clusterLinks = [...links].filter(
+      (link) =>
+        link !== path && (serviceSet.has(link) || locationSet.has(link)),
     );
-    if (supportingLinks.length < 2) {
+    if (clusterLinks.length < SERVICE_MIN_CLUSTER_LINKS) {
       failures.push({
         path,
-        message: `Service page has fewer than 2 supporting internal links (${supportingLinks.length})`,
+        message: `Service page links to ${clusterLinks.length} service/location pages (minimum ${SERVICE_MIN_CLUSTER_LINKS}, deficit ${SERVICE_MIN_CLUSTER_LINKS - clusterLinks.length})`,
       });
     }
   }
 
-  const serviceSet = new Set(servicePaths);
+  for (const path of locationPaths) {
+    const links = await fetchLinksForPath(path, linksCache, indexableSet, failures);
+    const serviceLinks = [...links].filter((link) => serviceSet.has(link));
+    if (serviceLinks.length < LOCATION_MIN_SERVICE_LINKS) {
+      failures.push({
+        path,
+        message: `Location page links to ${serviceLinks.length} service pages (minimum ${LOCATION_MIN_SERVICE_LINKS}, deficit ${LOCATION_MIN_SERVICE_LINKS - serviceLinks.length})`,
+      });
+    }
+  }
   const storage = await getStorage();
   const blogPosts = await storage.getBlogPosts();
 

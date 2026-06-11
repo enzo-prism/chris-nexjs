@@ -97,26 +97,42 @@ const OpenNowStatus = ({ className = "" }: OpenNowStatusProps) => {
     return () => window.clearInterval(interval);
   }, []);
 
-  if (!status) return null;
+  const showOpen = status?.isOpen === true;
+  const showClosed = status?.isOpen === false;
 
+  // Both messages are always rendered in an overlapping grid cell so the
+  // chip's footprint equals the longer string from the first paint onward —
+  // the surrounding trust strip is a wrapping flex row, and content popping
+  // in after hydration would reflow it and count against CLS.
   return (
     <span
-      className={`inline-flex items-center gap-2 text-sm font-medium ${className}`}
+      className={`inline-flex h-5 items-center gap-2 text-sm font-medium ${className}`}
       role="status"
     >
       <span
         aria-hidden="true"
         className={`h-2 w-2 shrink-0 rounded-full ${
-          status.isOpen ? "bg-emerald-500" : "bg-slate-400"
+          showOpen
+            ? "bg-emerald-500"
+            : showClosed
+              ? "bg-slate-400"
+              : "bg-slate-300"
         }`}
       />
-      {status.isOpen ? (
-        <span>
-          Open now{status.closesAt ? ` — closes ${status.closesAt}` : ""}
+      <span className="grid">
+        <span
+          aria-hidden={!showOpen}
+          className={`col-start-1 row-start-1 whitespace-nowrap ${showOpen ? "" : "invisible"}`}
+        >
+          Open now — closes {status?.closesAt ?? "5:00 PM"}
         </span>
-      ) : (
-        <span>Closed now — request a visit and we&rsquo;ll follow up</span>
-      )}
+        <span
+          aria-hidden={!showClosed}
+          className={`col-start-1 row-start-1 whitespace-nowrap ${showClosed ? "" : "invisible"}`}
+        >
+          Closed now — we reply the next business day
+        </span>
+      </span>
     </span>
   );
 };

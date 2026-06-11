@@ -1,7 +1,7 @@
 import { MapPin, Phone, Clock, ExternalLink } from "lucide-react";
 import { officeInfo } from "@/lib/data";
 import OfficeHoursSummary from "@/components/common/OfficeHoursSummary";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion-lite";
 
 const OfficeInformationSection = () => {
   const fadeIn = {
