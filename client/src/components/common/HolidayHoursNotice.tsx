@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, CalendarCheck, CalendarClock, X } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarCheck,
+  CalendarClock,
+  ChevronDown,
+  X,
+} from "lucide-react";
 import { holidayHours } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -23,6 +29,7 @@ const HolidayHoursNotice = ({
   containerClassName,
 }: HolidayHoursNoticeProps) => {
   const [isDismissed, setIsDismissed] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
   const dismissalKey = holidayHours?.id
     ? `holidayHoursDismissed-${holidayHours.id}`
     : "holidayHoursDismissed";
@@ -224,7 +231,11 @@ const HolidayHoursNotice = ({
   return (
     <section
       className={cn(
-        "border-b border-slate-200 bg-white text-slate-800",
+        // `relative z-10` is load-bearing: the homepage hero is a positioned
+        // sibling that pulls itself up by the header height to extend its
+        // gradient behind the fixed header, and without a higher stacking
+        // position here it paints over the bottom of this notice.
+        "relative z-10 border-b border-slate-200 bg-white text-slate-800",
         className,
       )}
       aria-label={noticeLabel}
@@ -237,22 +248,22 @@ const HolidayHoursNotice = ({
           containerClassName,
         )}
       >
-        <div className="relative py-4 pr-12 lg:py-5">
+        <div className="relative py-3 pr-10 sm:py-4 sm:pr-12 lg:py-5">
           <Button
             type="button"
             variant="ghost"
             size="icon"
             onClick={handleDismiss}
-            className="absolute right-0 top-3 z-10 rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+            className="absolute right-0 top-2 z-10 rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700 sm:top-3"
             aria-label="Dismiss schedule update notice"
           >
             <X className="h-4 w-4" aria-hidden="true" />
           </Button>
 
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.9fr)] lg:items-start lg:gap-8">
+          <div className="grid gap-3 lg:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.9fr)] lg:items-start lg:gap-8">
             <div className="min-w-0">
               <div className="flex items-start gap-3.5">
-                <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-700">
+                <div className="mt-0.5 hidden h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-700 sm:flex">
                   <CalendarClock className="h-5 w-5" aria-hidden="true" />
                 </div>
 
@@ -260,18 +271,18 @@ const HolidayHoursNotice = ({
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
                     {noticeLabel}
                   </p>
-                  <h2 className="mt-1 font-heading text-xl font-semibold leading-tight text-slate-950 text-balance">
+                  <h2 className="mt-1 font-heading text-base font-semibold leading-snug text-slate-950 text-balance sm:text-xl sm:leading-tight">
                     {noticeHeadline}
                   </h2>
-                  <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 text-pretty">
+                  <p className="mt-1.5 max-w-2xl text-[13px] leading-5 text-slate-600 text-pretty sm:mt-2 sm:text-sm sm:leading-6">
                     {noticeSummary}
                   </p>
 
-                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                  <div className="mt-2.5 flex flex-wrap items-center gap-2.5 sm:mt-3 sm:gap-3">
                     {holidayHours.cta ? (
                       <Button
                         asChild
-                        className="ui-btn-primary min-h-11 rounded-full px-4 text-sm font-semibold"
+                        className="ui-btn-primary min-h-10 rounded-full px-4 text-sm font-semibold sm:min-h-11"
                       >
                         <a href={holidayHours.cta.href}>
                           <CalendarCheck className="h-4 w-4 shrink-0" aria-hidden="true" />
@@ -281,8 +292,26 @@ const HolidayHoursNotice = ({
                       </Button>
                     ) : null}
 
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setShowDetails((current) => !current)}
+                      aria-expanded={showDetails}
+                      aria-controls="holiday-hours-details"
+                      className="min-h-10 rounded-full px-3 text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 lg:hidden"
+                    >
+                      <span>{showDetails ? "Hide schedule" : "View schedule"}</span>
+                      <ChevronDown
+                        className={cn(
+                          "h-4 w-4 shrink-0 transition-transform",
+                          showDetails && "rotate-180",
+                        )}
+                        aria-hidden="true"
+                      />
+                    </Button>
+
                     {holidayHours.footerNote ? (
-                      <p className="text-xs leading-5 text-slate-500">
+                      <p className="hidden text-xs leading-5 text-slate-500 sm:block">
                         {holidayHours.footerNote}
                       </p>
                     ) : null}
@@ -291,7 +320,13 @@ const HolidayHoursNotice = ({
               </div>
             </div>
 
-            <div className="min-w-0 rounded-2xl border border-slate-200 bg-slate-50">
+            <div
+              id="holiday-hours-details"
+              className={cn(
+                "min-w-0 rounded-2xl border border-slate-200 bg-slate-50",
+                showDetails ? "block" : "hidden lg:block",
+              )}
+            >
               <ul className="divide-y divide-slate-200" aria-label="Temporary schedule details">
                 {displayEntries.map((entry) => (
                   <li
