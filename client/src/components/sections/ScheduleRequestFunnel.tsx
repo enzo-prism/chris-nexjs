@@ -119,7 +119,7 @@ const ScheduleRequestFunnel = () => {
             </div>
           </Link>
 
-          <Link href="/patient-resources#insurance">
+          <Link href="/insurance">
             <div className="group rounded-[24px] border border-slate-200 bg-white/80 p-5 transition-[transform,box-shadow,border-color] hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-[0_24px_60px_-40px_rgba(15,23,42,0.35)]">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">

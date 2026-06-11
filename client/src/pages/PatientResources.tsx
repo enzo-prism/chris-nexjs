@@ -227,7 +227,7 @@ const PatientResources = () => {
                     </div>
                   </div>
                   
-                  <p className="text-[#333333]">Not sure if we accept your insurance? Contact our office and our friendly staff will help you determine your coverage.</p>
+                  <p className="text-[#333333]">Not sure if we accept your insurance? Contact our office and our friendly staff will help you determine your coverage. For a full walkthrough of how out-of-network PPO coverage works and every way to pay, see our <Link href="/insurance" className="ui-link-premium">insurance &amp; payment options guide</Link>.</p>
                 </div>
                 
                 <div className="bg-white rounded-lg shadow-md p-6">

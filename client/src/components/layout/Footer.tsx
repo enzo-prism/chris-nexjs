@@ -22,6 +22,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
     { href: "/about", label: "Dr. Wong" },
     { href: "/services", label: "Services" },
     { href: "/patient-resources", label: "Patient Resources" },
+    { href: "/insurance", label: "Insurance & Payments" },
     { href: "/patient-stories", label: "Patient Stories" },
     { href: "/gallery", label: "Gallery" },
     { href: "/blog", label: "Blog" },

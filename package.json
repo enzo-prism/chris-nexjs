@@ -31,6 +31,7 @@
     "test:production": "node scripts/test-production.mjs",
     "check:business-info": "tsx scripts/check-business-info.ts",
     "changelog:generate": "node scripts/generate-changelog.mjs",
+    "llms:generate": "tsx scripts/generate-llms.ts",
     "check:seo-regression": "tsx scripts/seo-regression.ts",
     "check:lighthouse-budget": "node scripts/lighthouse-budget.mjs",
     "reviews:import": "tsx scripts/import-google-reviews.ts",

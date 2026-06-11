@@ -11,6 +11,7 @@ Primary keyword mapping for canonical indexable URLs. This is the anti-cannibali
 | `/restorative-dentistry` | service | restorative dentistry palo alto | tooth restoration palo alto, crowns and fillings |
 | `/pediatric-dentistry` | service | pediatric dentistry palo alto | kids dentist palo alto, family dental care children |
 | `/patient-resources` | trust | palo alto dental patient resources | dental forms palo alto, insurance dental office |
+| `/insurance` | trust | dental insurance palo alto | ppo dental insurance palo alto, dentist payment options palo alto |
 | `/testimonials` | trust | palo alto dentist reviews | patient stories dentist, dental testimonials palo alto |
 | `/patient-stories` | trust | dental smile transformations palo alto | invisalign results palo alto, cosmetic dentistry cases |
 | `/blog` | blog | palo alto dental blog | oral health tips, family dentistry education |

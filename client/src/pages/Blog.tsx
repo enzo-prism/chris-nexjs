@@ -17,7 +17,11 @@ import { buildExcerpt, pageTitles, pageDescriptions } from "@/lib/metaContent";
 import { normalizeBlogCategory, useBlogPosts } from "@/hooks/useBlogPosts";
 import StructuredData from "@/components/seo/StructuredData";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
-import { buildBreadcrumbSchema } from "@/lib/structuredData";
+import {
+  buildBlogListSchemas,
+  buildBreadcrumbSchema,
+  type StructuredDataNode,
+} from "@/lib/structuredData";
 
 type BlogProps = Partial<RouteComponentProps<Record<string, string | undefined>>> & {
   initialPosts?: BlogPostRecord[];
@@ -151,14 +155,20 @@ const Blog = ({ initialPosts }: BlogProps) => {
     { name: "Blog", path: "/blog" },
   ];
   const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbItems);
+  const structuredDataNodes: StructuredDataNode[] = [
+    ...(breadcrumbSchema ? [breadcrumbSchema] : []),
+    ...buildBlogListSchemas(posts),
+  ];
 
   return (
     <>
-      <MetaTags 
+      <MetaTags
         title={pageTitles.blog}
         description={pageDescriptions.blog}
       />
-      {breadcrumbSchema && <StructuredData data={breadcrumbSchema} />}
+      {structuredDataNodes.length > 0 && (
+        <StructuredData data={structuredDataNodes} />
+      )}
       <PageBreadcrumbs items={breadcrumbItems} />
       {/* Hero Section */}
       <section className="bg-[#F5F9FC] py-16 md:py-24">

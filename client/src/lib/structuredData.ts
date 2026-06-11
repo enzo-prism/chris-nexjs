@@ -127,6 +127,22 @@ export const buildOrganizationSchema = (options?: {
     hasMap: officeInfo.mapUrl,
     medicalSpecialty: "https://schema.org/Dentistry",
     isAcceptingNewPatients: true,
+    founder: {
+      "@id": schemaId("/", "person-dr-wong"),
+    },
+    knowsAbout: [
+      "Preventive dentistry",
+      "Restorative dentistry",
+      "Pediatric dentistry",
+      "Cosmetic dentistry",
+      "Invisalign clear aligners",
+      "Dental implants",
+      "Dental veneers",
+      "Teeth whitening",
+      "Dental crowns",
+      "Cavity fillings",
+      "Emergency dental care",
+    ],
     openingHoursSpecification: officeInfo.openingHoursSpecification,
     specialOpeningHoursSpecification: officeInfo.specialOpeningHoursSpecification,
     contactPoint: [
@@ -320,6 +336,63 @@ export const buildLocationItemListSchema = (locations: CollectionPart[]) => {
       ...(location.description ? { description: location.description } : {}),
     })),
   };
+};
+
+export const toIsoDateString = (value: string): string | null => {
+  const time = Date.parse(value);
+  if (Number.isNaN(time)) return null;
+  return new Date(time).toISOString().split("T")[0];
+};
+
+type BlogListPost = {
+  title: string;
+  slug: string;
+  date: string;
+};
+
+export const buildBlogListSchemas = (
+  posts: BlogListPost[],
+  limit = 10,
+): StructuredDataNode[] => {
+  if (!posts.length) return [];
+  const items = posts.slice(0, limit);
+  const postNodes = items.map((post) => {
+    const isoDate = toIsoDateString(post.date);
+    return {
+      "@type": "BlogPosting",
+      headline: post.title,
+      url: absoluteUrl(`/blog/${post.slug}`),
+      ...(isoDate ? { datePublished: isoDate } : {}),
+    };
+  });
+
+  return [
+    {
+      "@context": "https://schema.org",
+      "@type": "Blog",
+      "@id": schemaId("/blog", "blog"),
+      name: "Dental Health Blog",
+      url: absoluteUrl("/blog"),
+      publisher: {
+        "@id": schemaId("/", "organization"),
+      },
+      blogPost: postNodes,
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "@id": schemaId("/blog", "post-list"),
+      name: "Latest dental health articles",
+      itemListOrder: "https://schema.org/ItemListOrderDescending",
+      numberOfItems: items.length,
+      itemListElement: items.map((post, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: post.title,
+        url: absoluteUrl(`/blog/${post.slug}`),
+      })),
+    },
+  ];
 };
 
 export const buildFAQSchema = (faqs: FAQEntry[], pagePath: string) => {

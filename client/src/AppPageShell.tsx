@@ -12,6 +12,14 @@ import { Toaster } from "@/components/ui/toaster";
 import SupplementalContent from "@/components/common/SupplementalContent";
 import StructuredData from "@/components/seo/StructuredData";
 import HolidayHoursNotice from "@/components/common/HolidayHoursNotice";
+
+// Loaded after hydration so the fixed quick-action bar stays out of every
+// page's First Load JS (it is interaction-only chrome, like the consent
+// banner below).
+const MobileActionBar = dynamic(
+  () => import("@/components/common/MobileActionBar"),
+  { ssr: false, loading: () => null },
+);
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import type { ChromeVariant } from "@/lib/chrome";
@@ -64,6 +72,17 @@ function ScrollToTop() {
   const pathname = usePathname() || "/";
 
   useEffect(() => {
+    // Respect hash deep links (e.g. /schedule#appointment): scrolling to the
+    // top here would override the browser/router anchor scroll and dump the
+    // visitor at the top of the page instead of the requested section.
+    const hash = window.location.hash;
+    if (hash) {
+      const target = document.getElementById(hash.slice(1));
+      if (target) {
+        target.scrollIntoView();
+        return;
+      }
+    }
     window.scrollTo(0, 0);
   }, [pathname]);
 
@@ -104,6 +123,17 @@ export function AppPageShell({
         {children}
       </main>
       <Footer variant={chromeVariant} />
+      {chromeVariant === "default" ? (
+        <>
+          {/* Reserve space under the footer so the fixed mobile action bar
+              never covers the last page content on small screens. */}
+          <div
+            aria-hidden="true"
+            className="h-[calc(3.25rem+env(safe-area-inset-bottom))] md:hidden"
+          />
+          <MobileActionBar />
+        </>
+      ) : null}
       {chromeVariant === "default" ? <SupplementalContent /> : null}
     </WouterRouter>
   );

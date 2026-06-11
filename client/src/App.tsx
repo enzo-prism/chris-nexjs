@@ -26,6 +26,7 @@ import Home from "@/pages/Home";
 import About from "@/pages/About";
 import Services from "@/pages/Services";
 import PatientResources from "@/pages/PatientResources";
+import Insurance from "@/pages/Insurance";
 import Testimonials from "@/pages/Testimonials";
 import Contact from "@/pages/Contact";
 import Schedule from "@/pages/Schedule";
@@ -99,6 +100,7 @@ function Router() {
             <Route path="/about" component={About} />
             <Route path="/services" component={Services} />
             <Route path="/patient-resources" component={PatientResources} />
+            <Route path="/insurance" component={Insurance} />
             <Route path="/testimonials" component={Testimonials} />
             <Route path="/patient-stories" component={PatientStories} />
             <Route path="/gallery" component={Gallery} />

@@ -20,6 +20,34 @@ const GA_MEASUREMENT_ID =
 
 const BOOKING_PATHS = new Set(["/schedule", "/zoom-whitening/schedule"]);
 
+// AI assistants that send measurable referral traffic. Detected from the
+// external referrer on the first page view of a visit so AI-driven sessions
+// can be segmented in GA4 (the param is attached to every page_view of the
+// page load that carried the referrer).
+const AI_REFERRER_SOURCES: ReadonlyArray<{ host: string; source: string }> = [
+  { host: "chatgpt.com", source: "chatgpt" },
+  { host: "chat.openai.com", source: "chatgpt" },
+  { host: "perplexity.ai", source: "perplexity" },
+  { host: "copilot.microsoft.com", source: "copilot" },
+  { host: "gemini.google.com", source: "gemini" },
+  { host: "claude.ai", source: "claude" },
+];
+
+const getAiReferrerSource = (): string | null => {
+  if (typeof document === "undefined" || !document.referrer) return null;
+  try {
+    const referrerHost = new URL(document.referrer).hostname.toLowerCase();
+    for (const { host, source } of AI_REFERRER_SOURCES) {
+      if (referrerHost === host || referrerHost.endsWith(`.${host}`)) {
+        return source;
+      }
+    }
+  } catch (_error) {
+    return null;
+  }
+  return null;
+};
+
 const getAnchorLabel = (anchor: HTMLAnchorElement): string => {
   const text = anchor.textContent?.trim();
   if (text) return text.slice(0, 80);
@@ -101,12 +129,14 @@ const GoogleAnalytics = () => {
 
       lastTrackedPathRef.current = fullPath;
       lastTrackedLocationRef.current = currentLocation;
+      const aiSource = getAiReferrerSource();
       window.gtag("event", "page_view", {
         send_to: GA_MEASUREMENT_ID,
         page_path: fullPath,
         page_location: currentLocation,
         page_title: document.title,
         ...(pageReferrer ? { page_referrer: pageReferrer } : {}),
+        ...(aiSource ? { ai_source: aiSource } : {}),
       });
     };
 

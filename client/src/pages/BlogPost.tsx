@@ -13,7 +13,7 @@ import { useBlogPosts } from "@/hooks/useBlogPosts";
 import MetaTags from "@/components/common/MetaTags";
 import { buildExcerpt, pageDescriptions, pageTitles } from "@/lib/metaContent";
 import { getSeoForPath } from "@/lib/seo";
-import { ArrowLeft, Calendar, Clock, Tag } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, ShieldCheck, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import StructuredData from "@/components/seo/StructuredData";
@@ -27,6 +27,7 @@ import RelatedServices, {
 import {
   absoluteUrl,
   buildBreadcrumbSchema,
+  toIsoDateString,
   type StructuredDataNode,
 } from "@/lib/structuredData";
 
@@ -234,6 +235,7 @@ const BlogPost = ({ params, initialPosts }: BlogPostPageProps) => {
   const blogOgImage = getSeoForPath("/blog").ogImage;
   const pageUrl = absoluteUrl(`/blog/${slug}`);
   const resolvedBlogImage = resolveBlogImagePath(post);
+  const postIsoDate = post ? toIsoDateString(post.date) : null;
   const blogSchema = post
     ? {
         "@context": "https://schema.org",
@@ -243,11 +245,12 @@ const BlogPost = ({ params, initialPosts }: BlogPostPageProps) => {
         image: absoluteUrl(
           resolvedBlogImage ?? blogOgImage ?? "/images/dr_wong_polaroids.png",
         ),
-        datePublished: post.date,
-        dateModified: post.date,
+        datePublished: postIsoDate ?? post.date,
+        dateModified: postIsoDate ?? post.date,
         author: {
           "@type": "Person",
           name: "Christopher B. Wong, DDS",
+          url: absoluteUrl("/about"),
         },
         publisher: {
           "@type": "Organization",
@@ -261,6 +264,13 @@ const BlogPost = ({ params, initialPosts }: BlogPostPageProps) => {
         mainEntityOfPage: {
           "@type": "WebPage",
           "@id": pageUrl,
+          reviewedBy: {
+            "@type": "Person",
+            name: "Christopher B. Wong, DDS",
+            jobTitle: "Doctor of Dental Surgery",
+            url: absoluteUrl("/about"),
+          },
+          ...(postIsoDate ? { lastReviewed: postIsoDate } : {}),
         },
         url: pageUrl,
       }
@@ -608,9 +618,18 @@ const BlogPost = ({ params, initialPosts }: BlogPostPageProps) => {
             ) : null}
           </div>
           <h1 className="text-4xl font-heading font-bold text-[#333333] mb-4 sm:mb-6">{post.title}</h1>
-          <p className="text-lg text-gray-600 max-w-3xl mb-8">
+          <p className="text-lg text-gray-600 max-w-3xl mb-6">
             {articleSummary}
           </p>
+          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-800">
+            <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden="true" />
+            <span>
+              Medically reviewed by{" "}
+              <Link href="/about" className="font-semibold underline-offset-2 hover:underline">
+                Christopher B. Wong, DDS
+              </Link>
+            </span>
+          </div>
           <div className="mb-10 overflow-hidden rounded-[32px] border border-sky-100/80 bg-white shadow-[0_30px_90px_-48px_rgba(15,23,42,0.4)]">
             {customArticleImage ? (
               <OptimizedImage

@@ -125,6 +125,19 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     canonicalPath: "/patient-resources",
     ogImage: "https://i.imgur.com/wt7peyr.png",
   },
+  "/insurance": {
+    title: "Insurance & Payment Options | Christopher B. Wong, DDS",
+    description:
+      "How dental insurance works at our Palo Alto office: PPO plans accepted out-of-network, benefits verified before your visit, plus flexible payment options.",
+    canonicalPath: "/insurance",
+    ogImage: "https://i.imgur.com/wt7peyr.png",
+    seoCluster: "trust",
+    primaryKeyword: "dental insurance palo alto",
+    secondaryKeywords: [
+      "ppo dental insurance palo alto",
+      "dentist payment options palo alto",
+    ],
+  },
   "/testimonials": {
     title: "Patient Reviews | Palo Alto | Christopher B. Wong, DDS",
     description:
@@ -156,7 +169,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     seoCluster: "trust",
   },
   "/gallery": {
-    title: "Photo & Video Gallery | Dr. Christopher B. Wong, DDS",
+    title: "Photo & Video Gallery | Christopher B. Wong, DDS",
     description:
       "Take a look at our Palo Alto dental office, treatment rooms, and care-first environment through real photos and short walkthrough videos from Dr. Wong's team.",
     canonicalPath: "/gallery",

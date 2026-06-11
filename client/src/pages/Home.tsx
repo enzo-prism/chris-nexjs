@@ -107,7 +107,6 @@ const homeSpotlightTestimonials: readonly InsertTestimonial[] = [
 const Home = (props: any) => {
   const {
     initialServices = [],
-    initialTestimonials = [],
   } = (props ?? {}) as HomeProps;
   const testimonialsToShow = homeSpotlightTestimonials;
   const [activeTestimonial, setActiveTestimonial] = useState(0);
@@ -198,7 +197,7 @@ const Home = (props: any) => {
     {
       question: "Do you accept dental insurance?",
       answer:
-        "We work with many PPO insurance plans. If you share your plan information, our team can help verify benefits and walk through expected costs before you commit to treatment.",
+        "We work with most major PPO dental insurance plans as an out-of-network provider. Share your plan information and our team will help verify benefits and walk through expected costs before you commit to treatment.",
     },
     {
       question: "What if I have a dental emergency?",
@@ -221,7 +220,7 @@ const Home = (props: any) => {
   return (
     <>
       <StructuredData data={schemaNodes} />
-      <HeroSection reviewCount={initialTestimonials.length} />
+      <HeroSection />
 
       {/* Local relevance section */}
       <section id="palo-alto-dentist" className="bg-white py-12 md:py-16">
@@ -780,11 +779,11 @@ const Home = (props: any) => {
                 <div className="mb-6">
                   <div className="mb-3 flex items-center">
                     <CheckCircle className="mr-3 h-5 w-5" />
-                    <span>HIPAA-compliant secure scheduling</span>
+                    <span>We respond within one business day</span>
                   </div>
                   <div className="mb-3 flex items-center">
                     <CheckCircle className="mr-3 h-5 w-5" />
-                    <span>Same-day appointments available</span>
+                    <span>Urgent needs prioritized — call for same-day help</span>
                   </div>
                   <div className="flex items-center">
                     <CheckCircle className="mr-3 h-5 w-5" />
