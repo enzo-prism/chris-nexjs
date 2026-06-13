@@ -505,11 +505,9 @@ export const buildReviewSchemas = (
   limit = 8,
 ) => {
   if (!testimonials.length) return [];
-  const baseUrl = getBaseUrl();
   return testimonials.slice(0, limit).map((testimonial, index) => ({
     "@context": "https://schema.org",
     "@type": "Review",
-    "@id": `${baseUrl}/#review-${index + 1}`,
     reviewBody: testimonial.text,
     reviewRating: {
       "@type": "Rating",
@@ -522,7 +520,9 @@ export const buildReviewSchemas = (
       name: testimonial.name,
     },
     itemReviewed: {
-      "@id": `${baseUrl}/#organization`,
+      "@type": "Dentist",
+      name: officeInfo.name,
+      url: getBaseUrl(),
     },
     publisher: {
       "@type": "Organization",

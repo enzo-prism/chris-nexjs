@@ -50,6 +50,30 @@ export const officeInfo = {
     },
     {
       "@type": "OpeningHoursSpecification",
+      dayOfWeek: "Wednesday",
+      opens: "08:00",
+      closes: "15:00",
+      validFrom: "2026-06-24",
+      validThrough: "2026-06-24",
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: "Thursday",
+      opens: "08:00",
+      closes: "15:00",
+      validFrom: "2026-06-25",
+      validThrough: "2026-06-25",
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: "Friday",
+      opens: "08:00",
+      closes: "13:00",
+      validFrom: "2026-06-26",
+      validThrough: "2026-06-26",
+    },
+    {
+      "@type": "OpeningHoursSpecification",
       dayOfWeek: "Friday",
       opens: "00:00",
       closes: "00:00",
@@ -78,7 +102,7 @@ export const holidayHours = {
   shortNotice:
     "The office will be closed Friday, June 19 and Friday, July 3, with limited office hours Wednesday, June 24 through Friday, June 26.",
   footerNote:
-    "Regular weekly hours apply outside these temporary schedule updates.",
+    "Regular weekly hours apply outside these temporary schedule changes.",
   entries: [
     {
       day: "Fri, Jun 19",
@@ -87,10 +111,22 @@ export const holidayHours = {
       badge: "Juneteenth",
     },
     {
-      day: "Wed-Fri, Jun 24-26",
-      hours: "Limited hours",
+      day: "Wed, Jun 24",
+      hours: "8:00 AM-3:00 PM",
       status: "varies",
-      badge: "Call to confirm",
+      badge: "Limited hours",
+    },
+    {
+      day: "Thu, Jun 25",
+      hours: "8:00 AM-3:00 PM",
+      status: "varies",
+      badge: "Limited hours",
+    },
+    {
+      day: "Fri, Jun 26",
+      hours: "8:00 AM-1:00 PM",
+      status: "varies",
+      badge: "Limited hours",
     },
     {
       day: "Fri, Jul 3",

@@ -61,15 +61,12 @@ const getDayOfWeek = (value: string): number | null => {
 const isWeekend = (dayOfWeek: number | null): boolean =>
   dayOfWeek === 0 || dayOfWeek === 6;
 
-const isSpecialClosedDate = (value: string): boolean =>
-  Boolean(value) &&
-  officeInfo.specialOpeningHoursSpecification.some(
-    (entry) =>
-      entry.opens === "00:00" &&
-      entry.closes === "00:00" &&
-      value >= entry.validFrom &&
-      value <= entry.validThrough,
-  );
+const getSpecialHoursForDate = (value: string) =>
+  value
+    ? officeInfo.specialOpeningHoursSpecification.find(
+        (entry) => value >= entry.validFrom && value <= entry.validThrough,
+      )
+    : undefined;
 
 const specialClosureMessages: Readonly<Record<string, string>> = {
   "2026-06-19":
@@ -82,15 +79,57 @@ const getSpecialClosureMessage = (value: string): string =>
   specialClosureMessages[value] ??
   "Office is closed that day. Please choose another date.";
 
-const limitedHoursDates = new Set(["2026-06-24", "2026-06-25", "2026-06-26"]);
+const isClosedHours = (hours: { opens: string; closes: string }): boolean =>
+  hours.opens === "00:00" && hours.closes === "00:00";
 
-const isLimitedHoursDate = (value: string): boolean =>
-  limitedHoursDates.has(value);
+const isLimitedHoursDate = (value: string): boolean => {
+  const specialHours = getSpecialHoursForDate(value);
+  return Boolean(specialHours && !isClosedHours(specialHours));
+};
 
-const limitedHoursMessage =
-  "Office hours are limited Wednesday, June 24 through Friday, June 26. Please call to confirm availability around this window.";
+const parseClockToMinutes = (value: string): number | null => {
+  const match = value.match(/^(\d{1,2}):(\d{2})$/);
+  if (!match) return null;
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  if (hours > 23 || minutes > 59) return null;
+  return hours * 60 + minutes;
+};
 
-const getTimeWindows = (dayOfWeek: number | null) => {
+const parseTimeLabelToMinutes = (value: string): number | null => {
+  const match = value.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!match) return null;
+  const rawHours = Number(match[1]);
+  const minutes = Number(match[2]);
+  if (rawHours < 1 || rawHours > 12 || minutes > 59) return null;
+  const period = match[3].toUpperCase();
+  const hours = period === "PM" && rawHours !== 12
+    ? rawHours + 12
+    : period === "AM" && rawHours === 12
+      ? 0
+      : rawHours;
+  return hours * 60 + minutes;
+};
+
+const getWindowBounds = (value: string) => {
+  const [start, end] = value.split(" - ");
+  return {
+    start: parseTimeLabelToMinutes(start ?? ""),
+    end: parseTimeLabelToMinutes(end ?? ""),
+  };
+};
+
+const formatClockLabel = (value: string): string => {
+  const minutes = parseClockToMinutes(value);
+  if (minutes === null) return value;
+  const hours24 = Math.floor(minutes / 60);
+  const minutesPart = minutes % 60;
+  const period = hours24 >= 12 ? "PM" : "AM";
+  const hours12 = hours24 % 12 || 12;
+  return `${hours12}:${String(minutesPart).padStart(2, "0")} ${period}`;
+};
+
+const getBaseTimeWindows = (dayOfWeek: number | null) => {
   if (dayOfWeek === 3) return WEDNESDAY_TIME_WINDOWS;
   if (dayOfWeek === 5) return FRIDAY_TIME_WINDOWS;
   if (dayOfWeek === 1 || dayOfWeek === 2 || dayOfWeek === 4) {
@@ -99,7 +138,37 @@ const getTimeWindows = (dayOfWeek: number | null) => {
   return [];
 };
 
-const getOfficeHoursHint = (dayOfWeek: number | null) => {
+const getTimeWindowsForDate = (value: string, dayOfWeek: number | null) => {
+  const baseWindows = getBaseTimeWindows(dayOfWeek);
+  const specialHours = getSpecialHoursForDate(value);
+  if (!specialHours) return baseWindows;
+  if (isClosedHours(specialHours)) return [];
+
+  const opens = parseClockToMinutes(specialHours.opens);
+  const closes = parseClockToMinutes(specialHours.closes);
+  if (opens === null || closes === null || closes <= opens) return baseWindows;
+
+  return baseWindows.filter((window) => {
+    const bounds = getWindowBounds(window.value);
+    return (
+      bounds.start !== null &&
+      bounds.end !== null &&
+      bounds.start >= opens &&
+      bounds.end <= closes
+    );
+  });
+};
+
+const isSpecialClosedDate = (value: string): boolean => {
+  const specialHours = getSpecialHoursForDate(value);
+  return Boolean(specialHours && isClosedHours(specialHours));
+};
+
+const getOfficeHoursHint = (dayOfWeek: number | null, value: string) => {
+  const specialHours = getSpecialHoursForDate(value);
+  if (specialHours && !isClosedHours(specialHours)) {
+    return `Temporary office hours are ${formatClockLabel(specialHours.opens)}-${formatClockLabel(specialHours.closes)}.`;
+  }
   if (dayOfWeek === 3) return "Wednesday windows end at 3:00 PM.";
   if (dayOfWeek === 5) return "Friday windows end at 4:00 PM.";
   if (dayOfWeek === 1 || dayOfWeek === 2 || dayOfWeek === 4) {
@@ -137,14 +206,14 @@ const ZoomWhiteningSchedule = () => {
   const isClosedDate2 = isSpecialClosedDate(preferredDate2);
   const isLimitedHoursDate1 = isLimitedHoursDate(preferredDate1);
   const isLimitedHoursDate2 = isLimitedHoursDate(preferredDate2);
-  const timeWindows1 = isClosedDate1 ? [] : getTimeWindows(preferredDay1);
-  const timeWindows2 = isClosedDate2 ? [] : getTimeWindows(preferredDay2);
+  const timeWindows1 = getTimeWindowsForDate(preferredDate1, preferredDay1);
+  const timeWindows2 = getTimeWindowsForDate(preferredDate2, preferredDay2);
   const isWeekend1 = isWeekend(preferredDay1);
   const isWeekend2 = isWeekend(preferredDay2);
 
   const handlePreferredDate1Change = (value: string) => {
     const day = getDayOfWeek(value);
-    const windows = isSpecialClosedDate(value) ? [] : getTimeWindows(day);
+    const windows = getTimeWindowsForDate(value, day);
     setPreferredDate1(value);
     setPreferredTime1((current) =>
       windows.some((window) => window.value === current) ? current : "",
@@ -153,7 +222,7 @@ const ZoomWhiteningSchedule = () => {
 
   const handlePreferredDate2Change = (value: string) => {
     const day = getDayOfWeek(value);
-    const windows = isSpecialClosedDate(value) ? [] : getTimeWindows(day);
+    const windows = getTimeWindowsForDate(value, day);
     setPreferredDate2(value);
     setPreferredTime2((current) =>
       windows.some((window) => window.value === current) ? current : "",
@@ -423,11 +492,11 @@ const ZoomWhiteningSchedule = () => {
                             </p>
                           ) : isLimitedHoursDate1 ? (
                             <p className="text-xs text-amber-700">
-                              {limitedHoursMessage}
+                              {getOfficeHoursHint(preferredDay1, preferredDate1)}
                             </p>
                           ) : preferredDate1 ? (
                             <p className="text-xs text-slate-500">
-                              {getOfficeHoursHint(preferredDay1)}
+                              {getOfficeHoursHint(preferredDay1, preferredDate1)}
                             </p>
                           ) : (
                             <p className="text-xs text-slate-500">
@@ -486,11 +555,11 @@ const ZoomWhiteningSchedule = () => {
                             </p>
                           ) : isLimitedHoursDate2 ? (
                             <p className="text-xs text-amber-700">
-                              {limitedHoursMessage}
+                              {getOfficeHoursHint(preferredDay2, preferredDate2)}
                             </p>
                           ) : preferredDate2 ? (
                             <p className="text-xs text-slate-500">
-                              {getOfficeHoursHint(preferredDay2)}
+                              {getOfficeHoursHint(preferredDay2, preferredDate2)}
                             </p>
                           ) : (
                             <p className="text-xs text-slate-500">
