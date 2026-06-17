@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const rawPath = path.resolve("attached_assets/google-reviews-export-319.txt");
+const rawPath = path.resolve("attached_assets/google-reviews-export-320.txt");
 const generatedPath = path.resolve("shared/googleReviewsData.ts");
 const shouldAssert = process.argv.includes("--assert");
 const PUBLISHED_REVIEW_RATING = 5;

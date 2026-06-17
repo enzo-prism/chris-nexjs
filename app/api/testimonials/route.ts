@@ -13,13 +13,26 @@ const buildSeedTestimonials = (): Testimonial[] =>
     ...buildInsertTestimonial(seed, index),
   }));
 
+const getTestimonialKey = (testimonial: Pick<Testimonial, "name" | "text" | "image">) =>
+  `${testimonial.name}::${testimonial.text}::${testimonial.image}`;
+
+const hasCurrentSeedCoverage = (
+  testimonials: readonly Testimonial[],
+  seedTestimonials: readonly Testimonial[],
+) => {
+  const testimonialKeys = new Set(testimonials.map(getTestimonialKey));
+  return seedTestimonials.every((seed) => testimonialKeys.has(getTestimonialKey(seed)));
+};
+
 export async function GET() {
   try {
     const storage = await getStorage();
     const testimonials = await storage.getTestimonials();
-    const seedCount = testimonialSeedData.length;
+    const seedTestimonials = buildSeedTestimonials();
     const responseData =
-      testimonials.length >= seedCount ? testimonials : buildSeedTestimonials();
+      hasCurrentSeedCoverage(testimonials, seedTestimonials)
+        ? testimonials
+        : seedTestimonials;
 
     return NextResponse.json(responseData.filter(isPublishedTestimonial), {
       status: 200,

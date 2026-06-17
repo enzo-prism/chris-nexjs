@@ -117,7 +117,7 @@ Default runtime base URL is `http://localhost:3000` (override with `PRODUCTION_T
 Use this whenever new Google review exports are added to the project.
 
 1. Replace the raw export file:
-   - `attached_assets/google-reviews-export-319.txt`
+   - `attached_assets/google-reviews-export-320.txt`
 2. Regenerate the typed seed dataset:
 
 ```bash

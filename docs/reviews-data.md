@@ -4,7 +4,7 @@ Operational guide for importing, auditing, and publishing Google review content 
 
 ## Source of truth
 
-- Raw export file: `attached_assets/google-reviews-export-319.txt`
+- Raw export file: `attached_assets/google-reviews-export-320.txt`
 - Import script: `scripts/import-google-reviews.ts`
 - Generated dataset: `shared/googleReviewsData.ts`
 - Public testimonial seed source: `shared/testimonialsData.ts`
@@ -12,12 +12,12 @@ Operational guide for importing, auditing, and publishing Google review content 
 
 `shared/testimonialsData.ts` now maps directly to the imported Google review data, but publishes only 5-star entries. Imported review data remains the source of truth for testimonial fallback rendering and counts.
 
-## Current data profile (2026-03-09 published snapshot)
+## Current data profile (2026-06-17 published snapshot)
 
-- Raw imported Google review export count: `319`
-- Published testimonial count on the website: `308`
+- Raw imported Google review export count: `320`
+- Published testimonial count on the website: `309`
 - Published testimonial rating policy:
-  - `5-star`: `308`
+  - `5-star`: `309`
   - non-5-star reviews are retained in the raw import history but excluded from public testimonial rendering
 - 5-star reviews with no text in source still use the normalized placeholder sentence internally for transport consistency.
   - UI rendering suppresses that placeholder sentence and shows rating + reviewer metadata only.
@@ -37,7 +37,7 @@ Operational guide for importing, auditing, and publishing Google review content 
 
 ## Refresh workflow
 
-1. Replace `attached_assets/google-reviews-export-319.txt` with the latest export text.
+1. Replace `attached_assets/google-reviews-export-320.txt` with the latest export text.
 2. Regenerate `shared/googleReviewsData.ts`:
 
 ```bash

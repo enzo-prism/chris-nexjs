@@ -7,18 +7,21 @@ type ParsedReview = {
   date: string;
   text: string;
   location: string;
+  image?: string;
 };
 
+const PUBLISHED_REVIEW_RATING = 5;
 const inputArg = process.argv[2];
 const inputPath = inputArg
   ? path.resolve(inputArg)
-  : path.resolve("attached_assets/google-reviews-export-319.txt");
+  : path.resolve("attached_assets/google-reviews-export-320.txt");
 const outputPath = path.resolve("shared/googleReviewsData.ts");
 
 function parseReviewBlock(block: string): ParsedReview | null {
   const reviewerMatch = block.match(/Reviewer:\s*(.+)/);
   const starsMatch = block.match(/Stars:\s*(\d+)\/5/);
   const dateMatch = block.match(/Date:\s*(.+)/);
+  const imageMatch = block.match(/Image:\s*(.+)/);
   const reviewMatch = block.match(/Review:\s*([\s\S]*?)\s*$/);
 
   if (!reviewerMatch || !starsMatch || !dateMatch || !reviewMatch) {
@@ -47,6 +50,7 @@ function parseReviewBlock(block: string): ParsedReview | null {
     date,
     text,
     location: "Google Review",
+    ...(imageMatch?.[1]?.trim() ? { image: imageMatch[1].trim() } : {}),
   };
 }
 
@@ -73,6 +77,7 @@ function formatTs(reviews: ParsedReview[]): string {
       rating: review.rating,
       location: review.location,
       text: review.text,
+      ...(review.image ? { image: review.image } : {}),
     };
     return `  ${JSON.stringify(obj)},`;
   });
@@ -101,20 +106,23 @@ function main() {
 
   if (reviews.length < 300) {
     throw new Error(
-      `Parsed only ${reviews.length} reviews. Expected around 319. Check input formatting.`,
+      `Parsed only ${reviews.length} reviews. Expected around 320. Check input formatting.`,
     );
   }
 
-  const expectedCount = 319;
+  const expectedCount = 320;
   if (reviews.length !== expectedCount) {
     console.warn(
       `Warning: parsed ${reviews.length} reviews (expected ${expectedCount}). Proceeding with parsed count.`,
     );
   }
 
+  const publishedReviews = reviews.filter(
+    (review) => review.rating === PUBLISHED_REVIEW_RATING,
+  );
   const seen = new Set<string>();
   const deduped: ParsedReview[] = [];
-  for (const review of reviews) {
+  for (const review of publishedReviews) {
     const key = `${review.name}::${review.text}`;
     if (seen.has(key)) continue;
     seen.add(key);

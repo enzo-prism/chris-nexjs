@@ -9,7 +9,7 @@
 // that PUBLISHED_REVIEW_COUNT matches the real published-review corpus. If that
 // assertion fails after a `reviews:import`, update PUBLISHED_REVIEW_COUNT here.
 export const PUBLISHED_REVIEW_RATING = 5;
-export const PUBLISHED_REVIEW_COUNT = 308;
+export const PUBLISHED_REVIEW_COUNT = 309;
 
 export const publishedTestimonialAggregateRating = {
   ratingValue: PUBLISHED_REVIEW_RATING,

@@ -1,5 +1,6 @@
 import { Star } from 'lucide-react';
 import { motion } from "@/lib/motion-lite";
+import { PUBLISHED_REVIEW_COUNT } from "@shared/reviewStats";
 
 // Types
 interface Review {
@@ -67,7 +68,9 @@ const CustomGoogleReviews = ({ className = '' }: CustomGoogleReviewsProps) => {
                   <Star key={i} className="h-4 w-4" fill="currentColor" />
                 ))}
               </div>
-              <span className="text-sm text-gray-600">5.0 • 308 reviews</span>
+              <span className="text-sm text-gray-600">
+                5.0 • {PUBLISHED_REVIEW_COUNT} reviews
+              </span>
             </div>
           </div>
         </div>
