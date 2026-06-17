@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import HeroSection from "@/components/sections/HeroSection";
 import StructuredData from "@/components/seo/StructuredData";
 import ButtonLink from "@/components/common/ButtonLink";
@@ -60,6 +61,13 @@ type HomeProps = {
 };
 
 const homeSpotlightTestimonials: readonly InsertTestimonial[] = [
+  {
+    name: "Lauren Hall",
+    rating: 5,
+    location: "Google Review",
+    image: "/images/testimonials/lauren-hall-testimonial.webp",
+    text: "Only the best. These pearly whites stay pearly year around thanks to these guys. If your not coming here your missing out",
+  },
   {
     name: "Anne Starr",
     rating: 5,
@@ -593,39 +601,80 @@ const Home = (props: any) => {
                   {testimonialsToShow.map((testimonial, index) => (
                     <article
                       key={`slide-${testimonial.name}-${index}`}
-                      className="shrink-0 px-6 pb-10 pt-8 sm:px-10 md:px-16 md:pb-12 md:pt-10"
+                      className="shrink-0 px-5 pb-10 pt-6 sm:px-8 md:px-12 md:pb-12 md:pt-10"
                       style={{ width: `${slideWidthPercent}%` }}
                     >
-                      <div className="flex items-center justify-center gap-3">
-                        <div className="rounded-2xl border border-slate-200 bg-white p-2.5 text-primary">
-                          <Quote className="h-5 w-5" />
-                        </div>
-                        <div className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-amber-600">
-                          {Array.from({ length: 5 }).map((_, starIndex) => (
-                            <span
-                              key={`active-star-${testimonial.name}-${starIndex}`}
-                              className="text-base leading-none"
+                      <div
+                        className={
+                          testimonial.image
+                            ? "grid items-center gap-7 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-10"
+                            : ""
+                        }
+                      >
+                        {testimonial.image && (
+                          <div className="relative mx-auto w-full max-w-sm overflow-hidden rounded-[1.5rem] border border-slate-200 bg-slate-100 shadow-lg sm:max-w-md lg:max-w-none">
+                            <div className="relative aspect-[4/5] min-h-[320px] sm:min-h-[440px] lg:min-h-[520px]">
+                              <Image
+                                src={testimonial.image}
+                                alt={`${testimonial.name} smiling with the dental team after an appointment`}
+                                fill
+                                priority={index === 0}
+                                className="object-cover object-center"
+                                sizes="(max-width: 640px) 90vw, (max-width: 1024px) 480px, 440px"
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        <div>
+                          <div
+                            className={`flex items-center gap-3 ${
+                              testimonial.image ? "justify-start" : "justify-center"
+                            }`}
+                          >
+                            <div className="rounded-2xl border border-slate-200 bg-white p-2.5 text-primary">
+                              <Quote className="h-5 w-5" />
+                            </div>
+                            <div className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-amber-600">
+                              {Array.from({ length: 5 }).map((_, starIndex) => (
+                                <span
+                                  key={`active-star-${testimonial.name}-${starIndex}`}
+                                  className="text-base leading-none"
+                                >
+                                  {starIndex < testimonial.rating ? "★" : "☆"}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+
+                          {!isNoAdditionalCommentPlaceholder(testimonial.text) && (
+                            <p
+                              className={`mt-8 max-w-3xl text-2xl font-light italic leading-relaxed text-slate-700 md:text-[2rem] md:leading-[1.45] ${
+                                testimonial.image ? "text-left" : "mx-auto text-center"
+                              }`}
                             >
-                              {starIndex < testimonial.rating ? "★" : "☆"}
-                            </span>
-                          ))}
+                              &ldquo;{testimonial.text}&rdquo;
+                            </p>
+                          )}
+
+                          <div
+                            className={`mt-8 h-px w-20 bg-slate-300 ${
+                              testimonial.image ? "" : "mx-auto"
+                            }`}
+                          />
+                          <div
+                            className={`mt-6 ${
+                              testimonial.image ? "text-left" : "text-center"
+                            }`}
+                          >
+                            <p className="text-2xl font-semibold text-slate-900">
+                              {testimonial.name}
+                            </p>
+                            <p className="mt-1 text-sm font-medium uppercase tracking-[0.12em] text-slate-500">
+                              {testimonial.location || "Google Review"}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-
-                      {!isNoAdditionalCommentPlaceholder(testimonial.text) && (
-                        <p className="mx-auto mt-8 max-w-3xl text-center text-2xl font-light italic leading-relaxed text-slate-700 md:text-[2rem] md:leading-[1.45]">
-                          &ldquo;{testimonial.text}&rdquo;
-                        </p>
-                      )}
-
-                      <div className="mx-auto mt-8 h-px w-20 bg-slate-300" />
-                      <div className="mt-6 text-center">
-                        <p className="text-2xl font-semibold text-slate-900">
-                          {testimonial.name}
-                        </p>
-                        <p className="mt-1 text-sm font-medium uppercase tracking-[0.12em] text-slate-500">
-                          {testimonial.location || "Google Review"}
-                        </p>
                       </div>
                     </article>
                   ))}
