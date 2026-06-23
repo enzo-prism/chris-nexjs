@@ -6,16 +6,9 @@ import {
   ChevronDown,
   X,
 } from "lucide-react";
-import { holidayHours } from "@/lib/data";
+import { useHolidayHours } from "@/hooks/useHolidayHours";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-type HolidayEntry = {
-  day: string;
-  hours: string;
-  status: "closed" | "varies" | "regular";
-  badge?: string;
-};
 
 type HolidayHoursNoticeProps = {
   variant?: "banner" | "card";
@@ -28,10 +21,11 @@ const HolidayHoursNotice = ({
   className,
   containerClassName,
 }: HolidayHoursNoticeProps) => {
+  const notice = useHolidayHours();
   const [isDismissed, setIsDismissed] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
-  const dismissalKey = holidayHours?.id
-    ? `holidayHoursDismissed-${holidayHours.id}`
+  const dismissalKey = notice?.id
+    ? `holidayHoursDismissed-${notice.id}`
     : "holidayHoursDismissed";
 
   useEffect(() => {
@@ -49,74 +43,20 @@ const HolidayHoursNotice = ({
     }
   };
 
-  if (!holidayHours?.active) {
+  // `notice` is null when the temporary schedule is inactive or every date in
+  // it has already passed — in either case nothing should render.
+  if (!notice) {
     return null;
   }
 
-  const normalizedEntries: HolidayEntry[] = (holidayHours.entries as readonly unknown[] | undefined ?? []).map(
-    (entry) =>
-      ({
-        day: typeof entry === "object" && entry !== null && "day" in entry
-          ? String((entry as { day: unknown }).day)
-          : "",
-        hours: typeof entry === "object" && entry !== null && "hours" in entry
-          ? String((entry as { hours: unknown }).hours)
-          : "",
-        status:
-          typeof entry === "object" &&
-          entry !== null &&
-          "status" in entry &&
-          typeof (entry as { status: unknown }).status === "string"
-            ? ((entry as { status: "closed" | "varies" | "regular" }).status)
-            : String(
-                typeof entry === "object" && entry !== null && "hours" in entry
-                  ? (entry as { hours: unknown }).hours
-                  : "",
-              ).toLowerCase().includes("closed")
-              ? "closed"
-              : "varies",
-        badge:
-          typeof entry === "object" &&
-          entry !== null &&
-          "badge" in entry &&
-          typeof (entry as { badge: unknown }).badge === "string"
-            ? String((entry as { badge: unknown }).badge)
-            : undefined,
-      }) as HolidayEntry,
-  );
-  const hasClosedEntry = normalizedEntries.some((entry) => entry.status === "closed");
-  const hasVariableEntry = normalizedEntries.some((entry) => entry.status === "varies");
   const noticeLabel =
-    hasClosedEntry || hasVariableEntry ? "Schedule Update" : "Hours Update";
-  const titleRange =
-    holidayHours.title.replace(/^temporary schedule update:\s*/i, "").trim() ||
-    holidayHours.title;
-  const displayEntries = normalizedEntries.map((entry) => {
-    const isClosed = entry.status === "closed";
-    const isVariable = entry.status === "varies";
-
-    return {
-      ...entry,
-      isClosed,
-      isVariable,
-      badgeText: entry.badge,
-    };
-  });
-  const closedDays = displayEntries
-    .filter((entry) => entry.isClosed)
-    .map((entry) => entry.day);
-  const joinedClosedDays =
-    closedDays.length <= 1
-      ? (closedDays[0] ?? "")
-      : `${closedDays.slice(0, -1).join(", ")} & ${closedDays.at(-1)}`;
-  const noticeHeadline = titleRange ? `Temporary Hours: ${titleRange}` : holidayHours.title;
-  const noticeSummary = [
-    hasVariableEntry ? "Hours may vary during this period." : undefined,
-    joinedClosedDays ? `Closed ${joinedClosedDays}.` : undefined,
-    "Call to confirm availability before visiting.",
-  ]
-    .filter(Boolean)
-    .join(" ");
+    notice.hasClosed || notice.hasVaries ? "Schedule Update" : "Hours Update";
+  const displayEntries = notice.entries.map((entry) => ({
+    ...entry,
+    isClosed: entry.status === "closed",
+    isVariable: entry.status === "varies",
+    badgeText: entry.badge,
+  }));
 
   if (variant === "card") {
     return (
@@ -137,11 +77,11 @@ const HolidayHoursNotice = ({
             </div>
             <div>
               <p className="text-[11px] uppercase tracking-[0.24em] text-slate-500">{noticeLabel}</p>
-              <p className="text-lg font-semibold font-heading text-slate-900 leading-tight text-balance">{noticeHeadline}</p>
+              <p className="text-lg font-semibold font-heading text-slate-900 leading-tight text-balance">{notice.title}</p>
             </div>
           </div>
 
-          <p className="text-slate-600 mb-5 leading-relaxed">{holidayHours.description}</p>
+          <p className="text-slate-600 mb-5 leading-relaxed">{notice.description}</p>
 
           <ul className="space-y-3">
             {displayEntries.map((entry) => {
@@ -202,19 +142,19 @@ const HolidayHoursNotice = ({
             })}
           </ul>
 
-          {holidayHours.cta && (
+          {notice.cta && (
             <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <a
-                href={holidayHours.cta.href}
+                href={notice.cta.href}
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90"
               >
                 <CalendarCheck className="h-4 w-4" aria-hidden="true" />
-                {holidayHours.cta.label}
+                {notice.cta.label}
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </a>
-              {holidayHours.footerNote ? (
+              {notice.footerNote ? (
                 <span className="text-xs text-slate-500">
-                  {holidayHours.footerNote}
+                  {notice.footerNote}
                 </span>
               ) : null}
             </div>
@@ -272,19 +212,19 @@ const HolidayHoursNotice = ({
                     {noticeLabel}
                   </p>
                   <h2 className="mt-1 font-heading text-base font-semibold leading-snug text-slate-950 text-balance sm:text-xl sm:leading-tight">
-                    {noticeHeadline}
+                    {notice.title}
                   </h2>
                   <p className="mt-1.5 max-w-2xl text-[13px] leading-5 text-slate-600 text-pretty sm:mt-2 sm:text-sm sm:leading-6">
-                    {noticeSummary}
+                    {notice.summary}
                   </p>
 
                   <div className="mt-2.5 flex flex-wrap items-center gap-2.5 sm:mt-3 sm:gap-3">
-                    {holidayHours.cta ? (
+                    {notice.cta ? (
                       <Button
                         asChild
                         className="ui-btn-primary min-h-10 rounded-full px-4 text-sm font-semibold sm:min-h-11"
                       >
-                        <a href={holidayHours.cta.href}>
+                        <a href={notice.cta.href}>
                           <CalendarCheck className="h-4 w-4 shrink-0" aria-hidden="true" />
                           <span>Call to Confirm</span>
                           <ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" />
@@ -310,9 +250,9 @@ const HolidayHoursNotice = ({
                       />
                     </Button>
 
-                    {holidayHours.footerNote ? (
+                    {notice.footerNote ? (
                       <p className="hidden text-xs leading-5 text-slate-500 sm:block">
-                        {holidayHours.footerNote}
+                        {notice.footerNote}
                       </p>
                     ) : null}
                   </div>

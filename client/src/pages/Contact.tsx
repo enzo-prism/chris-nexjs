@@ -9,7 +9,8 @@ import { pageTitles, pageDescriptions } from "@/lib/metaContent";
 import HolidayHoursNotice from "@/components/common/HolidayHoursNotice";
 import StructuredData from "@/components/seo/StructuredData";
 import { FeatureIcon } from "@/components/common/FeatureIcon";
-import { holidayHours, officeInfo } from "@/lib/data";
+import { officeInfo } from "@/lib/data";
+import { useHolidayHours } from "@/hooks/useHolidayHours";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import { Link } from "wouter";
 import {
@@ -19,6 +20,7 @@ import {
 } from "@/lib/structuredData";
 
 const Contact = () => {
+  const holiday = useHolidayHours();
   const contactPageSchema: StructuredDataNode = {
     "@context": "https://schema.org",
     "@type": "WebPage",
@@ -113,7 +115,7 @@ const Contact = () => {
         </div>
       </section>
 
-      {holidayHours.active && (
+      {holiday && (
         <section className="bg-white">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <HolidayHoursNotice variant="card" />

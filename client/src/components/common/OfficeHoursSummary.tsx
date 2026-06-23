@@ -1,4 +1,7 @@
-import { holidayHours, officeInfo } from "@/lib/data";
+"use client";
+
+import { officeInfo } from "@/lib/data";
+import { useHolidayHours } from "@/hooks/useHolidayHours";
 import { cn } from "@/lib/utils";
 
 type OfficeHoursSummaryProps = {
@@ -21,7 +24,8 @@ const OfficeHoursSummary = ({
   hoursClassName,
   noteClassName,
 }: OfficeHoursSummaryProps) => {
-  const temporaryNotice = holidayHours.active ? (
+  const holiday = useHolidayHours();
+  const temporaryNotice = holiday ? (
     <p
       className={cn(
         "text-xs leading-relaxed",
@@ -30,7 +34,7 @@ const OfficeHoursSummary = ({
       )}
     >
       <span className="font-semibold">Temporary update:</span>{" "}
-      {holidayHours.shortNotice}
+      {holiday.shortNotice}
     </p>
   ) : null;
 

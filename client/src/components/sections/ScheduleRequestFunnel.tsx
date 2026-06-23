@@ -9,7 +9,8 @@ import {
   PhoneCall,
   ShieldCheck,
 } from "lucide-react";
-import { holidayHours, officeInfo } from "@/lib/data";
+import { officeInfo } from "@/lib/data";
+import { useHolidayHours } from "@/hooks/useHolidayHours";
 import { FeatureIcon } from "@/components/common/FeatureIcon";
 import TestimonialSection from "@/components/testimonials/TestimonialSection";
 import { getTestimonialCollection } from "@/lib/testimonials";
@@ -28,6 +29,7 @@ const AppointmentForm = dynamic(
 );
 
 const ScheduleRequestFunnel = () => {
+  const holiday = useHolidayHours();
   const scheduleTestimonials = getTestimonialCollection("scheduleFunnel");
 
   return (
@@ -81,9 +83,9 @@ const ScheduleRequestFunnel = () => {
             Call {officeInfo.phone}
           </span>
         </a>
-        {holidayHours.active ? (
+        {holiday ? (
           <p className="mt-3 text-center text-xs leading-5 text-slate-500">
-            {holidayHours.shortNotice}
+            {holiday.shortNotice}
           </p>
         ) : null}
 

@@ -11,7 +11,7 @@
 import fs from "fs";
 import path from "path";
 import { seoByPath, type SeoDefinition } from "../shared/seo";
-import { officeInfo, holidayHours } from "../shared/officeInfo";
+import { officeInfo, resolveHolidayHours } from "../shared/officeInfo";
 import { sortItemsByDateDesc } from "../shared/blog";
 import { getSeedData } from "../server/storage/seed";
 
@@ -84,8 +84,9 @@ async function main(): Promise<void> {
   lines.push(`- Phone: ${officeInfo.phone}`);
   lines.push(`- Email: ${officeInfo.email}`);
   lines.push(`- Hours: ${formatHoursSummary()}`);
-  if (holidayHours.active) {
-    lines.push(`- Temporary schedule update: ${holidayHours.shortNotice}`);
+  const holiday = resolveHolidayHours();
+  if (holiday) {
+    lines.push(`- Temporary schedule update: ${holiday.shortNotice}`);
   }
   lines.push(
     "- Service area: Palo Alto, Menlo Park, Stanford, Mountain View, Los Altos, Los Altos Hills, Sunnyvale, Cupertino, Redwood City, Atherton, Redwood Shores",

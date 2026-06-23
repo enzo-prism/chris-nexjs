@@ -19,7 +19,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import type { InsertTestimonial, Service, Testimonial } from "@shared/schema";
-import { holidayHours, officeInfo } from "@/lib/data";
+import { officeInfo } from "@/lib/data";
+import { useHolidayHours } from "@/hooks/useHolidayHours";
 import { isNoAdditionalCommentPlaceholder } from "@/lib/testimonialText";
 import {
   buildFAQSchema,
@@ -117,6 +118,7 @@ const Home = (props: any) => {
     initialServices = [],
   } = (props ?? {}) as HomeProps;
   const testimonialsToShow = homeSpotlightTestimonials;
+  const holiday = useHolidayHours();
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const testimonialCount = testimonialsToShow.length;
   const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -436,10 +438,10 @@ const Home = (props: any) => {
                     <div>Fri: {officeInfo.hours.friday}</div>
                     <div>Sat-Sun: {officeInfo.hours.saturday}</div>
                   </div>
-                  {holidayHours.active ? (
+                  {holiday ? (
                     <p className="mt-3 text-xs leading-relaxed text-slate-500">
                       <span className="font-semibold">Temporary update:</span>{" "}
-                      {holidayHours.shortNotice}
+                      {holiday.shortNotice}
                     </p>
                   ) : null}
                 </div>
@@ -851,10 +853,10 @@ const Home = (props: any) => {
                     <div>Saturday - Sunday</div>
                     <div>{officeInfo.hours.saturday}</div>
                   </div>
-                  {holidayHours.active ? (
+                  {holiday ? (
                     <p className="mt-3 text-xs leading-relaxed text-blue-100">
                       <span className="font-semibold">Temporary update:</span>{" "}
-                      {holidayHours.shortNotice}
+                      {holiday.shortNotice}
                     </p>
                   ) : null}
                 </div>

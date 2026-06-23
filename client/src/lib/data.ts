@@ -1,7 +1,17 @@
-import { officeInfo, holidayHours } from "@shared/officeInfo";
+import {
+  officeInfo,
+  holidayHours,
+  resolveHolidayHours,
+  getOfficeTodayISO,
+} from "@shared/officeInfo";
 import { drWongImages } from "@/lib/imageUrls";
 
-export { officeInfo, holidayHours };
+export { officeInfo, holidayHours, resolveHolidayHours, getOfficeTodayISO };
+export type {
+  ResolvedHolidayHours,
+  HolidayHoursEntry,
+  HolidayHoursStatus,
+} from "@shared/officeInfo";
 
 export const doctorInfo = {
   name: "Dr. Christopher B. Wong",
