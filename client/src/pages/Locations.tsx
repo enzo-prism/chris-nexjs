@@ -141,7 +141,7 @@ const Locations = () => {
                 <MapPin className="h-4 w-4" aria-hidden="true" />
                 Serving Palo Alto and nearby communities
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold font-heading text-[#1F2933]">Locations We Serve</h1>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-heading text-[#1F2933]">Locations We Serve</h1>
               <p className="text-lg text-slate-700 max-w-3xl mx-auto lg:mx-0">
                 Our Palo Alto dental office welcomes patients from across the Peninsula. Use the links below to find
                 location-specific FAQs, service highlights, and planning tips for your community.

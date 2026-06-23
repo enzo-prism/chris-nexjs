@@ -101,7 +101,7 @@ const PediatricDentistry = () => {
 
       <section className="bg-gradient-to-b from-[#F5F9FC] to-white py-12 md:py-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-          <h1 className="text-4xl md:text-5xl font-bold font-heading text-slate-900">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-heading text-slate-900">
             Pediatric Dentistry in Palo Alto
           </h1>
           <p className="text-lg md:text-xl text-slate-700 leading-relaxed max-w-3xl mx-auto">

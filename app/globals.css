@@ -71,6 +71,10 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Belt-and-suspenders guard against a stray wide element causing a
+       horizontal scrollbar / zoom-out on mobile. `clip` (not `hidden`) avoids
+       creating a scroll container, so it never breaks `position: sticky`. */
+    overflow-x: clip;
   }
 
   h1,

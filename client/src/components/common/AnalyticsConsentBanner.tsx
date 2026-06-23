@@ -39,11 +39,15 @@ const AnalyticsConsentBanner = () => {
 
   return (
     <div
+      data-testid="consent-banner"
       className={cn(
         "fixed z-[120] border border-slate-200 bg-white/95 shadow-lg backdrop-blur",
         isConversionRoute
           ? "bottom-3 left-3 right-3 rounded-2xl p-3 shadow-[0_20px_45px_-28px_rgba(15,23,42,0.55)] md:bottom-4 md:left-1/2 md:right-auto md:w-[min(42rem,calc(100%-2rem))] md:-translate-x-1/2"
-          : "bottom-4 left-4 right-4 rounded-xl p-4 md:left-auto md:w-[520px]",
+          : // On mobile, sit above the fixed MobileActionBar (~3.25rem + safe area)
+            // so the Call / Request Visit buttons are never covered on first visit.
+            // The action bar is md:hidden, so revert to bottom-4 from md up.
+            "bottom-[calc(3.25rem+env(safe-area-inset-bottom)+0.75rem)] left-4 right-4 rounded-xl p-4 md:bottom-4 md:left-auto md:w-[520px]",
       )}
     >
       <div

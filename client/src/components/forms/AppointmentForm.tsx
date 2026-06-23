@@ -274,10 +274,10 @@ const getChoiceCardClasses = (
   );
 
 const getFunnelInputClasses = (): string =>
-  "h-12 rounded-xl border-slate-200 bg-slate-50/75 px-4 text-[15px] text-slate-900 placeholder:text-slate-400 hover:border-primary/30 focus-visible:bg-white";
+  "h-12 rounded-xl border-slate-200 bg-slate-50/75 px-4 text-base md:text-[15px] text-slate-900 placeholder:text-slate-400 hover:border-primary/30 focus-visible:bg-white";
 
 const getFunnelTextareaClasses = (): string =>
-  "rounded-xl border-slate-200 bg-slate-50/75 px-4 py-3 text-[15px] text-slate-900 placeholder:text-slate-400 hover:border-primary/30 focus-visible:bg-white";
+  "rounded-xl border-slate-200 bg-slate-50/75 px-4 py-3 text-base md:text-[15px] text-slate-900 placeholder:text-slate-400 hover:border-primary/30 focus-visible:bg-white";
 
 type OptionalDetailsFieldsProps = {
   control: Control<ScheduleFormValues>;
@@ -625,9 +625,10 @@ const ContactStep = ({
               <FormControl>
                 <Input
                   inputMode="text"
+                  enterKeyHint="next"
+                  autoComplete="given-name"
                   placeholder="Jane"
                   maxLength={40}
-                  autoComplete="given-name"
                   className={
                     presentation === "funnel" ? getFunnelInputClasses() : "h-11"
                   }
@@ -647,9 +648,10 @@ const ContactStep = ({
               <FormControl>
                 <Input
                   inputMode="text"
+                  enterKeyHint="next"
+                  autoComplete="family-name"
                   placeholder="Doe"
                   maxLength={40}
-                  autoComplete="family-name"
                   className={
                     presentation === "funnel" ? getFunnelInputClasses() : "h-11"
                   }
@@ -678,6 +680,7 @@ const ContactStep = ({
                 <Input
                   type="tel"
                   inputMode="tel"
+                  enterKeyHint="next"
                   autoComplete="tel"
                   placeholder="(650) 555-1234"
                   className={
@@ -704,7 +707,10 @@ const ContactStep = ({
                 <Input
                   type="email"
                   inputMode="email"
+                  enterKeyHint="done"
                   autoComplete="email"
+                  autoCapitalize="none"
+                  autoCorrect="off"
                   placeholder="jane.doe@example.com"
                   className={
                     presentation === "funnel" ? getFunnelInputClasses() : "h-11"
@@ -805,7 +811,7 @@ const AppointmentForm = ({
     defaultValues: {
       isEmergency: false,
       appointmentType: "",
-      schedulingMode: "choose_preferences",
+      schedulingMode: "first_available",
       preferredDays: [],
       preferredTime: "",
       firstName: "",
@@ -1420,7 +1426,7 @@ const AppointmentForm = ({
         ) : null}
 
         {presentation === "funnel" ? (
-          <div className="flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="sticky bottom-0 z-10 flex flex-col gap-3 border-t border-slate-200 bg-white/95 pt-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] backdrop-blur supports-[backdrop-filter]:bg-white/85 sm:static sm:flex-row sm:items-center sm:justify-between sm:border-slate-100 sm:bg-transparent sm:pt-5 sm:pb-0 sm:backdrop-blur-none">
             <p className="order-2 text-xs leading-5 text-slate-500 sm:order-1">
               {isFinalStep
                 ? "We'll confirm by phone or email within one business day."

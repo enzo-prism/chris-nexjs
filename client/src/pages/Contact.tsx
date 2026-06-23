@@ -54,7 +54,7 @@ const Contact = () => {
       <section className="bg-[#F5F9FC] py-12 md:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold font-heading text-[#333333] mb-6">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-heading text-[#333333] mb-6">
               Contact Our Palo Alto Dental Office
             </h1>
             <p className="text-xl text-[#333333] max-w-3xl mx-auto">

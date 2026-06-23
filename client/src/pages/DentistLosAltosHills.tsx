@@ -115,7 +115,7 @@ const DentistLosAltosHills = () => {
                 <MapPin className="h-4 w-4" aria-hidden="true" />
                 Near Los Altos Hills
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold font-heading text-[#1F2933]">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-heading text-[#1F2933]">
                 Los Altos Hills Dentist - Personalized Care Nearby in Palo Alto
               </h1>
               <p className="text-lg text-slate-700 leading-relaxed max-w-3xl">

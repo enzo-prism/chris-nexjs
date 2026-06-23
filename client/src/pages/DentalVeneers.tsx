@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import MetaTags from "@/components/common/MetaTags";
 import StructuredData from "@/components/seo/StructuredData";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion-lite";
 import OptimizedImage from "@/components/seo/OptimizedImage";
 import TestimonialQuote from "@/components/testimonials/TestimonialQuote";
 import { getTestimonialsByNames } from "@/lib/testimonials";
@@ -154,7 +154,7 @@ const DentalVeneers = () => {
             transition={{ duration: 0.6 }}
             className="text-center"
           >
-            <h1 className="text-4xl md:text-5xl font-bold font-heading text-[#333333] mb-6">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-heading text-[#333333] mb-6">
               Achieve Your Dream Smile with Dental Veneers
             </h1>
             <p className="text-xl text-[#333333] max-w-4xl mx-auto mb-8">

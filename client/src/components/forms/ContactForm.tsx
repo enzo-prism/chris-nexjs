@@ -81,8 +81,9 @@ const ContactForm = () => {
                 <FormLabel className="text-[#333333] font-semibold">Full Name</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="Jane Doe…"
+                    enterKeyHint="next"
                     autoComplete="name"
+                    placeholder="Jane Doe…"
                     {...field}
                   />
                 </FormControl>
@@ -98,12 +99,14 @@ const ContactForm = () => {
                 <FormLabel className="text-[#333333] font-semibold">Email Address</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="jane.doe@example.com…"
                     type="email"
+                    inputMode="email"
+                    enterKeyHint="next"
                     autoComplete="email"
                     spellCheck={false}
                     autoCorrect="off"
                     autoCapitalize="none"
+                    placeholder="jane.doe@example.com…"
                     {...field}
                   />
                 </FormControl>
@@ -123,6 +126,7 @@ const ContactForm = () => {
                 <Input
                   type="tel"
                   inputMode="tel"
+                  enterKeyHint="next"
                   autoComplete="tel"
                   placeholder={`${officeInfo.phone}…`}
                   {...field}

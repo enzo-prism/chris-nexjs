@@ -190,12 +190,12 @@ const Footer = ({ variant = "default" }: FooterProps) => {
                     <meta itemProp="addressCountry" content={officeInfo.address.country} />
                   </address>
                 </div>
-                <div className="flex space-x-3 mt-3">
+                <div className="flex space-x-2 mt-3">
                   {socialMedia.map((social, index) => (
                     <a
                       key={index}
                       href={social.href}
-                      className="ui-link-premium-dark rounded-full bg-white/10 p-2 text-white/80"
+                      className="ui-link-premium-dark inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white/80"
                       aria-label={social.label}
                       rel="noopener noreferrer"
                       target="_blank"
@@ -293,12 +293,12 @@ const Footer = ({ variant = "default" }: FooterProps) => {
             <h3 className="text-lg font-medium mb-2" itemProp="name">Dr. Christopher B. Wong</h3>
             <p className="text-sm text-white/80 mb-4">Comprehensive dental care in Palo Alto</p>
 
-            <div className="flex justify-center space-x-3 mb-4">
+            <div className="flex justify-center space-x-2 mb-4">
               {socialMedia.map((social, index) => (
                 <a
                   key={index}
                   href={social.href}
-                  className="ui-link-premium-dark rounded-full bg-white/10 p-2 text-white/80"
+                  className="ui-link-premium-dark inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white/80"
                   aria-label={social.label}
                   rel="noopener noreferrer"
                   target="_blank"

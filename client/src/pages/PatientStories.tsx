@@ -581,7 +581,7 @@ const PatientStories = () => {
             <Badge className="bg-primary/10 text-primary hover:bg-primary/15">
               Patient Stories & Transformations
             </Badge>
-            <h1 className="text-4xl md:text-5xl font-bold font-heading text-[#1F2933]">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-heading text-[#1F2933]">
               Real patients. Real results.
             </h1>
             <p className="text-lg text-[#334155] leading-relaxed">

@@ -75,7 +75,7 @@ const Testimonials = () => {
             <Sparkles className="h-4 w-4" />
             Loved by patients
           </span>
-          <h1 className="text-4xl md:text-5xl font-bold font-heading text-[#1F2933] leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-heading text-[#1F2933] leading-tight">
             A community of smiles that keeps coming back
           </h1>
           <p className="text-lg md:text-xl text-[#4B5563] leading-relaxed max-w-3xl mx-auto">

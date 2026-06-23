@@ -236,7 +236,7 @@ const EmergencyDental = () => {
                 <AlertTriangle className="h-4 w-4" />
                 Same-day emergency care
               </div>
-              <h1 className="mt-6 text-4xl md:text-5xl font-bold font-heading text-[#333333] mb-6">
+              <h1 className="mt-6 text-3xl sm:text-4xl md:text-5xl font-bold font-heading text-[#333333] mb-6">
                 Emergency Dentist in Palo Alto, CA
               </h1>
               <p className="text-xl text-[#333333] max-w-4xl mb-8">

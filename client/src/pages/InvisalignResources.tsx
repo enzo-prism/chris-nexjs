@@ -113,7 +113,7 @@ const InvisalignResources = ({
             <Sparkles className="h-4 w-4" aria-hidden="true" />
             Invisalign Palo Alto
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold font-heading text-[#333333] mb-6">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-heading text-[#333333] mb-6">
             Invisalign resources for Palo Alto patients
           </h1>
           <p className="text-lg text-[#333333] max-w-3xl mx-auto mb-8">

@@ -726,19 +726,25 @@ const Home = (props: any) => {
             </div>
           )}
 
-          <div className="mt-8 flex items-center justify-center gap-2">
+          <div className="mt-8 flex items-center justify-center gap-1">
             {testimonialsToShow.map((testimonial, index) => (
               <button
                 key={`carousel-dot-${testimonial.name}-${index}`}
                 type="button"
+                data-testid="testimonial-dot"
                 aria-label={`Go to testimonial ${index + 1}`}
+                aria-current={activeTestimonial === index ? "true" : undefined}
                 onClick={() => setActiveTestimonial(index)}
-                className={`h-2.5 rounded-full transition-all duration-300 ${
-                  activeTestimonial === index
-                    ? "w-8 bg-primary"
-                    : "w-2.5 bg-slate-300 hover:bg-slate-400"
-                }`}
-              />
+                className="group flex h-11 w-11 items-center justify-center"
+              >
+                <span
+                  className={`h-2.5 rounded-full transition-all duration-300 ${
+                    activeTestimonial === index
+                      ? "w-8 bg-primary"
+                      : "w-2.5 bg-slate-300 group-hover:bg-slate-400"
+                  }`}
+                />
+              </button>
             ))}
           </div>
 

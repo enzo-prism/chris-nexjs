@@ -188,7 +188,7 @@ const HolidayHoursNotice = ({
           containerClassName,
         )}
       >
-        <div className="relative py-3 pr-10 sm:py-4 sm:pr-12 lg:py-5">
+        <div className="relative py-3 pr-11 sm:py-4 sm:pr-12 lg:py-5">
           <Button
             type="button"
             variant="ghost"
@@ -214,7 +214,7 @@ const HolidayHoursNotice = ({
                   <h2 className="mt-1 font-heading text-base font-semibold leading-snug text-slate-950 text-balance sm:text-xl sm:leading-tight">
                     {notice.title}
                   </h2>
-                  <p className="mt-1.5 max-w-2xl text-[13px] leading-5 text-slate-600 text-pretty sm:mt-2 sm:text-sm sm:leading-6">
+                  <p className="mt-1.5 hidden max-w-2xl text-[13px] leading-5 text-slate-600 text-pretty sm:mt-2 sm:block sm:text-sm sm:leading-6">
                     {notice.summary}
                   </p>
 

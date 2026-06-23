@@ -156,7 +156,7 @@ const TeethWhiteningPaloAlto = () => {
                 <Sparkles className="h-4 w-4" aria-hidden="true" />
                 Palo Alto teeth whitening
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold font-heading text-[#1F2933]">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-heading text-[#1F2933]">
                 Teeth Whitening in Palo Alto
               </h1>
               <p className="text-lg text-slate-700 leading-relaxed max-w-3xl">

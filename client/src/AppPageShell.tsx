@@ -117,8 +117,19 @@ export function AppPageShell({
         ]}
         id="global-organization-schema"
       />
+      <a
+        href="#main-content"
+        data-testid="skip-to-content"
+        className="sr-only rounded-md bg-white px-4 py-2 text-sm font-semibold text-primary shadow-lg ring-2 ring-primary focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:outline-none"
+      >
+        Skip to main content
+      </a>
       <Header variant={chromeVariant} />
-      <main style={{ paddingTop: "var(--header-height, 110px)" }}>
+      <main
+        id="main-content"
+        tabIndex={-1}
+        style={{ paddingTop: "var(--header-height, 110px)" }}
+      >
         {chromeVariant === "default" ? <HolidayHoursNotice /> : null}
         {children}
       </main>

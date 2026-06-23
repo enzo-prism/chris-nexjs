@@ -107,7 +107,7 @@ const PreventiveDentistry = () => {
               <div className="inline-flex items-center rounded-full bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">
                 Prevention first
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold font-heading text-slate-900">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-heading text-slate-900">
                 Preventive Dentistry in Palo Alto
               </h1>
               <p className="text-lg md:text-xl text-slate-700 leading-relaxed max-w-3xl mx-auto lg:mx-0">

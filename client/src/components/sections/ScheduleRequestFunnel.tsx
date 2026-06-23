@@ -22,7 +22,12 @@ const AppointmentForm = dynamic(
     loading: () => (
       <div
         aria-hidden="true"
-        className="min-h-[540px] w-full rounded-[28px] border border-slate-200 bg-white/80 shadow-[0_24px_80px_-56px_rgba(15,23,42,0.35)]"
+        // Height matches the mounted form (measured: 962px < 768px, 852px >= 768px)
+        // so the ssr:false placeholder->form swap reserves the right space and
+        // doesn't shift content below it (keeps /schedule CLS near zero). The
+        // form is client-only by design (viewport-dependent render), so a
+        // skeleton that matches its height is the safe way to avoid the shift.
+        className="min-h-[960px] w-full rounded-[28px] border border-slate-200 bg-white/80 shadow-[0_24px_80px_-56px_rgba(15,23,42,0.35)] md:min-h-[852px]"
       />
     ),
   },
@@ -35,7 +40,10 @@ const ScheduleRequestFunnel = () => {
   return (
     <section
       id="appointment"
-      className="relative overflow-hidden bg-[linear-gradient(180deg,#f6fafc_0%,#ffffff_38%,#f9fbff_100%)] py-10 sm:py-14 lg:py-20"
+      // `overflow-x-clip` (not `overflow-hidden`) clips the decorative blurs
+      // without making this section the sticky containing block — otherwise the
+      // funnel's `sticky bottom-0` submit CTA can't pin to the viewport.
+      className="relative overflow-x-clip bg-[linear-gradient(180deg,#f6fafc_0%,#ffffff_38%,#f9fbff_100%)] py-10 sm:py-14 lg:py-20"
     >
       <div
         aria-hidden="true"

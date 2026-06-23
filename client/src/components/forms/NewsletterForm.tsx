@@ -67,10 +67,15 @@ const NewsletterForm = () => {
             render={({ field }) => (
               <FormItem className="flex-grow">
                 <FormControl>
-                  <Input 
-                    placeholder="Your email address" 
-                    type="email" 
-                    className="w-full border-0 bg-transparent text-sm text-white placeholder:text-white/60 hover:border-white/40 focus-visible:border-white/70"
+                  <Input
+                    type="email"
+                    inputMode="email"
+                    enterKeyHint="send"
+                    autoComplete="email"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    placeholder="Your email address"
+                    className="w-full border-0 bg-transparent text-base md:text-sm text-white placeholder:text-white/60 hover:border-white/40 focus-visible:border-white/70"
                     {...field}
                   />
                 </FormControl>
