@@ -65,6 +65,7 @@ import BlogPost from "@/pages/BlogPost";
 import PatientStories from "@/pages/PatientStories";
 import Changelog from "@/pages/Changelog";
 import Gallery from "@/pages/Gallery";
+import OfficeTour from "@/pages/OfficeTour";
 
 const AnalyticsMinimal = React.lazy(() => import("@/pages/AnalyticsMinimal"));
 const GATestPage = React.lazy(() => import("@/pages/GATestPage"));
@@ -99,6 +100,7 @@ function Router() {
             <Route path="/testimonials" component={Testimonials} />
             <Route path="/patient-stories" component={PatientStories} />
             <Route path="/gallery" component={Gallery} />
+            <Route path="/office-tour" component={OfficeTour} />
             <Route path="/contact" component={Contact} />
             <Route path="/schedule" component={Schedule} />
             <Route path="/blog" component={Blog} />

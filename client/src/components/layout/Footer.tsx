@@ -25,6 +25,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
     { href: "/insurance", label: "Insurance & Payments" },
     { href: "/patient-stories", label: "Patient Stories" },
     { href: "/gallery", label: "Gallery" },
+    { href: "/office-tour", label: "Office Tour" },
     { href: "/blog", label: "Blog" },
     { href: "/dentist-menlo-park", label: "Menlo Park Families" },
     { href: "/dentist-stanford", label: "Stanford Patients" },

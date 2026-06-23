@@ -303,7 +303,7 @@ const About = () => {
                   <div className="relative rounded-[28px] bg-white/70 backdrop-blur-sm shadow-xl border border-white/60 p-4 sm:p-6 flex items-center justify-center">
                     <OptimizedImage
                       src="/images/about/dr-wong-portrait.webp"
-                      alt="Dr. Christopher B. Wong, DDS, in his Palo Alto dental office"
+                      alt="Dr. Christopher B. Wong in his Palo Alto dental office"
                       width={880}
                       height={1100}
                       fit="contain"

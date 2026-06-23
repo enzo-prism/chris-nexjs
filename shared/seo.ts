@@ -176,6 +176,14 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     ogImage: "/images/office/polaroid-collage.png",
     seoCluster: "trust",
   },
+  "/office-tour": {
+    title: "Office Tour | Palo Alto Dentist | Christopher B. Wong, DDS",
+    description:
+      "Take a virtual tour of Dr. Christopher Wong's Palo Alto dental office: a calming garden courtyard, a relaxing reception lounge, modern treatment rooms, and the team that cares for you.",
+    canonicalPath: "/office-tour",
+    ogImage: "/images/office/atrium-courtyard.webp",
+    seoCluster: "trust",
+  },
   "/contact": {
     title: "Contact | Palo Alto Dentist | Christopher B. Wong, DDS",
     description: `Contact Palo Alto dentist Dr. Christopher Wong at ${officeInfo.address.line1}, ${officeInfo.address.line2}. Call ${officeInfo.phone} to schedule your visit.`,
