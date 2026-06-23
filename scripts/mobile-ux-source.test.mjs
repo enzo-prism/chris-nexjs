@@ -8,7 +8,7 @@
  *
  * Usage: node scripts/mobile-ux-source.test.mjs
  */
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -118,11 +118,28 @@ assert(
     footer.includes("h-11 w-11"),
 );
 
-// 11. Consent banner sits above the MobileActionBar on mobile (default route).
-const consent = read("client/src/components/common/AnalyticsConsentBanner.tsx");
+// 11. The analytics consent banner is removed entirely (no pop-up).
+const bannerPath = join(root, "client/src/components/common/AnalyticsConsentBanner.tsx");
+const bannerGone = !existsSync(bannerPath);
+const shellNoBanner = !read("client/src/AppPageShell.tsx").includes("AnalyticsConsentBanner");
+const appNoBanner = !read("client/src/App.tsx").includes("AnalyticsConsentBanner");
 assert(
-  "AnalyticsConsentBanner: default branch offset above action bar",
-  /bottom-\[calc\(3\.25rem\+env\(safe-area-inset-bottom\)[^\]]*\)\][^"]*md:bottom-4/.test(consent),
+  "AnalyticsConsentBanner: removed (no consent pop-up)",
+  bannerGone && shellNoBanner && appNoBanner,
+  "component file must be deleted and not referenced by AppPageShell/App",
+);
+// 11b. Analytics is granted by default so removing the banner doesn't kill data.
+assert(
+  "analytics: granted by default (hasAnalyticsConsent returns true)",
+  /hasAnalyticsConsent\(\): boolean \{[\s\S]{0,260}return true;/.test(
+    read("client/src/lib/analytics.ts"),
+  ),
+);
+assert(
+  "layout: gtag consent default is granted",
+  /consent', 'default', \{[\s\S]{0,200}analytics_storage: 'granted'/.test(
+    read("app/layout.tsx"),
+  ),
 );
 
 // 12. Contact API forwards to the office inbox (no silent lead drop).

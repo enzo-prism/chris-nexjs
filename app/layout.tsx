@@ -39,12 +39,12 @@ const googleTagBootstrap = `
   window.gtag = window.gtag || gtag;
   gtag('js', new Date());
 
+  // Analytics + advertising consent are granted by default (no consent banner).
   gtag('consent', 'default', {
-    ad_storage: 'denied',
-    ad_user_data: 'denied',
-    ad_personalization: 'denied',
-    analytics_storage: 'denied',
-    wait_for_update: 500
+    ad_storage: 'granted',
+    ad_user_data: 'granted',
+    ad_personalization: 'granted',
+    analytics_storage: 'granted'
   });
 
   window.setAnalyticsConsent = function setAnalyticsConsent(granted) {
@@ -63,18 +63,8 @@ const googleTagBootstrap = `
     } catch (_error) {}
   };
 
-  try {
-    var persistedConsent = window.localStorage.getItem('${ANALYTICS_CONSENT_STORAGE_KEY}');
-    if (persistedConsent === 'granted' || persistedConsent === 'denied') {
-      window.setAnalyticsConsent(persistedConsent === 'granted');
-    }
-  } catch (_error) {}
-
   gtag('config', '${GA_MEASUREMENT_ID}', {
     send_page_view: false,
-    anonymize_ip: true,
-    allow_google_signals: false,
-    allow_ad_personalization_signals: false,
     transport_type: 'beacon'
   });
 

@@ -68,10 +68,6 @@ import Gallery from "@/pages/Gallery";
 
 const AnalyticsMinimal = React.lazy(() => import("@/pages/AnalyticsMinimal"));
 const GATestPage = React.lazy(() => import("@/pages/GATestPage"));
-const AnalyticsConsentBanner = dynamic(
-  () => import("@/components/common/AnalyticsConsentBanner"),
-  { ssr: false, loading: () => null },
-);
 const GoogleAnalytics = dynamic(
   () => import("@/components/common/GoogleAnalytics"),
   { ssr: false, loading: () => null },
@@ -181,7 +177,6 @@ export function AppShell({
       <HelmetProvider context={helmetContext}>
         <WouterRouter ssrPath={ssrPath}>
           <GoogleAnalytics />
-          <AnalyticsConsentBanner />
           <HotjarTracking />
           <SitemapLink />
           <Favicons />

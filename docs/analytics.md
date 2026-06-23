@@ -4,15 +4,14 @@ Operational guide for GA4, Vercel Web Analytics, and custom lead-funnel events.
 
 ## What is live
 
-- GA4 is installed for consent-aware marketing analytics and key-event reporting.
+- GA4 is installed for marketing analytics and key-event reporting.
 - Vercel Web Analytics is installed for page views on Vercel plus a small set of custom events.
 - The internal `/analytics` route is a staff dashboard and is excluded from analytics collection.
 
 ## Privacy model
 
-- GA4 page views and custom events only fire after analytics consent is granted.
+- There is no consent pop-up. Consent Mode v2 defaults to **granted** (analytics + advertising), so GA4 page views, GA4 custom events, and browser-originated Vercel custom events fire for all visitors by default. (US/CCPA does not require opt-in cookie consent; revisit if meaningful EU traffic is expected.)
 - Vercel page views remain mounted globally through `<Analytics />`.
-- Browser-originated Vercel custom events are consent-gated.
 - Server-originated Vercel lead events fire only after successful API handling and never include patient identifiers.
 - Analytics payloads must not include emails, phone numbers, names, message text, notes, full URLs, or nested objects.
 

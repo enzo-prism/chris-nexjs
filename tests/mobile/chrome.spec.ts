@@ -4,39 +4,29 @@ import { gotoAndHydrate } from "./_helpers";
 /**
  * (D) First-visit conversion chrome.
  *
- * - The analytics consent banner appears on a fresh (no-storage) visit and must
- *   sit ABOVE the fixed MobileActionBar so the Call / Request Visit buttons are
- *   never covered on first load.
+ * - The analytics consent pop-up has been removed entirely (it hurt UX), so it
+ *   must NOT appear on a fresh (no-storage) visit and must never cover the
+ *   MobileActionBar Call / Request Visit buttons.
  * - The skip-to-content link must exist and become visible when focused.
  *
  * These tests use a fresh context (Playwright gives each test an isolated
- * context by default, so localStorage starts empty and the banner shows).
+ * context by default, so localStorage starts empty — the old banner would have
+ * shown here).
  */
 
-test("consent banner does not overlap the MobileActionBar", async ({ page }) => {
+test("analytics consent pop-up is gone (does not appear on a fresh visit)", async ({
+  page,
+}) => {
   await gotoAndHydrate(page, "/");
 
-  const consent = page.locator('[data-testid="consent-banner"]');
+  // Give any deferred client chrome time to mount, then assert no banner.
   const actionBar = page.locator('[data-testid="mobile-action-bar"]');
-
-  await expect(consent).toBeVisible({ timeout: 20_000 });
   await expect(actionBar).toBeVisible({ timeout: 20_000 });
 
-  const consentBox = await consent.boundingBox();
-  const actionBarBox = await actionBar.boundingBox();
-  expect(consentBox, "consent banner has no bounding box").not.toBeNull();
-  expect(actionBarBox, "action bar has no bounding box").not.toBeNull();
-
-  const consentBottom = consentBox!.y + consentBox!.height;
-  const actionBarTop = actionBarBox!.y;
-
-  expect(
-    consentBottom,
-    `Consent banner overlaps the MobileActionBar.\n` +
-      `  consent: y=${Math.round(consentBox!.y)} h=${Math.round(consentBox!.height)} bottom=${Math.round(consentBottom)}\n` +
-      `  actionBar: y=${Math.round(actionBarTop)} h=${Math.round(actionBarBox!.height)}`,
-    // small tolerance for sub-pixel rounding
-  ).toBeLessThanOrEqual(actionBarTop + 2);
+  await expect(page.locator('[data-testid="consent-banner"]')).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: /accept analytics/i }),
+  ).toHaveCount(0);
 });
 
 test("skip-to-content link exists and becomes visible on focus", async ({

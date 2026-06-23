@@ -188,16 +188,10 @@ Write endpoints:
 
 - Google tag is installed globally from root layout head for all routes.
 - Measurement ID defaults to `G-94WRBJY51J` and can be overridden by `NEXT_PUBLIC_GA_MEASUREMENT_ID`.
-- SPA page-view events are sent after consent is granted, on route transitions, and immediately when consent changes to granted on the current page.
+- SPA page-view events are sent on initial load and on route transitions.
 - Manual GA4 page views include `page_referrer` to preserve navigation attribution on single-page transitions.
-- Consent Mode v2 defaults to denied globally until users explicitly accept analytics.
-- Privacy hardening defaults are enforced in GA config:
-  - `allow_google_signals: false`
-  - `allow_ad_personalization_signals: false`
-  - `anonymize_ip: true`
-- Consent choices can be updated from the in-app banner (`Accept Analytics` / `Decline`) and are applied through `window.setAnalyticsConsent(...)`.
-- Consent state is persisted in `localStorage` under `analytics_consent`, and updates emit `analytics-consent-updated`.
-- Custom GA events are consent-gated and only fire after analytics is granted.
+- There is no consent pop-up. Consent Mode v2 defaults to **granted** globally (`ad_storage`, `ad_user_data`, `ad_personalization`, `analytics_storage`), so analytics and advertising signals are collected for all visitors by default. (US/CCPA does not require opt-in cookie consent; revisit if meaningful EU traffic is expected.)
+- GA4 and Vercel events fire for everyone (no per-visitor gate beyond the production-host check below).
 - Global click instrumentation captures `tel_click`, `email_click`, `book_appointment_click`, and `outbound_click`.
 - Internal staff/test routes (`/analytics`, `/ga-test`) are excluded from GA4 reporting.
 - The fallback GA measurement ID is only active on the known production hosts; any other environment should set `NEXT_PUBLIC_GA_MEASUREMENT_ID` explicitly if GA collection is desired.

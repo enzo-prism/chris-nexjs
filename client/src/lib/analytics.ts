@@ -40,7 +40,10 @@ export function getAnalyticsConsentState(): AnalyticsConsentState | null {
 }
 
 export function hasAnalyticsConsent(): boolean {
-  return getAnalyticsConsentState() === "granted";
+  // Consent is granted by default — there is no consent banner. Analytics and
+  // advertising signals are on for everyone (gated only by
+  // isAnalyticsRuntimeEnabled() for the host check).
+  return true;
 }
 
 export function trackGAEvent(action: string, params: Record<string, unknown> = {}): void {
