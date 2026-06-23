@@ -265,9 +265,10 @@ const Home = (props: any) => {
             </p>
           </div>
 
+          {/* Desktop carousel (lg+) — rich photo + side quote + preview cards */}
           {testimonialCount > 0 && (
             <div
-              className="relative mx-auto max-w-6xl"
+              className="relative mx-auto hidden max-w-6xl lg:block"
               onKeyDown={handleTestimonialKeyDown}
               tabIndex={0}
               role="region"
@@ -409,26 +410,73 @@ const Home = (props: any) => {
                 })}
               </div>
 
-              <div className="mt-6 flex items-center justify-center gap-3 lg:hidden">
-                <button
-                  type="button"
-                  aria-label="Previous testimonial"
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition-colors hover:border-slate-300 hover:text-slate-900"
-                  onClick={goToPreviousTestimonial}
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                </button>
-                <button
-                  type="button"
-                  aria-label="Next testimonial"
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white shadow-sm transition-colors hover:bg-primary/90"
-                  onClick={goToNextTestimonial}
-                >
-                  <ChevronRight className="h-5 w-5" />
-                </button>
-              </div>
             </div>
           )}
+
+          {/* Mobile testimonial card (below lg) — one card sized to the active
+              review (no equal-height empty space), swipeable, dots for nav. */}
+          {testimonialCount > 0 &&
+            (() => {
+              const mobileIndex = Math.min(
+                activeTestimonial,
+                testimonialCount - 1,
+              );
+              const t = testimonialsToShow[mobileIndex];
+              return (
+                <div className="mx-auto max-w-xl lg:hidden">
+                  <div
+                    className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_24px_50px_-34px_rgba(15,23,42,0.45)] touch-pan-y"
+                    onPointerDown={handleTestimonialPointerDown}
+                    onPointerUp={handleTestimonialPointerUp}
+                    onPointerCancel={resetSwipeStart}
+                    onPointerLeave={resetSwipeStart}
+                    role="region"
+                    aria-roledescription="carousel"
+                    aria-label="Patient testimonials"
+                    aria-live="polite"
+                  >
+                    <div
+                      key={mobileIndex}
+                      className="animate-in fade-in-0 duration-500"
+                    >
+                      {t.image && (
+                        <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100">
+                          <Image
+                            src={t.image}
+                            alt={`${t.name} smiling with the dental team after an appointment`}
+                            fill
+                            priority={mobileIndex === 0}
+                            className="object-cover object-center"
+                            sizes="(max-width: 1024px) 100vw, 576px"
+                          />
+                        </div>
+                      )}
+                      <div className="flex flex-col items-center px-6 py-8 text-center">
+                        <div className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-base leading-none text-amber-500">
+                          {Array.from({ length: 5 }).map((_, starIndex) => (
+                            <span key={`m-star-${t.name}-${starIndex}`}>
+                              {starIndex < t.rating ? "★" : "☆"}
+                            </span>
+                          ))}
+                        </div>
+                        {!isNoAdditionalCommentPlaceholder(t.text) && (
+                          <p className="mt-5 text-lg font-light italic leading-relaxed text-slate-700">
+                            &ldquo;{t.text}&rdquo;
+                          </p>
+                        )}
+                        <div className="mt-6 h-px w-14 bg-slate-300" />
+                        <p className="mt-4 text-lg font-semibold text-slate-900">
+                          {t.name}
+                        </p>
+                        <p className="mt-1 text-xs font-medium uppercase tracking-[0.12em] text-slate-500">
+                          {t.location || "Google Review"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
 
           <div className="mt-8 flex items-center justify-center gap-1">
             {testimonialsToShow.map((testimonial, index) => (
