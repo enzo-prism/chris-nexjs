@@ -5,7 +5,7 @@ import { officeInfo } from "@/lib/data";
 import OptimizedImage from "@/components/seo/OptimizedImage";
 import AnimatedDentalAura from "@/components/common/animated/AnimatedDentalAura";
 import OpenNowStatus from "@/components/common/OpenNowStatus";
-import { PUBLISHED_REVIEW_COUNT } from "@shared/reviewStats";
+import { GOOGLE_REVIEW_COUNT } from "@shared/reviewStats";
 
 const HERO_IMAGE_SRC =
   "https://res.cloudinary.com/dhqpqfw6w/image/upload/f_auto,q_auto:eco,w_960/v1762989226/Post-11_nohz6f";
@@ -121,7 +121,7 @@ const HeroSection = () => {
                   Read patient reviews on Google
                 </span>
                 <span className="ml-2 text-white/70 text-xs sm:text-sm">
-                  {PUBLISHED_REVIEW_COUNT} five-star Google reviews
+                  {GOOGLE_REVIEW_COUNT} five-star Google reviews
                 </span>
                 <ArrowRight
                   className="h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-100"
@@ -203,7 +203,7 @@ const HeroSection = () => {
                 ★★★★★
               </span>
               <span className="group-hover:underline">
-                {PUBLISHED_REVIEW_COUNT} five-star Google reviews
+                {GOOGLE_REVIEW_COUNT} five-star Google reviews
               </span>
             </a>
             <span className="inline-flex items-center gap-2">

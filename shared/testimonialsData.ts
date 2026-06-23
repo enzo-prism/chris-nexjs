@@ -1,5 +1,6 @@
 import type { InsertTestimonial } from "./schema";
 import { googleReviewSeedData } from "./googleReviewsData";
+import { yelpReviewSeedData } from "./yelpReviewsData";
 import { PUBLISHED_REVIEW_COUNT } from "./reviewStats";
 
 type SeedTestimonial = Omit<InsertTestimonial, "location" | "image"> &
@@ -19,9 +20,13 @@ const DEFAULT_LOCATIONS = [
 export const isPublishedTestimonial = (testimonial: { rating: number }) =>
   testimonial.rating === PUBLISHED_TESTIMONIAL_RATING;
 
-// Source of truth for published testimonials: only 5-star reviews from the full Google export.
-export const testimonialSeedData: SeedTestimonial[] =
-  googleReviewSeedData.filter(isPublishedTestimonial);
+// Source of truth for published testimonials: only 5-star reviews.
+// Yelp reviews are listed first so they surface on the first page of
+// /testimonials; the full Google export follows.
+export const testimonialSeedData: SeedTestimonial[] = [
+  ...yelpReviewSeedData,
+  ...googleReviewSeedData,
+].filter(isPublishedTestimonial);
 
 export const publishedTestimonialReviewCount = testimonialSeedData.length;
 
