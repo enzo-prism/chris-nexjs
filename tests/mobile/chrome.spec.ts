@@ -7,7 +7,8 @@ import { gotoAndHydrate } from "./_helpers";
  * - The analytics consent pop-up has been removed entirely (it hurt UX), so it
  *   must NOT appear on a fresh (no-storage) visit and must never cover the
  *   MobileActionBar Call / Request Visit buttons.
- * - The skip-to-content link must exist and become visible when focused.
+ * - The skip-to-content link has been removed from the design (it flashed into
+ *   the top-left on SPA navigations) and must never reappear.
  *
  * These tests use a fresh context (Playwright gives each test an isolated
  * context by default, so localStorage starts empty — the old banner would have
@@ -29,31 +30,12 @@ test("analytics consent pop-up is gone (does not appear on a fresh visit)", asyn
   ).toHaveCount(0);
 });
 
-test("skip-to-content link exists and becomes visible on focus", async ({
-  page,
-}) => {
+test("skip-to-content link is removed from the design", async ({ page }) => {
   await gotoAndHydrate(page, "/");
 
-  const skip = page.locator('[data-testid="skip-to-content"]');
-  await expect(skip).toHaveCount(1);
-
-  // It is visually hidden (sr-only) until focused.
-  await skip.focus();
-
-  const box = await skip.boundingBox();
-  expect(box, "focused skip link has no bounding box (still hidden)").not.toBeNull();
-
-  // Must be inside the viewport once focused.
-  const viewport = page.viewportSize();
-  expect(viewport).not.toBeNull();
-  expect(box!.width, "focused skip link has zero width").toBeGreaterThan(0);
-  expect(box!.height, "focused skip link has zero height").toBeGreaterThan(0);
-  expect(
-    box!.y,
-    `focused skip link is offscreen (y=${Math.round(box!.y)})`,
-  ).toBeGreaterThanOrEqual(0);
-  expect(
-    box!.y,
-    `focused skip link is below the fold (y=${Math.round(box!.y)}, viewport h=${viewport!.height})`,
-  ).toBeLessThan(viewport!.height);
+  await expect(page.locator('[data-testid="skip-to-content"]')).toHaveCount(0);
+  await expect(page.locator('a[href="#main-content"]')).toHaveCount(0);
+  await expect(
+    page.getByText("Skip to main content", { exact: false }),
+  ).toHaveCount(0);
 });

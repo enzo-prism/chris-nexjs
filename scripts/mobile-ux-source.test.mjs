@@ -158,13 +158,15 @@ assert(
     !/from "framer-motion"/.test(veneers),
 );
 
-// 14. Skip-to-content link + main landmark id.
+// 14. Skip-to-content link removed (it flashed into the top-left on SPA
+// navigations); must never reappear.
 const shell = read("client/src/AppPageShell.tsx");
 assert(
-  "AppPageShell: skip-to-content link + #main-content",
-  shell.includes('data-testid="skip-to-content"') &&
-    shell.includes('href="#main-content"') &&
-    shell.includes('id="main-content"'),
+  "AppPageShell: skip-to-content link removed",
+  !shell.includes('data-testid="skip-to-content"') &&
+    !shell.includes("Skip to main content") &&
+    !shell.includes('href="#main-content"'),
+  "the skip-to-content link must not be present in AppPageShell",
 );
 
 // 15. Global horizontal-overflow guard.
