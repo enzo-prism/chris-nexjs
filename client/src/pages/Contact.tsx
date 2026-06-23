@@ -129,7 +129,7 @@ const Contact = () => {
       </section>
 
       <OfficeVisitSection
-        imageSrc="/images/office/reception-desk.png"
+        imageSrc="/images/office/atrium-courtyard.webp"
         imageAlt="Reception desk at Dr. Wong's Palo Alto dental office"
         showDirectionsButton
         withSchema

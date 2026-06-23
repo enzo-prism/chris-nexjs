@@ -302,9 +302,12 @@ const About = () => {
                   <div className="absolute -inset-4 hidden md:block rounded-[32px] bg-white/40 blur-md"></div>
                   <div className="relative rounded-[28px] bg-white/70 backdrop-blur-sm shadow-xl border border-white/60 p-4 sm:p-6 flex items-center justify-center">
                     <OptimizedImage
-                      src="/images/office/dr-wong-portrait-frame.png"
-                      alt="Dr. Christopher B. Wong portrait"
-                      className="w-full h-full object-contain max-h-[520px]"
+                      src="/images/about/dr-wong-portrait.webp"
+                      alt="Dr. Christopher B. Wong, DDS, in his Palo Alto dental office"
+                      width={880}
+                      height={1100}
+                      fit="contain"
+                      className="w-full h-full object-contain max-h-[520px] rounded-2xl"
                     />
                   </div>
                 </div>
@@ -497,6 +500,18 @@ const About = () => {
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold font-heading text-[#333333] mb-3 sm:mb-4 leading-tight">Meet Our Team</h2>
             <p className="text-[#333333] max-w-3xl mx-auto text-sm sm:text-base leading-relaxed">Our skilled professionals work together to provide comprehensive, compassionate dental care to our community.</p>
             <div className="w-16 sm:w-24 h-1 bg-primary mx-auto mt-4"></div>
+          </div>
+
+          {/* Full team group photo */}
+          <div className="mx-auto mb-10 sm:mb-12 max-w-5xl overflow-hidden rounded-2xl shadow-md ring-1 ring-slate-200/70">
+            <OptimizedImage
+              src="/images/about/team-group.webp"
+              alt="The Christopher B. Wong, DDS dental team in the Palo Alto office"
+              width={1600}
+              height={1067}
+              sizes="(max-width: 1024px) 100vw, 1024px"
+              className="w-full h-auto object-cover aspect-[3/2]"
+            />
           </div>
 
           {/* Mobile-first: Stack cards on mobile, then responsive grid */}

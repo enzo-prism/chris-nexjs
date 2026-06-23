@@ -7,8 +7,7 @@ import AnimatedDentalAura from "@/components/common/animated/AnimatedDentalAura"
 import OpenNowStatus from "@/components/common/OpenNowStatus";
 import { GOOGLE_REVIEW_COUNT } from "@shared/reviewStats";
 
-const HERO_IMAGE_SRC =
-  "https://res.cloudinary.com/dhqpqfw6w/image/upload/f_auto,q_auto:eco,w_960/v1762989226/Post-11_nohz6f";
+const HERO_IMAGE_SRC = "/images/hero/dr-wong-hero.webp";
 
 const HeroSection = () => {
   // Features list
@@ -145,12 +144,12 @@ const HeroSection = () => {
               <OptimizedImage
                 src={HERO_IMAGE_SRC}
                 width={960}
-                height={640}
+                height={720}
                 priority
                 fetchPriority="high"
                 sizes="(max-width: 1024px) 100vw, 56vw"
-                quality={70}
-                alt="Dr. Wong's modern Palo Alto dental office"
+                quality={72}
+                alt="Dr. Christopher B. Wong in his Palo Alto dental office"
                 className="w-full h-auto object-cover rounded-2xl aspect-[4/3]"
               />
 
