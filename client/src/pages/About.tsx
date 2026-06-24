@@ -48,7 +48,7 @@ const About = () => {
   // State for video modal
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [weddingModalIndex, setWeddingModalIndex] = useState<number | null>(null);
-  const interviewVideoUrl = "https://youtu.be/HrksJeYb02Q";
+  const interviewVideoUrl = "/videos/meet-dr-wong.mp4";
   
   // Using the team members from shared data
   const { teamMembers: sharedTeamMembers } = data;
@@ -547,10 +547,11 @@ const About = () => {
       <OfficeGallerySection />
 
       {/* Video Modal */}
-      <VideoModal 
+      <VideoModal
         isOpen={isVideoModalOpen}
         onClose={() => setIsVideoModalOpen(false)}
         videoUrl={interviewVideoUrl}
+        poster="/images/about/meet-dr-wong-poster.webp"
       />
     </>
   );

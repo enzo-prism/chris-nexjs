@@ -7,18 +7,27 @@ interface VideoModalProps {
   isOpen: boolean;
   onClose: () => void;
   videoUrl: string;
+  poster?: string;
 }
 
-const VideoModal: React.FC<VideoModalProps> = ({ isOpen, onClose, videoUrl }) => {
+const VideoModal: React.FC<VideoModalProps> = ({
+  isOpen,
+  onClose,
+  videoUrl,
+  poster,
+}) => {
   // Convert YouTube URL to embed URL
   const getEmbedUrl = (url: string) => {
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
     const videoId = match && match[2].length === 11 ? match[2] : null;
-    
+
     return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
   };
 
+  // Local/self-hosted videos (e.g. /videos/*.mp4) play in a native <video>;
+  // YouTube/Vimeo URLs fall back to the embedded iframe.
+  const isEmbed = /youtu\.be|youtube\.com|vimeo\.com/.test(videoUrl);
   const embedUrl = getEmbedUrl(videoUrl);
 
   return (
@@ -35,14 +44,26 @@ const VideoModal: React.FC<VideoModalProps> = ({ isOpen, onClose, videoUrl }) =>
           >
             <X className="h-6 w-6" />
           </Button>
-          <iframe
-            src={embedUrl}
-            title="Video player"
-            className="absolute inset-0 w-full h-full"
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
+          {isEmbed ? (
+            <iframe
+              src={embedUrl}
+              title="Video player"
+              className="absolute inset-0 w-full h-full"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          ) : (
+            // eslint-disable-next-line jsx-a11y/media-has-caption
+            <video
+              src={videoUrl}
+              poster={poster}
+              controls
+              autoPlay
+              playsInline
+              className="absolute inset-0 h-full w-full bg-black"
+            />
+          )}
         </div>
       </DialogContent>
     </Dialog>
