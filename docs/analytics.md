@@ -82,8 +82,8 @@ pnpm run test:seo:all
 
 Preview or production checks:
 
-1. Confirm GA bootstrap and consent markers are present in the page head.
-2. Accept analytics cookies and verify GA4 receives a manual `page_view`.
+1. Confirm the GA bootstrap and the granted consent default are present in the page head.
+2. Verify GA4 receives a manual `page_view` on load and on route change (consent is granted by default — there is no cookie banner to accept).
 3. Confirm Vercel Web Analytics injects `/_vercel/insights/script.js` after hydration.
 4. Trigger and verify custom events:
    - phone click

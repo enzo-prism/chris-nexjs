@@ -4,8 +4,8 @@ Operational SEO plan for sustained local lead growth while preserving technical 
 
 ## Current baseline snapshot
 
-- Canonical SEO definitions: `44`
-- Indexable routes: `40`
+- Canonical SEO definitions: `46`
+- Indexable routes: `42`
 - Noindex routes: `4`
   - `/zoom-whitening/schedule`
   - `/thank-you`

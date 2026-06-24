@@ -75,6 +75,13 @@ If local dev is on port `5000`, set `SEO_AUDIT_BASE_URL=http://localhost:5000`.
   - Scans source image references and runtime image responses.
   - Uses `IMAGE_AUDIT_BASE_URL` (default `http://localhost:3000`).
 
+### Mobile UX checks
+
+- `node scripts/mobile-ux-source.test.mjs`
+  - Static source guards: form-field font sizes (≥16px on mobile), 44px touch targets, sticky funnel CTA, contact-form delivery, landing-page H1 sizing, etc.
+- `pnpm run test:mobile`
+  - Playwright suite under `tests/mobile/` (builds + serves the app, runs against an iPhone-class viewport via system Chrome): no horizontal overflow, touch targets, the responsive testimonials split (mobile card vs desktop carousel), the `/office-tour` page, and more.
+
 ### Performance checks
 
 - `pnpm run test:bundle`
@@ -168,7 +175,7 @@ Manual QA:
 Audit reporting:
 
 - After schedule-related releases, write or refresh a dated schedule audit report in `docs/` (example:
-  [scheduling-audit-2026-03-04.md](/Users/enzo/chris-website/docs/scheduling-audit-2026-03-04.md))
+  [scheduling-audit-2026-03-04.md](scheduling-audit-2026-03-04.md))
   with:
   - localhost runtime status checks (`/schedule` and `/api/schedule-request`)
   - Lighthouse category scores + key timing metrics
@@ -192,7 +199,7 @@ curl -sL https://www.chriswongdds.com/ \
   | wc -l
 curl -sL https://www.chriswongdds.com/ \
   | perl -0ne 'if (/<head>(.*?)<\\/head>/s) { print $1 }' \
-  | rg -n "gtag\\('consent', 'default'|wait_for_update: 500|analytics_consent|analytics-consent-updated|gtag\\('config', 'G-94WRBJY51J'|send_page_view: false|allow_google_signals: false|allow_ad_personalization_signals: false"
+  | rg -n "gtag\\('consent', 'default'|analytics_storage: 'granted'|gtag\\('config', 'G-94WRBJY51J'|send_page_view: false"
 ```
 
 Expected:
@@ -202,7 +209,7 @@ Expected:
 - apex host (`chriswongdds.com`) redirects permanently (`301` or `308`) to `https://www.chriswongdds.com/`
 - canonical host returns `200`
 - GA head-tag count command returns `1`
-- consent/privacy markers are present in head bootstrap script (`wait_for_update`, `analytics-consent-updated`, `allow_google_signals: false`)
+- the head bootstrap shows the granted consent default (`consent', 'default` with `analytics_storage: 'granted'`), `send_page_view: false`, and the GA `config', 'G-94WRBJY51J'` call (there is no consent banner; no `wait_for_update`/`allow_google_signals` hardening flags)
 
 Search Console-specific follow-up after SEO releases:
 

@@ -9,6 +9,7 @@ The app runs on Next.js App Router with API route handlers, centralized SEO meta
 - Interactive lead flows: appointment request, contact form, newsletter.
 - No production chat widget or `/api/chat` endpoint in current launch scope.
 - `/gallery` media showcase with hero video, click-to-play clips, fullscreen lightbox, and no-crop still-image frames.
+- `/office-tour` page with real office videos (hosted locally in `public/videos/` with poster stills) and photos, presented as click-to-play.
 - `/changelog` page that merges update history from current and legacy repositories.
 - Homepage visual accents powered by reusable SVG animation components with reduced-motion support.
 
@@ -118,6 +119,10 @@ Contract and quality checks:
 - `pnpm run test:images`
 - `pnpm run test:gallery`
 
+Mobile UX checks:
+- `node scripts/mobile-ux-source.test.mjs` (static mobile-UX source guards — font sizes, touch targets, etc.)
+- `pnpm run test:mobile` (Playwright mobile suite under `tests/mobile/`, builds + serves the app, runs against an iPhone-class viewport via system Chrome)
+
 SEO checks:
 - `pnpm run test:seo`
 - `pnpm run test:seo:onpage`
@@ -180,8 +185,8 @@ Write endpoints:
   - `app/robots.ts`
   - `app/rss.xml/route.ts` (canonical feed route)
 - Current SEO map totals:
-  - 44 total canonical definitions
-  - 40 indexable
+  - 46 total canonical definitions
+  - 42 indexable
   - 4 noindex (`/zoom-whitening/schedule`, `/thank-you`, `/analytics`, `/ga-test`)
 
 ## Analytics behavior (GA4 + Vercel Web Analytics)
@@ -216,17 +221,17 @@ Never combine `Dr.` and `DDS` in the same line.
 
 ## Documentation index
 
-- Codex/operator guide: `/Users/enzo/chris-website/docs/codex-operator-guide.md`
-- Local development: `/Users/enzo/chris-website/LOCAL_DEV.md`
-- Deployment runbook: `/Users/enzo/chris-website/docs/deployment.md`
-- Analytics guide: `/Users/enzo/chris-website/docs/analytics.md`
-- Testing guide: `/Users/enzo/chris-website/docs/testing.md`
-- Performance workflow: `/Users/enzo/chris-website/docs/performance.md`
-- Production readiness spec: `/Users/enzo/chris-website/docs/production-readiness-spec.md`
-- SEO growth plan: `/Users/enzo/chris-website/docs/seo-growth-plan.md`
-- SEO keyword map: `/Users/enzo/chris-website/docs/seo-keyword-map.md`
-- SEO implementation backlog: `/Users/enzo/chris-website/docs/seo-implementation-backlog.md`
-- Gallery feature guide: `/Users/enzo/chris-website/docs/gallery.md`
-- Review data runbook: `/Users/enzo/chris-website/docs/reviews-data.md`
-- Changelog operations guide: `/Users/enzo/chris-website/docs/changelog.md`
-- SVG animation system guide: `/Users/enzo/chris-website/docs/svg-animation-system.md`
+- Codex/operator guide: `docs/codex-operator-guide.md`
+- Local development: `LOCAL_DEV.md`
+- Deployment runbook: `docs/deployment.md`
+- Analytics guide: `docs/analytics.md`
+- Testing guide: `docs/testing.md`
+- Performance workflow: `docs/performance.md`
+- Production readiness spec: `docs/production-readiness-spec.md`
+- SEO growth plan: `docs/seo-growth-plan.md`
+- SEO keyword map: `docs/seo-keyword-map.md`
+- SEO implementation backlog: `docs/seo-implementation-backlog.md`
+- Gallery feature guide: `docs/gallery.md`
+- Review data runbook: `docs/reviews-data.md`
+- Changelog operations guide: `docs/changelog.md`
+- SVG animation system guide: `docs/svg-animation-system.md`

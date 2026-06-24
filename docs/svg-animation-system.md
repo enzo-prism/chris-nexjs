@@ -29,7 +29,7 @@ Design goals:
 
 - Hero accents:
   - `client/src/components/sections/HeroSection.tsx`
-- Offers -> testimonials transition divider:
+- Hero -> testimonials transition divider (`idPrefix="home-hero-testimonials-divider"`; testimonials are now the 2nd homepage section):
   - `client/src/pages/Home.tsx`
 
 ### Motion hooks and keyframes

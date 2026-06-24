@@ -160,9 +160,9 @@ Primary files:
 Current behavior:
 
 - GA bootstrap is global
-- Consent Mode defaults to denied
+- Consent Mode defaults to granted (there is no consent banner)
 - SPA page views are manual
-- custom GA events are consent-gated
+- custom GA events fire by default (gated only by the production-host check in `isAnalyticsRuntimeEnabled`)
 - `/analytics` and `/ga-test` are intentionally excluded
 
 ### Vercel Web Analytics ownership
@@ -180,7 +180,7 @@ Current behavior:
 
 - Vercel page views are mounted from the root layout via the wrapper component
 - `beforeSend` excludes `/analytics` and `/ga-test`
-- browser-side custom events are flat and consent-gated
+- browser-side custom events are flat and fire by default (path-excluded for `/analytics` and `/ga-test`)
 - server-side lead events fire only after successful writes
 - Vercel event payloads must stay free of PII
 
