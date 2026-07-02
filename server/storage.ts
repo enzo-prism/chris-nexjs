@@ -495,7 +495,7 @@ We are here to help quickly, safely, and with compassion.`,
         image: "/images/generated/blog/emergency-dental-care-palo-alto.webp",
         date: "March 5, 2025",
         slug: "emergency-dental-care-palo-alto",
-        category: "Emergency Dental",
+        category: "Emergency Dentistry",
         readTime: 7,
         relatedServices: ["emergency-dental"],
       },
@@ -644,7 +644,7 @@ If you think you may have cracked a tooth, contact Chris Wong DDS to schedule an
         image: "/images/generated/blog/cracked-tooth-emergency-dentist-palo-alto.webp",
         date: "March 15, 2026",
         slug: "cracked-tooth-emergency-dentist-palo-alto",
-        category: "Emergency Dental",
+        category: "Emergency Dentistry",
         readTime: 7,
         relatedServices: ["emergency-dental", "restorative-dentistry"],
       },
@@ -3355,134 +3355,6 @@ If you need urgent dental guidance in Palo Alto, contact Christopher B. Wong, DD
         relatedServices: ["emergency-dental","restorative-dentistry"],
       },
       {
-        title: "How Long Does Invisalign Take? A Palo Alto Patient Guide to Treatment Timelines",
-        content: `If you are thinking about straightening your teeth, one of the first questions you probably have is simple: how long does Invisalign take?
-
-For most adults and teens, the honest answer is that treatment length depends on your bite, how much tooth movement is needed, and how consistently you wear your aligners. Many Invisalign cases finish in about 12 to 18 months, but some are shorter and some take longer. Minor alignment issues may move faster. More complex bite corrections usually need more time and closer monitoring.
-
-At Christopher B. Wong, DDS, Invisalign treatment is built around careful diagnostics, 3D digital scans, and a conservative approach to tooth movement. That matters, because the goal is not just to move teeth quickly. The goal is to move them accurately, comfortably, and in a way that stays stable long term.
-
-## Why Invisalign timelines vary from person to person
-
-Invisalign uses a series of custom clear aligners to move your teeth in small, controlled steps. Each set is designed to make a specific movement before you switch to the next tray.
-
-Your total timeline depends on several factors:
-
-- How crowded or spaced your teeth are
-- Whether your bite needs correction, such as an overbite, underbite, crossbite, or open bite
-- Whether teeth have shifted after braces in the past
-- Your gum health and whether any cavities or dental issues need treatment first
-- How consistently you wear aligners, which is usually 20 to 22 hours per day
-- Whether your case needs attachments, elastics, or a short refinement phase near the end
-
-That is why a friend who used Invisalign cannot really predict your timeline. Two people can both want straighter teeth and still need very different treatment plans.
-
-## What a typical Invisalign timeline looks like
-
-While every case is different, most patients move through Invisalign in a few broad phases.
-
-### 1. Consultation and digital scan
-
-Your first visit is about understanding whether Invisalign is the right fit for your goals and your bite. Dr. Wong evaluates tooth position, gum health, and how your upper and lower teeth come together. A digital scan helps map out tooth movement with more precision than old-style impressions.
-
-If you have untreated decay or gum inflammation, that usually gets addressed first. Healthy teeth and gums create a better foundation for aligner treatment.
-
-### 2. Treatment planning and aligner fabrication
-
-After your scan, your custom treatment plan is created. This phase often takes a couple of weeks before your aligners are ready. During this step, your dentist determines how many trays you are likely to need and whether attachments or elastics will improve control.
-
-### 3. Active aligner treatment
-
-This is the longest stage. Many patients wear each set of aligners for about one to two weeks before switching to the next set. Check-in visits help confirm that teeth are tracking the way they should.
-
-For mild cosmetic alignment, active treatment may be shorter. For moderate crowding, spacing, or bite issues, treatment is often closer to the 12 to 18 month range. Cases involving more complex tooth movement can take longer.
-
-### 4. Refinements if needed
-
-Refinements are common and not a sign that anything went wrong. Teeth do not always move exactly the way software predicts. A short refinement phase can fine tune rotation, spacing, or bite details that matter for a polished result.
-
-### 5. Retainers to protect the result
-
-Once active treatment ends, retainers help keep your teeth from shifting back. This is a crucial part of treatment. Retainers are how you protect the time and money you invested in your smile.
-
-## What can slow Invisalign down?
-
-The biggest factor patients control is wear time. If aligners are not worn the recommended 20 to 22 hours per day, teeth may not track properly. That can lead to delays, extra trays, or more refinements.
-
-Other issues that can add time include:
-
-- Skipping check-ins
-- Losing trays and going too long without the correct aligner
-- Not wearing elastics as directed when they are part of the plan
-- Significant bite issues that need slower, more controlled movement
-- Teeth that have old restorations or movement patterns that require closer monitoring
-
-In a place like Palo Alto, where many patients have packed schedules, this is one reason clear communication matters. A treatment plan that fits real life is easier to stick with.
-
-## Do attachments mean your case is more serious?
-
-Not necessarily. Attachments are small tooth-colored shapes placed on certain teeth so the aligners can grip more effectively. They help with specific movements like rotation, root control, or bringing a tooth into a better position.
-
-Many well-planned Invisalign cases use attachments. They are simply a tool that helps treatment move more predictably.
-
-The same goes for elastics. Some patients need them to improve bite relationships. If Dr. Wong recommends attachments or elastics, it is usually because they make your treatment more efficient and more stable.
-
-## Is Invisalign faster than braces?
-
-Sometimes, but not always.
-
-For the right case, Invisalign can be very efficient because treatment is digitally planned from the beginning and aligners are designed to make small, controlled movements in sequence. But braces may still be the better choice for certain complex cases or for patients who know they will have trouble wearing removable aligners consistently.
-
-That is why a personalized exam matters more than broad claims online. The best treatment is the one that fits your bite, your habits, and your long-term goals.
-
-## Why Palo Alto patients often choose Invisalign
-
-Many adults and teens like Invisalign because it fits daily life well. Aligners are clear, removable for meals, and easier to brush and floss around than brackets and wires. For professionals, students, and parents balancing work and family schedules, that convenience is a big reason Invisalign stays popular.
-
-At the same time, convenience only works when treatment is monitored carefully. Conservative planning helps avoid pushing teeth too aggressively just to chase a faster finish date.
-
-## How to keep your Invisalign treatment on track
-
-If you want the shortest realistic timeline, a few habits make a real difference:
-
-- Wear aligners as directed every day
-- Switch trays on schedule
-- Keep check-in appointments
-- Brush and floss before putting aligners back in
-- Store trays safely when eating
-- Wear retainers exactly as instructed after treatment
-
-Small habits add up. The patients who stay consistent usually have smoother treatment.
-
-## When to schedule an Invisalign consultation
-
-If your teeth have shifted, you have crowding or spacing that bothers you, or you want a straighter smile without metal braces, it may be a good time to schedule an Invisalign consultation. The fastest way to get a real timeline is not guessing from online averages. It is getting a proper exam and digital scan.
-
-At Christopher B. Wong, DDS, patients from Palo Alto, Menlo Park, Stanford, and nearby communities can get a personalized Invisalign plan based on their actual bite, goals, and schedule.
-
-## FAQ
-
-### How long does Invisalign take for mild crowding?
-Mild crowding can sometimes be treated faster than full bite correction, but the only way to know is with an exam and digital scan.
-
-### Can Invisalign take less than a year?
-Some limited cases can finish in under a year. More involved cases usually take longer.
-
-### Do refinements mean Invisalign failed?
-No. Refinements are common and help fine tune the result.
-
-### Will I need retainers after Invisalign?
-Yes. Retainers are essential for helping your teeth stay in their new position.
-
-If you are wondering how long Invisalign takes in Palo Alto, schedule a consultation with Christopher B. Wong, DDS. A personalized evaluation can show what is realistic for your smile and what steps will help you get there as efficiently as possible.`,
-        image: "/images/dr-wong-office-1.png",
-        date: "March 14, 2026",
-        slug: "how-long-does-invisalign-take-palo-alto",
-        category: "Invisalign",
-        readTime: 7,
-        relatedServices: ["invisalign","general-dentistry"],
-      },
-      {
         title: "What Should You Do If Your Child Knocks Out a Permanent Tooth in Palo Alto?",
         content: `A child getting hit in the mouth during recess, baseball, basketball, soccer, or a backyard fall can turn a normal day into instant panic. If a permanent tooth gets knocked out, the next few minutes matter. Quick, calm action can improve the chances of saving the tooth and protecting your child from more complicated treatment later.
 
@@ -3592,6 +3464,111 @@ If your family needs guidance after a dental injury, contact Christopher B. Wong
         category: "Emergency Dentistry",
         readTime: 6,
         relatedServices: ["emergency-dental","family-dentistry"],
+      },
+      {
+        title: "Zoom vs. Take-Home Whitening in Palo Alto: Which Is Right for You?",
+        content: `If you want a brighter smile, you have probably seen two very different options: a single in-office whitening visit, or custom trays you wear at home. Both can work well. The right choice depends on how fast you want results, how sensitive your teeth are, and how much control you want over the process.
+
+At Christopher B. Wong, DDS, we help patients across Palo Alto, Stanford, and Menlo Park choose the whitening approach that fits their smile and their schedule. Here is how the two compare.
+
+## In-office Zoom whitening: fast and dentist-supervised
+In-office [Zoom whitening](/zoom-whitening) uses a stronger professional gel activated during a single appointment, usually about an hour. Because it is done under dentist supervision, your gums and lips are protected and the results are visible the same day.
+
+Zoom is a good fit if you:
+
+- Have an event coming up and want results quickly
+- Prefer one visit over a daily routine
+- Want the most dramatic single-session change
+
+## Take-home trays: gradual and gentle
+[Take-home whitening](/teeth-whitening-palo-alto) uses custom-fitted trays and a milder gel you wear a little each day over one to two weeks. It takes longer, but many patients find it more comfortable and easier on sensitive teeth. You also keep the trays for occasional touch-ups later.
+
+Take-home trays are a good fit if you:
+
+- Have sensitive teeth and want a gentler pace
+- Want to control the shade gradually
+- Like being able to refresh your results at home
+
+## What about over-the-counter strips?
+Drugstore strips can lighten surface stains, but they use weaker gel and one-size-fits-all trays that often miss the edges of teeth. Professional whitening is stronger, more even, and supervised so you avoid gum irritation and uneven results.
+
+## Which lasts longer?
+Neither option is permanent. Coffee, tea, red wine, and tobacco gradually re-stain teeth. The advantage of professional whitening is that you can maintain your shade with occasional take-home touch-ups instead of starting over.
+
+## A quick note on sensitivity
+Some temporary sensitivity is normal after whitening. If your teeth are already sensitive, or if a whitening result looks uneven, it can point to an underlying issue like a worn filling or a small crack. If a tooth suddenly hurts, read our guide on [what a cracked filling feels like](/blog/cracked-filling-palo-alto) and give us a call.
+
+## Whiten with a dentist who knows your smile
+Whitening works best when it is planned around the current state of your teeth. If you are deciding between Zoom and take-home trays in Palo Alto, [schedule a consultation](/schedule) with Christopher B. Wong, DDS. We will look at your enamel, existing dental work, and goals, then recommend the safest path to a brighter smile.`,
+        image: "/images/generated/services/teeth-whitening-palo-alto.webp",
+        date: "June 18, 2026",
+        slug: "zoom-vs-take-home-whitening-palo-alto",
+        category: "Cosmetic Dentistry",
+        readTime: 6,
+        relatedServices: ["zoom-whitening","cosmetic-dentistry"],
+      },
+      {
+        title: "Do You Really Need a Crown After a Root Canal?",
+        content: `If you have just been told you need a root canal, you may also hear that you will need a crown afterward. It is a fair question to ask why. A root canal treats the inside of the tooth, but it does not restore the strength of what is left. For many teeth, a crown is what makes the repair last.
+
+At Christopher B. Wong, DDS, we take a conservative approach in Palo Alto: we recommend a crown when the tooth truly needs the protection, and we explain why.
+
+## What a root canal actually does
+A root canal removes infected or inflamed tissue from inside the tooth, then seals the space. It relieves pain and saves a tooth that might otherwise be lost. But the procedure often follows a deep cavity or a crack, which means a lot of natural tooth structure is already gone.
+
+## Why the tooth becomes fragile
+A tooth that has had a root canal is more brittle than a healthy one. Without the internal blood supply, and with less remaining structure, it is more likely to crack under normal chewing forces, especially on the back teeth that do the heavy work.
+
+## When a [crown](/crowns-palo-alto) is the right call
+Molars and premolars almost always need a crown after a root canal, because they absorb the most force when you chew. A crown covers and reinforces the whole tooth, spreading out the pressure so it does not split.
+
+## When you might not need one
+Front teeth (incisors and canines) with small access openings and plenty of remaining structure can sometimes be restored with a filling instead. The decision comes down to how much healthy tooth is left and how much force the tooth handles.
+
+## What happens if you skip it
+Leaving a back tooth without a crown after a root canal is a common way to lose that tooth later. If it cracks below the gumline, it often cannot be saved and may need an [implant or bridge](/dental-implants) to replace it. Protecting the tooth up front is almost always the more conservative choice.
+
+## Already had a filling or crown that feels off?
+If a restored tooth aches or your bite feels high, that is worth checking sooner rather than later. Our guide on [when your bite feels off after a filling or crown](/blog/bite-feels-off-after-filling-or-crown-palo-alto) walks through what to watch for.
+
+## Plan the right restoration for your tooth
+Every tooth is different. If you are weighing whether you need a crown after a root canal in Palo Alto, [schedule a visit](/schedule) with Christopher B. Wong, DDS. We will show you exactly how much tooth structure remains and recommend the most conservative option that will actually last.`,
+        image: "/images/office/operatory-room.png",
+        date: "June 25, 2026",
+        slug: "do-you-need-a-crown-after-a-root-canal-palo-alto",
+        category: "Restorative Dentistry",
+        readTime: 6,
+        relatedServices: ["crowns-palo-alto","restorative-dentistry"],
+      },
+      {
+        title: "Dental Implants vs. Bridges for a Missing Tooth in Palo Alto",
+        content: `Losing a tooth is more common than most people expect, and the good news is that you have solid options to replace it. The two most common are a dental implant and a fixed bridge. Both restore your ability to chew and smile with confidence, but they work in very different ways.
+
+At Christopher B. Wong, DDS, we help patients across Palo Alto and the Peninsula choose between them based on the health of the surrounding teeth, bone, and long-term goals. Here is how they compare.
+
+## How a dental implant works
+A [dental implant](/dental-implants) replaces the tooth root with a small titanium post placed in the jaw. After it heals, a custom crown attaches on top. Because the implant integrates with the bone, it looks and functions like a natural tooth and does not rely on the neighboring teeth for support.
+
+## How a bridge works
+A bridge fills the gap by anchoring a replacement tooth to the two teeth on either side, which are crowned to hold it in place. It is a well-established option, often completed faster than an implant, and does not require surgery.
+
+## The key difference: protecting your other teeth
+The biggest trade-off is what happens to the neighboring teeth. A bridge requires reshaping the two adjacent teeth, even if they are perfectly healthy. An implant leaves them untouched. It also preserves the jawbone underneath, which naturally shrinks when a tooth root is missing.
+
+## Which lasts longer?
+With good care, implants often last decades and have a very high success rate. Bridges typically last many years but usually need replacement sooner, and the supporting teeth are more vulnerable to decay at the edges over time.
+
+## When a bridge may be the better fit
+A bridge can be the more practical choice if the neighboring teeth already need crowns, if there is not enough bone for an implant, or if you prefer to avoid surgery. Timing matters too. Our guide on [timing an implant after an extraction](/blog/dental-implant-after-extraction-palo-alto) explains why the healing window affects your options.
+
+## Get a plan built around your mouth
+The right answer depends on your specific bite, bone, and the condition of the teeth around the gap. If you are replacing a missing tooth in Palo Alto, [schedule a consultation](/schedule) with Christopher B. Wong, DDS. We will review both options honestly and recommend the one that protects the most healthy tooth structure for the long run.`,
+        image: "/images/office/courtyard-operatory.png",
+        date: "July 2, 2026",
+        slug: "dental-implants-vs-bridges-palo-alto",
+        category: "Restorative Dentistry",
+        readTime: 7,
+        relatedServices: ["dental-implants","restorative-dentistry"],
       }
     ];
 

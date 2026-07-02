@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
@@ -14,10 +14,12 @@ import { useToast } from "@/hooks/use-toast";
 import { trackLeadConversion } from "@/lib/analytics";
 import { officeInfo } from "@/lib/data";
 import { ANALYTICS_EVENTS, getAnalyticsPageContext } from "@shared/analytics";
+import { HONEYPOT_FIELD } from "@shared/formspree";
 
 const ContactForm = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const honeypotRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<InsertContactMessage>({
     resolver: zodResolver(insertContactMessageSchema),
@@ -33,11 +35,6 @@ const ContactForm = () => {
   const contactMutation = useMutation({
     mutationFn: (data: InsertContactMessage) => apiRequest("POST", "/api/contact", data),
     onSuccess: () => {
-      toast({
-        title: "Message sent!",
-        description: "We will get back to you as soon as possible.",
-        variant: "default",
-      });
       trackLeadConversion(ANALYTICS_EVENTS.contactFormSubmit, {
         form_name: "contact_form",
         lead_type: "contact_request",
@@ -48,6 +45,12 @@ const ContactForm = () => {
       });
       form.reset();
       setIsSubmitting(false);
+      // Land on the dedicated confirmation page: a stable conversion
+      // page-view for GA4/Ads goals (gtag uses beacon transport, so the
+      // events above survive the navigation).
+      if (typeof window !== "undefined") {
+        window.location.assign("/thank-you");
+      }
     },
     onError: (error) => {
       console.error("Error sending message:", error);
@@ -62,7 +65,10 @@ const ContactForm = () => {
 
   const onSubmit = (data: InsertContactMessage) => {
     setIsSubmitting(true);
-    contactMutation.mutate(data);
+    contactMutation.mutate({
+      ...data,
+      [HONEYPOT_FIELD]: honeypotRef.current?.value ?? "",
+    } as InsertContactMessage);
   };
 
   return (
@@ -72,6 +78,18 @@ const ContactForm = () => {
         className="space-y-4"
         autoComplete="off"
       >
+        {/* Honeypot — hidden from real users; bots that fill it are dropped. */}
+        <div aria-hidden="true" className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
+          <label htmlFor="contact-company">Company</label>
+          <Input
+            ref={honeypotRef}
+            id="contact-company"
+            type="text"
+            name={HONEYPOT_FIELD}
+            tabIndex={-1}
+            autoComplete="off"
+          />
+        </div>
         <div className="grid md:grid-cols-2 gap-4">
           <FormField
             control={form.control}

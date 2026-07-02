@@ -9,7 +9,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Button } from "@/components/ui/button";
 import { officeInfo } from "@/lib/data";
 import { getSeoForPath } from "@/lib/seo";
-import { buildBreadcrumbSchema, buildFAQSchema, type StructuredDataNode } from "@/lib/structuredData";
+import { buildBreadcrumbSchema, buildFAQSchema, buildServiceSchema, type StructuredDataNode } from "@/lib/structuredData";
 import { getTestimonialCollection } from "@/lib/testimonials";
 import { Link } from "wouter";
 
@@ -50,8 +50,16 @@ const DentalCleaningPaloAlto = () => {
   ];
 
   const structuredDataNodes: StructuredDataNode[] = [];
+  const serviceSchema = buildServiceSchema({
+    name: "Dental Cleaning",
+    description:
+      "Professional dental cleanings and exams in Palo Alto to remove plaque and tartar and keep gums healthy.",
+    slug: "/dental-cleaning-palo-alto",
+    serviceType: "Preventive dentistry",
+  });
   const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbItems);
   const faqSchema = buildFAQSchema(faqs, "/dental-cleaning-palo-alto");
+  structuredDataNodes.push(serviceSchema);
   if (breadcrumbSchema) structuredDataNodes.push(breadcrumbSchema);
   if (faqSchema) structuredDataNodes.push(faqSchema);
 

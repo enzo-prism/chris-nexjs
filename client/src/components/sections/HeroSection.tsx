@@ -1,4 +1,4 @@
-import { ArrowRight, Calendar, CheckCircle, MapPin } from "lucide-react";
+import { ArrowRight, Calendar, CheckCircle, MapPin, Phone } from "lucide-react";
 import ButtonLink from "@/components/common/ButtonLink";
 import { motion } from "@/lib/motion-lite";
 import { officeInfo } from "@/lib/data";
@@ -96,7 +96,19 @@ const HeroSection = () => {
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </ButtonLink>
             </div>
-            
+
+            {/* Direct call affordance — callers convert instantly */}
+            <a
+              href={`tel:${officeInfo.phoneE164}`}
+              data-analytics-context="hero-call"
+              className="mb-8 inline-flex items-center gap-2 text-white/90 hover:text-white transition-colors duration-200 text-sm font-medium"
+            >
+              <Phone className="h-4 w-4 text-blue-200" aria-hidden="true" />
+              <span>
+                Or call us at <span className="underline underline-offset-4">{officeInfo.phone}</span>
+              </span>
+            </a>
+
             {/* Patient Trust Indicator */}
             <div className="mb-12">
               <a

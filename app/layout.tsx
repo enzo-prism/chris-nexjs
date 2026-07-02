@@ -32,6 +32,9 @@ const googleSiteVerification =
   process.env.GOOGLE_SITE_VERIFICATION;
 const GA_MEASUREMENT_ID =
   process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() || "G-94WRBJY51J";
+// Google Ads tag ("AW-…"). Optional — configured alongside GA so ad
+// conversions and remarketing activate as soon as the env var is set.
+const GOOGLE_ADS_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID?.trim() || "";
 
 const googleTagBootstrap = `
   window.dataLayer = window.dataLayer || [];
@@ -67,6 +70,7 @@ const googleTagBootstrap = `
     send_page_view: false,
     transport_type: 'beacon'
   });
+${GOOGLE_ADS_ID ? `  gtag('config', '${GOOGLE_ADS_ID}');` : ""}
 
   // Load the external gtag.js on idle or first interaction instead of
   // eagerly: the stub above queues every command in dataLayer, so nothing is

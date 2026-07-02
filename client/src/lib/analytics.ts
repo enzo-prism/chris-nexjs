@@ -16,6 +16,13 @@ const FALLBACK_GA_ALLOWED_HOSTS = new Set([
   "chris-nextjs.vercel.app",
   "chriswongdds.vercel.app",
 ]);
+
+// Google Ads conversion tag. Inert until NEXT_PUBLIC_GOOGLE_ADS_ID (an
+// "AW-…" id) is set; NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL narrows the
+// ping to a specific conversion action.
+const GOOGLE_ADS_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID?.trim() ?? "";
+const GOOGLE_ADS_CONVERSION_LABEL =
+  process.env.NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL?.trim() ?? "";
 let vercelAnalyticsModulePromise: Promise<typeof import("@vercel/analytics")> | null =
   null;
 
@@ -117,12 +124,32 @@ export function trackAnalyticsEvent(
   }
 }
 
+function trackGoogleAdsConversion(): void {
+  if (
+    !GOOGLE_ADS_ID ||
+    typeof window === "undefined" ||
+    typeof window.gtag !== "function" ||
+    !isAnalyticsRuntimeEnabled() ||
+    !hasAnalyticsConsent()
+  ) {
+    return;
+  }
+
+  const sendTo = GOOGLE_ADS_CONVERSION_LABEL
+    ? `${GOOGLE_ADS_ID}/${GOOGLE_ADS_CONVERSION_LABEL}`
+    : GOOGLE_ADS_ID;
+  // Direct gtag call: send_to must reach Google Ads untouched by the GA
+  // event-name/property sanitizers.
+  window.gtag("event", "conversion", { send_to: sendTo });
+}
+
 export function trackLeadConversion(
   eventName: AnalyticsEventName,
   properties: Record<string, unknown>,
 ): void {
   trackAnalyticsEvent(eventName, properties, { ga: true, vercel: false });
   trackGAEvent(ANALYTICS_EVENTS.generateLead, properties);
+  trackGoogleAdsConversion();
 }
 
 export function setAnalyticsConsent(granted: boolean): void {

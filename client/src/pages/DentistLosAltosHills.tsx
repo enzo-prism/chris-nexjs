@@ -262,9 +262,10 @@ const DentistLosAltosHills = () => {
               Planning your visit from Los Altos Hills
             </h2>
             <p className="text-slate-700 leading-relaxed mb-6">
-              Our Palo Alto office is located at {officeInfo.address.line1}, {officeInfo.address.line2}. We are a short
-              drive from Los Altos Hills, and we will share parking tips when you schedule. If you want to coordinate
-              multiple appointments, call our team and we will help map out a plan.
+              Our Palo Alto office is located at {officeInfo.address.line1}, {officeInfo.address.line2}, in the
+              California Avenue district. From Los Altos Hills, most patients take Page Mill Road or I-280 toward
+              Oregon Expressway and reach us in roughly 15 minutes, and we will share parking tips when you schedule.
+              If you want to coordinate multiple appointments, call our team and we will help map out a plan.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Link href="/schedule#appointment">

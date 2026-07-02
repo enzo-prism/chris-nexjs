@@ -28,6 +28,9 @@ const staticLegacyRedirects: Record<string, string> = {
   "/dental-cleaning": "/dental-cleaning-palo-alto",
   "/cavity-fillings": "/cavity-fillings-palo-alto",
   "/crowns": "/crowns-palo-alto",
+  // Consolidated a duplicate Invisalign-timeline post into a single canonical.
+  "/blog/how-long-does-invisalign-take-palo-alto":
+    "/blog/how-long-does-invisalign-take",
 } as const;
 
 const serviceSlugRedirects: Record<string, string> = {

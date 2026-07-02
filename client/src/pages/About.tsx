@@ -23,6 +23,7 @@ import {
 import { getTestimonialsByNames } from "@/lib/testimonials";
 import {
   buildBreadcrumbSchema,
+  buildVideoObjectSchemas,
 } from "@/lib/structuredData";
 
 const OfficeGallerySection = dynamic(
@@ -97,6 +98,23 @@ const About = () => {
   if (aboutBreadcrumbs) {
     aboutSchema.push(aboutBreadcrumbs);
   }
+
+  aboutSchema.push(
+    ...buildVideoObjectSchemas(
+      [
+        {
+          id: "meet-dr-wong",
+          title: "Meet Dr. Wong — Palo Alto dentist introduction",
+          description:
+            "Dr. Christopher B. Wong introduces himself and his conservative, comfort-first approach to dentistry in Palo Alto.",
+          src: interviewVideoUrl,
+          poster: "/images/about/meet-dr-wong-poster.webp",
+          uploadDate: "2026-06-23",
+        },
+      ],
+      "/about",
+    ),
+  );
   
   const openWeddingModal = (index: number) => setWeddingModalIndex(index);
   const closeWeddingModal = () => setWeddingModalIndex(null);
@@ -399,6 +417,33 @@ const About = () => {
               </motion.div>
             </div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Mid-page conversion band — About is a top-traffic trust page */}
+      <section className="bg-gradient-to-r from-[#0b1f3a] to-[#123a6b] py-10 sm:py-12">
+        <div className="mx-auto flex max-w-4xl flex-col items-center gap-5 px-4 text-center sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-bold font-heading leading-tight text-white sm:text-3xl">
+            Ready to meet Dr. Wong in person?
+          </h2>
+          <p className="max-w-xl text-sm text-white/80 sm:text-base">
+            New patients are always welcome. Request a visit online or give us a
+            call — we&rsquo;ll help you find a time that works.
+          </p>
+          <div className="flex flex-col items-center gap-3 sm:flex-row sm:gap-4">
+            <Link href="/schedule#appointment" data-analytics-context="about-midpage-cta">
+              <Button className="h-auto rounded-full bg-white px-6 py-3 font-medium text-[#0b1f3a] shadow-sm transition-colors hover:bg-blue-50">
+                Schedule an appointment
+              </Button>
+            </Link>
+            <a
+              href={`tel:${data.officeInfo.phoneE164}`}
+              data-analytics-context="about-midpage-cta"
+              className="inline-flex items-center gap-2 text-sm font-medium text-white/90 transition-colors hover:text-white"
+            >
+              Or call {data.officeInfo.phone}
+            </a>
+          </div>
         </div>
       </section>
 

@@ -4,6 +4,12 @@ import BlogPost from "@/pages/BlogPost";
 import { notFound } from "next/navigation";
 import { getStorage } from "../../../server/storage/repository";
 
+export async function generateStaticParams() {
+  const storage = await getStorage();
+  const posts = await storage.getBlogPosts();
+  return posts.map((post) => ({ slug: post.slug }));
+}
+
 export async function generateMetadata({
   params,
 }: {

@@ -7,6 +7,7 @@ import {
   FORMSPREE_OPS_SCHEDULE_FORM_KEY,
   FORMSPREE_OPS_SITE,
   getScheduleFormspreeEndpoint,
+  isHoneypotTripped,
 } from "@shared/formspree";
 import {
   legacyScheduleRequestSchema,
@@ -228,6 +229,13 @@ const postToFormspree = async (
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+
+    // Silently accept honeypot-tripped submissions: bots see success, but the
+    // request is never forwarded to the office inbox.
+    if (isHoneypotTripped(body)) {
+      return NextResponse.json({ ok: true }, { status: 201 });
+    }
+
     const parsedBody = normalizeIncomingScheduleRequest(body);
     const normalizedPhone = normalizeSchedulePhone(parsedBody.phone);
     if (!normalizedPhone) {

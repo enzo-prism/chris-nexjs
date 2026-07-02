@@ -23,6 +23,7 @@ import {
   trackLeadConversion,
 } from "@/lib/analytics";
 import { officeInfo } from "@/lib/data";
+import { HONEYPOT_FIELD } from "@shared/formspree";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -800,6 +801,7 @@ const AppointmentForm = ({
   const abandonmentTimersRef = useRef<number[]>([]);
   const lastStepViewRef = useRef("");
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const honeypotRef = useRef<HTMLInputElement>(null);
   const shouldFocusHeadingRef = useRef(false);
   const stepTrackingRef = useRef<{ index: number; name: StepName }>({
     index: 1,
@@ -1112,7 +1114,10 @@ const AppointmentForm = ({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          ...payload,
+          [HONEYPOT_FIELD]: honeypotRef.current?.value ?? "",
+        }),
       });
 
       if (!response.ok) {
@@ -1255,6 +1260,18 @@ const AppointmentForm = ({
         className={formClasses}
         autoComplete="on"
       >
+        {/* Honeypot — hidden from real users; bots that fill it are dropped. */}
+        <div aria-hidden="true" className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
+          <label htmlFor="schedule-company">Company</label>
+          <Input
+            ref={honeypotRef}
+            id="schedule-company"
+            type="text"
+            name={HONEYPOT_FIELD}
+            tabIndex={-1}
+            autoComplete="off"
+          />
+        </div>
         {presentation === "funnel" ? (
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-3">

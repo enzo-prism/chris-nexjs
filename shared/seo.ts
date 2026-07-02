@@ -109,14 +109,14 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "Restore damaged or missing teeth with restorative dentistry in Palo Alto. Dr. Wong offers fillings, crowns, bridges, and implant restorations.",
     canonicalPath: "/restorative-dentistry",
-    ogImage: DEFAULT_OG_IMAGE,
+    ogImage: "/images/office/courtyard-operatory.png",
   },
   "/pediatric-dentistry": {
     title: "Pediatric Dentistry in Palo Alto | Christopher B. Wong, DDS",
     description:
       "Gentle pediatric dentistry in Palo Alto for infants, kids, and teens. Preventive cleanings, sealants, and family‑friendly care.",
     canonicalPath: "/pediatric-dentistry",
-    ogImage: DEFAULT_OG_IMAGE,
+    ogImage: "/images/office/reception-desk.png",
   },
   "/patient-resources": {
     title: "Patient Resources | Palo Alto | Christopher B. Wong, DDS",
@@ -245,7 +245,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "Gentle dental cleanings in Palo Alto to remove plaque, prevent cavities, and keep gums healthy. Family‑friendly care at Dr. Wong’s office.",
     canonicalPath: "/dental-cleaning-palo-alto",
-    ogImage: DEFAULT_OG_IMAGE,
+    ogImage: "/images/office/operatory-equipment.png",
   },
   "/cavity-fillings-palo-alto": {
     title: "Cavity Fillings in Palo Alto | Christopher B. Wong, DDS",
@@ -259,14 +259,14 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "Custom dental crowns in Palo Alto to repair large cavities or cracks. Durable, natural‑looking restorations designed for comfort.",
     canonicalPath: "/crowns-palo-alto",
-    ogImage: DEFAULT_OG_IMAGE,
+    ogImage: "/images/office/operatory-room.png",
   },
   "/pediatric-dentist-palo-alto": {
     title: "Pediatric Dentist in Palo Alto | Christopher B. Wong, DDS",
     description:
       "Gentle pediatric dentistry in Palo Alto for infants, kids, and teens. Preventive cleanings, sealants, and family‑centered care.",
     canonicalPath: "/pediatric-dentist-palo-alto",
-    ogImage: DEFAULT_OG_IMAGE,
+    ogImage: "/images/office/reception-area.png",
   },
   "/dentist-menlo-park": {
     title: "Menlo Park Family Dentist | Christopher B. Wong, DDS",
@@ -301,7 +301,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "Los Altos Hills patients visit our Palo Alto office for preventive care, cosmetic dentistry, restorative treatment, Invisalign, and emergency visits.",
     canonicalPath: "/dentist-los-altos-hills",
-    ogImage: DEFAULT_OG_IMAGE,
+    ogImage: "/images/office/garden-courtyard.png",
   },
   "/dentist-sunnyvale": {
     title: "Sunnyvale Family Dentist | Christopher B. Wong, DDS",
@@ -315,28 +315,28 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "Cupertino families visit our Palo Alto office for cleanings, fillings, Invisalign, cosmetic dentistry, and emergency care.",
     canonicalPath: "/dentist-cupertino",
-    ogImage: DEFAULT_OG_IMAGE,
+    ogImage: "/images/office/office-entrance.png",
   },
   "/dentist-redwood-city": {
     title: "Redwood City Dentist | Christopher B. Wong, DDS",
     description:
       "Redwood City patients choose our Palo Alto dentist for preventive care, restorative treatment, Invisalign, and urgent visits.",
     canonicalPath: "/dentist-redwood-city",
-    ogImage: DEFAULT_OG_IMAGE,
+    ogImage: "/images/office/exterior-hallway.png",
   },
   "/dentist-atherton": {
     title: "Atherton Dentist | Palo Alto | Christopher B. Wong, DDS",
     description:
       "Atherton patients visit our Palo Alto office for preventive care, restorative treatment, Invisalign, cosmetic dentistry, and emergency visits.",
     canonicalPath: "/dentist-atherton",
-    ogImage: DEFAULT_OG_IMAGE,
+    ogImage: "/images/office/atrium-courtyard.webp",
   },
   "/dentist-redwood-shores": {
     title: "Redwood Shores Dentist | Christopher B. Wong, DDS",
     description:
       "Redwood Shores patients choose our Palo Alto dentist for cleanings, fillings, Invisalign, cosmetic dentistry, and urgent visits.",
     canonicalPath: "/dentist-redwood-shores",
-    ogImage: DEFAULT_OG_IMAGE,
+    ogImage: "/images/office/exterior-entry.png",
   },
   "/locations": {
     title: "Areas We Serve | Palo Alto | Christopher B. Wong, DDS",

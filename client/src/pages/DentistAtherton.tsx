@@ -330,8 +330,9 @@ const DentistAtherton = () => {
               Planning your visit from Atherton
             </h2>
             <p className="text-slate-700 leading-relaxed mb-6">
-              Our Palo Alto office is located at {officeInfo.address.line1}, {officeInfo.address.line2}. We will share
-              parking and arrival tips when you schedule. If you would like to coordinate appointments for multiple family
+              Our Palo Alto office is located at {officeInfo.address.line1}, {officeInfo.address.line2}, in the
+              California Avenue district. From Atherton, we're a short drive south on El Camino Real or Middlefield
+              Road — usually about 10 minutes. We will share parking and arrival tips when you schedule. If you would like to coordinate appointments for multiple family
               members, call our team and we will help build a plan that fits your calendar.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">

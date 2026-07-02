@@ -8,3 +8,4 @@ vite.config.ts.*
 *.tar.gz
 .env
 .vercel
+.env*

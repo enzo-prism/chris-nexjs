@@ -2,13 +2,14 @@
 
 import { Quote, Star, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "wouter";
+import { Link, type RouteComponentProps } from "wouter";
 import MetaTags from "@/components/common/MetaTags";
 import { pageTitles, pageDescriptions } from "@/lib/metaContent";
 import { useQuery } from "@tanstack/react-query";
 import TestimonialCard from "@/components/common/TestimonialCard";
 import HandwrittenLetter from "@/components/testimonials/HandwrittenLetter";
 import type { Testimonial } from "@shared/schema";
+import { officeInfo } from "@shared/officeInfo";
 import { useEffect, useState } from "react";
 import StructuredData from "@/components/seo/StructuredData";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
@@ -17,7 +18,13 @@ import {
   type StructuredDataNode,
 } from "@/lib/structuredData";
 
-const Testimonials = () => {
+type TestimonialsProps = Partial<
+  RouteComponentProps<Record<string, string | undefined>>
+> & {
+  initialTestimonials?: Testimonial[];
+};
+
+const Testimonials = ({ initialTestimonials }: TestimonialsProps) => {
   const REVIEWS_PAGE_SIZE = 24;
   const {
     data: testimonials,
@@ -26,6 +33,7 @@ const Testimonials = () => {
     refetch: refetchTestimonials,
   } = useQuery<Testimonial[]>({
     queryKey: ["/api/testimonials"],
+    initialData: initialTestimonials,
   });
   const [visibleCount, setVisibleCount] = useState(REVIEWS_PAGE_SIZE);
   const reviews = testimonials ?? [];
@@ -237,11 +245,22 @@ const Testimonials = () => {
           </h2>
           <p className="text-[#333333] mb-8 max-w-2xl mx-auto">
             Your feedback helps us improve our services and helps other patients make informed decisions.
-            We appreciate you taking the time to share your experience at our practice.
+            If we&rsquo;ve taken care of your smile, a Google review is the most helpful way to share it.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/contact">
+            <a
+              href={officeInfo.reviewUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-analytics-context="testimonials-share"
+            >
               <Button className="bg-primary hover:bg-primary/90 text-white font-medium px-6 py-2 rounded-md shadow-md hover:shadow-lg transition-all duration-300">
+                <Star className="mr-2 h-4 w-4" aria-hidden="true" />
+                Leave a Google Review
+              </Button>
+            </a>
+            <Link href="/contact">
+              <Button variant="outline" className="ui-btn-outline font-medium px-6 py-2 rounded-md transition-colors duration-300">
                 Contact Us
               </Button>
             </Link>

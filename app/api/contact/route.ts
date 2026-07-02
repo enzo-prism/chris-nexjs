@@ -6,6 +6,7 @@ import {
   FORMSPREE_OPS_QA_FIELD,
   FORMSPREE_OPS_SITE,
   getPublicFormspreeEndpoint,
+  isHoneypotTripped,
 } from "@shared/formspree";
 import { insertContactMessageSchema } from "@shared/schema";
 import { getStorage } from "../../../server/storage/repository";
@@ -89,6 +90,13 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+
+    // Silently accept honeypot-tripped submissions so bots see success but
+    // nothing reaches the office inbox or the database.
+    if (isHoneypotTripped(body)) {
+      return NextResponse.json({ ok: true }, { status: 201 });
+    }
+
     const data = contactPayloadSchema.parse(body);
 
     const referer = request.headers.get("referer");

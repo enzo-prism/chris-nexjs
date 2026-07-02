@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Phone, MapPin, Mail, ExternalLink, Instagram } from "lucide-react";
+import { Phone, MapPin, Mail, ExternalLink, Instagram, Star } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import {
   Accordion,
@@ -109,6 +109,16 @@ const Footer = ({ variant = "default" }: FooterProps) => {
                 >
                   <Mail className="h-4 w-4 text-primary" aria-hidden="true" />
                   {officeInfo.email}
+                </a>
+                <a
+                  href={officeInfo.reviewUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-analytics-context="footer-review"
+                  className="ui-focus-premium inline-flex items-center gap-2 text-slate-700 transition-colors hover:text-primary"
+                >
+                  <Star className="h-4 w-4 text-primary" aria-hidden="true" />
+                  Review us on Google
                 </a>
               </div>
             </div>

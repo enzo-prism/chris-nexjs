@@ -15,6 +15,17 @@ Operational guide for GA4, Vercel Web Analytics, and custom lead-funnel events.
 - Server-originated Vercel lead events fire only after successful API handling and never include patient identifiers.
 - Analytics payloads must not include emails, phone numbers, names, message text, notes, full URLs, or nested objects.
 
+## Google Ads conversions
+
+- The Ads tag is env-driven and inert until configured: set `NEXT_PUBLIC_GOOGLE_ADS_ID`
+  (an `AW-…` id) in Vercel to activate `gtag('config', 'AW-…')` alongside GA4, and
+  optionally `NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL` to attribute leads to a specific
+  conversion action.
+- When configured, every `trackLeadConversion()` call (schedule funnel submit, contact
+  form submit) also fires a Google Ads `conversion` ping with `send_to`. No PII is sent.
+- Alternative/complement: import the GA4 `generate_lead` key event into Google Ads as a
+  conversion — both paths work; the direct tag gives faster, bid-strategy-grade signals.
+
 ## Event contract
 
 Shared event names, page categories, and sanitizers live in `shared/analytics.ts`.

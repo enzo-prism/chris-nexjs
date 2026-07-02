@@ -441,6 +441,9 @@ type VideoMediaInput = {
   description: string;
   src: string;
   poster?: string;
+  // Explicit ISO date (yyyy-mm-dd) for self-hosted /videos/*.mp4 files,
+  // which carry no Cloudinary version segment to derive a date from.
+  uploadDate?: string;
 };
 
 // Cloudinary delivery URLs embed the upload time as a unix-seconds version
@@ -457,14 +460,17 @@ export const buildVideoObjectSchemas = (
   pagePath: string,
 ): StructuredDataNode[] =>
   videos.map((video) => {
-    const uploadDate = extractCloudinaryUploadDate(video.src);
+    const uploadDate =
+      video.uploadDate ?? extractCloudinaryUploadDate(video.src);
     return {
       "@context": "https://schema.org",
       "@type": "VideoObject",
       "@id": schemaId(pagePath, `video-${video.id}`),
       name: video.title,
       description: video.description,
-      contentUrl: video.src,
+      contentUrl: video.src.startsWith("/")
+        ? absoluteUrl(video.src)
+        : video.src,
       ...(video.poster ? { thumbnailUrl: absoluteUrl(video.poster) } : {}),
       ...(uploadDate ? { uploadDate } : {}),
       publisher: {

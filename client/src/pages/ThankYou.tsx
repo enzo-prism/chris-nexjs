@@ -4,13 +4,14 @@ import { CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import MetaTags from "@/components/common/MetaTags";
+import { officeInfo } from "@shared/officeInfo";
 
 const ThankYou = () => {
   return (
     <>
-      <MetaTags 
-        title="Thank You - Appointment Scheduled | Christopher B. Wong, DDS"
-        description="Thank you for scheduling your appointment with Dr. Wong's dental practice in Palo Alto. We look forward to providing exceptional care at your upcoming visit."
+      <MetaTags
+        title="Thank You | Christopher B. Wong, DDS"
+        description="Thank you for reaching out to our Palo Alto dental practice. Our team will get back to you within one business day."
         robots="noindex, nofollow, noarchive"
       />
       
@@ -29,11 +30,19 @@ const ThankYou = () => {
           </h1>
           
           <p className="text-lg text-gray-600 mb-2">
-            Your appointment request has been submitted successfully.
+            Your message has been received.
           </p>
-          
+
           <p className="text-gray-600 mb-8">
-            Our team will contact you shortly to confirm your appointment details.
+            Our team will get back to you within one business day. If anything
+            is urgent, call us at{" "}
+            <a
+              href={`tel:${officeInfo.phoneE164}`}
+              className="font-medium text-primary"
+            >
+              {officeInfo.phone}
+            </a>
+            .
           </p>
           
           {/* Action Buttons */}

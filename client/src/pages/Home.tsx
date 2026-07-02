@@ -325,7 +325,6 @@ const Home = (props: any) => {
                                 src={testimonial.image}
                                 alt={`${testimonial.name} smiling with the dental team after an appointment`}
                                 fill
-                                priority={index === 0}
                                 className="object-cover object-center"
                                 sizes="(max-width: 640px) 90vw, (max-width: 1024px) 480px, 440px"
                               />
@@ -445,7 +444,6 @@ const Home = (props: any) => {
                             src={t.image}
                             alt={`${t.name} smiling with the dental team after an appointment`}
                             fill
-                            priority={mobileIndex === 0}
                             className="object-cover object-center"
                             sizes="(max-width: 1024px) 100vw, 576px"
                           />

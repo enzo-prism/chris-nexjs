@@ -330,8 +330,9 @@ const DentistCupertino = () => {
               Planning your visit from Cupertino
             </h2>
             <p className="text-slate-700 leading-relaxed mb-6">
-              Our Palo Alto office is located at {officeInfo.address.line1}, {officeInfo.address.line2}. We will share
-              parking and arrival tips when you schedule. If you would like to coordinate appointments for multiple family
+              Our Palo Alto office is located at {officeInfo.address.line1}, {officeInfo.address.line2}, in the
+              California Avenue district. Most Cupertino patients reach us in about 20 minutes via Foothill Expressway
+              or I-280 to Page Mill Road. We will share parking and arrival tips when you schedule. If you would like to coordinate appointments for multiple family
               members, call our team and we will help build a plan that fits your calendar.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">

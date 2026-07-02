@@ -3,6 +3,7 @@ import {
   getBlogArtSpec,
   hexToRgba,
 } from "@shared/blogArt";
+import { getStorage } from "../../../server/storage/repository";
 
 export const size = {
   width: 1200,
@@ -11,12 +12,18 @@ export const size = {
 
 export const contentType = "image/png";
 
-export default function OpenGraphImage({
+const truncate = (value: string, max: number): string =>
+  value.length > max ? `${value.slice(0, max - 1).trimEnd()}…` : value;
+
+export default async function OpenGraphImage({
   params,
 }: {
   params: { slug: string };
 }) {
   const spec = getBlogArtSpec(params.slug);
+  const storage = await getStorage();
+  const post = await storage.getBlogPostBySlug(params.slug);
+  const headline = truncate(post?.title ?? "Dental Health Blog", 96);
 
   return new ImageResponse(
     (
@@ -96,16 +103,6 @@ export default function OpenGraphImage({
           style={{
             position: "absolute",
             inset: 0,
-            backgroundImage:
-              "repeating-linear-gradient(135deg, rgba(255,255,255,0.42) 0 1px, transparent 1px 26px)",
-            opacity: 0.28,
-          }}
-        />
-
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
             background:
               "radial-gradient(circle at top right, rgba(255,255,255,0.9), transparent 42%), linear-gradient(180deg, rgba(255,255,255,0.16), transparent 72%)",
           }}
@@ -134,19 +131,19 @@ export default function OpenGraphImage({
               color: "#36648f",
             }}
           >
-            Dental Health Blog
+            Christopher B. Wong, DDS
           </div>
           <div
             style={{
               display: "flex",
-              fontSize: 52,
+              fontSize: headline.length > 52 ? 44 : 52,
               fontWeight: 700,
               lineHeight: 1.1,
-              maxWidth: 620,
+              maxWidth: 960,
               color: "#16324f",
             }}
           >
-            Christopher B. Wong, DDS
+            {headline}
           </div>
         </div>
       </div>

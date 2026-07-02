@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { type RouteComponentProps } from "wouter";
 import { ArrowRight } from "lucide-react";
 import ButtonLink from "@/components/common/ButtonLink";
 import Link from "next/link";
@@ -71,9 +72,16 @@ const serviceHubTestimonials: readonly InsertTestimonial[] = [
   },
 ];
 
-const Services = () => {
+type ServicesProps = Partial<
+  RouteComponentProps<Record<string, string | undefined>>
+> & {
+  initialServices?: Service[];
+};
+
+const Services = ({ initialServices }: ServicesProps) => {
   const { data: services, isLoading } = useQuery<Service[]>({
     queryKey: ["/api/services"],
+    initialData: initialServices,
   });
 
   const servicesSchemas = [

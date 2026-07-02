@@ -5,6 +5,8 @@ import { Play, MapPin, ArrowRight, CalendarCheck } from "lucide-react";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import ButtonLink from "@/components/common/ButtonLink";
 import OptimizedImage from "@/components/seo/OptimizedImage";
+import StructuredData from "@/components/seo/StructuredData";
+import { buildVideoObjectSchemas } from "@/lib/structuredData";
 import { officeInfo } from "@/lib/data";
 
 const breadcrumbItems = [
@@ -124,6 +126,33 @@ function TourClip({ stop }: { stop: TourStop }): JSX.Element {
   );
 }
 
+// All four clips shipped together on 2026-06-23 (self-hosted, no
+// Cloudinary version segment to derive the date from).
+const TOUR_VIDEO_UPLOAD_DATE = "2026-06-23";
+
+const tourVideoSchemas = buildVideoObjectSchemas(
+  [
+    {
+      id: "atrium",
+      title: "Office tour: garden courtyard and treatment rooms",
+      description:
+        "A walk through the Palo Alto dental office, from the planted garden courtyard to the treatment rooms.",
+      src: "/videos/office-atrium.mp4",
+      poster: "/images/tour/office-atrium-poster.webp",
+      uploadDate: TOUR_VIDEO_UPLOAD_DATE,
+    },
+    ...TOUR_STOPS.map((stop, index) => ({
+      id: `stop-${index + 1}`,
+      title: `Office tour: ${stop.label}`,
+      description: stop.caption,
+      src: stop.src,
+      poster: stop.poster,
+      uploadDate: TOUR_VIDEO_UPLOAD_DATE,
+    })),
+  ],
+  "/office-tour",
+);
+
 const OfficeTour = (): JSX.Element => {
   // Click-to-play: a priority poster image is the LCP element (fast paint on
   // mobile); the video only mounts/loads when the visitor taps play.
@@ -131,6 +160,7 @@ const OfficeTour = (): JSX.Element => {
 
   return (
     <>
+      <StructuredData data={tourVideoSchemas} id="office-tour-video-schema" />
       <PageBreadcrumbs items={breadcrumbItems} />
 
       {/* Hero */}

@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { officeInfo } from "@/lib/data";
 import { getSeoForPath } from "@/lib/seo";
 import { getTestimonialCollection } from "@/lib/testimonials";
-import { buildBreadcrumbSchema, buildFAQSchema, type StructuredDataNode } from "@/lib/structuredData";
+import { buildBreadcrumbSchema, buildFAQSchema, buildServiceSchema, type StructuredDataNode } from "@/lib/structuredData";
 import { Link } from "wouter";
 
 const PediatricDentistPaloAlto = () => {
@@ -50,8 +50,16 @@ const PediatricDentistPaloAlto = () => {
   ];
 
   const structuredDataNodes: StructuredDataNode[] = [];
+  const serviceSchema = buildServiceSchema({
+    name: "Pediatric Dentistry",
+    description:
+      "Gentle pediatric dental care in Palo Alto — cleanings, exams, and cavity care for children, teens, and growing families.",
+    slug: "/pediatric-dentist-palo-alto",
+    serviceType: "Pediatric dentistry",
+  });
   const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbItems);
   const faqSchema = buildFAQSchema(faqs, "/pediatric-dentist-palo-alto");
+  structuredDataNodes.push(serviceSchema);
   if (breadcrumbSchema) structuredDataNodes.push(breadcrumbSchema);
   if (faqSchema) structuredDataNodes.push(faqSchema);
 

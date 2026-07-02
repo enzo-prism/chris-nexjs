@@ -93,10 +93,13 @@ const OptimizedImage = ({
 
   const canUseNextImage = !srcSet;
   const shouldUseBlur = placeholder.startsWith("data:image");
+  // Priority (LCP) images must paint straight from the server HTML — never
+  // gate their visibility on hydration + onLoad.
+  const revealImmediately = priority;
 
   return (
     <div className={`relative overflow-hidden ${className}`} style={wrapperStyle}>
-      {!isLoaded && (
+      {!revealImmediately && !isLoaded && (
         <img
           src={placeholder}
           alt=""
@@ -124,8 +127,10 @@ const OptimizedImage = ({
           blurDataURL={shouldUseBlur ? placeholder : undefined}
           onLoad={handleLoad}
           onError={handleError}
-          className={`w-full ${heightClass} ${objectClass} transition-opacity duration-300 ${
-            isLoaded ? "opacity-100" : "opacity-0"
+          className={`w-full ${heightClass} ${objectClass} ${
+            revealImmediately
+              ? ""
+              : `transition-opacity duration-300 ${isLoaded ? "opacity-100" : "opacity-0"}`
           }`}
           style={{ objectPosition }}
         />
@@ -142,8 +147,10 @@ const OptimizedImage = ({
           fetchPriority={fetchPriority}
           onLoad={handleLoad}
           onError={handleError}
-          className={`w-full ${heightClass} ${objectClass} transition-opacity duration-300 ${
-            isLoaded ? "opacity-100" : "opacity-0"
+          className={`w-full ${heightClass} ${objectClass} ${
+            revealImmediately
+              ? ""
+              : `transition-opacity duration-300 ${isLoaded ? "opacity-100" : "opacity-0"}`
           }`}
           style={{ objectPosition }}
         />

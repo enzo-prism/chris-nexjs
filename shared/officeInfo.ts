@@ -10,6 +10,10 @@ export const officeInfo = {
     country: "US",
   },
   mapUrl: "https://maps.app.goo.gl/UCTqQ1fZsdMq7vma9",
+  // Opens the Google review dialog for the practice's Business Profile
+  // (place id derived from the same listing as mapUrl).
+  reviewUrl:
+    "https://search.google.com/local/writereview?placeid=ChIJfT983OW6j4ARMtSs-SPlX08",
   hours: {
     monday: "8:00 AM - 5:00 PM",
     tuesday: "8:00 AM - 5:00 PM",

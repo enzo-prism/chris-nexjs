@@ -269,8 +269,9 @@ const DentistLosAltos = () => {
               Planning your visit from Los Altos
             </h2>
             <p className="text-slate-700 leading-relaxed mb-6">
-              Our Palo Alto office is located at {officeInfo.address.line1}, {officeInfo.address.line2}. We are a short
-              drive from Los Altos via Foothill Expressway, and we will share parking tips when you schedule. If you want
+              Our Palo Alto office is located at {officeInfo.address.line1}, {officeInfo.address.line2}, in the
+              California Avenue district. Most Los Altos patients reach us in about 10 to 15 minutes via Foothill
+              Expressway and El Monte Avenue, and we will share parking tips when you schedule. If you want
               to coordinate multiple appointments, call our team and we will help map out a plan.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
