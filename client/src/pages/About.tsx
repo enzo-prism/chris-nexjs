@@ -547,18 +547,6 @@ const About = () => {
             <div className="w-16 sm:w-24 h-1 bg-primary mx-auto mt-4"></div>
           </div>
 
-          {/* Full team group photo */}
-          <div className="mx-auto mb-10 sm:mb-12 max-w-5xl overflow-hidden rounded-2xl shadow-md ring-1 ring-slate-200/70">
-            <OptimizedImage
-              src="/images/about/team-group.webp"
-              alt="The Christopher B. Wong, DDS dental team in the Palo Alto office"
-              width={1600}
-              height={1067}
-              sizes="(max-width: 1024px) 100vw, 1024px"
-              className="w-full h-auto object-cover aspect-[3/2]"
-            />
-          </div>
-
           {/* Mobile-first: Stack cards on mobile, then responsive grid */}
           <div className="space-y-6 sm:space-y-8 md:space-y-0 md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-6 lg:gap-8">
             {teamMembers.map((member, index) => (

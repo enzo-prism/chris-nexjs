@@ -305,29 +305,6 @@ const OfficeTour = (): JSX.Element => {
         </div>
       </section>
 
-      {/* Meet the team band */}
-      <section className="bg-white py-14 md:py-20">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-heading text-2xl font-bold text-slate-900 sm:text-3xl md:text-4xl">
-            The people who&rsquo;ll take care of you
-          </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-base leading-relaxed text-slate-600">
-            Dr. Christopher B. Wong leads a warm, experienced team that patients
-            have trusted for years.
-          </p>
-          <div className="mt-8 overflow-hidden rounded-3xl shadow-md ring-1 ring-slate-200/70">
-            <OptimizedImage
-              src="/images/about/team-group.webp"
-              alt="The Christopher B. Wong, DDS dental team in the Palo Alto office"
-              width={1600}
-              height={1067}
-              sizes="(max-width: 1024px) 100vw, 1024px"
-              className="aspect-[3/2] w-full"
-            />
-          </div>
-        </div>
-      </section>
-
       {/* CTA */}
       <section className="bg-[#0b1f3a] py-16">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center">
