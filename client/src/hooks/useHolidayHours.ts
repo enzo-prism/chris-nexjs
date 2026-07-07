@@ -11,14 +11,12 @@ import {
  * Returns the temporary-hours notice with past dates pruned, or `null` when
  * nothing is active/upcoming.
  *
- * The office-local "today" depends on the visitor's clock, so — like
- * `OpenNowStatus` — it is computed after mount to avoid hydration mismatches.
- * Before mount we resolve with `null`, which keeps every entry so the server
- * HTML matches the first client render; the post-mount pass then drops any
- * date that has already passed.
+ * The office-local "today" is computed in a fixed timezone, so the server can
+ * safely prune past entries before first paint. That avoids rendering an
+ * expired banner during SSR and removing it after hydration.
  */
 export function useHolidayHours(): ResolvedHolidayHours | null {
-  const [today, setToday] = useState<string | null>(null);
+  const [today, setToday] = useState(() => getOfficeTodayISO());
 
   useEffect(() => {
     setToday(getOfficeTodayISO());
