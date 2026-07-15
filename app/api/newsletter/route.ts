@@ -5,9 +5,13 @@ import { ANALYTICS_EVENTS, getAnalyticsPathFromUrl } from "@shared/analytics";
 import { insertNewsletterSubscriptionSchema } from "@shared/schema";
 import { getStorage } from "../../../server/storage/repository";
 import { trackVercelServerEvent } from "../../../server/vercelAnalytics";
+import { validateJsonRequest } from "../../../server/requestPolicy";
 
 export async function POST(request: NextRequest) {
   try {
+    const requestError = validateJsonRequest(request, 8 * 1024);
+    if (requestError) return requestError;
+
     const body = await request.json();
     const payload = insertNewsletterSubscriptionSchema.parse(body);
     const storage = await getStorage();

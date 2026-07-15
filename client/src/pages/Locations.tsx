@@ -34,7 +34,7 @@ const Locations = () => {
     {
       question: "How do I choose the right location page?",
       answer:
-        "Choose the city closest to you to see service highlights and local FAQs. All care takes place at our Palo Alto office.",
+        "All care takes place at our Palo Alto office. Dedicated pages cover the few communities with distinct visit-planning needs; every nearby community receives the same services.",
     },
     {
       question: "Do you offer the same services for all nearby cities?",
@@ -71,47 +71,49 @@ const Locations = () => {
       description: "Preventive, restorative, and Invisalign care for Mountain View families.",
     },
     {
-      href: "/dentist-los-altos",
+      href: "/locations",
       title: "Los Altos",
       description: "Personalized care for Los Altos patients at our nearby Palo Alto office.",
     },
     {
-      href: "/dentist-los-altos-hills",
+      href: "/locations",
       title: "Los Altos Hills",
       description: "Conservative dental care for Los Altos Hills families.",
     },
     {
-      href: "/dentist-sunnyvale",
+      href: "/locations",
       title: "Sunnyvale",
       description: "Family-friendly dental care close to Sunnyvale patients.",
     },
     {
-      href: "/dentist-cupertino",
+      href: "/locations",
       title: "Cupertino",
       description: "Comprehensive dental care for Cupertino families.",
     },
     {
-      href: "/dentist-redwood-city",
+      href: "/locations",
       title: "Redwood City",
       description: "Conservative care for Redwood City patients near Palo Alto.",
     },
     {
-      href: "/dentist-redwood-shores",
+      href: "/locations",
       title: "Redwood Shores",
       description: "Preventive and cosmetic care for Redwood Shores patients.",
     },
     {
-      href: "/dentist-atherton",
+      href: "/locations",
       title: "Atherton",
       description: "Modern dentistry for Atherton families near Palo Alto.",
     },
   ];
 
-  const locationParts = locations.map((location) => ({
+  const locationParts = locations
+    .filter((location) => location.href !== "/locations")
+    .map((location) => ({
     name: location.title,
     path: location.href,
     description: location.description,
-  }));
+    }));
   const locationListSchema = buildLocationItemListSchema(locationParts);
   if (locationListSchema) {
     structuredDataNodes.push(locationListSchema);
@@ -143,8 +145,8 @@ const Locations = () => {
               </div>
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-heading text-[#1F2933]">Locations We Serve</h1>
               <p className="text-lg text-slate-700 max-w-3xl mx-auto lg:mx-0">
-                Our Palo Alto dental office welcomes patients from across the Peninsula. Use the links below to find
-                location-specific FAQs, service highlights, and planning tips for your community.
+                Our Palo Alto dental office welcomes patients from across the Peninsula. Use the links below for
+                visit-planning details where they are genuinely distinct.
               </p>
               <div className="inline-flex items-center gap-2 text-slate-700">
                 <MapPin className="h-5 w-5 text-primary" aria-hidden="true" />
@@ -189,8 +191,22 @@ const Locations = () => {
       <section className="py-12 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {locations.map((location) => (
-              <Link key={location.href} href={location.href}>
+            {locations.map((location) =>
+              location.href === "/locations" ? (
+                <div
+                  key={location.title}
+                  className="h-full rounded-2xl border border-slate-200 bg-slate-50 p-5"
+                >
+                  <h2 className="text-lg font-semibold text-slate-900">
+                    {location.title}
+                  </h2>
+                  <p className="mt-2 text-sm text-slate-600">{location.description}</p>
+                  <span className="mt-4 inline-flex text-sm font-medium text-slate-500">
+                    Served from our Palo Alto office
+                  </span>
+                </div>
+              ) : (
+              <Link key={location.title} href={location.href}>
                 <div className="group h-full rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
                   <h2 className="text-lg font-semibold text-slate-900 group-hover:text-primary">
                     {location.title}
@@ -202,7 +218,8 @@ const Locations = () => {
                   </span>
                 </div>
               </Link>
-            ))}
+              ),
+            )}
           </div>
         </div>
       </section>

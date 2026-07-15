@@ -13,7 +13,7 @@ import { useBlogPosts } from "@/hooks/useBlogPosts";
 import MetaTags from "@/components/common/MetaTags";
 import { buildExcerpt, pageDescriptions, pageTitles } from "@/lib/metaContent";
 import { getSeoForPath } from "@/lib/seo";
-import { ArrowLeft, Calendar, Clock, ShieldCheck, Tag } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import StructuredData from "@/components/seo/StructuredData";
@@ -225,7 +225,28 @@ const BlogPost = ({ params, initialPosts }: BlogPostPageProps) => {
   }, [posts, slug]);
   const relatedPosts = useMemo(() => {
     if (!post) return [];
-    return posts.filter((candidate) => candidate.slug !== post.slug).slice(0, 3);
+    const topicTerms = new Set(
+      `${post.slug} ${post.category ?? ""}`
+        .toLowerCase()
+        .split(/[^a-z0-9]+/)
+        .filter((term) => term.length > 3),
+    );
+
+    return posts
+      .filter((candidate) => candidate.slug !== post.slug)
+      .map((candidate) => {
+        const candidateTerms = `${candidate.slug} ${candidate.category ?? ""}`
+          .toLowerCase()
+          .split(/[^a-z0-9]+/)
+          .filter((term) => term.length > 3);
+        const sharedTerms = candidateTerms.filter((term) => topicTerms.has(term)).length;
+        const categoryMatch =
+          candidate.category && candidate.category === post.category ? 20 : 0;
+        return { candidate, score: categoryMatch + sharedTerms };
+      })
+      .sort((a, b) => b.score - a.score || b.candidate.id - a.candidate.id)
+      .slice(0, 3)
+      .map(({ candidate }) => candidate);
   }, [post, posts]);
 
   const blogSeo = useMemo(() => getBlogSeoMetadata(post), [post]);
@@ -248,7 +269,7 @@ const BlogPost = ({ params, initialPosts }: BlogPostPageProps) => {
         datePublished: postIsoDate ?? post.date,
         dateModified: postIsoDate ?? post.date,
         author: {
-          "@type": "Person",
+          "@type": "Organization",
           name: "Christopher B. Wong, DDS",
           url: absoluteUrl("/about"),
         },
@@ -264,13 +285,6 @@ const BlogPost = ({ params, initialPosts }: BlogPostPageProps) => {
         mainEntityOfPage: {
           "@type": "WebPage",
           "@id": pageUrl,
-          reviewedBy: {
-            "@type": "Person",
-            name: "Christopher B. Wong, DDS",
-            jobTitle: "Doctor of Dental Surgery",
-            url: absoluteUrl("/about"),
-          },
-          ...(postIsoDate ? { lastReviewed: postIsoDate } : {}),
         },
         url: pageUrl,
       }
@@ -621,15 +635,6 @@ const BlogPost = ({ params, initialPosts }: BlogPostPageProps) => {
           <p className="text-lg text-gray-600 max-w-3xl mb-6">
             {articleSummary}
           </p>
-          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-800">
-            <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden="true" />
-            <span>
-              Medically reviewed by{" "}
-              <Link href="/about" className="font-semibold underline-offset-2 hover:underline">
-                Christopher B. Wong, DDS
-              </Link>
-            </span>
-          </div>
           <div className="mb-10 overflow-hidden rounded-[32px] border border-sky-100/80 bg-white shadow-[0_30px_90px_-48px_rgba(15,23,42,0.4)]">
             {customArticleImage ? (
               <OptimizedImage

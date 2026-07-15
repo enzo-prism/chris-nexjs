@@ -20,7 +20,9 @@ Include these fields on all schedule events where possible:
 - Fires once when scheduling UI is viewed.
 
 2. `schedule_start`
-- Fires once when user enters scheduling flow.
+- Fires once on the first real scheduling interaction: the first field change
+  or the first successful Continue action.
+- Does not fire from a page view, component mount, focus-only event, or scroll.
 - Maintained for continuity with historical reporting.
 
 3. `schedule_step_view`
@@ -70,6 +72,7 @@ Include these fields on all schedule events where possible:
 
 10. `schedule_abandonment_checkpoint`
 - Fires at `30s` and `90s` if flow is not completed.
+- Timers begin only after `schedule_start` has fired.
 - Additional fields:
   - `seconds_elapsed`
   - `step_index`
@@ -101,5 +104,7 @@ Vercel custom data is capped at two flat primitive properties by `shared/analyti
   - `first_available` flow (step skip case)
 - Confirm field error events include field keys and messages.
 - Confirm abandonment checkpoint events stop after successful submit.
+- Confirm a view with no field change or Continue action never fires `schedule_start`
+  or an abandonment checkpoint.
 - Confirm `schedule_submit_success` and legacy submit events both fire on success.
 - Confirm Vercel receives only `schedule_start`, `schedule_submit_failure`, and server-confirmed `appointment_request_submit`.

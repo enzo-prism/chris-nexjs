@@ -47,10 +47,7 @@ export function getAnalyticsConsentState(): AnalyticsConsentState | null {
 }
 
 export function hasAnalyticsConsent(): boolean {
-  // Consent is granted by default — there is no consent banner. Analytics and
-  // advertising signals are on for everyone (gated only by
-  // isAnalyticsRuntimeEnabled() for the host check).
-  return true;
+  return getAnalyticsConsentState() !== "denied";
 }
 
 export function trackGAEvent(action: string, params: Record<string, unknown> = {}): void {
@@ -163,9 +160,9 @@ export function setAnalyticsConsent(granted: boolean): void {
 
   if (typeof window.gtag === "function") {
     window.gtag("consent", "update", {
-      ad_storage: state,
-      ad_user_data: state,
-      ad_personalization: state,
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
       analytics_storage: state,
     });
   }

@@ -14,8 +14,7 @@ Command reference for contract, UI, SEO, and performance checks.
 ### Type and safety
 
 - `pnpm run check`
-  - Runs hard-coded business-info guard and TypeScript compile checks.
-  - Requires generated Next route types in `.next/types`; if missing, run `pnpm run build` once.
+  - Regenerates current Next route types, then runs the hard-coded business-info guard and TypeScript compile checks.
   - Do not run it in parallel with `build`, `build:perf`, `test:bundle`, or `test:production`, because `.next/types` can be missing or mid-regeneration and produce misleading failures.
 
 ### API and routing contracts
@@ -63,6 +62,8 @@ Command reference for contract, UI, SEO, and performance checks.
   - Runtime JSON-LD schema validation checks.
 - `pnpm run test:seo:all`
   - Runs all SEO checks above.
+- `pnpm run llms:generate`
+  - Regenerates both tracked `llms.txt` copies; CI reruns it and rejects drift.
 
 Runtime SEO scripts use `SEO_AUDIT_BASE_URL` and default to `http://localhost:3000`.
 If local dev is on port `5000`, set `SEO_AUDIT_BASE_URL=http://localhost:5000`.
@@ -120,14 +121,11 @@ pnpm run test:production
 
 Sequencing note:
 
-- `pnpm run check` depends on `.next/types`.
 - Keep `check` and build-backed scripts sequential, not parallel.
-- If `check` suddenly reports missing Next route types, run:
+- If route-type generation itself fails, run it directly for a focused error:
 
 ```bash
-rm -rf .next
-pnpm run build
-pnpm run check
+pnpm exec next typegen
 ```
 
 Extended release gate:
@@ -199,7 +197,7 @@ curl -sL https://www.chriswongdds.com/ \
   | wc -l
 curl -sL https://www.chriswongdds.com/ \
   | perl -0ne 'if (/<head>(.*?)<\\/head>/s) { print $1 }' \
-  | rg -n "gtag\\('consent', 'default'|analytics_storage: 'granted'|gtag\\('config', 'G-94WRBJY51J'|send_page_view: false"
+  | rg -n "gtag\\('consent', 'default'|analytics_storage: analyticsConsent|ad_storage: 'denied'|gtag\\('config', 'G-94WRBJY51J'|send_page_view: false"
 ```
 
 Expected:
@@ -209,7 +207,7 @@ Expected:
 - apex host (`chriswongdds.com`) redirects permanently (`301` or `308`) to `https://www.chriswongdds.com/`
 - canonical host returns `200`
 - GA head-tag count command returns `1`
-- the head bootstrap shows the granted consent default (`consent', 'default` with `analytics_storage: 'granted'`), `send_page_view: false`, and the GA `config', 'G-94WRBJY51J'` call (there is no consent banner; no `wait_for_update`/`allow_google_signals` hardening flags)
+- the head bootstrap makes analytics storage follow stored consent, keeps advertising consent fields denied, uses `send_page_view: false`, and configures the expected GA ID
 
 Search Console-specific follow-up after SEO releases:
 

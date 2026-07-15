@@ -39,19 +39,19 @@ const ServiceCard = ({ service }: ServiceCardProps) => {
   const getCtaText = (serviceTitle: string): string => {
     switch(serviceTitle) {
       case "Preventive Dentistry":
-        return "Schedule Your Checkup";
+        return "Request a Checkup";
       case "Cosmetic Dentistry":
         return "Transform Your Smile";
       case "Restorative Dentistry":
         return "Restore Your Teeth";
       case "Pediatric Dentistry":
-        return "Book a Kid's Visit";
+        return "Request a Kid's Visit";
       case "Orthodontics":
         return "Start Your Alignment";
       case "Emergency Dental Care":
         return "Get Urgent Care";
       default:
-        return "Book Your Appointment";
+        return "Request an Appointment";
     }
   };
 
@@ -60,6 +60,27 @@ const ServiceCard = ({ service }: ServiceCardProps) => {
       return "Invisalign in Palo Alto";
     }
     return "View Details";
+  };
+
+  const getBookingIntent = (slug: string): string => {
+    switch (slug) {
+      case "invisalign":
+        return "invisalign";
+      case "emergency-dental":
+        return "emergency";
+      case "cosmetic-dentistry":
+        return "cosmetic";
+      case "dental-implants":
+        return "implants";
+      case "zoom-whitening":
+        return "whitening";
+      case "restorative-dentistry":
+        return "restorative";
+      case "pediatric-dentistry":
+        return "pediatric";
+      default:
+        return "preventive";
+    }
   };
 
   return (
@@ -99,7 +120,7 @@ const ServiceCard = ({ service }: ServiceCardProps) => {
             <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
           </ButtonLink>
           <ButtonLink
-            href="/schedule#appointment"
+            href={`/schedule?intent=${getBookingIntent(service.slug)}&source=service-card#appointment`}
             className="w-full"
           >
             {getCtaText(service.title)}

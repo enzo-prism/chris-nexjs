@@ -15,7 +15,7 @@ import {
   sanitizeVercelEventProperties,
 } from "@shared/analytics";
 
-const waitForAnalyticsFlush = () => new Promise((resolve) => setTimeout(resolve, 0));
+const waitForAnalyticsFlush = () => new Promise((resolve) => setTimeout(resolve, 50));
 
 let gaCalled: any = null;
 let vercelCalled: any = null;

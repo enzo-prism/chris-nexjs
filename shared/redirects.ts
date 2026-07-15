@@ -28,9 +28,19 @@ const staticLegacyRedirects: Record<string, string> = {
   "/dental-cleaning": "/dental-cleaning-palo-alto",
   "/cavity-fillings": "/cavity-fillings-palo-alto",
   "/crowns": "/crowns-palo-alto",
+  // Consolidate near-duplicate city doorway pages into the useful location hub.
+  "/dentist-los-altos": "/locations",
+  "/dentist-los-altos-hills": "/locations",
+  "/dentist-sunnyvale": "/locations",
+  "/dentist-cupertino": "/locations",
+  "/dentist-redwood-city": "/locations",
+  "/dentist-atherton": "/locations",
+  "/dentist-redwood-shores": "/locations",
   // Consolidated a duplicate Invisalign-timeline post into a single canonical.
   "/blog/how-long-does-invisalign-take-palo-alto":
     "/blog/how-long-does-invisalign-take",
+  "/blog/dental-implants-vs-bridges-palo-alto":
+    "/blog/dental-implants-vs-bridge-palo-alto",
 } as const;
 
 const serviceSlugRedirects: Record<string, string> = {

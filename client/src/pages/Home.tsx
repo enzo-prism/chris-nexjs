@@ -9,16 +9,14 @@ import ButtonLink from "@/components/common/ButtonLink";
 import AnimatedFlowDivider from "@/components/common/animated/AnimatedFlowDivider";
 import {
   ArrowRight,
-  BadgePercent,
   CheckCircle,
   ChevronLeft,
   ChevronRight,
-  Gift,
   Phone,
   Quote,
 } from "lucide-react";
 import Link from "next/link";
-import type { InsertTestimonial, Service, Testimonial } from "@shared/schema";
+import type { InsertTestimonial, Service } from "@shared/schema";
 import { officeInfo } from "@/lib/data";
 import { useHolidayHours } from "@/hooks/useHolidayHours";
 import { isNoAdditionalCommentPlaceholder } from "@/lib/testimonialText";
@@ -43,22 +41,8 @@ const ServiceCard = dynamic(
   () => import("@/components/common/ServiceCard"),
   { ssr: true, loading: () => null },
 );
-const AppointmentForm = dynamic(
-  () => import("@/components/forms/AppointmentForm"),
-  {
-    ssr: false,
-    loading: () => (
-      <div
-        aria-hidden="true"
-        className="min-h-[320px] w-full rounded-xl border border-slate-200 bg-slate-50/80 sm:min-h-[400px]"
-      />
-    ),
-  },
-);
-
 type HomeProps = {
-  initialServices?: Service[];
-  initialTestimonials?: Testimonial[];
+  readonly initialServices?: Service[];
 };
 
 const homeSpotlightTestimonials: readonly InsertTestimonial[] = [
@@ -68,13 +52,6 @@ const homeSpotlightTestimonials: readonly InsertTestimonial[] = [
     location: "Google Review",
     image: "/images/testimonials/lauren-hall-testimonial.webp",
     text: "Only the best. These pearly whites stay pearly year around thanks to these guys. If your not coming here your missing out",
-  },
-  {
-    name: "Anne Starr",
-    rating: 5,
-    location: "Google Review",
-    image: "",
-    text: "Dr. Hamamoto did great passing her practice to Dr. Wong! He is great! Helen and Angelisa are the best dental hygienists!",
   },
   {
     name: "Anat Sipres",
@@ -104,19 +81,9 @@ const homeSpotlightTestimonials: readonly InsertTestimonial[] = [
     image: "",
     text: "Been getting my dental care at this office for nearly 30 years, and both my parents did so before me. Kind and caring, gentle and good, and reasonably priced!",
   },
-  {
-    name: "Alan Truscott",
-    rating: 5,
-    location: "Google Review",
-    image: "",
-    text: "Great Dentist, and a great staff. We found Kris on Yelp, and she is perfect for our family. Everyone is easy to work with and the hygienists are awesome. Highly recommend Kris Hamamoto and her Team.",
-  },
 ];
 
-const Home = (props: any) => {
-  const {
-    initialServices = [],
-  } = (props ?? {}) as HomeProps;
+const Home = ({ initialServices = [] }: HomeProps) => {
   const testimonialsToShow = homeSpotlightTestimonials;
   const holiday = useHolidayHours();
   const [activeTestimonial, setActiveTestimonial] = useState(0);
@@ -566,54 +533,9 @@ const Home = (props: any) => {
                 >
                   Mountain View families
                 </Link>
-                ,{" "}
-                <Link
-                  href="/dentist-los-altos"
-                  className="ui-link-premium"
-                >
-                  Los Altos patients
-                </Link>
-                ,{" "}
-                <Link
-                  href="/dentist-los-altos-hills"
-                  className="ui-link-premium"
-                >
-                  Los Altos Hills patients
-                </Link>
-                ,{" "}
-                <Link
-                  href="/dentist-sunnyvale"
-                  className="ui-link-premium"
-                >
-                  Sunnyvale families
-                </Link>
-                ,{" "}
-                <Link
-                  href="/dentist-cupertino"
-                  className="ui-link-premium"
-                >
-                  Cupertino families
-                </Link>
-                ,{" "}
-                <Link
-                  href="/dentist-redwood-city"
-                  className="ui-link-premium"
-                >
-                  Redwood City patients
-                </Link>
-                ,{" "}
-                <Link
-                  href="/dentist-atherton"
-                  className="ui-link-premium"
-                >
-                  Atherton patients
-                </Link>
-                , and{" "}
-                <Link
-                  href="/dentist-redwood-shores"
-                  className="ui-link-premium"
-                >
-                  Redwood Shores patients
+                , and other{" "}
+                <Link href="/locations" className="ui-link-premium">
+                  nearby Peninsula communities
                 </Link>
                 .
               </p>
@@ -632,26 +554,8 @@ const Home = (props: any) => {
                   <Link href="/dentist-mountain-view" className="ui-link-premium">
                     Mountain View
                   </Link>
-                  <Link href="/dentist-los-altos" className="ui-link-premium">
-                    Los Altos
-                  </Link>
-                  <Link href="/dentist-los-altos-hills" className="ui-link-premium">
-                    Los Altos Hills
-                  </Link>
-                  <Link href="/dentist-sunnyvale" className="ui-link-premium">
-                    Sunnyvale
-                  </Link>
-                  <Link href="/dentist-cupertino" className="ui-link-premium">
-                    Cupertino
-                  </Link>
-                  <Link href="/dentist-redwood-city" className="ui-link-premium">
-                    Redwood City
-                  </Link>
-                  <Link href="/dentist-atherton" className="ui-link-premium">
-                    Atherton
-                  </Link>
-                  <Link href="/dentist-redwood-shores" className="ui-link-premium">
-                    Redwood Shores
+                  <Link href="/locations" className="ui-link-premium">
+                    All nearby communities
                   </Link>
                 </div>
               </div>
@@ -729,83 +633,6 @@ const Home = (props: any) => {
         </div>
       </section>
 
-      {/* Limited-time offers */}
-      <section id="offers" className="py-14 md:py-20 bg-gradient-to-b from-white via-[#F5F9FC] to-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-            <div className="lg:col-span-4 space-y-4">
-              <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em]">
-                <BadgePercent className="h-4 w-4" />
-                Limited-time offers
-              </span>
-              <h2 className="text-3xl md:text-4xl font-bold font-heading text-[#1F2933]">
-                New patient specials
-              </h2>
-              <p className="text-slate-700 leading-relaxed">
-                Start your care with added value. These offers are available for a short time and
-                designed to make your first visit feel even better.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <ButtonLink
-                  href="/schedule#appointment"
-                  className="ui-btn-primary"
-                >
-                  Claim an offer
-                </ButtonLink>
-                <ButtonLink
-                  href="/contact"
-                  variant="outline"
-                  className="ui-btn-outline"
-                >
-                  Ask a question
-                </ButtonLink>
-              </div>
-              <p className="text-xs text-slate-500">
-                Offers are available for new patients and subject to availability.
-              </p>
-            </div>
-
-            <div className="lg:col-span-8 grid gap-6 sm:grid-cols-2">
-              <div className="relative overflow-hidden rounded-3xl border border-emerald-100 bg-white p-6 shadow-sm">
-                <div className="absolute -top-10 -right-10 h-24 w-24 rounded-full bg-emerald-100/70 blur-2xl" aria-hidden="true" />
-                <div className="flex items-center gap-2 text-emerald-700 text-xs font-semibold uppercase tracking-[0.18em]">
-                  <Gift className="h-4 w-4" />
-                  New patient gift
-                </div>
-                <h3 className="mt-3 text-xl font-semibold text-slate-900">
-                  Free premium toothbrush
-                </h3>
-                <p className="mt-2 text-sm text-slate-600 leading-relaxed">
-                  Included with your first exam and cleaning. Ask our team to reserve yours when you schedule.
-                </p>
-                <Link href="/schedule#appointment" className="mt-4 inline-flex items-center text-sm font-semibold text-emerald-700 hover:text-emerald-800">
-                  Book your first visit
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </div>
-
-              <div className="relative overflow-hidden rounded-3xl border border-blue-100 bg-white p-6 shadow-sm">
-                <div className="absolute -bottom-10 -right-10 h-28 w-28 rounded-full bg-blue-100/70 blur-2xl" aria-hidden="true" />
-                <div className="flex items-center gap-2 text-blue-700 text-xs font-semibold uppercase tracking-[0.18em]">
-                  <BadgePercent className="h-4 w-4" />
-                  Invisalign savings
-                </div>
-                <h3 className="mt-3 text-xl font-semibold text-slate-900">
-                  $1,000 off Invisalign treatment
-                </h3>
-                <p className="mt-2 text-sm text-slate-600 leading-relaxed">
-                  Save on a personalized Invisalign plan with clear aligners and digital planning.
-                </p>
-                <Link href="/invisalign" className="mt-4 inline-flex items-center text-sm font-semibold text-blue-700 hover:text-blue-800">
-                  Explore Invisalign
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <FeaturesSection />
 
       {/* About Section */}
@@ -876,8 +703,8 @@ const Home = (props: any) => {
                   Schedule Your Appointment
                 </h2>
                 <p className="mb-6">
-                  Choose between in-person visits or convenient virtual
-                  consultations for your initial assessment.
+                  Send a quick request and our team will follow up to confirm a
+                  visit time that works for you.
                 </p>
                 <div className="mb-6">
                   <div className="mb-3 flex items-center">
@@ -926,12 +753,18 @@ const Home = (props: any) => {
                   Book Your Visit
                 </h3>
                 <p className="mb-6 text-[#333333]">
-                  Fill out the form below to schedule your appointment. We'll
-                  get back to you promptly to confirm your visit.
+                  Use our focused request form to tell us what you need and how
+                  you would like us to contact you. Most patients finish in
+                  under a minute.
                 </p>
-                <AppointmentForm
-                  className="min-h-[320px] w-full sm:min-h-[400px]"
-                />
+                <ButtonLink href="/schedule#appointment" className="ui-btn-primary w-full">
+                  Request your appointment
+                  <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+                </ButtonLink>
+                <p className="mt-4 text-sm leading-6 text-slate-600">
+                  This is an appointment request. Our team confirms the exact
+                  date and time within one business day.
+                </p>
               </div>
             </div>
           </div>

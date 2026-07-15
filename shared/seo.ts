@@ -77,9 +77,9 @@ export function normalizePathname(pathname: string): string {
 
 const seoByPathSource: Record<string, SeoDefinitionInput> = {
   "/": {
-    title: "Palo Alto Family Dentist | Christopher B. Wong, DDS",
+    title: "Dentist in Palo Alto, CA | Christopher B. Wong, DDS",
     description:
-      "Palo Alto dentist Christopher B. Wong, DDS provides family, cosmetic & restorative dentistry, Invisalign, implants, and emergency care. Book online.",
+      "Accepting new patients in Palo Alto for preventive, cosmetic and restorative dentistry, Invisalign, implants and urgent dental care. Request a visit.",
     canonicalPath: "/",
     ogImage: "/images/office/reception-area.png",
   },
@@ -191,7 +191,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     ogImage: "/images/office/exterior-entry.png",
   },
   "/schedule": {
-    title: "Book an Appointment | Palo Alto | Christopher B. Wong, DDS",
+    title: "Request a Dental Appointment | Palo Alto, CA",
     description:
       "Schedule your appointment with Palo Alto dentist Dr. Christopher Wong. New patients welcome. Easy online booking for dental care in Palo Alto.",
     canonicalPath: "/schedule",
@@ -295,6 +295,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
       "Los Altos patients choose our Palo Alto dentist for preventive care, cosmetic improvements, restorations, Invisalign, and urgent visits.",
     canonicalPath: "/dentist-los-altos",
     ogImage: "/images/generated/locations/dentist-los-altos.webp",
+    indexable: false,
   },
   "/dentist-los-altos-hills": {
     title: "Los Altos Hills Dentist | Christopher B. Wong, DDS",
@@ -302,6 +303,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
       "Los Altos Hills patients visit our Palo Alto office for preventive care, cosmetic dentistry, restorative treatment, Invisalign, and emergency visits.",
     canonicalPath: "/dentist-los-altos-hills",
     ogImage: "/images/office/garden-courtyard.png",
+    indexable: false,
   },
   "/dentist-sunnyvale": {
     title: "Sunnyvale Family Dentist | Christopher B. Wong, DDS",
@@ -309,6 +311,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
       "Sunnyvale families choose our Palo Alto dentist for cleanings, fillings, Invisalign, cosmetic dentistry, and same-day emergency care.",
     canonicalPath: "/dentist-sunnyvale",
     ogImage: "/images/generated/locations/dentist-sunnyvale.webp",
+    indexable: false,
   },
   "/dentist-cupertino": {
     title: "Cupertino Family Dentist | Christopher B. Wong, DDS",
@@ -316,6 +319,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
       "Cupertino families visit our Palo Alto office for cleanings, fillings, Invisalign, cosmetic dentistry, and emergency care.",
     canonicalPath: "/dentist-cupertino",
     ogImage: "/images/office/office-entrance.png",
+    indexable: false,
   },
   "/dentist-redwood-city": {
     title: "Redwood City Dentist | Christopher B. Wong, DDS",
@@ -323,6 +327,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
       "Redwood City patients choose our Palo Alto dentist for preventive care, restorative treatment, Invisalign, and urgent visits.",
     canonicalPath: "/dentist-redwood-city",
     ogImage: "/images/office/exterior-hallway.png",
+    indexable: false,
   },
   "/dentist-atherton": {
     title: "Atherton Dentist | Palo Alto | Christopher B. Wong, DDS",
@@ -330,6 +335,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
       "Atherton patients visit our Palo Alto office for preventive care, restorative treatment, Invisalign, cosmetic dentistry, and emergency visits.",
     canonicalPath: "/dentist-atherton",
     ogImage: "/images/office/atrium-courtyard.webp",
+    indexable: false,
   },
   "/dentist-redwood-shores": {
     title: "Redwood Shores Dentist | Christopher B. Wong, DDS",
@@ -337,6 +343,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
       "Redwood Shores patients choose our Palo Alto dentist for cleanings, fillings, Invisalign, cosmetic dentistry, and urgent visits.",
     canonicalPath: "/dentist-redwood-shores",
     ogImage: "/images/office/exterior-entry.png",
+    indexable: false,
   },
   "/locations": {
     title: "Areas We Serve | Palo Alto | Christopher B. Wong, DDS",
@@ -451,6 +458,11 @@ const CHANGEFREQ_OVERRIDES: Partial<
 // drift past the per-cluster staleness threshold). Last real change:
 // June 2026 office-hours/holiday-notice updates rendered on every page.
 const LASTMOD_OVERRIDES: Partial<Record<string, string>> = {
+  "/": "2026-07-15",
+  "/services": "2026-07-15",
+  "/schedule": "2026-07-15",
+  "/contact": "2026-07-15",
+  "/insurance": "2026-07-15",
   "/dentist-menlo-park": "2026-06-11",
   "/dentist-stanford": "2026-06-11",
   "/dentist-mountain-view": "2026-06-11",
@@ -461,7 +473,7 @@ const LASTMOD_OVERRIDES: Partial<Record<string, string>> = {
   "/dentist-redwood-city": "2026-06-11",
   "/dentist-atherton": "2026-06-11",
   "/dentist-redwood-shores": "2026-06-11",
-  "/locations": "2026-06-11",
+  "/locations": "2026-07-15",
 };
 
 function resolveIndexable(entry: SeoDefinitionInput): boolean {
@@ -553,30 +565,15 @@ function inferSecondaryKeywords(
 
 function enforceTitleLength(
   title: string,
-  minLen: number,
+  _minLen: number,
   maxLen: number,
-  cluster: NonNullable<SeoDefinition["seoCluster"]>,
+  _cluster: NonNullable<SeoDefinition["seoCluster"]>,
 ): string {
   let resolved = normalizeMetaText(title);
   if (resolved.length > maxLen) {
     resolved = trimToWordBoundary(resolved, maxLen);
   }
-  if (resolved.length >= minLen) {
-    return resolved;
-  }
-
-  const suffix =
-    cluster === "location"
-      ? " | Palo Alto Dentist"
-      : cluster === "service"
-        ? " | Palo Alto Dental Care"
-        : " | Christopher B. Wong, DDS";
-  const expanded = normalizeMetaText(`${resolved}${suffix}`);
-  if (expanded.length <= maxLen) {
-    return expanded;
-  }
-
-  return trimToWordBoundary(expanded, maxLen);
+  return resolved;
 }
 
 function enforceDescriptionLength(

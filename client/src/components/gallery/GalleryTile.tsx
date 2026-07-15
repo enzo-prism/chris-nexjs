@@ -31,7 +31,7 @@ export default function GalleryTile({
   className,
   priority = false,
   onOpen,
-}: GalleryTileProps): JSX.Element {
+}: GalleryTileProps): React.JSX.Element {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isInlinePlaying, setIsInlinePlaying] = useState(false);
   const [videoErrored, setVideoErrored] = useState(false);

@@ -18,11 +18,12 @@ const truncate = (value: string, max: number): string =>
 export default async function OpenGraphImage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const spec = getBlogArtSpec(params.slug);
+  const { slug } = await params;
+  const spec = getBlogArtSpec(slug);
   const storage = await getStorage();
-  const post = await storage.getBlogPostBySlug(params.slug);
+  const post = await storage.getBlogPostBySlug(slug);
   const headline = truncate(post?.title ?? "Dental Health Blog", 96);
 
   return new ImageResponse(

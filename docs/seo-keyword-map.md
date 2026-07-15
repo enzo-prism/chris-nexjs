@@ -32,13 +32,6 @@ Primary keyword mapping for canonical indexable URLs. This is the anti-cannibali
 | `/dentist-menlo-park` | location | dentist menlo park | menlo park family dentist, palo alto dentist near menlo park |
 | `/dentist-stanford` | location | dentist stanford | stanford dental care, nearby dentist stanford |
 | `/dentist-mountain-view` | location | dentist mountain view | mountain view family dentist, palo alto dentist near mountain view |
-| `/dentist-los-altos` | location | dentist los altos | los altos family dentist, nearby palo alto dentist |
-| `/dentist-los-altos-hills` | location | dentist los altos hills | los altos hills dental care, dentist near los altos hills |
-| `/dentist-sunnyvale` | location | dentist sunnyvale | sunnyvale family dentist, palo alto dentist near sunnyvale |
-| `/dentist-cupertino` | location | dentist cupertino | cupertino family dentist, nearby dentist cupertino |
-| `/dentist-redwood-city` | location | dentist redwood city | redwood city family dentist, palo alto dentist near redwood city |
-| `/dentist-atherton` | location | dentist atherton | atherton family dentist, nearby dental office atherton |
-| `/dentist-redwood-shores` | location | dentist redwood shores | redwood shores family dentist, nearby dentist redwood shores |
 | `/locations` | location | palo alto dentist locations served | dentist near me peninsula, communities we serve |
 | `/dental-implants` | service | dental implants palo alto | implant restoration palo alto, missing tooth replacement |
 | `/dental-veneers` | service | dental veneers palo alto | porcelain veneers palo alto, cosmetic smile makeover |
@@ -55,3 +48,7 @@ Primary keyword mapping for canonical indexable URLs. This is the anti-cannibali
 - Naming style rule in authored content:
   - use `Dr. Christopher B. Wong` or `Christopher B. Wong, DDS`
   - do not use `Dr. ... DDS` in the same line
+
+## Consolidated location policy
+
+The Los Altos, Los Altos Hills, Sunnyvale, Cupertino, Redwood City, Redwood Shores, and Atherton URLs permanently redirect to `/locations`. Do not recreate standalone city pages without demonstrated search demand and genuinely original visit-planning or practice-specific content. Menlo Park, Stanford, and Mountain View remain the only indexable nearby-city pages.

@@ -19,7 +19,7 @@ export default function ButtonLink({
   size,
   children,
   ...props
-}: ButtonLinkProps): JSX.Element {
+}: ButtonLinkProps): React.JSX.Element {
   return (
     <Link href={href} className={cn(buttonVariants({ variant, size, className }))} {...props}>
       {children}

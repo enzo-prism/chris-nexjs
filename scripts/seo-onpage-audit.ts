@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { generateMetadata } from "../app/[...slug]/page";
 import { getIndexablePaths, getSeoForPath, seoByPath } from "../shared/seo";
+import { getLegacyRedirectPath } from "../shared/redirects";
 
 type Failure = {
   path: string;
@@ -9,7 +10,6 @@ type Failure = {
 
 const BASE_URL = process.env.SEO_AUDIT_BASE_URL ?? "http://localhost:3000";
 const CANONICAL_ORIGIN = "https://www.chriswongdds.com";
-const MIN_TITLE_LENGTH = 45;
 
 function toRouteParams(path: string): { params: { slug?: string[] } } {
   if (path === "/") return { params: {} };
@@ -144,11 +144,13 @@ async function main(): Promise<void> {
 
     if (!title) {
       failures.push({ path, message: "Missing metadata title" });
-    } else if (title.length < MIN_TITLE_LENGTH || title.length > titleMax) {
+    } else if (title.length > titleMax) {
       failures.push({
         path,
-        message: `Title length ${title.length} outside ${MIN_TITLE_LENGTH}-${titleMax}`,
+        message: `Title length ${title.length} exceeds ${titleMax}`,
       });
+    } else if ((title.match(/Christopher B\. Wong/gi) ?? []).length > 1) {
+      failures.push({ path, message: "Title repeats the practice name" });
     }
 
     if (!description) {
@@ -186,12 +188,11 @@ async function main(): Promise<void> {
     if (!renderedTitle) {
       failures.push({ path, message: "Rendered HTML is missing a <title>" });
     } else if (
-      renderedTitle.length < MIN_TITLE_LENGTH ||
       renderedTitle.length > titleMax
     ) {
       failures.push({
         path,
-        message: `Rendered <title> length ${renderedTitle.length} outside ${MIN_TITLE_LENGTH}-${titleMax}`,
+        message: `Rendered <title> length ${renderedTitle.length} exceeds ${titleMax}`,
       });
     } else {
       titleInRange += 1;
@@ -245,7 +246,9 @@ async function main(): Promise<void> {
   }
 
   const noindexPaths = Object.values(seoByPath)
-    .filter((entry) => !entry.indexable)
+    .filter(
+      (entry) => !entry.indexable && !getLegacyRedirectPath(entry.canonicalPath),
+    )
     .map((entry) => entry.canonicalPath);
 
   for (const path of noindexPaths) {

@@ -16,7 +16,7 @@ const PrivacyPolicy = () => {
         <section className="bg-[#F5F9FC] py-16">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">Privacy Policy</h1>
-            <p className="text-lg text-gray-600">Last updated: {new Date().toLocaleDateString()}</p>
+            <p className="text-lg text-gray-600">Website policy version: July 15, 2026</p>
           </div>
         </section>
 

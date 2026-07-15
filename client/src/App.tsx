@@ -92,7 +92,7 @@ function Router() {
       <main style={{ paddingTop: "var(--header-height, 110px)" }}>
         <React.Suspense fallback={<div className="min-h-[40vh]" />}>
           <Switch>
-            <Route path="/" component={Home} />
+            <Route path="/" component={() => <Home />} />
             <Route path="/about" component={About} />
             <Route path="/services" component={Services} />
             <Route path="/patient-resources" component={PatientResources} />

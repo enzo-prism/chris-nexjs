@@ -43,12 +43,21 @@ function getSeoMetadataHints(pathname: string) {
   } as const;
 }
 
+type CatchAllSlugParams = { slug?: string[] };
+
+export function generateMetadata(props: {
+  params: CatchAllSlugParams;
+}): Promise<Metadata>;
+export function generateMetadata(props: {
+  params: Promise<CatchAllSlugParams>;
+}): Promise<Metadata>;
 export async function generateMetadata({
   params,
 }: {
-  params: { slug?: string[] };
+  params: Promise<CatchAllSlugParams> | CatchAllSlugParams;
 }): Promise<Metadata> {
-  const canonicalPath = getCanonicalRoutePath(params);
+  const resolvedParams = await params;
+  const canonicalPath = getCanonicalRoutePath(resolvedParams);
   const seoMetadata = getSeoMetadataHints(canonicalPath);
 
   if (canonicalPath.startsWith("/blog/") && canonicalPath !== "/blog") {
@@ -156,12 +165,12 @@ export async function generateMetadata({
   };
 }
 
-export default function CatchAllPage({
+export default async function CatchAllPage({
   params,
 }: {
-  params: { slug?: string[] };
+  params: Promise<{ slug?: string[] }>;
 }) {
-  const canonicalPath = getCanonicalRoutePath(params);
+  const canonicalPath = getCanonicalRoutePath(await params);
 
   const basePath = canonicalPath.split("#")[0] ?? canonicalPath;
   const isAllowedPath =

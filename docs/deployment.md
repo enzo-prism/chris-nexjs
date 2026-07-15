@@ -214,13 +214,13 @@ curl -sL https://www.chriswongdds.com/ \
   | wc -l
 curl -sL https://www.chriswongdds.com/ \
   | perl -0ne 'if (/<head>(.*?)<\\/head>/s) { print $1 }' \
-  | rg -n "gtag\\('consent', 'default'|analytics_storage: 'granted'|gtag\\('config', 'G-94WRBJY51J'|send_page_view: false"
+  | rg -n "gtag\\('consent', 'default'|analytics_storage: analyticsConsent|ad_storage: 'denied'|gtag\\('config', 'G-94WRBJY51J'|send_page_view: false"
 ```
 
 Expected:
 
 - First command returns `1` (exactly one GA4 tag in `<head>`).
-- The granted consent default and GA config markers are present (`consent default` with `analytics_storage: 'granted'`, `send_page_view: false`, `config', 'G-94WRBJY51J'`). There is no consent banner and no `wait_for_update`/`allow_google_signals` hardening flags.
+- Consent defaults and GA config markers are present: analytics storage follows the stored opt-out state, advertising consent fields are denied, `send_page_view` is false, and the GA config uses `G-94WRBJY51J` unless overridden.
 
 Verify Vercel Web Analytics install:
 
@@ -246,6 +246,9 @@ Verify Google crawl surfaces after SEO-affecting releases:
 - `robots.txt` contains explicit allow groups for `Googlebot`, `Google-InspectionTool`, and `User-agent: *`
 - `robots.txt` contains no `Crawl-delay`, no `Host` directive, and no duplicate static copy in `client/public` or `public`
 - `sitemap.xml` includes `https://www.chriswongdds.com/about`
+- `sitemap.xml` excludes retired city routes and the duplicate implant-versus-bridge URL
+- retired city URLs return one-hop `301` redirects to `/locations`
+- `/analytics`, `/ga-test`, and `/api/appointments` return `404`
 - Search Console live test for `/about` reports:
   - crawl allowed
   - page fetch successful

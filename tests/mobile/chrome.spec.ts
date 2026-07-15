@@ -7,8 +7,8 @@ import { gotoAndHydrate } from "./_helpers";
  * - The analytics consent pop-up has been removed entirely (it hurt UX), so it
  *   must NOT appear on a fresh (no-storage) visit and must never cover the
  *   MobileActionBar Call / Request Visit buttons.
- * - The skip-to-content link has been removed from the design (it flashed into
- *   the top-left on SPA navigations) and must never reappear.
+ * - The skip-to-content link remains visually hidden until keyboard focus,
+ *   then becomes visible so keyboard users can bypass repeated navigation.
  *
  * These tests use a fresh context (Playwright gives each test an isolated
  * context by default, so localStorage starts empty — the old banner would have
@@ -30,12 +30,20 @@ test("analytics consent pop-up is gone (does not appear on a fresh visit)", asyn
   ).toHaveCount(0);
 });
 
-test("skip-to-content link is removed from the design", async ({ page }) => {
+test("skip-to-content link appears only when focused", async ({ page }) => {
   await gotoAndHydrate(page, "/");
 
-  await expect(page.locator('[data-testid="skip-to-content"]')).toHaveCount(0);
-  await expect(page.locator('a[href="#main-content"]')).toHaveCount(0);
-  await expect(
-    page.getByText("Skip to main content", { exact: false }),
-  ).toHaveCount(0);
+  const skipLink = page.locator('[data-testid="skip-to-content"]');
+  await expect(skipLink).toHaveCount(1);
+  const hiddenBox = await skipLink.boundingBox();
+  expect((hiddenBox?.y ?? 0) + (hiddenBox?.height ?? 0)).toBeLessThanOrEqual(0);
+  await skipLink.focus();
+  await expect(skipLink).toBeVisible();
+  await expect
+    .poll(async () => (await skipLink.boundingBox())?.y ?? -1)
+    .toBeGreaterThanOrEqual(0);
+  const focusedBox = await skipLink.boundingBox();
+  expect(focusedBox?.width).toBeGreaterThan(1);
+  await expect(skipLink).toHaveAttribute("href", "#main-content");
+  await expect(page.locator("main#main-content")).toHaveCount(1);
 });

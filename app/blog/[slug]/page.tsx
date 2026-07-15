@@ -13,29 +13,31 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
+  const { slug } = await params;
   return generateCatchallMetadata({
-    params: { slug: ["blog", params.slug] },
+    params: { slug: ["blog", slug] },
   });
 }
 
 export default async function BlogSlugPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
+  const { slug } = await params;
   const storage = await getStorage();
   const initialPosts = await storage.getBlogPosts();
-  const hasPost = initialPosts.some((post) => post.slug === params.slug);
+  const hasPost = initialPosts.some((post) => post.slug === slug);
 
   if (!hasPost) {
     notFound();
   }
 
   return (
-    <RouteShell ssrPath={`/blog/${params.slug}`}>
-      <BlogPost params={{ slug: params.slug }} initialPosts={initialPosts} />
+    <RouteShell ssrPath={`/blog/${slug}`}>
+      <BlogPost params={{ slug }} initialPosts={initialPosts} />
     </RouteShell>
   );
 }

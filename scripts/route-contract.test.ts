@@ -73,6 +73,16 @@ async function assertCanonicalMetadataForPath(
 async function testCanonicalRoutesMetadata() {
   for (const entry of Object.values(seoByPath)) {
     const canonicalPath = entry.canonicalPath;
+    const redirectPath = getLegacyRedirectPath(canonicalPath);
+
+    if (redirectPath) {
+      assert.equal(
+        getCanonicalRouteData(canonicalPath),
+        redirectPath,
+        `Redirected route canonical mismatch: ${canonicalPath}`,
+      );
+      continue;
+    }
 
     assert.equal(
       getCanonicalRouteData(canonicalPath),

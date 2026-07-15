@@ -22,8 +22,6 @@ export async function GET(): Promise<Response> {
   const postEntries: SitemapXmlEntry[] = blogPosts.map((post) => ({
     url: `${CANONICAL_BASE}/blog/${post.slug}`,
     lastmod: toIsoDate(post.date),
-    changefreq: "monthly",
-    priority: 0.6,
   }));
 
   return xmlResponse(

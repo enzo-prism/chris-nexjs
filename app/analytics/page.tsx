@@ -1,6 +1,5 @@
-import RouteShell from "../[...slug]/page-shell";
 import { generateMetadata as generateCatchallMetadata } from "../[...slug]/page";
-import Analytics from "@/pages/Analytics";
+import { notFound } from "next/navigation";
 
 export const generateMetadata = async () =>
   generateCatchallMetadata({
@@ -8,10 +7,5 @@ export const generateMetadata = async () =>
   });
 
 export default function AnalyticsPage() {
-  return (
-    <RouteShell ssrPath="/analytics">
-      <Analytics />
-    </RouteShell>
-  );
+  notFound();
 }
-

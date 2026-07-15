@@ -66,14 +66,12 @@ pnpm run test:images
 
 Sequencing note:
 
-- `pnpm run check` reads generated Next route types from `.next/types`.
+- `pnpm run check` regenerates Next route types with `next typegen` before TypeScript runs.
 - Run `check` sequentially, not in parallel with `pnpm run build`, `pnpm run build:perf`, `pnpm run test:bundle`, or `pnpm run test:production`.
-- If the route types are missing or look stale, regenerate them with:
+- For a focused route-type refresh, run:
 
 ```bash
-rm -rf .next
-pnpm run build
-pnpm run check
+pnpm exec next typegen
 ```
 
 Visual motion checks (when SVG/UI animation is touched):
@@ -186,12 +184,12 @@ IMAGE_AUDIT_BASE_URL=http://localhost:5000 pnpm run test:images
   - run `rm -rf .next`
   - restart with `pnpm run dev`
   - hard refresh browser tab
-- `pnpm run check` fails with missing `.next/types/*` files:
-  - run `pnpm run build` once to regenerate Next route type artifacts
+- `pnpm run check` fails while generating `.next/types/*` files:
+  - ensure no other build-backed command is rewriting `.next`
+  - run `pnpm exec next typegen`, then rerun `pnpm run check`
 - `pnpm run check` fails while another build-backed script is running:
   - stop the overlapping build/test process
-  - run `rm -rf .next`
-  - run `pnpm run build`
+  - run `pnpm exec next typegen`
   - rerun `pnpm run check`
 - Port already in use:
   - change `PORT` in `.env` or stop conflicting process

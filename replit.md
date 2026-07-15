@@ -11,8 +11,8 @@ Next.js App Router website for Christopher B. Wong, DDS with:
 
 ## Architecture
 
-- Framework: Next.js 14 (App Router).
-- UI: React 18 + TypeScript + Tailwind + shadcn/ui.
+- Framework: Next.js 15 (App Router).
+- UI: React 19 + TypeScript + Tailwind + shadcn/ui.
 - Rendering: explicit routes plus catch-all compatibility route.
 - API handlers: `app/api/*`.
 - SEO: `shared/seo.ts`, `app/sitemap.ts`, `app/robots.ts`, metadata in route generation.

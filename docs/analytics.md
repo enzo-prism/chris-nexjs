@@ -6,14 +6,16 @@ Operational guide for GA4, Vercel Web Analytics, and custom lead-funnel events.
 
 - GA4 is installed for marketing analytics and key-event reporting.
 - Vercel Web Analytics is installed for page views on Vercel plus a small set of custom events.
-- The internal `/analytics` route is a staff dashboard and is excluded from analytics collection.
+- The retired `/analytics` and `/ga-test` routes return `404` and are excluded from analytics collection.
 
 ## Privacy model
 
-- There is no consent pop-up. Consent Mode v2 defaults to **granted** (analytics + advertising), so GA4 page views, GA4 custom events, and browser-originated Vercel custom events fire for all visitors by default. (US/CCPA does not require opt-in cookie consent; revisit if meaningful EU traffic is expected.)
+- There is no consent pop-up. Analytics storage defaults to granted unless the visitor has stored an explicit denial. Advertising storage, advertising user data, and advertising personalization default to denied because the site has no advertising-consent UI.
+- GA4 custom events and browser-originated Vercel events honor the stored analytics opt-out.
 - Vercel page views remain mounted globally through `<Analytics />`.
 - Server-originated Vercel lead events fire only after successful API handling and never include patient identifiers.
 - Analytics payloads must not include emails, phone numbers, names, message text, notes, full URLs, or nested objects.
+- Hotjar does not initialize on `/contact`, `/schedule`, `/thank-you`, or `/zoom-whitening/schedule`; contact and appointment forms also use `data-hj-suppress`.
 
 ## Google Ads conversions
 
@@ -73,6 +75,8 @@ Vercel custom events are intentionally sparse: at most two flat primitive proper
 
 GA4 keeps detailed diagnostic events for the scheduling form: step views, step continues, field errors, back navigation, submit attempts, submit success, submit failure, and abandonment checkpoints.
 
+`schedule_view` records the dedicated scheduling form view. `schedule_start` fires only after the first real field change or Continue action, and abandonment timing begins only after that start. Do not move start or abandonment tracking back to mount-time behavior.
+
 Only lead-funnel-critical schedule events are sent to Vercel custom events:
 
 - `schedule_start`
@@ -93,8 +97,8 @@ pnpm run test:seo:all
 
 Preview or production checks:
 
-1. Confirm the GA bootstrap and the granted consent default are present in the page head.
-2. Verify GA4 receives a manual `page_view` on load and on route change (consent is granted by default — there is no cookie banner to accept).
+1. Confirm the GA bootstrap sets `analytics_storage` from stored consent while all advertising consent fields default to `denied`.
+2. Verify GA4 receives a manual `page_view` on load and on route change when analytics consent is not denied.
 3. Confirm Vercel Web Analytics injects `/_vercel/insights/script.js` after hydration.
 4. Trigger and verify custom events:
    - phone click
@@ -106,6 +110,7 @@ Preview or production checks:
    - schedule start
    - schedule submit failure
    - appointment request submit
+5. Visit each sensitive route and confirm Hotjar is not initialized there and no lead-field values appear in analytics payloads.
 
 Notes:
 

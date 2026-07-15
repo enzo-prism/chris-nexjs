@@ -3,11 +3,12 @@ import { getStorage } from "../../../../server/storage/repository";
 
 export async function GET(
   _request: Request,
-  { params }: { params: { slug: string } },
+  { params }: { params: Promise<{ slug: string }> },
 ) {
   try {
+    const { slug } = await params;
     const storage = await getStorage();
-    const blogPost = await storage.getBlogPostBySlug(params.slug);
+    const blogPost = await storage.getBlogPostBySlug(slug);
 
     if (!blogPost) {
       return NextResponse.json(

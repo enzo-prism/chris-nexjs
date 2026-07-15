@@ -1,104 +1,56 @@
 # SEO Implementation Backlog (2026)
 
-Technical SEO execution plan and ticket queue for `chris-nextjs`.
+Current technical and editorial SEO work for `chris-nexjs`.
 
-## Scope
+## Completed July 15, 2026
 
-This backlog covers:
-- Internal linking quality and crawl path depth.
-- Structured data completeness and validation coverage.
-- Crawl-priority tuning for sitemap and robots behavior.
+- Consolidated seven thin city pages into `/locations` with permanent one-hop redirects.
+- Corrected practice coordinates and centralized business/entity details.
+- Removed `Review` and `aggregateRating` structured data that the site could not
+  safely substantiate as first-party review content.
+- Limited homepage structured data to the primary business/entity graph and
+  added route-specific schema where it accurately describes the page.
+- Removed artificial sitemap `priority` and `changefreq` hints.
+- Made sitemap `lastModified` values reflect known content changes and added a
+  freshness regression audit.
+- Reached complete title and description compliance across indexable routes.
+- Removed orphan indexable routes and improved related-content selection using
+  topic relevance instead of a static list.
+- Redirected the duplicate dental-implant comparison article to its canonical article.
+- Added generated `llms.txt` and `llms-full.txt` files with CI drift protection.
+- Added automated checks for canonicals, robots, sitemap membership, on-page
+  headings, link integrity, structured data, and freshness.
 
-## Completed in this pass
+## P0: evidence and entity accuracy
 
-- Added `SearchAction` to global `WebSite` schema with `urlTemplate` target `/blog?q={search_term_string}`.
-- Wired `/blog` query handling for `q` so schema search target maps to real page behavior.
-- Added `CollectionPage` + `ItemList` schema on `/services`.
-- Added `CollectionPage` + location `ItemList` schema on `/locations`.
-- Upgraded footer service links from hash anchors to canonical treatment URLs to strengthen internal link equity distribution.
-- Tuned sitemap defaults by SEO cluster (`service`, `location`, `blog`, `trust`, `legal`) for better crawl-priority signals.
-- Tuned blog sitemap priority/changefreq dynamically by recency.
-- Expanded schema regression checks to enforce:
-  - homepage `WebSite` includes `SearchAction`
-  - `/services` includes `CollectionPage` and `ItemList`
-  - `/locations` includes `CollectionPage` and `ItemList`
+1. Establish a clinical editorial workflow.
+   - Record author, reviewer, source, and review date for clinical content.
+   - Require a licensed reviewer for treatment claims before publication.
+   - Add visible citations where a claim needs external medical support.
 
-## Prioritized next tickets
+2. Keep local entity data synchronized.
+   - Reconcile website name, address, phone, hours, services, and profile links
+     with the active Google Business Profile.
+   - Validate schema `@id` references and canonical URLs after every entity change.
 
-## P0 (ship in next release cycle)
+## P1: organic growth and conversion
 
-1. Ticket: Add `MedicalBusiness` profile enrichment
-- Goal: strengthen local entity understanding for dentist intent.
-- Change:
-  - Extend organization/dentist schema with `founder`, `knowsAbout`, `availableService`, and `serviceArea` harmonized with location pages.
-  - Ensure all `@id` references resolve to canonical URLs.
-- Acceptance criteria:
-  - `pnpm run test:seo:schema` passes.
-  - No `JSON-LD url points to non-canonical host` failures.
-  - Rich Results Test shows no critical errors on `/`, `/services`, `/locations`.
+3. Expand high-intent service pages with original practice evidence.
+   - Add clinician-reviewed explanations, real process details, candidacy guidance,
+     and approved case examples where patient consent permits.
+   - Avoid generic city or treatment copy created only to target a keyword.
 
-2. Ticket: Add explicit blog index schema (`Blog` + `ItemList`)
-- Goal: improve blog hub comprehension and article discoverability.
-- Change:
-  - Add `Blog` schema to `/blog` plus ordered `ItemList` of latest posts.
-  - Include article canonical URLs and `datePublished` where available.
-- Acceptance criteria:
-  - `/blog` contains `Blog` and `ItemList` nodes.
-  - Schema audit extended to enforce these nodes.
+4. Use Search Console to maintain one clear query owner per intent.
+   - Review query overlap monthly.
+   - Consolidate or differentiate pages when two URLs compete for the same intent.
+   - Prioritize pages with strong impressions but weak click-through or conversion.
 
-3. Ticket: Internal links QA guardrail by cluster
-- Goal: prevent weak linking regressions.
-- Change:
-  - Extend `scripts/seo-links-audit.ts` with per-cluster thresholds:
-    - service pages: minimum 3 contextual links to other indexable service/location pages.
-    - location pages: minimum 3 links to service pages.
-- Acceptance criteria:
-  - audit fails on threshold miss and reports exact route + deficit count.
+5. Improve conversion evidence.
+   - Measure calls, contact submissions, and scheduling completions by landing page.
+   - Test high-impact CTA and reassurance changes one at a time.
+   - Do not send form fields or patient details to analytics platforms.
 
-## P1 (high value, lower urgency)
-
-4. Ticket: Build sitemap partitioning (`/sitemap-services.xml`, `/sitemap-locations.xml`, `/sitemap-blog.xml`)
-- Goal: improve crawler efficiency and diagnostic clarity.
-- Change:
-  - Create segmented sitemap routes and include all in `robots.txt` sitemap list.
-- Acceptance criteria:
-  - each sitemap validates and returns only expected segment URLs.
-  - robots references all sitemap endpoints.
-
-5. Ticket: Add topical in-content link modules for legal/trust pages
-- Goal: route authority from low-commercial pages into service/location hubs.
-- Change:
-  - Add curated links from `/privacy-policy`, `/terms`, `/hipaa`, `/accessibility` to `/services`, `/locations`, `/contact`.
-- Acceptance criteria:
-  - pages remain policy compliant.
-  - links audit confirms those pages now contribute internal link equity.
-
-6. Ticket: Add stale-content watchdog for `lastmod`
-- Goal: keep sitemap freshness signals trustworthy.
-- Change:
-  - Add script that flags any indexable page with stale `lastmod` older than target threshold for its cluster.
-- Acceptance criteria:
-  - script produces machine-readable report and non-zero exit on stale critical routes.
-
-## P2 (strategic enhancements)
-
-7. Ticket: Add schema graph consistency checks
-- Goal: enforce schema graph integrity at scale.
-- Change:
-  - Add tests for orphan `@id` references, duplicate IDs, and type/profile conflicts.
-- Acceptance criteria:
-  - schema audit emits route-level diagnostics for graph violations.
-
-8. Ticket: Add crawl-budget simulation report
-- Goal: identify low-value crawl sinks and link depth bottlenecks.
-- Change:
-  - Extend link audit to output depth, in-degree, out-degree, and near-orphan warnings in `docs/reports/seo-link-graph.json`.
-- Acceptance criteria:
-  - report generated in CI and attached as artifact.
-
-## Operational checklist
-
-Run these after each SEO release:
+## Release checklist
 
 ```bash
 pnpm run check
@@ -107,7 +59,7 @@ pnpm run test:seo:all
 SEO_AUDIT_BASE_URL=https://www.chriswongdds.com pnpm run test:seo:all
 ```
 
-Optional deeper verification:
+Optional deeper performance verification:
 
 ```bash
 LIGHTHOUSE_BASE_URL=https://www.chriswongdds.com LIGHTHOUSE_RUNS=3 pnpm run perf:lighthouse

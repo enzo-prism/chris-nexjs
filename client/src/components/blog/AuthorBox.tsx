@@ -1,7 +1,6 @@
 import OptimizedImage from "@/components/seo/OptimizedImage";
 import { doctorInfo } from "@/lib/data";
 import { drWongImages } from "@/lib/imageUrls";
-import { CheckCircle } from "lucide-react";
 
 const AuthorBox = () => {
   const shortBio = doctorInfo.bio.split(". ").slice(0, 2).join(". ").trim();
@@ -22,7 +21,7 @@ const AuthorBox = () => {
             <div className="flex-1 space-y-3">
               <div>
                 <p className="text-sm uppercase tracking-wide text-primary font-semibold">
-                  Reviewed by Dr. Wong
+                  About the practice
                 </p>
                 <h3 className="text-2xl font-heading font-bold text-slate-900">
                   {doctorInfo.name}, {doctorInfo.title}
@@ -36,16 +35,10 @@ const AuthorBox = () => {
                 {shortBio.endsWith(".") ? shortBio : `${shortBio}.`}
               </p>
 
-              {doctorInfo.credentials?.length ? (
-                <ul className="grid sm:grid-cols-2 gap-x-4 gap-y-2 text-sm text-slate-700">
-                  {doctorInfo.credentials.map((credential) => (
-                    <li key={credential} className="flex items-start gap-2">
-                      <CheckCircle className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                      <span>{credential}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
+              <p className="text-sm leading-6 text-slate-600">
+                This article provides general dental education and does not
+                replace an examination or personalized treatment advice.
+              </p>
             </div>
           </div>
         </div>

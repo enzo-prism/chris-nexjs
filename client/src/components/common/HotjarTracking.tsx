@@ -1,8 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { hasAnalyticsConsent } from "@/lib/analytics";
 
 // Define types for Hotjar
 interface HotjarWindow extends Window {
-  hj?: any;
+  hj?: ((...args: unknown[]) => void) & { q?: IArguments[] };
   _hjSettings: {
     hjid: number;
     hjsv: number;
@@ -11,8 +13,18 @@ interface HotjarWindow extends Window {
 
 // This component initializes Hotjar tracking
 const HotjarTracking = () => {
+  const pathname = usePathname();
+
   useEffect(() => {
     if (typeof window === "undefined") return;
+
+    const sensitivePaths = new Set([
+      "/schedule",
+      "/contact",
+      "/thank-you",
+      "/zoom-whitening/schedule",
+    ]);
+    if (sensitivePaths.has(pathname) || !hasAnalyticsConsent()) return;
 
     const hotjarWindow = window as unknown as HotjarWindow;
     const SCRIPT_ID = "hotjar-script";
@@ -22,9 +34,10 @@ const HotjarTracking = () => {
 
       hotjarWindow.hj =
         hotjarWindow.hj ||
-        function () {
-          (hotjarWindow.hj as any).q = (hotjarWindow.hj as any).q || [];
-          (hotjarWindow.hj as any).q.push(arguments);
+        function (...args: unknown[]) {
+          if (!hotjarWindow.hj) return;
+          hotjarWindow.hj.q = hotjarWindow.hj.q || [];
+          hotjarWindow.hj.q.push(arguments);
         };
 
       hotjarWindow._hjSettings = { hjid: 5170965, hjsv: 6 };
@@ -43,7 +56,7 @@ const HotjarTracking = () => {
 
     let idleTimer: ReturnType<typeof setTimeout> | undefined;
     if ("requestIdleCallback" in window) {
-      (window as any).requestIdleCallback(loadHotjar, { timeout: 3000 });
+      window.requestIdleCallback(loadHotjar, { timeout: 3000 });
     } else {
       idleTimer = setTimeout(loadHotjar, 2500);
     }
@@ -52,7 +65,7 @@ const HotjarTracking = () => {
       triggerEvents.forEach((event) => window.removeEventListener(event, loadHotjar));
       if (idleTimer) clearTimeout(idleTimer);
     };
-  }, []);
+  }, [pathname]);
 
   return null; // This component doesn't render anything
 };

@@ -7,7 +7,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "wouter";
-import PatientForm from "@/components/forms/PatientForm";
 import MetaTags from "@/components/common/MetaTags";
 import { drWongImages } from "@/lib/imageUrls";
 import { pageTitles, pageDescriptions } from "@/lib/metaContent";
@@ -37,7 +36,7 @@ const PatientResources = () => {
     },
     {
       question: "What payment options do you offer?",
-      answer: "We accept most major insurance plans and offer various payment options including credit cards, flexible spending accounts, and CareCredit financing. Our team will help you understand your coverage and maximize your benefits. Please contact our office for specific details about your insurance plan."
+      answer: "We work with most major PPO plans as an out-of-network provider. Many plans still include benefits, and our team can help verify coverage before treatment."
     },
     {
       question: "Do you offer emergency dental services?",
@@ -47,10 +46,6 @@ const PatientResources = () => {
       question: "What COVID-19 safety measures are in place?",
       answer: "We follow all CDC, ADA, and local health department guidelines to ensure your safety. Our measures include enhanced sterilization procedures, personal protective equipment for staff, pre-screening questions, temperature checks, and social distancing in waiting areas. We've also installed medical-grade air purifiers throughout the office."
     },
-    {
-      question: "Do you offer virtual consultations?",
-      answer: "Yes, we offer virtual consultations for certain types of appointments. This service allows you to discuss your concerns with Dr. Wong from the comfort of your home before coming into the office for treatment."
-    }
   ];
 
   const patientResourcesFAQ = buildFAQSchema(faqs, "/patient-resources");
@@ -176,7 +171,7 @@ const PatientResources = () => {
             <TabsContent value="forms" className="mt-6">
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold font-heading text-[#333333] mb-4">Patient Forms</h2>
-                <p className="text-[#333333] max-w-3xl mx-auto">Save time during your visit by completing these forms ahead of time. All forms are HIPAA-compliant and securely processed.</p>
+                <p className="text-[#333333] max-w-3xl mx-auto">Save time during your visit by downloading these forms and bringing the completed copies to the office.</p>
               </div>
 
               <div className="max-w-2xl mx-auto">
@@ -212,13 +207,13 @@ const PatientResources = () => {
             <TabsContent value="insurance" className="mt-6" id="insurance">
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold font-heading text-[#333333] mb-4">Insurance & Financial Information</h2>
-                <p className="text-[#333333] max-w-3xl mx-auto">We work with most major insurance providers and offer flexible payment options to make dental care accessible.</p>
+                <p className="text-[#333333] max-w-3xl mx-auto">We are an out-of-network PPO provider, can help verify available benefits, and offer flexible payment options.</p>
               </div>
 
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="bg-white rounded-lg shadow-md p-6">
-                  <h3 className="text-xl font-bold font-heading text-[#333333] mb-4">Accepted Insurance Plans</h3>
-                  <p className="text-[#333333] mb-4">We accept most major PPO dental insurance plans only.</p>
+                  <h3 className="text-xl font-bold font-heading text-[#333333] mb-4">PPO Benefit Verification</h3>
+                  <p className="text-[#333333] mb-4">Many PPO dental plans include out-of-network benefits.</p>
                   
                   <div className="bg-gray-50 p-5 rounded-lg border border-gray-200 mb-5">
                     <div className="flex items-start">
@@ -392,7 +387,7 @@ const PatientResources = () => {
                   <Shield className="h-8 w-8 mr-4" />
                   <h3 className="text-2xl font-bold font-heading">Patient Privacy</h3>
                 </div>
-                <p className="mb-6">At Dr. Wong's practice, we take your privacy seriously. All of our forms and communications are HIPAA-compliant, ensuring your personal and medical information remains secure and confidential.</p>
+                <p className="mb-6">At Dr. Wong&apos;s practice, we take your privacy seriously. Please use the downloadable forms for health details and bring the completed copies to the office rather than sending sensitive medical information through the website contact form.</p>
                 <p>If you have any questions about our privacy practices or how we handle your information, please don't hesitate to contact our office.</p>
               </div>
               

@@ -4,11 +4,12 @@ import { getStorage } from "../../../../server/storage/repository";
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { slug: string } },
+  { params }: { params: Promise<{ slug: string }> },
 ) {
   try {
+    const { slug } = await params;
     const storage = await getStorage();
-    const service = await storage.getServiceBySlug(params.slug);
+    const service = await storage.getServiceBySlug(slug);
 
     if (!service) {
       return NextResponse.json({ message: "Service not found" }, { status: 404 });

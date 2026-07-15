@@ -5,9 +5,45 @@ export const appointmentTypeOptions = [
   "Existing Patient Checkup",
   "Invisalign Consultation",
   "Cosmetic Consultation",
+  "Dental Implant Consultation",
+  "Whitening Consultation",
+  "Restorative Consultation",
+  "Pediatric Visit",
   "Emergency Visit",
   "Other",
 ] as const;
+
+export const scheduleIntentOptions = [
+  "preventive",
+  "invisalign",
+  "cosmetic",
+  "implants",
+  "whitening",
+  "restorative",
+  "pediatric",
+  "emergency",
+] as const;
+
+export type ScheduleIntent = (typeof scheduleIntentOptions)[number];
+export type AppointmentType = (typeof appointmentTypeOptions)[number];
+
+const appointmentTypeByIntent: Record<ScheduleIntent, AppointmentType> = {
+  preventive: "New Patient Exam & Cleaning",
+  invisalign: "Invisalign Consultation",
+  cosmetic: "Cosmetic Consultation",
+  implants: "Dental Implant Consultation",
+  whitening: "Whitening Consultation",
+  restorative: "Restorative Consultation",
+  pediatric: "Pediatric Visit",
+  emergency: "Emergency Visit",
+};
+
+export function getAppointmentTypeForIntent(value: string | null): AppointmentType {
+  if (!value || !scheduleIntentOptions.includes(value as ScheduleIntent)) {
+    return "New Patient Exam & Cleaning";
+  }
+  return appointmentTypeByIntent[value as ScheduleIntent];
+}
 
 export const preferredDayOptions = [
   "Monday",

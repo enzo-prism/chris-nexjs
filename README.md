@@ -15,8 +15,8 @@ The app runs on Next.js App Router with API route handlers, centralized SEO meta
 
 ## Architecture at a glance
 
-- Runtime: Next.js 14 App Router.
-- UI stack: React 18, TypeScript, Tailwind, shadcn/ui primitives.
+- Runtime: Next.js 15 App Router.
+- UI stack: React 19, TypeScript, Tailwind, shadcn/ui primitives.
 - Routing strategy:
   - explicit App Router pages for canonical public URLs
   - catch-all route reserved for legacy compatibility fallback (`app/[...slug]/page.tsx`)
@@ -128,6 +128,7 @@ SEO checks:
 - `pnpm run test:seo:onpage`
 - `pnpm run test:seo:links`
 - `pnpm run test:seo:schema`
+- `pnpm run test:seo:freshness`
 - `pnpm run test:seo:all`
 
 Performance checks:
@@ -145,6 +146,7 @@ Release convenience gate:
 
 Utility:
 - `pnpm run changelog:generate`
+- `pnpm run llms:generate` (regenerates both tracked `llms.txt` copies; CI rejects drift)
 - `pnpm run reviews:import`
 - `pnpm run reviews:audit`
 - `pnpm run test:reviews`
@@ -159,16 +161,16 @@ Read endpoints:
 - `GET /api/blog-posts/:slug`
 - `GET /api/testimonials`
 - `GET /api/search?query=<term>`
-- `GET /api/appointments`
-- `GET /api/contact`
 - `GET /rss.xml`
 - `GET /api/rss.xml`
 
 Write endpoints:
-- `POST /api/appointments`
 - `POST /api/contact`
 - `POST /api/newsletter`
 - `POST /api/schedule-request`
+
+See `docs/api-contracts.md` for request limits, delivery semantics, privacy
+rules, and error responses.
 
 ## SEO and canonical behavior
 
@@ -186,8 +188,10 @@ Write endpoints:
   - `app/rss.xml/route.ts` (canonical feed route)
 - Current SEO map totals:
   - 46 total canonical definitions
-  - 42 indexable
-  - 4 noindex (`/zoom-whitening/schedule`, `/thank-you`, `/analytics`, `/ga-test`)
+  - 35 indexable
+  - 11 noindex or retired definitions
+- Consolidated city routes permanently redirect to `/locations`: Los Altos, Los Altos Hills, Sunnyvale, Cupertino, Redwood City, Redwood Shores, and Atherton.
+- `/analytics` and `/ga-test` intentionally return `404` in every environment.
 
 ## Analytics behavior (GA4 + Vercel Web Analytics)
 
@@ -195,10 +199,10 @@ Write endpoints:
 - Measurement ID defaults to `G-94WRBJY51J` and can be overridden by `NEXT_PUBLIC_GA_MEASUREMENT_ID`.
 - SPA page-view events are sent on initial load and on route transitions.
 - Manual GA4 page views include `page_referrer` to preserve navigation attribution on single-page transitions.
-- There is no consent pop-up. Consent Mode v2 defaults to **granted** globally (`ad_storage`, `ad_user_data`, `ad_personalization`, `analytics_storage`), so analytics and advertising signals are collected for all visitors by default. (US/CCPA does not require opt-in cookie consent; revisit if meaningful EU traffic is expected.)
-- GA4 and Vercel events fire for everyone (no per-visitor gate beyond the production-host check below).
+- There is no consent pop-up. Analytics storage defaults to granted unless the visitor has stored an explicit denial; advertising storage, advertising user data, and advertising personalization default to denied.
+- GA4 and browser-originated Vercel events honor the stored analytics opt-out and the production-host/path gates below.
 - Global click instrumentation captures `tel_click`, `email_click`, `book_appointment_click`, and `outbound_click`.
-- Internal staff/test routes (`/analytics`, `/ga-test`) are excluded from GA4 reporting.
+- Retired internal staff/test routes (`/analytics`, `/ga-test`) return `404` and are excluded from analytics reporting.
 - The fallback GA measurement ID is only active on the known production hosts; any other environment should set `NEXT_PUBLIC_GA_MEASUREMENT_ID` explicitly if GA collection is desired.
 - Vercel Web Analytics is mounted from the root layout via `@vercel/analytics/next`, with `beforeSend` filtering that excludes `/analytics` and `/ga-test` from Vercel page-view reporting.
 - Vercel custom key events are now wired for:
@@ -210,6 +214,8 @@ Write endpoints:
   - `newsletter_signup`
   - `appointment_request_submit`
 - Vercel custom-event payloads are intentionally flat and scrubbed of phone numbers, email addresses, free-text messages, and full outbound URLs.
+- `schedule_start` fires on the first real form interaction, not on form mount; abandonment timing begins only after that start.
+- Hotjar does not initialize on contact, scheduling, confirmation, or whitening-scheduling routes, and lead forms carry suppression attributes.
 
 ## Naming rule (editorial and compliance)
 

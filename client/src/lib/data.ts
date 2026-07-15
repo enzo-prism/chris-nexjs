@@ -121,7 +121,7 @@ export const faqItems = [
   },
   {
     question: "What payment options do you offer?",
-    answer: "We accept most major PPO insurance plans and offer various payment options including Visa, MasterCard, flexible spending accounts, and an in-office dental plan. Our team will help you understand your coverage and maximize your benefits. Please contact our office for specific details about your insurance plan."
+    answer: "We work with most major PPO plans as an out-of-network provider. Many plans include out-of-network benefits, and our team can verify coverage before treatment. We also accept Visa, MasterCard, FSA funds, and offer an in-office dental plan."
   },
   {
     question: "Do you offer emergency dental services?",
@@ -131,10 +131,6 @@ export const faqItems = [
     question: "What COVID-19 safety measures are in place?",
     answer: "We follow all CDC, ADA, and local health department guidelines to ensure your safety. Our measures include enhanced sterilization procedures, personal protective equipment for staff, pre-screening questions, temperature checks, and social distancing in waiting areas. We've also installed medical-grade air purifiers throughout the office."
   },
-  {
-    question: "Do you offer virtual consultations?",
-    answer: "Yes, we offer virtual consultations for certain types of appointments. This service allows you to discuss your concerns with Dr. Wong from the comfort of your home before coming into the office for treatment."
-  }
 ];
 
 export const patientResources = {

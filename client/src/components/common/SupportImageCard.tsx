@@ -21,7 +21,7 @@ export default function SupportImageCard({
   width = 1536,
   height = 1024,
   sizes = "(max-width: 1024px) 100vw, 38vw",
-}: SupportImageCardProps): JSX.Element {
+}: SupportImageCardProps): React.JSX.Element {
   return (
     <div
       className={cn(

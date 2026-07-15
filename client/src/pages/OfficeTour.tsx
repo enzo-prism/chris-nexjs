@@ -44,7 +44,7 @@ const TOUR_STOPS: TourStop[] = [
   },
 ];
 
-function TourClip({ stop }: { stop: TourStop }): JSX.Element {
+function TourClip({ stop }: { stop: TourStop }): React.JSX.Element {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -153,7 +153,7 @@ const tourVideoSchemas = buildVideoObjectSchemas(
   "/office-tour",
 );
 
-const OfficeTour = (): JSX.Element => {
+const OfficeTour = (): React.JSX.Element => {
   // Click-to-play: a priority poster image is the LCP element (fast paint on
   // mobile); the video only mounts/loads when the visitor taps play.
   const [heroPlaying, setHeroPlaying] = useState(false);
@@ -185,7 +185,7 @@ const OfficeTour = (): JSX.Element => {
                   className="ui-btn-primary inline-flex h-12 items-center gap-2 rounded-full px-7 text-base font-semibold"
                 >
                   <CalendarCheck className="h-5 w-5" aria-hidden="true" />
-                  Book a visit
+                  Request a visit
                 </ButtonLink>
                 <a
                   href={officeInfo.mapUrl}

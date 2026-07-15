@@ -77,6 +77,7 @@ const ContactForm = () => {
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-4"
         autoComplete="off"
+        data-hj-suppress
       >
         {/* Honeypot — hidden from real users; bots that fill it are dropped. */}
         <div aria-hidden="true" className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
@@ -209,7 +210,8 @@ const ContactForm = () => {
             htmlFor="contact-privacy"
             className="cursor-pointer text-sm leading-relaxed text-[#333333]"
           >
-            I understand that my information is being collected in accordance with HIPAA privacy practices and consent to being contacted.
+            I consent to being contacted about this request. I will not include
+            sensitive medical details in this website form.
           </label>
         </div>
 

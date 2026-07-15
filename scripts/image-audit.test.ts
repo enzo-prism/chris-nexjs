@@ -355,7 +355,9 @@ async function mapWithConcurrency<T, R>(
 
 async function getAuditRoutes(): Promise<string[]> {
   const canonicalRoutes = new Set<string>(
-    Object.values(seoByPath).map((entry) => entry.canonicalPath),
+    Object.values(seoByPath)
+      .filter((entry) => entry.indexable)
+      .map((entry) => entry.canonicalPath),
   );
 
   const storage = await getStorage();

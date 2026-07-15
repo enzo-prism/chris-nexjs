@@ -9,10 +9,10 @@ import { advanceFunnelToContactStep, gotoAndHydrate } from "./_helpers";
  * (or the Radix select trigger, which renders as role="combobox") must
  * therefore compute to >= 16px at a phone viewport.
  *
- * Both /contact and /schedule render the AppointmentForm funnel; the text
- * fields (name / phone / email / insurance / notes) live on the contact step,
- * so we advance the funnel before measuring. Radio buttons / checkboxes are
- * deliberately excluded — they are not typeable and do not trigger iOS zoom.
+ * /contact renders its dedicated contact form while /schedule renders the
+ * AppointmentForm funnel. The schedule fields live on the final step, so that
+ * route is advanced before measurement. Radio buttons / checkboxes are
+ * excluded because they are not typeable and do not trigger iOS zoom.
  */
 
 const MIN_FONT_PX = 16;
@@ -90,13 +90,10 @@ async function assertNoUndersizedFields(page: import("@playwright/test").Page, r
   ).toEqual([]);
 }
 
-test("contact funnel text fields are >= 16px to prevent iOS zoom", async ({
+test("contact form text fields are >= 16px to prevent iOS zoom", async ({
   page,
 }) => {
   await gotoAndHydrate(page, "/contact");
-  // The /contact appointment form opens on the appointment-type step (radios);
-  // advance to the contact step to reach the name/phone/email/notes fields.
-  await advanceFunnelToContactStep(page);
   await assertNoUndersizedFields(page, "/contact");
 });
 

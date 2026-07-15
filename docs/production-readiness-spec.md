@@ -28,6 +28,9 @@ Must pass:
 - endpoint status code behavior remains stable
 - validation and error semantics remain stable
 - read and write handlers for lead flows are operational
+- write endpoints reject unsupported content types and oversized requests
+- outbound vendors are mocked in automated tests
+- no public API exposes contact messages or appointment requests
 
 Gate:
 - `pnpm run test:api`
@@ -55,6 +58,7 @@ Gates:
 - `pnpm run test:seo:onpage`
 - `pnpm run test:seo:links`
 - `pnpm run test:seo:schema`
+- `pnpm run test:seo:freshness`
 
 ### 5. Design-system and UI guardrails
 
@@ -109,6 +113,20 @@ Current script coverage:
 
 Note:
 - `test:production` does not run `test:gallery` and does not replace full perf verification.
+
+### 9a. Privacy and lead safety
+
+Must pass:
+- advertising consent remains denied by default
+- analytics respects the stored opt-out state
+- internal analytics/debug pages return `404`
+- patient names, contact details, notes, and insurance details never enter analytics
+- lead delivery has bounded vendor timeouts and never reports false success
+
+Gates:
+- `pnpm run test:api`
+- `pnpm run test:routes`
+- source review against `docs/api-contracts.md` and `docs/analytics.md`
 
 ### 10. Deployment topology and SHA sync
 

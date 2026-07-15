@@ -87,7 +87,7 @@ Use manual local production deploys only when both are true:
 - the workspace is clean
 - you intentionally want a CLI-driven production deploy
 
-## Important gotcha: `.next/types` can make `check` look flaky
+## Important gotcha: do not overlap route type generation and builds
 
 `tsconfig.json` includes:
 
@@ -95,11 +95,9 @@ Use manual local production deploys only when both are true:
 ".next/types/**/*.ts"
 ```
 
-That means:
-
-- `pnpm run check` depends on generated Next route types
-- if `.next/types` is missing, `check` can fail until a build has been run
-- if `build` is actively rewriting `.next`, `check` can also fail or become misleading
+`pnpm run check` now runs `next typegen` before TypeScript, so it does not depend
+on a prior production build. A concurrent build can still rewrite `.next` while
+the check is reading it and produce misleading failures.
 
 Safe rule:
 
@@ -108,8 +106,7 @@ Safe rule:
 Recovery:
 
 ```bash
-rm -rf .next
-pnpm run build
+pnpm exec next typegen
 pnpm run check
 ```
 
@@ -160,10 +157,10 @@ Primary files:
 Current behavior:
 
 - GA bootstrap is global
-- Consent Mode defaults to granted (there is no consent banner)
+- analytics storage defaults to granted unless a stored denial exists; all advertising consent fields default to denied
 - SPA page views are manual
-- custom GA events fire by default (gated only by the production-host check in `isAnalyticsRuntimeEnabled`)
-- `/analytics` and `/ga-test` are intentionally excluded
+- custom GA events require analytics consent and the production-host check in `isAnalyticsRuntimeEnabled`
+- `/analytics` and `/ga-test` return `404` and remain excluded
 
 ### Vercel Web Analytics ownership
 
@@ -180,7 +177,7 @@ Current behavior:
 
 - Vercel page views are mounted from the root layout via the wrapper component
 - `beforeSend` excludes `/analytics` and `/ga-test`
-- browser-side custom events are flat and fire by default (path-excluded for `/analytics` and `/ga-test`)
+- browser-side custom events are flat, consent-aware, and path-excluded for `/analytics` and `/ga-test`
 - server-side lead events fire only after successful writes
 - Vercel event payloads must stay free of PII
 

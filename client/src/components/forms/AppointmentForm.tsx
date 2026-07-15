@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type Control, type FieldPath, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -40,6 +41,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   appointmentTypeOptions,
   contactPreferenceOptions,
+  getAppointmentTypeForIntent,
   isValidSchedulePhone,
   preferredDayOptions,
   preferredTimeOptions,
@@ -791,6 +793,10 @@ const AppointmentForm = ({
   className = "",
   presentation = "default",
 }: AppointmentFormProps) => {
+  const searchParams = useSearchParams();
+  const initialAppointmentType = getAppointmentTypeForIntent(
+    searchParams?.get("intent") ?? null,
+  );
   const [step, setStep] = useState<number>(1);
   const [status, setStatus] = useState<SubmitStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -812,7 +818,7 @@ const AppointmentForm = ({
     resolver: zodResolver(scheduleFormSchema),
     defaultValues: {
       isEmergency: false,
-      appointmentType: "",
+      appointmentType: initialAppointmentType,
       schedulingMode: "first_available",
       preferredDays: [],
       preferredTime: "",
@@ -921,13 +927,6 @@ const AppointmentForm = ({
       });
     }
 
-    if (!hasTrackedStart.current) {
-      hasTrackedStart.current = true;
-      trackAnalyticsEvent(ANALYTICS_EVENTS.scheduleStart, {
-        source: "schedule_page_form",
-        ...analyticsContext,
-      });
-    }
   }, [analyticsContext]);
 
   useEffect(() => {
@@ -962,11 +961,13 @@ const AppointmentForm = ({
     headingRef.current?.focus();
   }, [activeStep]);
 
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
+  const markScheduleStarted = () => {
+    if (hasTrackedStart.current || typeof window === "undefined") return;
+    hasTrackedStart.current = true;
+    trackAnalyticsEvent(ANALYTICS_EVENTS.scheduleStart, {
+      source: "schedule_page_form",
+      ...analyticsContext,
+    });
     const checkpoints = [30, 90];
     abandonmentTimersRef.current = checkpoints.map((seconds) =>
       window.setTimeout(() => {
@@ -988,12 +989,14 @@ const AppointmentForm = ({
         });
       }, seconds * 1000),
     );
+  };
 
+  useEffect(() => {
     return () => {
       abandonmentTimersRef.current.forEach((timerId) => window.clearTimeout(timerId));
       abandonmentTimersRef.current = [];
     };
-  }, [getValues, pageContext]);
+  }, []);
 
   const updateErrorSummary = (fields: FieldPath<ScheduleFormValues>[]) => {
     const nextErrors: FieldErrorSummary[] = [];
@@ -1021,6 +1024,7 @@ const AppointmentForm = ({
   };
 
   const goToNextStep = async () => {
+    markScheduleStarted();
     const currentFields = currentStep.fields;
     const isValid = await trigger(currentFields);
     if (!isValid) {
@@ -1257,8 +1261,10 @@ const AppointmentForm = ({
     <Form {...form}>
       <form
         onSubmit={handleSubmit(onSubmit, onInvalidSubmit)}
+        onChangeCapture={markScheduleStarted}
         className={formClasses}
         autoComplete="on"
+        data-hj-suppress
       >
         {/* Honeypot — hidden from real users; bots that fill it are dropped. */}
         <div aria-hidden="true" className="absolute left-[-9999px] h-0 w-0 overflow-hidden">

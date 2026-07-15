@@ -152,41 +152,6 @@ const Services = ({ initialServices }: ServicesProps) => {
       description: "Comprehensive care close to Mountain View families.",
     },
     {
-      href: "/dentist-los-altos",
-      title: "Los Altos dentist",
-      description: "Personalized dental care just minutes away in Palo Alto.",
-    },
-    {
-      href: "/dentist-los-altos-hills",
-      title: "Los Altos Hills dentist",
-      description: "Personalized care for families near Los Altos Hills.",
-    },
-    {
-      href: "/dentist-sunnyvale",
-      title: "Sunnyvale family dentist",
-      description: "Family-friendly care close to Sunnyvale patients.",
-    },
-    {
-      href: "/dentist-cupertino",
-      title: "Cupertino family dentist",
-      description: "Comprehensive care near Cupertino families.",
-    },
-    {
-      href: "/dentist-redwood-city",
-      title: "Redwood City dentist",
-      description: "Conservative care for patients across the Peninsula.",
-    },
-    {
-      href: "/dentist-atherton",
-      title: "Atherton dentist",
-      description: "Modern care for Atherton families near Palo Alto.",
-    },
-    {
-      href: "/dentist-redwood-shores",
-      title: "Redwood Shores dentist",
-      description: "Family-friendly care for Redwood Shores patients.",
-    },
-    {
       href: "/locations",
       title: "All locations",
       description: "Explore every Peninsula community we serve.",
@@ -326,12 +291,12 @@ const Services = ({ initialServices }: ServicesProps) => {
           <div className="md:flex items-center">
             <div className="md:w-1/2 mb-8 md:mb-0">
               <h2 className="text-3xl font-bold font-heading text-[#333333] mb-4">Insurance & Payment Options</h2>
-              <p className="text-[#333333] mb-4">We accept most major PPO dental insurance plans and offer flexible payment options to make dental care accessible.</p>
+              <p className="text-[#333333] mb-4">We work with most major PPO dental insurance plans as an out-of-network provider and offer flexible payment options.</p>
               <p className="text-[#333333] mb-6">Our team will help you understand your coverage and maximize your benefits. For patients without insurance, we offer an in-house dental plan.</p>
               
               <div className="bg-gray-50 p-5 rounded-lg border border-gray-200 mb-6">
-                <h3 className="text-xl font-bold font-heading text-[#333333] mb-3">Accepted Insurance:</h3>
-                <p className="text-[#333333] mb-3">We are in-network with most major PPO dental insurance plans only.</p>
+                <h3 className="text-xl font-bold font-heading text-[#333333] mb-3">PPO benefit support:</h3>
+                <p className="text-[#333333] mb-3">Many PPO plans include out-of-network benefits. We help verify your plan before treatment.</p>
                 <p className="text-[#333333]">Please contact our office to verify your specific plan's coverage before your appointment.</p>
               </div>
               

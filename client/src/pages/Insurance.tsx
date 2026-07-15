@@ -52,7 +52,7 @@ const Insurance = () => {
     {
       question: "Can you verify my benefits before my first visit?",
       answer:
-        "Yes. Share your insurance carrier, plan or member ID, and date of birth when you request an appointment, and our team will contact your insurer to verify benefits and explain your expected coverage before you come in.",
+        "Yes. Include only your insurance carrier in the online request. Our team will contact you through your preferred method for any additional plan details needed to verify benefits.",
     },
     {
       question: "What if I don't have dental insurance?",
@@ -245,15 +245,14 @@ const Insurance = () => {
               What we need to verify your benefits
             </h2>
             <p className="text-slate-700 leading-relaxed">
-              Send three things with your{" "}
+              Include only your insurance carrier with your online{" "}
               <Link href="/schedule" className="ui-link-premium">
                 appointment request
-              </Link>{" "}
-              or call us with them: your insurance carrier, your plan or member
-              ID, and the policyholder&rsquo;s name and date of birth. Our team
-              contacts your insurer, confirms your coverage levels, and walks
-              you through what to expect—deductible, annual maximum, and how
-              preventive, basic, and major care are covered.
+              </Link>
+              . Our team will follow up through your preferred contact method
+              for any additional plan details needed to verify benefits. Please
+              do not place a member ID, date of birth, or medical details in the
+              notes field.
             </p>
           </div>
 

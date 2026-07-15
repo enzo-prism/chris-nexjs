@@ -5,13 +5,23 @@ Operational SEO plan for sustained local lead growth while preserving technical 
 ## Current baseline snapshot
 
 - Canonical SEO definitions: `46`
-- Indexable routes: `42`
-- Noindex routes: `4`
+- Indexable routes: `35`
+- Noindex or retired routes: `11`
   - `/zoom-whitening/schedule`
   - `/thank-you`
   - `/analytics`
   - `/ga-test`
+  - `/dentist-atherton`
+  - `/dentist-los-altos`
+  - `/dentist-menlo-park`
+  - `/dentist-mountain-view`
+  - `/dentist-portola-valley`
+  - `/dentist-stanford`
+  - `/dentist-woodside`
 - Metadata source of truth: `shared/seo.ts`
+
+The seven retired city URLs permanently redirect to `/locations`. They are not
+canonical pages and must not reappear in metadata definitions or the sitemap.
 
 ## 90-day growth targets
 
@@ -44,6 +54,7 @@ pnpm run test:seo
 pnpm run test:seo:onpage
 pnpm run test:seo:links
 pnpm run test:seo:schema
+pnpm run test:seo:freshness
 ```
 
 Runtime base URL:
@@ -66,7 +77,9 @@ SEO_AUDIT_BASE_URL=https://<preview-domain>.vercel.app pnpm run test:seo:all
 - keep one clear primary intent per URL
 - maintain unique value proposition and FAQ scope
 2. Location pages:
-- keep city-level uniqueness and internal service links
+- use `/locations` for the consolidated service-area intent
+- create a standalone city page only when the practice can support genuinely
+  distinct clinical, logistical, and local content for that location
 3. Blog:
 - publish 2 to 4 high-intent posts monthly
 - each post must link to at least one service page and one related post
@@ -86,8 +99,9 @@ SEO_AUDIT_BASE_URL=https://<preview-domain>.vercel.app pnpm run test:seo:all
 - category and service alignment check
 - update posting cadence and response hygiene
 3. Content updates:
-- refresh top service/location pages every 6 to 8 weeks
-- align updates with query and conversion patterns
+- update priority pages when Search Console, conversion evidence, or substantive
+  clinical changes justify it
+- never change dates or copy solely to manufacture a freshness signal
 
 ## Editorial guardrails
 

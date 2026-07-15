@@ -1,6 +1,5 @@
-import RouteShell from "../[...slug]/page-shell";
 import { generateMetadata as generateCatchallMetadata } from "../[...slug]/page";
-import GATestPage from "@/pages/GATestPage";
+import { notFound } from "next/navigation";
 
 export const generateMetadata = async () =>
   generateCatchallMetadata({
@@ -8,10 +7,5 @@ export const generateMetadata = async () =>
   });
 
 export default function GATestRoutePage() {
-  return (
-    <RouteShell ssrPath="/ga-test">
-      <GATestPage />
-    </RouteShell>
-  );
+  notFound();
 }
-

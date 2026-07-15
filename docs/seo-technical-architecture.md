@@ -6,7 +6,7 @@ This runbook defines how technical SEO is implemented and validated in productio
 
 - Primary mapping: `shared/seo.ts`
   - route-level title/description/canonical/robots/indexability
-  - sitemap hints (`priority`, `changefreq`, optional `lastmod`)
+  - honest route-level `lastmod` where a significant change date is known
   - noindex control via `NOINDEX_ROBOTS`
 - Runtime metadata builder: `app/[...slug]/page.tsx` (`generateMetadata`)
   - normalizes requested paths to canonical routes
@@ -30,6 +30,7 @@ This runbook defines how technical SEO is implemented and validated in productio
   - includes indexable static routes from `shared/seo.ts`
   - includes blog post routes from storage
   - emits `lastModified` only when a parseable date exists
+  - omits ignored `priority` and `changefreq` hints
   - never emits current-time fallback timestamps for unknown dates
 - RSS feed:
   - canonical feed URL: `/rss.xml` (`app/rss.xml/route.ts`)
@@ -55,6 +56,9 @@ This runbook defines how technical SEO is implemented and validated in productio
    - no ambiguous empty user-agent groups
    - explicit allow groups for `Googlebot` and `Google-InspectionTool`
 7. Canonical host redirects should be permanent (`301`/`308`), not temporary (`307`).
+8. Retired city pages and duplicate article URLs must use one-hop redirects and remain absent from sitemaps and internal links.
+9. The practice `Dentist`/`Organization` entity schema belongs on the homepage. Nearby-city pages must not represent separate local businesses.
+10. Visible third-party reviews may remain for trust, but the practice does not emit self-serving `Review` or `aggregateRating` schema.
 
 ## Automated SEO gates
 

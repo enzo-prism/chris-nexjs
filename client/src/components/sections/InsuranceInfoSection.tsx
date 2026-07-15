@@ -11,8 +11,8 @@ type InsuranceInfoSectionProps = {
 export default function InsuranceInfoSection({
   className,
   title = "Insurance Information",
-  subtitle = "We work with most major insurance providers. Contact us to verify your coverage.",
-}: InsuranceInfoSectionProps): JSX.Element {
+  subtitle = "We are an out-of-network PPO provider. Many PPO plans still include benefits, and our team can verify yours before treatment.",
+}: InsuranceInfoSectionProps): React.JSX.Element {
   return (
     <section className={cn("bg-[#F5F9FC] py-16", className)}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -28,7 +28,7 @@ export default function InsuranceInfoSection({
           <div className="grid gap-8 md:grid-cols-2">
             <div>
               <h3 className="mb-4 text-xl font-bold font-heading text-[#333333]">
-                Accepted Insurance Plans
+                PPO Plans We Can Help Verify
               </h3>
               <ul className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
                 {insuranceProviders.map((provider) => (

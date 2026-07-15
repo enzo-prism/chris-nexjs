@@ -114,7 +114,7 @@ const DentalCleaningPaloAlto = () => {
           <div className="flex flex-col sm:flex-row gap-3">
             <Link href="/schedule#appointment">
               <Button className="ui-btn-primary">
-                Book a cleaning
+                Request a cleaning
               </Button>
             </Link>
             <a href={`tel:${officeInfo.phoneE164}`}>

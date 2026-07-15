@@ -61,9 +61,20 @@ export function getBlogSeoMetadata(post?: BlogSeoInput | null): {
   if (!post) return null;
 
   const override = BLOG_SEO_OVERRIDES[post.slug];
+  const brandSuffix = " | Dr. Wong";
+  const maxTitleLength = 60;
+  const editorialTitle = override?.pageTitle ?? post.title;
+  const titleWithBrand = `${editorialTitle}${brandSuffix}`;
+  const title =
+    titleWithBrand.length <= maxTitleLength
+      ? titleWithBrand
+      : editorialTitle
+          .slice(0, maxTitleLength)
+          .replace(/\s+\S*$/, "")
+          .trim();
 
   return {
-    title: override?.pageTitle ?? `${post.title} | Christopher B. Wong, DDS`,
+    title,
     description: override?.description ?? buildExcerpt(post.content),
   };
 }

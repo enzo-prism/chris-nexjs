@@ -1,23 +1,22 @@
 import { execSync } from "node:child_process";
 
-// All ceilings include ~1KB of deliberate global weight added for the
-// enriched Organization entity schema (founder/knowsAbout for local SEO and
-// AI-engine comprehension) and the sitewide Insurance footer link, which ship
-// in the shared shell chunk on every route.
-const CORE_MAX_KB = Number.parseFloat(process.env.BUNDLE_CORE_MAX_KB || "172");
+// Next.js 15 and React 19 add roughly 13KB of framework runtime to every route
+// compared with the previous Next.js 14 baseline. These ceilings preserve the
+// same route-level headroom while keeping the patched, supported framework.
+const CORE_MAX_KB = Number.parseFloat(process.env.BUNDLE_CORE_MAX_KB || "186");
 // The homepage deliberately server-renders its FAQ, service grid (internal
 // links), and About content for crawlability/indexing, which adds ~1KB to its
 // First Load JS over the shared core budget. This dedicated ceiling reflects
 // that trade-off while still guarding against further bloat.
-const HOME_MAX_KB = Number.parseFloat(process.env.BUNDLE_HOME_MAX_KB || "175");
+const HOME_MAX_KB = Number.parseFloat(process.env.BUNDLE_HOME_MAX_KB || "189");
 const DEFAULT_MARKETING_MAX_KB = Number.parseFloat(
-  process.env.BUNDLE_MARKETING_MAX_KB || "221",
+  process.env.BUNDLE_MARKETING_MAX_KB || "235",
 );
 const ANALYTICS_MAX_KB = Number.parseFloat(
-  process.env.BUNDLE_ANALYTICS_MAX_KB || "520",
+  process.env.BUNDLE_ANALYTICS_MAX_KB || "120",
 );
 const LOCATION_HUB_MAX_KB = Number.parseFloat(
-  process.env.BUNDLE_LOCATION_HUB_MAX_KB || "173",
+  process.env.BUNDLE_LOCATION_HUB_MAX_KB || "188",
 );
 
 const CRITICAL_ROUTE_BUDGETS = new Map([

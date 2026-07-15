@@ -1,4 +1,4 @@
-import { officeInfo, doctorInfo } from "@/lib/data";
+import { doctorInfo, getOfficeTodayISO, officeInfo } from "@/lib/data";
 import type { Service, Testimonial } from "@shared/schema";
 
 export type FAQEntry = {
@@ -91,7 +91,7 @@ export const buildOrganizationSchema = (options?: {
     "@id": schemaId("/", "organization"),
     name: officeInfo.name,
     description:
-      "Premier Palo Alto dentist Dr. Christopher Wong provides exceptional dental care across preventive, restorative, and cosmetic dentistry.",
+      "Palo Alto dental practice providing preventive, restorative, cosmetic, Invisalign, implant restoration, and emergency dental care.",
     url: baseUrl,
     telephone: officeInfo.phoneE164,
     email: officeInfo.email,
@@ -121,8 +121,8 @@ export const buildOrganizationSchema = (options?: {
     },
     geo: {
       "@type": "GeoCoordinates",
-      latitude: 37.4488473,
-      longitude: -122.1497687,
+      latitude: 37.426868,
+      longitude: -122.145487,
     },
     hasMap: officeInfo.mapUrl,
     medicalSpecialty: "https://schema.org/Dentistry",
@@ -144,7 +144,10 @@ export const buildOrganizationSchema = (options?: {
       "Emergency dental care",
     ],
     openingHoursSpecification: officeInfo.openingHoursSpecification,
-    specialOpeningHoursSpecification: officeInfo.specialOpeningHoursSpecification,
+    specialOpeningHoursSpecification:
+      officeInfo.specialOpeningHoursSpecification.filter(
+        (entry) => entry.validThrough >= getOfficeTodayISO(),
+      ),
     contactPoint: [
       {
         "@type": "ContactPoint",
@@ -507,32 +510,12 @@ export const buildAggregateRatingFromTestimonials = (
 };
 
 export const buildReviewSchemas = (
-  testimonials: Pick<Testimonial, "name" | "text" | "rating" | "location">[],
-  limit = 8,
+  _testimonials: Pick<Testimonial, "name" | "text" | "rating" | "location">[],
+  _limit = 8,
 ) => {
-  if (!testimonials.length) return [];
-  return testimonials.slice(0, limit).map((testimonial, index) => ({
-    "@context": "https://schema.org",
-    "@type": "Review",
-    reviewBody: testimonial.text,
-    reviewRating: {
-      "@type": "Rating",
-      ratingValue: testimonial.rating,
-      bestRating: 5,
-      worstRating: 1,
-    },
-    author: {
-      "@type": "Person",
-      name: testimonial.name,
-    },
-    itemReviewed: {
-      "@type": "Dentist",
-      name: officeInfo.name,
-      url: getBaseUrl(),
-    },
-    publisher: {
-      "@type": "Organization",
-      name: officeInfo.name,
-    },
-  }));
+  // Patient quotes remain visible and source-labelled for visitors. Google
+  // does not allow a LocalBusiness to earn review rich results from reviews
+  // about itself or aggregate ratings copied from third-party platforms, so
+  // these quotes intentionally emit no Review JSON-LD.
+  return [];
 };

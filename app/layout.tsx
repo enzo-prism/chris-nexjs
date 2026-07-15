@@ -42,20 +42,27 @@ const googleTagBootstrap = `
   window.gtag = window.gtag || gtag;
   gtag('js', new Date());
 
-  // Analytics + advertising consent are granted by default (no consent banner).
+  var storedAnalyticsConsent = null;
+  try {
+    storedAnalyticsConsent = window.localStorage.getItem('${ANALYTICS_CONSENT_STORAGE_KEY}');
+  } catch (_error) {}
+  var analyticsConsent = storedAnalyticsConsent === 'denied' ? 'denied' : 'granted';
+
+  // Essential measurement remains enabled unless a visitor opts out. Advertising
+  // storage and personalization stay denied because this site has no ad-consent UI.
   gtag('consent', 'default', {
-    ad_storage: 'granted',
-    ad_user_data: 'granted',
-    ad_personalization: 'granted',
-    analytics_storage: 'granted'
+    ad_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied',
+    analytics_storage: analyticsConsent
   });
 
   window.setAnalyticsConsent = function setAnalyticsConsent(granted) {
     const state = granted ? 'granted' : 'denied';
     gtag('consent', 'update', {
-      ad_storage: state,
-      ad_user_data: state,
-      ad_personalization: state,
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
       analytics_storage: state
     });
     window.dispatchEvent(new CustomEvent('${ANALYTICS_CONSENT_EVENT}', {

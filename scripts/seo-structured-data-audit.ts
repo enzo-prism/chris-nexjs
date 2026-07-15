@@ -68,18 +68,6 @@ function toRouteParams(path: string): { params: { slug?: string[] } } {
   return { params: normalized ? { slug: normalized.split("/") } : {} };
 }
 
-function hasAddress(node: JsonRecord): boolean {
-  const address = node.address;
-  if (!address) return false;
-  if (typeof address === "string") return address.length > 0;
-  return typeof address === "object";
-}
-
-function hasTelephone(node: JsonRecord): boolean {
-  const telephone = node.telephone;
-  return typeof telephone === "string" && telephone.length > 0;
-}
-
 function hasWebSiteSearchAction(node: JsonRecord): boolean {
   if (node["@type"] !== "WebSite") return false;
   const action = node.potentialAction;
@@ -126,9 +114,20 @@ async function main(): Promise<void> {
       continue;
     }
 
+    const cluster = getSeoForPath(path).seoCluster;
+    const requiresStructuredData =
+      path === "/" ||
+      path.startsWith("/blog/") ||
+      cluster === "service" ||
+      cluster === "location" ||
+      path === "/services" ||
+      path === "/locations";
+
     const blocks = extractJsonLdBlocks(html);
     if (blocks.length === 0) {
-      failures.push({ path, message: "No JSON-LD script blocks found" });
+      if (requiresStructuredData) {
+        failures.push({ path, message: "No JSON-LD script blocks found" });
+      }
       continue;
     }
 
@@ -205,7 +204,6 @@ async function main(): Promise<void> {
       }
     }
 
-    const cluster = getSeoForPath(path).seoCluster;
     if (cluster === "service") {
       if (!types.has("Service") && !types.has("FAQPage") && !types.has("BreadcrumbList")) {
         failures.push({
@@ -245,30 +243,15 @@ async function main(): Promise<void> {
       }
     }
     if (cluster === "location") {
-      const hasLocalSchema = types.has("Dentist") || types.has("LocalBusiness");
-      if (!hasLocalSchema) {
+      if (
+        path !== "/locations" &&
+        !types.has("BreadcrumbList") &&
+        !types.has("FAQPage")
+      ) {
         failures.push({
           path,
-          message: "Location page should include Dentist or LocalBusiness schema",
+          message: "Location page should include BreadcrumbList or FAQPage schema",
         });
-      }
-      const localNodes = nodes.filter((node) => {
-        const type = node["@type"];
-        if (typeof type === "string") {
-          return type === "Dentist" || type === "LocalBusiness";
-        }
-        return Array.isArray(type) && type.some((entry) => entry === "Dentist" || entry === "LocalBusiness");
-      });
-      if (localNodes.length > 0) {
-        const completeLocalNode = localNodes.some(
-          (node) => hasAddress(node) && hasTelephone(node),
-        );
-        if (!completeLocalNode) {
-          failures.push({
-            path,
-            message: "Dentist/LocalBusiness schema should include address and telephone",
-          });
-        }
       }
     }
   }

@@ -29,6 +29,8 @@ jobs:
       - name: Type and contract checks
         run: |
           pnpm run check
+          pnpm run llms:generate
+          git diff --exit-code -- public/llms.txt client/public/llms.txt
           pnpm run test:api
           pnpm run test:routes
           pnpm run test:seo

@@ -308,7 +308,7 @@ const ZoomWhitening = () => {
             Ready for a brighter smile?
           </h2>
           <p className="text-white/80 max-w-2xl mx-auto mb-6">
-            Book your ZOOM! teeth whitening visit in Palo Alto. We&apos;ll confirm you&apos;re a good candidate and set a shade goal that looks natural on you.
+            Request your ZOOM! teeth whitening visit in Palo Alto. We&apos;ll confirm you&apos;re a good candidate and set a shade goal that looks natural on you.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href="/schedule#appointment">

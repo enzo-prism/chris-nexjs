@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowRight, Mail, MapPin, Phone } from "lucide-react";
-import AppointmentSection from "@/components/sections/AppointmentSection";
+import dynamic from "next/dynamic";
 import OfficeVisitSection from "@/components/sections/OfficeVisitSection";
 import InsuranceInfoSection from "@/components/sections/InsuranceInfoSection";
 import MetaTags from "@/components/common/MetaTags";
@@ -18,6 +18,16 @@ import {
   type StructuredDataNode,
   absoluteUrl,
 } from "@/lib/structuredData";
+
+const ContactForm = dynamic(() => import("@/components/forms/ContactForm"), {
+  ssr: false,
+  loading: () => (
+    <div
+      className="h-96 animate-pulse rounded-2xl bg-slate-100"
+      aria-label="Loading contact form"
+    />
+  ),
+});
 
 const Contact = () => {
   const holiday = useHolidayHours();
@@ -123,9 +133,40 @@ const Contact = () => {
         </section>
       )}
 
-      {/* Appointment Section - Moved to top and given an ID for direct navigation */}
-      <section id="appointment">
-        <AppointmentSection />
+      <section id="message" className="bg-white py-12 md:py-16">
+        <div className="mx-auto grid max-w-5xl gap-8 px-4 sm:px-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)] lg:px-8">
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+            <h2 className="font-heading text-2xl font-bold text-slate-900">
+              Send a non-urgent question
+            </h2>
+            <p className="mb-6 mt-2 text-sm leading-6 text-slate-600">
+              Use this form for insurance, billing, records, referral, or
+              general service questions. Please do not include medical details
+              or urgent symptoms.
+            </p>
+            <ContactForm />
+          </div>
+          <aside className="rounded-3xl bg-primary p-6 text-white sm:p-8">
+            <h2 className="font-heading text-2xl font-bold">
+              Ready to request a visit?
+            </h2>
+            <p className="mt-3 leading-7 text-blue-50">
+              The appointment form asks only for the details our scheduling
+              team needs to follow up and confirm a time.
+            </p>
+            <Link
+              href="/schedule#appointment"
+              className="ui-focus-premium mt-6 inline-flex min-h-11 items-center rounded-full bg-white px-5 py-3 font-semibold text-primary hover:bg-blue-50"
+            >
+              Request an appointment
+              <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+            </Link>
+            <p className="mt-5 text-sm leading-6 text-blue-100">
+              In pain or dealing with a dental emergency? Call {officeInfo.phone}
+              for the fastest response.
+            </p>
+          </aside>
+        </div>
       </section>
 
       <OfficeVisitSection
@@ -152,17 +193,10 @@ const Contact = () => {
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {[
-              { href: "/dentist-menlo-park", label: "Menlo Park family dentist" },
-              { href: "/dentist-stanford", label: "Stanford dentist" },
-              { href: "/dentist-mountain-view", label: "Mountain View family dentist" },
-              { href: "/dentist-los-altos", label: "Los Altos dentist" },
-              { href: "/dentist-los-altos-hills", label: "Los Altos Hills dentist" },
-              { href: "/dentist-sunnyvale", label: "Sunnyvale family dentist" },
-              { href: "/dentist-cupertino", label: "Cupertino family dentist" },
-              { href: "/dentist-redwood-city", label: "Redwood City dentist" },
-              { href: "/dentist-atherton", label: "Atherton dentist" },
-              { href: "/dentist-redwood-shores", label: "Redwood Shores dentist" },
-              { href: "/locations", label: "All locations" },
+                { href: "/dentist-menlo-park", label: "Menlo Park family dentist" },
+                { href: "/dentist-stanford", label: "Stanford dentist" },
+                { href: "/dentist-mountain-view", label: "Mountain View family dentist" },
+                { href: "/locations", label: "All nearby communities" },
               { href: "/dental-cleaning-palo-alto", label: "Dental cleanings in Palo Alto" },
               { href: "/pediatric-dentist-palo-alto", label: "Pediatric dentist in Palo Alto" },
               { href: "/teeth-whitening-palo-alto", label: "Teeth whitening in Palo Alto" },

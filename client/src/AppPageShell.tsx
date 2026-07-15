@@ -28,7 +28,6 @@ import {
   buildPersonSchema,
   buildWebSiteSchema,
 } from "@/lib/structuredData";
-import { publishedTestimonialAggregateRating } from "@shared/reviewStats";
 
 const GoogleAnalytics = dynamic(
   () => import("@/components/common/GoogleAnalytics"),
@@ -94,6 +93,7 @@ export function AppPageShell({
   children,
 }: AppPageShellProps) {
   const client = queryClientOverride ?? queryClient;
+  const pathname = usePathname() || ssrPath || "/";
 
   const shellContent = (
     <WouterRouter ssrPath={ssrPath}>
@@ -101,18 +101,29 @@ export function AppPageShell({
       <ScrollToTop />
       <GoogleAnalytics />
       <HotjarTracking />
-      <StructuredData
-        data={[
-          buildOrganizationSchema({
-            aggregateRating: publishedTestimonialAggregateRating,
-          }),
-          buildPersonSchema(),
-          buildWebSiteSchema(),
-        ]}
-        id="global-organization-schema"
-      />
+      {pathname === "/" ? (
+        <StructuredData
+          data={[
+            buildOrganizationSchema(),
+            buildPersonSchema(),
+            buildWebSiteSchema(),
+          ]}
+          id="homepage-entity-schema"
+        />
+      ) : null}
+      <a
+        href="#main-content"
+        className="skip-link"
+        data-testid="skip-to-content"
+      >
+        Skip to main content
+      </a>
       <Header variant={chromeVariant} />
-      <main style={{ paddingTop: "var(--header-height, 110px)" }}>
+      <main
+        id="main-content"
+        tabIndex={-1}
+        style={{ paddingTop: "var(--header-height, 110px)" }}
+      >
         {chromeVariant === "default" ? <HolidayHoursNotice /> : null}
         {children}
       </main>

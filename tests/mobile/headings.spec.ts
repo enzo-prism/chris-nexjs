@@ -11,7 +11,7 @@ import { gotoAndHydrate } from "./_helpers";
 
 const MAX_H1_PX = 32;
 
-const ROUTES = ["/dentist-mountain-view", "/dentist-los-altos-hills"];
+const ROUTES = ["/dentist-mountain-view", "/dentist-menlo-park"];
 
 for (const route of ROUTES) {
   test(`H1 is <= ${MAX_H1_PX}px at 390px on ${route}`, async ({ page }) => {

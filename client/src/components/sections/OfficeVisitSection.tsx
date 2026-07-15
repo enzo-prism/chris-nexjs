@@ -30,7 +30,7 @@ export default function OfficeVisitSection({
   schemaUrl,
   schemaName,
   schemaImage,
-}: OfficeVisitSectionProps): JSX.Element {
+}: OfficeVisitSectionProps): React.JSX.Element {
   const wrapperSchemaProps = withSchema
     ? {
         itemScope: true,

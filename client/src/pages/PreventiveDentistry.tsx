@@ -124,7 +124,7 @@ const PreventiveDentistry = () => {
               <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
                 <Link href="/schedule#appointment">
                   <Button className="ui-btn-primary">
-                    Book a checkup
+                    Request a checkup
                   </Button>
                 </Link>
                 <Link href="/contact">

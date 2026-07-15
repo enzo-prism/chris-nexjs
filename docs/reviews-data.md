@@ -32,8 +32,8 @@ Operational guide for importing, auditing, and publishing review content used on
 - `/api/testimonials` enforces a minimum dataset floor:
   - if storage returns fewer rows than the published 5-star seed count, it serves the full published seed set.
 - Client pages consume testimonials via API to avoid shipping the entire review seed bundle to the browser.
-- Structured review schema is intentionally capped via `buildReviewSchemas(..., limit = 8)` to avoid over-large JSON-LD payloads.
-- Review counts split by surface: Google-branded surfaces (hero badge, Google reviews widget) use `GOOGLE_REVIEW_COUNT` (309); the Dentist-schema `aggregateRating` and the `/testimonials` total use `PUBLISHED_REVIEW_COUNT` (319). Never use the raw import total. A build-time guard in `shared/testimonialsData.ts` throws if the published count drifts from `PUBLISHED_REVIEW_COUNT`, so bump it when adding reviews.
+- Self-serving `Review` and `aggregateRating` JSON-LD are intentionally not emitted. Visible reviews remain source-labelled conversion content.
+- Review counts split by visible surface: Google-branded surfaces use `GOOGLE_REVIEW_COUNT` (309), while the `/testimonials` total uses `PUBLISHED_REVIEW_COUNT` (319). Never use the raw import total. A build-time guard in `shared/testimonialsData.ts` throws if the published count drifts from `PUBLISHED_REVIEW_COUNT`, so bump it when adding reviews.
 - Homepage spotlight carousel (`client/src/pages/Home.tsx`) uses:
   - width-aware slide-track translation (`translateX(active * 100 / count)`) to keep arrow navigation aligned with single-card increments
   - pointer swipe detection (45px horizontal threshold, vertical-swipe rejection) for mobile and trackpad/mouse drags
@@ -69,4 +69,5 @@ pnpm run test:reviews
 - The website’s published testimonial surface is intentionally 5-star only.
 - Do not hand-edit the rating filter in multiple places; keep it centralized around `shared/testimonialsData.ts`.
 - Do not manually hand-edit `shared/googleReviewsData.ts`; regenerate from source export instead.
+- Do not reintroduce review or aggregate-rating schema for the practice's own Dentist/LocalBusiness entity.
 - If parsing drops unexpectedly below `300` reviews, treat it as a format break and inspect the source export structure before release.

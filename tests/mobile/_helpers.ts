@@ -22,13 +22,9 @@ export const FONT_SIZE_PX = (el: Element): number =>
   parseFloat(window.getComputedStyle(el).fontSize);
 
 /**
- * Both /contact and /schedule render the multi-step AppointmentForm funnel. The
- * text-entry fields (name / phone / email / notes) live on the *contact* step,
- * not the first step, so to verify them we must advance the funnel: dismiss the
- * consent banner, pick an appointment type, and click Continue. With the
- * default schedulingMode of "first_available" the funnel is two steps, so one
- * Continue lands on the final contact step (where "Request My Appointment"
- * appears).
+ * /schedule renders the multi-step AppointmentForm funnel. The text-entry
+ * fields live on the final contact step, so tests pick an appointment type and
+ * continue once before inspecting them.
  */
 export async function advanceFunnelToContactStep(page: Page): Promise<void> {
   const decline = page.getByRole("button", { name: /^decline$/i });

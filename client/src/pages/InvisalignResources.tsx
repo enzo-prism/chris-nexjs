@@ -130,7 +130,7 @@ const InvisalignResources = ({
             </Link>
             <Link href="/schedule#appointment">
               <Button variant="outline" className="ui-btn-outline">
-                Book a consultation
+                Request a consultation
               </Button>
             </Link>
           </div>

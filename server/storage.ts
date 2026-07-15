@@ -3539,36 +3539,6 @@ Every tooth is different. If you are weighing whether you need a crown after a r
         category: "Restorative Dentistry",
         readTime: 6,
         relatedServices: ["crowns-palo-alto","restorative-dentistry"],
-      },
-      {
-        title: "Dental Implants vs. Bridges for a Missing Tooth in Palo Alto",
-        content: `Losing a tooth is more common than most people expect, and the good news is that you have solid options to replace it. The two most common are a dental implant and a fixed bridge. Both restore your ability to chew and smile with confidence, but they work in very different ways.
-
-At Christopher B. Wong, DDS, we help patients across Palo Alto and the Peninsula choose between them based on the health of the surrounding teeth, bone, and long-term goals. Here is how they compare.
-
-## How a dental implant works
-A [dental implant](/dental-implants) replaces the tooth root with a small titanium post placed in the jaw. After it heals, a custom crown attaches on top. Because the implant integrates with the bone, it looks and functions like a natural tooth and does not rely on the neighboring teeth for support.
-
-## How a bridge works
-A bridge fills the gap by anchoring a replacement tooth to the two teeth on either side, which are crowned to hold it in place. It is a well-established option, often completed faster than an implant, and does not require surgery.
-
-## The key difference: protecting your other teeth
-The biggest trade-off is what happens to the neighboring teeth. A bridge requires reshaping the two adjacent teeth, even if they are perfectly healthy. An implant leaves them untouched. It also preserves the jawbone underneath, which naturally shrinks when a tooth root is missing.
-
-## Which lasts longer?
-With good care, implants often last decades and have a very high success rate. Bridges typically last many years but usually need replacement sooner, and the supporting teeth are more vulnerable to decay at the edges over time.
-
-## When a bridge may be the better fit
-A bridge can be the more practical choice if the neighboring teeth already need crowns, if there is not enough bone for an implant, or if you prefer to avoid surgery. Timing matters too. Our guide on [timing an implant after an extraction](/blog/dental-implant-after-extraction-palo-alto) explains why the healing window affects your options.
-
-## Get a plan built around your mouth
-The right answer depends on your specific bite, bone, and the condition of the teeth around the gap. If you are replacing a missing tooth in Palo Alto, [schedule a consultation](/schedule) with Christopher B. Wong, DDS. We will review both options honestly and recommend the one that protects the most healthy tooth structure for the long run.`,
-        image: "/images/office/courtyard-operatory.png",
-        date: "July 2, 2026",
-        slug: "dental-implants-vs-bridges-palo-alto",
-        category: "Restorative Dentistry",
-        readTime: 7,
-        relatedServices: ["dental-implants","restorative-dentistry"],
       }
     ];
 

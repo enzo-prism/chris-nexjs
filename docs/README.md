@@ -19,10 +19,14 @@ Use this file as the central index for project documentation.
   SHA/deployment sync checks, and release verification commands.
 - `testing.md`  
   Test matrix and release command sets.
+- `api-contracts.md`
+  Public API limits, lead-delivery semantics, privacy rules, and verification.
 - `performance.md`  
   Performance budgets and measurement workflow.
 - `production-readiness-spec.md`  
   Release quality criteria and gates.
+- `release-2026-07-15-growth-and-hardening.md`
+  Shipped SEO, conversion, privacy, and reliability changes for this release.
 
 ## SEO documentation
 

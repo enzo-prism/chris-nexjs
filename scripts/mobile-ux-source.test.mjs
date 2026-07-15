@@ -128,18 +128,24 @@ assert(
   bannerGone && shellNoBanner && appNoBanner,
   "component file must be deleted and not referenced by AppPageShell/App",
 );
-// 11b. Analytics is granted by default so removing the banner doesn't kill data.
+// 11b. Analytics remains available without a banner, honors a stored opt-out,
+// and never grants advertising storage by default.
+const analyticsSource = read("client/src/lib/analytics.ts");
+const layoutSource = read("app/layout.tsx");
 assert(
-  "analytics: granted by default (hasAnalyticsConsent returns true)",
-  /hasAnalyticsConsent\(\): boolean \{[\s\S]{0,260}return true;/.test(
-    read("client/src/lib/analytics.ts"),
+  "analytics: enabled by default and stored opt-out is honored",
+  /hasAnalyticsConsent\(\): boolean \{[\s\S]{0,180}getAnalyticsConsentState\(\) !== "denied"/.test(
+    analyticsSource,
   ),
 );
 assert(
-  "layout: gtag consent default is granted",
-  /consent', 'default', \{[\s\S]{0,200}analytics_storage: 'granted'/.test(
-    read("app/layout.tsx"),
-  ),
+  "layout: consent defaults from stored analytics choice with ads denied",
+  /analyticsConsent = storedAnalyticsConsent === 'denied' \? 'denied' : 'granted'/.test(
+    layoutSource,
+  ) &&
+    /consent', 'default', \{[\s\S]{0,220}ad_storage: 'denied'[\s\S]{0,220}analytics_storage: analyticsConsent/.test(
+      layoutSource,
+    ),
 );
 
 // 12. Contact API forwards to the office inbox (no silent lead drop).
@@ -158,15 +164,16 @@ assert(
     !/from "framer-motion"/.test(veneers),
 );
 
-// 14. Skip-to-content link removed (it flashed into the top-left on SPA
-// navigations); must never reappear.
+// 14. Keyboard users can bypass repeated navigation without showing the link
+// until it receives focus.
 const shell = read("client/src/AppPageShell.tsx");
 assert(
-  "AppPageShell: skip-to-content link removed",
-  !shell.includes('data-testid="skip-to-content"') &&
-    !shell.includes("Skip to main content") &&
-    !shell.includes('href="#main-content"'),
-  "the skip-to-content link must not be present in AppPageShell",
+  "AppPageShell: accessible skip-to-content link",
+  shell.includes('data-testid="skip-to-content"') &&
+    shell.includes("Skip to main content") &&
+    shell.includes('href="#main-content"') &&
+    shell.includes('id="main-content"'),
+  "the shell must include a focus-only skip link and matching main target",
 );
 
 // 15. Global horizontal-overflow guard.

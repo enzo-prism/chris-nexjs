@@ -17,8 +17,8 @@ const HeroSection = () => {
       description: "Comfort-first, unrushed visits"
     },
     {
-      title: "PPO insurance accepted",
-      description: "We’ll help verify benefits"
+      title: "PPO benefit support",
+      description: "Out-of-network benefits verified"
     },
     {
       title: "Modern dental technology",

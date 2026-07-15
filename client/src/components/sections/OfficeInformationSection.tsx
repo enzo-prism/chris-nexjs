@@ -114,7 +114,7 @@ const OfficeInformationSection = () => {
         {/* Map - added as a responsive element */}
         <div className="mt-10 sm:mt-16 rounded-lg overflow-hidden shadow-lg h-64 sm:h-80 lg:h-96">
           <iframe 
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3168.371118386933!2d-122.14976869999995!3d37.44884729999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x808fbb3c116e86ef%3A0xebbf1ba97de2f679!2s409%20Cambridge%20Ave%2C%20Palo%20Alto%2C%20CA%2094306!5e0!3m2!1sen!2sus!4v1713357822024!5m2!1sen!2sus" 
+            src="https://www.google.com/maps?q=Christopher+B.+Wong,+DDS,+409+Cambridge+Ave,+Palo+Alto,+CA+94306&output=embed"
             width="100%" 
             height="100%" 
             style={{ border: 0 }} 

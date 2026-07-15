@@ -25,7 +25,7 @@ const CATEGORIES: (GalleryCategory | "All")[] = [
   "Our Team",
 ];
 
-function GalleryHero({ video }: { video: GalleryMediaItem }): JSX.Element {
+function GalleryHero({ video }: { video: GalleryMediaItem }): React.JSX.Element {
   const [isMuted, setIsMuted] = useState(true);
   const heroVideoRef = useRef<HTMLVideoElement>(null);
 
@@ -62,7 +62,7 @@ function GalleryHero({ video }: { video: GalleryMediaItem }): JSX.Element {
             
             <div className="flex flex-wrap gap-4">
               <ButtonLink href="/schedule#appointment" className="ui-btn-primary h-12 rounded-full px-8 text-base font-semibold">
-                Book a Visit
+                Request a Visit
               </ButtonLink>
               <div className="flex items-center gap-4 text-slate-500 text-sm font-medium">
                 <div className="flex -space-x-2">
@@ -114,7 +114,7 @@ function GalleryHero({ video }: { video: GalleryMediaItem }): JSX.Element {
   );
 }
 
-export default function Gallery(): JSX.Element {
+export default function Gallery(): React.JSX.Element {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [activeCategory, setActiveCategory] = useState<(GalleryCategory | "All")>("All");
 
@@ -248,7 +248,7 @@ export default function Gallery(): JSX.Element {
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-4">
             <ButtonLink href="/schedule#appointment" className="rounded-full px-10 h-14 text-lg">
-              Book Appointment
+              Request Appointment
             </ButtonLink>
             <ButtonLink href="/contact" variant="outline" className="rounded-full px-10 h-14 text-lg">
               Contact Us

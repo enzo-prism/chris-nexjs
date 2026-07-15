@@ -30,13 +30,6 @@ const Footer = ({ variant = "default" }: FooterProps) => {
     { href: "/dentist-menlo-park", label: "Menlo Park Families" },
     { href: "/dentist-stanford", label: "Stanford Patients" },
     { href: "/dentist-mountain-view", label: "Mountain View Families" },
-    { href: "/dentist-los-altos", label: "Los Altos Patients" },
-    { href: "/dentist-los-altos-hills", label: "Los Altos Hills Patients" },
-    { href: "/dentist-sunnyvale", label: "Sunnyvale Families" },
-    { href: "/dentist-cupertino", label: "Cupertino Families" },
-    { href: "/dentist-redwood-city", label: "Redwood City Patients" },
-    { href: "/dentist-atherton", label: "Atherton Patients" },
-    { href: "/dentist-redwood-shores", label: "Redwood Shores Patients" },
     { href: "/locations", label: "All Locations" },
     { href: "/contact", label: "Contact" },
   ];

@@ -23,9 +23,10 @@ Feature route:
 
 ## Budget targets
 
-- Key marketing routes: target `<= 171kB` first-load JS.
-- Secondary marketing routes: target `<= 220kB`.
-- `/analytics` may exceed marketing route budget due intentional isolation.
+- Key marketing routes: enforced ceilings are `186kB`, with `189kB` for the server-rendered homepage and `188kB` for the Menlo Park location page.
+- Secondary marketing routes: enforced ceiling is `235kB`.
+- `/analytics` is a disabled `404` route and has a tightened `120kB` ceiling to prevent the retired dashboard bundle from returning.
+- The Next.js 15 and React 19 migration added about 13kB of shared runtime versus the former framework baseline; route-level headroom remains comparable.
 - Lighthouse guidance:
   - CLS `<= 0.10`
   - TBT `<= 250ms`

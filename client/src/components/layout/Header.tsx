@@ -60,13 +60,6 @@ const navLinks: readonly NavLink[] = [
       { href: "/dentist-menlo-park", label: "Menlo Park" },
       { href: "/dentist-stanford", label: "Stanford" },
       { href: "/dentist-mountain-view", label: "Mountain View" },
-      { href: "/dentist-los-altos", label: "Los Altos" },
-      { href: "/dentist-los-altos-hills", label: "Los Altos Hills" },
-      { href: "/dentist-sunnyvale", label: "Sunnyvale" },
-      { href: "/dentist-cupertino", label: "Cupertino" },
-      { href: "/dentist-redwood-city", label: "Redwood City" },
-      { href: "/dentist-atherton", label: "Atherton" },
-      { href: "/dentist-redwood-shores", label: "Redwood Shores" },
       { href: "/locations", label: "All Locations" },
     ],
   },
@@ -592,10 +585,10 @@ const Header = ({ variant = "default" }: HeaderProps) => {
 
               <ButtonLink
                 href="/schedule#appointment"
-                aria-label="Book Appointment"
+                aria-label="Request an appointment"
                 className="ui-btn-primary shrink-0 whitespace-nowrap rounded-full px-4 text-[13px] font-semibold 2xl:px-6 2xl:text-sm"
               >
-                Book <span className="hidden 2xl:inline">Appointment</span>
+                Request <span className="hidden 2xl:inline">Appointment</span>
               </ButtonLink>
             </div>
 
@@ -737,7 +730,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
                 onClick={closeMenus}
                 className="ui-btn-primary h-14 w-full rounded-xl text-lg font-bold"
               >
-                Book Appointment Now
+                Request an Appointment
               </ButtonLink>
 
               <div className="grid grid-cols-2 gap-4 pt-2">

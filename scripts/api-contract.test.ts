@@ -6,8 +6,7 @@ import { GET as getServiceBySlug } from "../app/api/services/[slug]/route";
 import { GET as getBlogPosts } from "../app/api/blog-posts/route";
 import { GET as getBlogPostBySlug } from "../app/api/blog-posts/[slug]/route";
 import { GET as getTestimonials } from "../app/api/testimonials/route";
-import { GET as getAppointments, POST as postAppointment } from "../app/api/appointments/route";
-import { GET as getContacts, POST as postContact } from "../app/api/contact/route";
+import { POST as postContact } from "../app/api/contact/route";
 import { POST as postNewsletter } from "../app/api/newsletter/route";
 import { GET as search } from "../app/api/search/route";
 
@@ -108,40 +107,7 @@ async function testTestimonialsApi() {
   assert.ok(Array.isArray(await jsonFromResponse<Array<unknown>>(testimonials)));
 }
 
-async function testAppointmentsApi() {
-  const listResponse = await getAppointments();
-  assert.equal(listResponse.status, 200);
-  assert.ok(Array.isArray(await jsonFromResponse<Array<unknown>>(listResponse)));
-
-  const payload = {
-    fullName: "API Tester",
-    email: "api-tester@example.com",
-    phone: "555-1212",
-    service: "General Consultation",
-    date: "2026-03-01",
-    time: "10:00 AM",
-    type: "in-person",
-    notes: "Automated test booking",
-  };
-  const createResponse = await postAppointment(
-    requestWithBody("/api/appointments", payload),
-  );
-  assert.equal(createResponse.status, 201);
-
-  const invalidResponse = await postAppointment(
-    requestWithBody("/api/appointments", {
-      ...payload,
-      email: undefined,
-    }),
-  );
-  assert.equal(invalidResponse.status, 400);
-}
-
 async function testContactApi() {
-  const listResponse = await getContacts();
-  assert.equal(listResponse.status, 200);
-  assert.ok(Array.isArray(await jsonFromResponse<Array<unknown>>(listResponse)));
-
   const payload = {
     fullName: "Contact Tester",
     email: "contact-tester@example.com",
@@ -149,10 +115,31 @@ async function testContactApi() {
     subject: "General Inquiry",
     message: "Automated test contact message",
   };
-  const createResponse = await postContact(
-    requestWithBody("/api/contact", payload),
-  );
-  assert.equal(createResponse.status, 201);
+  const originalFetch = globalThis.fetch;
+  const deliveredTo: string[] = [];
+  globalThis.fetch = async (input) => {
+    const url = typeof input === "string" ? input : input.toString();
+    assert.match(
+      url,
+      /^https:\/\/formspree\.io\/f\//,
+      `unexpected external request during API tests: ${url}`,
+    );
+    deliveredTo.push(url);
+    return new Response(JSON.stringify({ ok: true }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  };
+
+  try {
+    const createResponse = await postContact(
+      requestWithBody("/api/contact", payload),
+    );
+    assert.equal(createResponse.status, 201);
+    assert.equal(deliveredTo.length, 1, "contact test should mock one inbox delivery");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 
   const invalidResponse = await postContact(
     requestWithBody("/api/contact", {
@@ -201,7 +188,6 @@ async function testSearchApi() {
   await testServicesApi();
   await testBlogApi();
   await testTestimonialsApi();
-  await testAppointmentsApi();
   await testContactApi();
   await testNewsletterApi();
   await testSearchApi();

@@ -1,7 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertAppointmentSchema, insertContactMessageSchema, insertNewsletterSubscriptionSchema } from "@shared/schema";
+import { insertContactMessageSchema, insertNewsletterSubscriptionSchema } from "@shared/schema";
 import { buildExcerpt, getSitemapEntries, seoByPath } from "@shared/seo";
 import { buildRobotsTxtContent } from "@shared/robots";
 import { getLegacyRedirectPath } from "@shared/redirects";
@@ -290,23 +290,6 @@ ${itemsXml ? `${itemsXml}\n` : ""}  </channel>
     }
   });
 
-  app.post("/api/appointments", async (req: Request, res: Response) => {
-    try {
-      const appointmentData = insertAppointmentSchema.parse(req.body);
-      const appointment = await storage.createAppointment(appointmentData);
-      res.status(201).json(appointment);
-    } catch (error) {
-      if (error instanceof ZodError) {
-        console.error("Validation error:", error);
-        const validationError = fromZodError(error);
-        return res.status(400).json({ message: validationError.message });
-      }
-      
-      console.error("Error creating appointment:", error);
-      res.status(500).json({ message: "Failed to create appointment" });
-    }
-  });
-
   app.post("/api/contact", async (req: Request, res: Response) => {
     try {
       const messageData = insertContactMessageSchema.parse(req.body);
@@ -365,28 +348,6 @@ ${itemsXml ? `${itemsXml}\n` : ""}  </channel>
     } catch (error) {
       console.error("Error searching:", error);
       res.status(500).json({ message: "Failed to perform search" });
-    }
-  });
-
-  // Analytics API routes - Get all appointments
-  app.get("/api/appointments", async (_req: Request, res: Response) => {
-    try {
-      const appointments = await storage.getAppointments();
-      res.status(200).json(appointments);
-    } catch (error) {
-      console.error("Error fetching appointments:", error);
-      res.status(500).json({ message: "Failed to fetch appointments" });
-    }
-  });
-
-  // Analytics API routes - Get all contact messages
-  app.get("/api/contact", async (_req: Request, res: Response) => {
-    try {
-      const contacts = await storage.getContactMessages();
-      res.status(200).json(contacts);
-    } catch (error) {
-      console.error("Error fetching contact messages:", error);
-      res.status(500).json({ message: "Failed to fetch contact messages" });
     }
   });
 

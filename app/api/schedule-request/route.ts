@@ -16,6 +16,7 @@ import {
   type ScheduleRequestV2,
 } from "@shared/scheduleRequest";
 import { trackVercelServerEvent } from "../../../server/vercelAnalytics";
+import { validateJsonRequest } from "../../../server/requestPolicy";
 
 type ForwardingResult = {
   enabled: boolean;
@@ -155,6 +156,7 @@ const postJsonWebhook = async (url: string, payload: unknown): Promise<void> => 
       "Content-Type": "application/json",
     },
     body: JSON.stringify(payload),
+    signal: AbortSignal.timeout(8_000),
   });
 
   if (!response.ok) {
@@ -216,6 +218,7 @@ const postToFormspree = async (
       "Content-Type": "application/json",
     },
     body: JSON.stringify(formPayload),
+    signal: AbortSignal.timeout(8_000),
   });
 
   if (!response.ok) {
@@ -228,6 +231,9 @@ const postToFormspree = async (
 
 export async function POST(request: NextRequest) {
   try {
+    const requestError = validateJsonRequest(request);
+    if (requestError) return requestError;
+
     const body = await request.json();
 
     // Silently accept honeypot-tripped submissions: bots see success, but the

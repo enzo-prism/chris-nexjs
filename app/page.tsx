@@ -10,10 +10,7 @@ export const generateMetadata = async () =>
 
 export default async function HomePage() {
   const storage = await getStorage();
-  const [services, testimonials] = await Promise.all([
-    storage.getServices(),
-    storage.getTestimonials(),
-  ]);
+  const services = await storage.getServices();
 
   return (
     <RouteShell
@@ -21,10 +18,7 @@ export default async function HomePage() {
       enableQueryClient={false}
       enableHelmet={false}
     >
-      <Home
-        initialServices={services}
-        initialTestimonials={testimonials}
-      />
+      <Home initialServices={services} />
     </RouteShell>
   );
 }

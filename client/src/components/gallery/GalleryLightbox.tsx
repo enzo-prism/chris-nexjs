@@ -29,7 +29,7 @@ export default function GalleryLightbox({
   activeIndex,
   onClose,
   onChange,
-}: GalleryLightboxProps): JSX.Element | null {
+}: GalleryLightboxProps): React.JSX.Element | null {
   const touchStartX = useRef<number | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);

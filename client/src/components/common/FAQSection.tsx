@@ -51,7 +51,7 @@ export default function FAQSection({
   subtitle,
   items,
   className,
-}: FAQSectionProps): JSX.Element | null {
+}: FAQSectionProps): React.JSX.Element | null {
   if (!items.length) return null;
 
   return (
@@ -87,4 +87,3 @@ export default function FAQSection({
     </section>
   );
 }
-

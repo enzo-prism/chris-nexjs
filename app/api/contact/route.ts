@@ -11,6 +11,7 @@ import {
 import { insertContactMessageSchema } from "@shared/schema";
 import { getStorage } from "../../../server/storage/repository";
 import { trackVercelServerEvent } from "../../../server/vercelAnalytics";
+import { validateJsonRequest } from "../../../server/requestPolicy";
 import { z } from "zod";
 
 const contactPayloadSchema = insertContactMessageSchema.extend({
@@ -64,6 +65,7 @@ const postContactToFormspree = async (
       "Content-Type": "application/json",
     },
     body: JSON.stringify(formPayload),
+    signal: AbortSignal.timeout(8_000),
   });
 
   if (!response.ok) {
@@ -74,21 +76,11 @@ const postContactToFormspree = async (
   }
 };
 
-export async function GET() {
-  try {
-    const storage = await getStorage();
-    const contacts = await storage.getContactMessages();
-    return NextResponse.json(contacts, { status: 200 });
-  } catch {
-    return NextResponse.json(
-      { message: "Failed to fetch contact messages" },
-      { status: 500 },
-    );
-  }
-}
-
 export async function POST(request: NextRequest) {
   try {
+    const requestError = validateJsonRequest(request);
+    if (requestError) return requestError;
+
     const body = await request.json();
 
     // Silently accept honeypot-tripped submissions so bots see success but
