@@ -13,6 +13,1146 @@ export type ChangelogEntry = {
 
 export const changelogEntries: readonly ChangelogEntry[] = [
   {
+    "date": "2026-07-25",
+    "commitDate": "2026-07-25T03:55:57.000Z",
+    "type": "fix",
+    "title": "Lead-API error handling, schema accuracy, and og:image delivery",
+    "summary": "Lead-API error handling, schema accuracy, and og:image delivery.",
+    "sha": "6d404316",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/6d4043166f742d4768f41ba3bd0560e14b84e602",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-07-25",
+    "commitDate": "2026-07-25T03:55:30.000Z",
+    "type": "update",
+    "title": "Refresh conversion, navigation, and gallery UX across the site",
+    "summary": "Refresh conversion, navigation, and gallery UX across the site.",
+    "sha": "e7c19334",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/e7c193346bb519f8fc59bffd16c2993f7d73524d",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-07-15",
+    "commitDate": "2026-07-15T19:48:43.000Z",
+    "type": "update",
+    "title": "Improve SEO, conversion, and site security",
+    "summary": "Improve SEO, conversion, and site security.",
+    "sha": "77713143",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/77713143acbc82bcfd45d40d51568a49464001fd",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-07-07",
+    "commitDate": "2026-07-07T15:28:49.000Z",
+    "type": "fix",
+    "title": "Expired holiday banner CLS",
+    "summary": "Expired holiday banner CLS.",
+    "sha": "eac136ca",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/eac136ca823642b7b94cc80f0d19422095bba200",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-07-07",
+    "commitDate": "2026-07-07T14:57:13.000Z",
+    "type": "update",
+    "title": "Add new Chris Wong office gallery photos",
+    "summary": "Add new Chris Wong office gallery photos.",
+    "sha": "e6098ffe",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/e6098ffe2115023fb0b8bd4b360f256f1d31bc09",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-07-03",
+    "commitDate": "2026-07-03T14:35:25.000Z",
+    "type": "feature",
+    "title": "Remove full team group photo from About and Office Tour",
+    "summary": "Remove full team group photo from About and Office Tour.",
+    "sha": "bdbb7dcf",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/bdbb7dcf12d1933f971ae83ddc7b93ad15fcb06c",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-07-02",
+    "commitDate": "2026-07-02T15:57:45.000Z",
+    "type": "feature",
+    "title": ", SEO, and conversion improvements across the site",
+    "summary": ", SEO, and conversion improvements across the site.",
+    "sha": "9c22201b",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/9c22201b7848b50d9fcb4262b5096cc79c624d89",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-06-24",
+    "commitDate": "2026-06-24T01:43:27.000Z",
+    "type": "feature",
+    "title": "Self-hosted \"Meet Dr. Wong\" intro video (replaces YouTube embed)",
+    "summary": "Self-hosted \"Meet Dr. Wong\" intro video (replaces YouTube embed).",
+    "sha": "d2a98d36",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/d2a98d362043aaed2abec17dba776aebbe4d2936",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-06-24",
+    "commitDate": "2026-06-24T00:12:40.000Z",
+    "type": "update",
+    "title": "Sync all project docs with current code",
+    "summary": "Sync all project docs with current code.",
+    "sha": "04eb00e0",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/04eb00e04a8fe54c1138a2e272a594b4082aec2f",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-06-23",
+    "commitDate": "2026-06-23T23:55:58.000Z",
+    "type": "feature",
+    "title": "Add /office-tour page with real office video + photos",
+    "summary": "Add /office-tour page with real office video + photos.",
+    "sha": "cb046cf8",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/cb046cf8030a5848748bc917805b935c5ad82c72",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-06-23",
+    "commitDate": "2026-06-23T23:30:27.000Z",
+    "type": "feature",
+    "title": "Dedicated mobile design for the testimonials section",
+    "summary": "Dedicated mobile design for the testimonials section.",
+    "sha": "9994e218",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/9994e2188a793ce006bda257c7a714b44f962c8b",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-06-23",
+    "commitDate": "2026-06-23T23:16:14.000Z",
+    "type": "fix",
+    "title": "Remove the \"Skip to main content\" link entirely",
+    "summary": "Remove the \"Skip to main content\" link entirely.",
+    "sha": "f01e2a52",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/f01e2a52b87523c8fbee9fb9c629812a00004a3e",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-06-23",
+    "commitDate": "2026-06-23T22:55:04.000Z",
+    "type": "feature",
+    "title": "Add real practice photos (hero, doctor, team, office)",
+    "summary": "Add real practice photos (hero, doctor, team, office).",
+    "sha": "b1e54bea",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/b1e54bea47e1ca6fa4dfd45c696b65d872d6b0fd",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-06-23",
+    "commitDate": "2026-06-23T21:43:27.000Z",
+    "type": "feature",
+    "title": "Move testimonials to the second section (just below the hero)",
+    "summary": "Move testimonials to the second section (just below the hero).",
+    "sha": "cd9bcf3d",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/cd9bcf3d7c93fedb481d35d532b8bc92628dc67f",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-06-23",
+    "commitDate": "2026-06-23T21:25:39.000Z",
+    "type": "feature",
+    "title": "Add 10 Yelp reviews to the testimonials",
+    "summary": "Add 10 Yelp reviews to the testimonials.",
+    "sha": "662e29d5",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/662e29d5c649f10e8f882e3dd408ae5ead3e3c98",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-06-23",
+    "commitDate": "2026-06-23T21:08:03.000Z",
+    "type": "feature",
+    "title": "Remove consent pop-up; grant analytics + ads by default",
+    "summary": "Remove consent pop-up; grant analytics + ads by default.",
+    "sha": "00ddc4e4",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/00ddc4e49b8b54ea47b5b8c4ede0ec9b4ab774c3",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-06-23",
+    "commitDate": "2026-06-23T18:03:59.000Z",
+    "type": "feature",
+    "title": "Mobile-UX overhaul + contact lead-delivery fix + mobile test suite",
+    "summary": "Mobile-UX overhaul + contact lead-delivery fix + mobile test suite.",
+    "sha": "dc42df59",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/dc42df59dcf3f1789f90435c31d8704debf070b2",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-06-23",
+    "commitDate": "2026-06-23T16:42:05.000Z",
+    "type": "fix",
+    "title": "Auto-prune past dates from the temporary hours notice",
+    "summary": "Auto-prune past dates from the temporary hours notice.",
+    "sha": "871b3f96",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/871b3f961e1ef8fecd0c7ddaed8bdb91dadb01dd",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-06-17",
+    "commitDate": "2026-06-17T22:26:30.000Z",
+    "type": "feature",
+    "title": "Feature Lauren Hall on homepage",
+    "summary": "Feature Lauren Hall on homepage.",
+    "sha": "5d2d9963",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/5d2d99637a70c3ec336ae88922c9fdedda5e53f1",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-06-17",
+    "commitDate": "2026-06-17T22:08:05.000Z",
+    "type": "feature",
+    "title": "Add Lauren Hall testimonial",
+    "summary": "Add Lauren Hall testimonial.",
+    "sha": "943f82fa",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/943f82fa3b50a5fce3879e4d8508c0df320afd41",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-06-13",
+    "commitDate": "2026-06-13T03:20:02.000Z",
+    "type": "fix",
+    "title": "Review schema and holiday hours",
+    "summary": "Review schema and holiday hours.",
+    "sha": "de7ef8cb",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/de7ef8cb8568643f06beeb4925c46b34db4edaa5",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-06-11",
+    "commitDate": "2026-06-11T16:47:49.000Z",
+    "type": "update",
+    "title": "+seo: defer GA, self-host fonts/images, segment sitemaps, freshness gate",
+    "summary": "+seo: defer GA, self-host fonts/images, segment sitemaps, freshness gate.",
+    "sha": "611c8c7e",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/611c8c7e748923eb156832f174fbbdd0795f7558",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-06-11",
+    "commitDate": "2026-06-11T15:47:11.000Z",
+    "type": "fix",
+    "title": "Stop homepage hero from painting over the hours notice on mobile",
+    "summary": "Stop homepage hero from painting over the hours notice on mobile.",
+    "sha": "012da113",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/012da11349e05fc35f8b22d7f1af95b36b694638",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-06-11",
+    "commitDate": "2026-06-11T15:07:20.000Z",
+    "type": "feature",
+    "title": "SEO/GEO enrichment, insurance page, and mobile conversion UX",
+    "summary": "SEO/GEO enrichment, insurance page, and mobile conversion UX.",
+    "sha": "180ebfeb",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/180ebfebbc06b3e1e058c6c192a5bd17da6c488f",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-06-11",
+    "commitDate": "2026-06-11T15:06:58.000Z",
+    "type": "feature",
+    "title": "Tag schedule submissions with ops metadata for Formspree routing",
+    "summary": "Tag schedule submissions with ops metadata for Formspree routing.",
+    "sha": "f817c3a4",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/f817c3a4e1e27a65c08f203cd63e6f3d315e0361",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-06-09",
+    "commitDate": "2026-06-09T22:23:31.000Z",
+    "type": "fix",
+    "title": "Add limited June office hours",
+    "summary": "Add limited June office hours.",
+    "sha": "5fc0bd82",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/5fc0bd8206c708ba7e7646302062e4f2bfb66c9a",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-06-09",
+    "commitDate": "2026-06-09T21:56:27.000Z",
+    "type": "fix",
+    "title": "Add July Fourth office closure",
+    "summary": "Add July Fourth office closure.",
+    "sha": "5fc15824",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/5fc15824a471986c0042e6edc45a28441311e6aa",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-06-09",
+    "commitDate": "2026-06-09T21:25:10.000Z",
+    "type": "fix",
+    "title": "Keep holiday notice out of fixed header",
+    "summary": "Keep holiday notice out of fixed header.",
+    "sha": "a33c9143",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/a33c9143716c44b856b4a72a325841f1e41a597b",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-06-09",
+    "commitDate": "2026-06-09T21:15:49.000Z",
+    "type": "update",
+    "title": "Respect Juneteenth closure in scheduler",
+    "summary": "Respect Juneteenth closure in scheduler.",
+    "sha": "d1492043",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/d1492043b4c949d3e0e52a9f7f188b9ffbac1f28",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-06-09",
+    "commitDate": "2026-06-09T21:07:24.000Z",
+    "type": "update",
+    "title": "Update Juneteenth office closure notice",
+    "summary": "Update Juneteenth office closure notice.",
+    "sha": "db2b693e",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/db2b693efc40adb48bc51c21cba9f8ed2bb5d58e",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-06-08",
+    "commitDate": "2026-06-08T16:35:16.000Z",
+    "type": "update",
+    "title": "Stabilize lighthouse perf gate",
+    "summary": "Stabilize lighthouse perf gate.",
+    "sha": "8fdbeac0",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/8fdbeac0e4cce305e9e0f91b371d17dc4f52cc61",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-06-08",
+    "commitDate": "2026-06-08T16:27:07.000Z",
+    "type": "fix",
+    "title": "Add sharp for Next image optimization",
+    "summary": "Add sharp for Next image optimization.",
+    "sha": "ad8ca038",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/ad8ca0380306bb9e7815e05f789b301a194052a2",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-06-08",
+    "commitDate": "2026-06-08T15:48:37.000Z",
+    "type": "fix",
+    "title": "Remove text scheduling preference",
+    "summary": "Remove text scheduling preference.",
+    "sha": "37cb7209",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/37cb7209675e0f3661448bd9772e3f010aa03c26",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-05-27",
+    "commitDate": "2026-05-27T21:57:33.000Z",
+    "type": "fix",
+    "title": "Resolve SSR hydration mismatches",
+    "summary": "Resolve SSR hydration mismatches.",
+    "sha": "e1d539d6",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/e1d539d6d48df230568159e6576f5243a1c85ce0",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-05-27",
+    "commitDate": "2026-05-27T21:57:33.000Z",
+    "type": "feature",
+    "title": "Streamline appointment request flow",
+    "summary": "Streamline appointment request flow.",
+    "sha": "08d872db",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/08d872dbab03e49d7a6372516d36e524db3755fc",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-05-27",
+    "commitDate": "2026-05-27T21:57:22.000Z",
+    "type": "feature",
+    "title": "Premium icon system and animated nav hover states",
+    "summary": "Premium icon system and animated nav hover states.",
+    "sha": "70a74b28",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/70a74b28a790c032da6242db15fcc663200a4529",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-05-27",
+    "commitDate": "2026-05-27T01:03:54.000Z",
+    "type": "fix",
+    "title": "Drop framer-motion from homepage FeaturesSection to fix perf CI",
+    "summary": "Drop framer-motion from homepage FeaturesSection to fix perf CI.",
+    "sha": "20f20c03",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/20f20c038c5802c4fa053efe1986f036dbc92423",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-05-26",
+    "commitDate": "2026-05-26T17:52:46.000Z",
+    "type": "feature",
+    "title": "Server-render key content for crawlability + add patient letter",
+    "summary": "Server-render key content for crawlability + add patient letter.",
+    "sha": "37c95900",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/37c95900da06212afac7c25379ce72a34480d3df",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-05-11",
+    "commitDate": "2026-05-11T02:48:35.000Z",
+    "type": "feature",
+    "title": "Improve lead analytics events",
+    "summary": "Improve lead analytics events.",
+    "sha": "ead679d6",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/ead679d65a43a562a79c605743b1118f19415153",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-05-09",
+    "commitDate": "2026-05-09T16:19:19.000Z",
+    "type": "fix",
+    "title": "Update office hours",
+    "summary": "Update office hours.",
+    "sha": "5158b22a",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/5158b22a900591d0027434f3f98d492939a1f135",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-04-22",
+    "commitDate": "2026-04-22T16:07:18.000Z",
+    "type": "feature",
+    "title": "Expand review proof across conversion pages",
+    "summary": "Expand review proof across conversion pages.",
+    "sha": "0758500f",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/0758500faf56efd32d04869e4848cc5f623879ad",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-04-22",
+    "commitDate": "2026-04-22T14:11:54.000Z",
+    "type": "fix",
+    "title": "Remove support image caption copy from pages",
+    "summary": "Remove support image caption copy from pages.",
+    "sha": "603d1591",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/603d15910e13db34831574801707b52ed1698631",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-04-22",
+    "commitDate": "2026-04-22T14:04:43.000Z",
+    "type": "feature",
+    "title": "Add generated support images across key pages",
+    "summary": "Add generated support images across key pages.",
+    "sha": "420854ed",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/420854ed2741f1f4031657b55fcb9ab07b07b6fa",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-04-22",
+    "commitDate": "2026-04-22T13:37:36.000Z",
+    "type": "update",
+    "title": "Clarify Formspree endpoint defaults",
+    "summary": "Clarify Formspree endpoint defaults.",
+    "sha": "8a3232f8",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/8a3232f83eb8beb1dbdd61e159ff6cd0bcb00451",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-04-22",
+    "commitDate": "2026-04-22T13:35:45.000Z",
+    "type": "fix",
+    "title": "Harden Formspree endpoint handling",
+    "summary": "Harden Formspree endpoint handling.",
+    "sha": "4f240d75",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/4f240d75d81c8e0bcc9ea18a302520af0b1b17c0",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-04-22",
+    "commitDate": "2026-04-22T13:28:41.000Z",
+    "type": "fix",
+    "title": "Add Formspree fallback for schedule forms",
+    "summary": "Add Formspree fallback for schedule forms.",
+    "sha": "41153fd1",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/41153fd1b20c40c777bb9f133773c55193f284b6",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-04-21",
+    "commitDate": "2026-04-21T16:14:36.000Z",
+    "type": "feature",
+    "title": "Add local imagery to Stanford and locations pages",
+    "summary": "Add local imagery to Stanford and locations pages.",
+    "sha": "c2773a82",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/c2773a82f23e8c93868bbf33db0a382f7039df11",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-04-21",
+    "commitDate": "2026-04-21T16:01:54.000Z",
+    "type": "fix",
+    "title": "Calibrate lighthouse ci budgets",
+    "summary": "Calibrate lighthouse ci budgets.",
+    "sha": "7fb5a206",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/7fb5a20651a93f5c71cae50a3de8c64666ae07f3",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-04-21",
+    "commitDate": "2026-04-21T15:56:39.000Z",
+    "type": "fix",
+    "title": "Align github pnpm setup",
+    "summary": "Align github pnpm setup.",
+    "sha": "03bea056",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/03bea0567517c1f2ed4403e370510d618c231478",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-04-21",
+    "commitDate": "2026-04-21T15:55:07.000Z",
+    "type": "fix",
+    "title": "Restore github and vercel sync",
+    "summary": "Restore github and vercel sync.",
+    "sha": "f0772eb6",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/f0772eb6429dc9800bd9ed3d4cf2ff57ae6ac113",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-04-21",
+    "commitDate": "2026-04-21T05:59:21.000Z",
+    "type": "update",
+    "title": "Improve Chris Wong SEO linking and sitemap freshness",
+    "summary": "Improve Chris Wong SEO linking and sitemap freshness.",
+    "sha": "e995fe18",
+    "commitUrl": "https://github.com/enzo-prism/chris-dentist/commit/e995fe184d2c02fed4f2fa0f76e75932152c38cd",
+    "source": "Legacy Website"
+  },
+  {
+    "date": "2026-04-20",
+    "commitDate": "2026-04-20T19:53:36.000Z",
+    "type": "update",
+    "title": "Add Chris Wong email blog backlog",
+    "summary": "Add Chris Wong email blog backlog.",
+    "sha": "b04942b1",
+    "commitUrl": "https://github.com/enzo-prism/chris-dentist/commit/b04942b1aca822f9bd41ab531ce28ed557b048f4",
+    "source": "Legacy Website"
+  },
+  {
+    "date": "2026-04-20",
+    "commitDate": "2026-04-20T17:55:51.000Z",
+    "type": "update",
+    "title": "Ignore generated assets in Vercel uploads",
+    "summary": "Ignore generated assets in Vercel uploads.",
+    "sha": "f23d23b8",
+    "commitUrl": "https://github.com/enzo-prism/chris-dentist/commit/f23d23b847d3f706430fd5d5f6a923b8c7c22d6a",
+    "source": "Legacy Website"
+  },
+  {
+    "date": "2026-04-20",
+    "commitDate": "2026-04-20T17:50:42.000Z",
+    "type": "update",
+    "title": "Upgrade Chris Wong GA4 attribution tracking",
+    "summary": "Upgrade Chris Wong GA4 attribution tracking.",
+    "sha": "f1545abc",
+    "commitUrl": "https://github.com/enzo-prism/chris-dentist/commit/f1545abc26eb39c7975d4c9e3d4753976e773094",
+    "source": "Legacy Website"
+  },
+  {
+    "date": "2026-04-20",
+    "commitDate": "2026-04-20T14:58:57.000Z",
+    "type": "update",
+    "title": "Inline dev-only Vite config loading",
+    "summary": "Inline dev-only Vite config loading.",
+    "sha": "8479aa05",
+    "commitUrl": "https://github.com/enzo-prism/chris-dentist/commit/8479aa05bb1c7a412cfb0cd87e4b4b42ba7a27eb",
+    "source": "Legacy Website"
+  },
+  {
+    "date": "2026-04-20",
+    "commitDate": "2026-04-20T14:52:05.000Z",
+    "type": "update",
+    "title": "Avoid loading Vite in production runtime",
+    "summary": "Avoid loading Vite in production runtime.",
+    "sha": "e9e4f322",
+    "commitUrl": "https://github.com/enzo-prism/chris-dentist/commit/e9e4f322653f4a325d1f185d689454ecb45dcba1",
+    "source": "Legacy Website"
+  },
+  {
+    "date": "2026-04-20",
+    "commitDate": "2026-04-20T14:49:02.000Z",
+    "type": "fix",
+    "title": "Vercel entrypoint import for production bundle",
+    "summary": "Vercel entrypoint import for production bundle.",
+    "sha": "a86e715b",
+    "commitUrl": "https://github.com/enzo-prism/chris-dentist/commit/a86e715b6db2c2ada997c409c7021baaba427408",
+    "source": "Legacy Website"
+  },
+  {
+    "date": "2026-04-20",
+    "commitDate": "2026-04-20T14:29:13.000Z",
+    "type": "update",
+    "title": "Make Chris Wong app Vercel-compatible",
+    "summary": "Make Chris Wong app Vercel-compatible.",
+    "sha": "c0a90e57",
+    "commitUrl": "https://github.com/enzo-prism/chris-dentist/commit/c0a90e578d178ae34953a4ac1f835eb97865531d",
+    "source": "Legacy Website"
+  },
+  {
+    "date": "2026-04-20",
+    "commitDate": "2026-04-20T13:51:52.000Z",
+    "type": "update",
+    "title": "Improve Chris Wong SEO, tracking, and scheduling UX",
+    "summary": "Improve Chris Wong SEO, tracking, and scheduling UX.",
+    "sha": "3ca97268",
+    "commitUrl": "https://github.com/enzo-prism/chris-dentist/commit/3ca97268a3dfe081aa377dd62484c63f78c5f930",
+    "source": "Legacy Website"
+  },
+  {
+    "date": "2026-04-06",
+    "commitDate": "2026-04-06T19:03:05.000Z",
+    "type": "update",
+    "title": "Add latest generated blog posts",
+    "summary": "Add latest generated blog posts.",
+    "sha": "ae7b6d7c",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/ae7b6d7c4dc88041567dada3f66ac623e8a48ecf",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-04-06",
+    "commitDate": "2026-04-06T05:21:47.000Z",
+    "type": "update",
+    "title": "Add April 4-5 SEO blog posts",
+    "summary": "Add April 4-5 SEO blog posts.",
+    "sha": "d0b91d61",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/d0b91d61bfcb0f4a0e9cbabb6bd2f5f8bcd0bb42",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-04-03",
+    "commitDate": "2026-04-03T13:23:08.000Z",
+    "type": "update",
+    "title": "Add latest Chris Wong blog posts through April 3",
+    "summary": "Add latest Chris Wong blog posts through April 3.",
+    "sha": "c804770d",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/c804770d0e1d2ca68c2591a349407e00375f1bd6",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-04-02",
+    "commitDate": "2026-04-02T16:48:40.000Z",
+    "type": "feature",
+    "title": "Surface practice email in footer and contact page",
+    "summary": "Surface practice email in footer and contact page.",
+    "sha": "281f67f6",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/281f67f661e6db71ea2b5ae1c4af2255eba5a48f",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-04-02",
+    "commitDate": "2026-04-02T16:31:53.000Z",
+    "type": "fix",
+    "title": "Update office contact email and schedule copy",
+    "summary": "Update office contact email and schedule copy.",
+    "sha": "51c1be3b",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/51c1be3b3c51a3d5de127481f03a14852dcae4cf",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-04-02",
+    "commitDate": "2026-04-02T15:51:24.000Z",
+    "type": "feature",
+    "title": "Streamline schedule request funnel",
+    "summary": "Streamline schedule request funnel.",
+    "sha": "a7ddd9d5",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/a7ddd9d5fb1617bf1ab208ffb892c43442619404",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-30",
+    "commitDate": "2026-03-30T16:42:32.000Z",
+    "type": "update",
+    "title": "Resolve CI pnpm version conflict",
+    "summary": "Resolve CI pnpm version conflict.",
+    "sha": "4a04e731",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/4a04e731e25a70aa89f3049df4c61767b2d2ad48",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-30",
+    "commitDate": "2026-03-30T16:41:06.000Z",
+    "type": "fix",
+    "title": "CI pnpm setup and runtime image audit",
+    "summary": "CI pnpm setup and runtime image audit.",
+    "sha": "60c7838d",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/60c7838db6fb644305e7d9eb2e66d9e6ce5d8876",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-30",
+    "commitDate": "2026-03-30T16:13:54.000Z",
+    "type": "update",
+    "title": "Add missing Chris Wong blog posts",
+    "summary": "Add missing Chris Wong blog posts.",
+    "sha": "fd0e6408",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/fd0e640864567a2d82618c8ad7fd6768ced2db49",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-27",
+    "commitDate": "2026-03-27T01:56:51.000Z",
+    "type": "feature",
+    "title": "Refresh about and stanford pages",
+    "summary": "Refresh about and stanford pages.",
+    "sha": "642937a2",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/642937a25916d1cff09cda764f91d91e753ee934",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-27",
+    "commitDate": "2026-03-27T00:17:15.000Z",
+    "type": "feature",
+    "title": "Redesign blog artwork",
+    "summary": "Redesign blog artwork.",
+    "sha": "2637e376",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/2637e376a22f917702c0182968fcdb76fbc0ab71",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-27",
+    "commitDate": "2026-03-27T00:03:57.000Z",
+    "type": "fix",
+    "title": "Restore blog post navigation",
+    "summary": "Restore blog post navigation.",
+    "sha": "bfb2b289",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/bfb2b289bdaaf2e0f79b7ff555edbda7317e468c",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-26",
+    "commitDate": "2026-03-26T15:29:54.000Z",
+    "type": "feature",
+    "title": "Add local seo blog posts",
+    "summary": "Add local seo blog posts.",
+    "sha": "18ed90a9",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/18ed90a9717c52ce6541e26016705826aea957ee",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-26",
+    "commitDate": "2026-03-26T14:55:00.000Z",
+    "type": "fix",
+    "title": "Allow google to crawl public noindex pages",
+    "summary": "Allow google to crawl public noindex pages.",
+    "sha": "1ea03c11",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/1ea03c11da21ae3dd1bbd2ce6994af867fff2ba1",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-24",
+    "commitDate": "2026-03-24T19:58:13.000Z",
+    "type": "update",
+    "title": "Add codex operator guide and refresh runbooks",
+    "summary": "Add codex operator guide and refresh runbooks.",
+    "sha": "6dd9c566",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/6dd9c566ddae8b301d4c1991aea1460bb576ea36",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-24",
+    "commitDate": "2026-03-24T19:49:09.000Z",
+    "type": "feature",
+    "title": "Add vercel analytics key events",
+    "summary": "Add vercel analytics key events.",
+    "sha": "e9086255",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/e90862550e216415e56bf8071b81a9f4ebeb1ca4",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-24",
+    "commitDate": "2026-03-24T19:34:37.000Z",
+    "type": "fix",
+    "title": "Harden ga4 tracking across the site",
+    "summary": "Harden ga4 tracking across the site.",
+    "sha": "d7371d53",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/d7371d5312c3fde07e5958dec3313b5cd4f9d9bf",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-19",
+    "commitDate": "2026-03-19T15:28:15.000Z",
+    "type": "fix",
+    "title": "Simplify schedule update notice",
+    "summary": "Simplify schedule update notice.",
+    "sha": "783da318",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/783da31870d79057f898cb1dcb7b793b5b8660cb",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-19",
+    "commitDate": "2026-03-19T14:43:32.000Z",
+    "type": "feature",
+    "title": "Add crown vs filling blog post",
+    "summary": "Add crown vs filling blog post.",
+    "sha": "0cb1372d",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/0cb1372dcbc78628493c88852315144ad87c74d0",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-19",
+    "commitDate": "2026-03-19T14:31:03.000Z",
+    "type": "fix",
+    "title": "Update temporary office hours for April schedule changes",
+    "summary": "Update temporary office hours for April schedule changes.",
+    "sha": "4b65b46e",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/4b65b46edb8dde67fe64d575e53fe52debe53141",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-17",
+    "commitDate": "2026-03-17T21:24:05.000Z",
+    "type": "fix",
+    "title": "Prevent header nav cutoff",
+    "summary": "Prevent header nav cutoff.",
+    "sha": "056d0f78",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/056d0f782bac997136a50b4c9420d4bad7f6a6e1",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-17",
+    "commitDate": "2026-03-17T04:21:48.000Z",
+    "type": "fix",
+    "title": "Server-render blog content for indexing",
+    "summary": "Server-render blog content for indexing.",
+    "sha": "b223ca7f",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/b223ca7f4647192877a112e7bec4d31a681e9130",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-15",
+    "commitDate": "2026-03-15T13:29:25.000Z",
+    "type": "feature",
+    "title": "Add cracked tooth emergency blog post",
+    "summary": "Add cracked tooth emergency blog post.",
+    "sha": "02565efd",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/02565efd0cd17f1f321781542a86706bc7c74bee",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-15",
+    "commitDate": "2026-03-15T03:39:13.000Z",
+    "type": "feature",
+    "title": "Refresh invisalign timeline blog post",
+    "summary": "Refresh invisalign timeline blog post.",
+    "sha": "57ce151f",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/57ce151f799b7000e38517a6a1163723f59a1d35",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-09",
+    "commitDate": "2026-03-09T22:56:11.000Z",
+    "type": "fix",
+    "title": "Remove gallery tile captions",
+    "summary": "Remove gallery tile captions.",
+    "sha": "be909c42",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/be909c427346b5c557d38b81f52f13840367ecf1",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-09",
+    "commitDate": "2026-03-09T22:23:48.000Z",
+    "type": "fix",
+    "title": "Harden robots policy for search console",
+    "summary": "Harden robots policy for search console.",
+    "sha": "f1053858",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/f1053858fdeeb38045e8fe426ace4370d1775936",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-09",
+    "commitDate": "2026-03-09T22:08:59.000Z",
+    "type": "fix",
+    "title": "Harden robots crawlability and testimonial publishing",
+    "summary": "Harden robots crawlability and testimonial publishing.",
+    "sha": "5fdba133",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/5fdba133bf17ea185fb89b331184f9716657db88",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-07",
+    "commitDate": "2026-03-07T17:41:36.000Z",
+    "type": "update",
+    "title": "Refine analytics verification guidance",
+    "summary": "Refine analytics verification guidance.",
+    "sha": "ab5489fb",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/ab5489fb29a6bc87832fdff5a17b2bc6c6668c66",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-07",
+    "commitDate": "2026-03-07T17:38:40.000Z",
+    "type": "feature",
+    "title": "Add vercel analytics tracking",
+    "summary": "Add vercel analytics tracking.",
+    "sha": "94ef33f6",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/94ef33f651c16302926b1a8f44e70814b0a8658a",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-04",
+    "commitDate": "2026-03-04T23:45:06.000Z",
+    "type": "update",
+    "title": "Add schedule localhost audit and update runbooks",
+    "summary": "Add schedule localhost audit and update runbooks.",
+    "sha": "7fb1f525",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/7fb1f5254742152c303d5f75583e81eecb1af9d8",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-04",
+    "commitDate": "2026-03-04T23:21:31.000Z",
+    "type": "feature",
+    "title": "Streamline mobile scheduling flow and API contract",
+    "summary": "Streamline mobile scheduling flow and API contract.",
+    "sha": "b3678db6",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/b3678db68ce8805079a02518d3cc76085a875c3b",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-04",
+    "commitDate": "2026-03-04T23:01:20.000Z",
+    "type": "feature",
+    "title": "Add reusable svg motion accents and docs",
+    "summary": "Add reusable svg motion accents and docs.",
+    "sha": "b36eeefa",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/b36eeefaf6cd3fd0b7c454513b136ad12b160219",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-04",
+    "commitDate": "2026-03-04T22:44:04.000Z",
+    "type": "fix",
+    "title": "Rebuild testimonials carousel interactions",
+    "summary": "Rebuild testimonials carousel interactions.",
+    "sha": "54dc34b5",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/54dc34b577608c29d81bd16ecc09ec9b3ad9d873",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-04",
+    "commitDate": "2026-03-04T22:37:39.000Z",
+    "type": "feature",
+    "title": "Redesign home testimonials spotlight section",
+    "summary": "Redesign home testimonials spotlight section.",
+    "sha": "6bfa13b2",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/6bfa13b20f58f88aa7810def71564031a2999881",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-04",
+    "commitDate": "2026-03-04T22:30:55.000Z",
+    "type": "fix",
+    "title": "Hide no-comment placeholder testimonial text",
+    "summary": "Hide no-comment placeholder testimonial text.",
+    "sha": "4dfabf56",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/4dfabf56610d10352cc39704dfefcfc150f5cc14",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-04",
+    "commitDate": "2026-03-04T22:25:26.000Z",
+    "type": "feature",
+    "title": "Import full google reviews and harden testimonials pipeline",
+    "summary": "Import full google reviews and harden testimonials pipeline.",
+    "sha": "dbb039fb",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/dbb039fba07f09d230c9b70c68c27263762d4493",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-04",
+    "commitDate": "2026-03-04T19:57:32.000Z",
+    "type": "feature",
+    "title": "Remove dash characters from rendered site text",
+    "summary": "Remove dash characters from rendered site text.",
+    "sha": "0416e3d1",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/0416e3d1026ea03007ecce5a519e76f3dbd71f91",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-04",
+    "commitDate": "2026-03-04T19:53:19.000Z",
+    "type": "feature",
+    "title": "Prevent media cropping and refresh docs",
+    "summary": "Prevent media cropping and refresh docs.",
+    "sha": "def2eccc",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/def2eccc8faf9281ce31533b12b22265055be81e",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-04",
+    "commitDate": "2026-03-04T19:13:00.000Z",
+    "type": "feature",
+    "title": "Expand schema coverage and crawl-priority signals",
+    "summary": "Expand schema coverage and crawl-priority signals.",
+    "sha": "e1d9a674",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/e1d9a67468f65d8980b706ea5bdcba1d95bfa867",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-04",
+    "commitDate": "2026-03-04T18:29:05.000Z",
+    "type": "update",
+    "title": "Harden consent-aware GA and improve LCP delivery",
+    "summary": "Harden consent-aware GA and improve LCP delivery.",
+    "sha": "ee2b089a",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/ee2b089ab5e76a1b8359a0166bae48631965a7dd",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-04",
+    "commitDate": "2026-03-04T18:07:51.000Z",
+    "type": "update",
+    "title": "Remove header logo priority preload",
+    "summary": "Remove header logo priority preload.",
+    "sha": "0adc6b15",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/0adc6b154eb6bb40a615ba04a7c55065c25ed7af",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-04",
+    "commitDate": "2026-03-04T17:55:32.000Z",
+    "type": "update",
+    "title": "Harden GA consent and optimize hero LCP",
+    "summary": "Harden GA consent and optimize hero LCP.",
+    "sha": "0c35f85d",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/0c35f85d9d96251af620a48245d6ad125eeab0a9",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-04",
+    "commitDate": "2026-03-04T17:36:01.000Z",
+    "type": "update",
+    "title": "Trim dental implants bundle and align consent UI primitives",
+    "summary": "Trim dental implants bundle and align consent UI primitives.",
+    "sha": "f99615ad",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/f99615adab6520725cbe15088b022c11b4e1276a",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-04",
+    "commitDate": "2026-03-04T17:23:25.000Z",
+    "type": "feature",
+    "title": "Add consent banner and lazy-load consent UI",
+    "summary": "Add consent banner and lazy-load consent UI.",
+    "sha": "01268e4c",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/01268e4c2289803b49ae5afc6c4c483f814c1779",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-04",
+    "commitDate": "2026-03-04T17:14:19.000Z",
+    "type": "update",
+    "title": "Harden GA4 live verification commands",
+    "summary": "Harden GA4 live verification commands.",
+    "sha": "4b30a504",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/4b30a5041d0f303357f73e1ee63d17a83334e125",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-04",
+    "commitDate": "2026-03-04T17:07:04.000Z",
+    "type": "fix",
+    "title": "Unblock prerender and stabilize GA route tracking",
+    "summary": "Unblock prerender and stabilize GA route tracking.",
+    "sha": "87f3d962",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/87f3d9621495b4ccfb17ce1d001afbdff9ccd2b0",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-04",
+    "commitDate": "2026-03-04T17:02:15.000Z",
+    "type": "feature",
+    "title": "Harden GA4 tag install and consent mode",
+    "summary": "Harden GA4 tag install and consent mode.",
+    "sha": "9c0a38ce",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/9c0a38ce90bfd101d19eee0ab08d8285f1946978",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-04",
+    "commitDate": "2026-03-04T16:50:08.000Z",
+    "type": "feature",
+    "title": "Harden crawl metadata and feed architecture",
+    "summary": "Harden crawl metadata and feed architecture.",
+    "sha": "54dca52e",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/54dca52e0553a89992ba94353b67af3a2c333eb8",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-04",
+    "commitDate": "2026-03-04T16:27:35.000Z",
+    "type": "update",
+    "title": "Align production topology and release runbooks",
+    "summary": "Align production topology and release runbooks.",
+    "sha": "9bd1d7b5",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/9bd1d7b550af4481ce8a47dc64c7b7ab4f12fb26",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-03-04",
+    "commitDate": "2026-03-04T15:48:45.000Z",
+    "type": "update",
+    "title": "Sync latest local updates",
+    "summary": "Sync latest local updates.",
+    "sha": "a6fd4e29",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/a6fd4e29c387071add57dcd58de35ed08858358c",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-02-26",
+    "commitDate": "2026-02-26T01:55:05.000Z",
+    "type": "update",
+    "title": "Add push-domain deployment verification notes",
+    "summary": "Add push-domain deployment verification notes.",
+    "sha": "8d04ff7c",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/8d04ff7cf9ee378eb9591ab8da76155e8da47279",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-02-26",
+    "commitDate": "2026-02-26T00:56:40.000Z",
+    "type": "fix",
+    "title": "Allow className prop on appointment form",
+    "summary": "Allow className prop on appointment form.",
+    "sha": "0cdc3f25",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/0cdc3f250a430a9f93e5f81c352d2525784006d8",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-02-26",
+    "commitDate": "2026-02-26T00:55:05.000Z",
+    "type": "fix",
+    "title": "Make chat action sanitizer null-safe for type checks",
+    "summary": "Make chat action sanitizer null-safe for type checks.",
+    "sha": "b7fb7bfa",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/b7fb7bfa47659b213823d7b73b8ffd4260fc4377",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-02-26",
+    "commitDate": "2026-02-26T00:53:17.000Z",
+    "type": "feature",
+    "title": "Finalize chatbot and schedule request flow",
+    "summary": "Finalize chatbot and schedule request flow.",
+    "sha": "7f65b7de",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/7f65b7de2ace50d3fb7d6c298b210328a3113ef5",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-02-26",
+    "commitDate": "2026-02-26T00:07:29.000Z",
+    "type": "feature",
+    "title": "Add gallery and changelog experience with seo hardening",
+    "summary": "Add gallery and changelog experience with seo hardening.",
+    "sha": "bac50801",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/bac5080157dfd06c78653661478a26dde748a9c8",
+    "source": "Current Website"
+  },
+  {
     "date": "2026-02-25",
     "commitDate": "2026-02-25T21:10:32.000Z",
     "type": "update",
@@ -51,6 +1191,16 @@ export const changelogEntries: readonly ChangelogEntry[] = [
     "sha": "34f24701",
     "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/34f24701d99e0bdb79fe7df2a5ce79859f897648",
     "source": "Current Website"
+  },
+  {
+    "date": "2026-02-22",
+    "commitDate": "2026-02-22T01:57:42.000Z",
+    "type": "update",
+    "title": "Deployment checkpoint created from previous website workflow",
+    "summary": "Deployment checkpoint created from previous website workflow.",
+    "sha": "7cb96588",
+    "commitUrl": "https://github.com/enzo-prism/chris-dentist/commit/7cb965885c95b2372f4526744b910ed69f946c26",
+    "source": "Legacy Website"
   },
   {
     "date": "2026-02-22",
