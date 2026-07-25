@@ -54,8 +54,10 @@ function WouterPathSync() {
   const [location, navigate] = useLocation();
 
   useEffect(() => {
-    if (pathname !== location) {
-      navigate(pathname, { replace: true });
+    const wouterPathname = location.split(/[?#]/, 1)[0] || "/";
+    if (pathname !== wouterPathname) {
+      const target = `${pathname}${window.location.search}${window.location.hash}`;
+      navigate(target, { replace: true });
     }
   }, [pathname, location, navigate]);
 
@@ -126,6 +128,7 @@ export function AppPageShell({
       >
         {chromeVariant === "default" ? <HolidayHoursNotice /> : null}
         {children}
+        {chromeVariant === "default" ? <SupplementalContent /> : null}
       </main>
       <Footer variant={chromeVariant} />
       {chromeVariant === "default" ? (
@@ -139,7 +142,6 @@ export function AppPageShell({
           <MobileActionBar />
         </>
       ) : null}
-      {chromeVariant === "default" ? <SupplementalContent /> : null}
     </WouterRouter>
   );
 

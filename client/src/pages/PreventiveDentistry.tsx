@@ -122,16 +122,16 @@ const PreventiveDentistry = () => {
                 before they become painful or expensive.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-                <Link href="/schedule#appointment">
-                  <Button className="ui-btn-primary">
+                <Button asChild className="ui-btn-primary">
+                  <Link href="/schedule?intent=preventive&source=preventive-page#appointment">
                     Request a checkup
-                  </Button>
-                </Link>
-                <Link href="/contact">
-                  <Button variant="outline" className="ui-btn-outline">
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="ui-btn-outline">
+                  <Link href="/contact">
                     Ask a question
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               </div>
             </div>
 

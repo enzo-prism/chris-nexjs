@@ -4,7 +4,7 @@
  * Fast, browser-free regression gate (same spirit as design-system.test.ts):
  * it asserts the invariants behind each mobile fix so they can't silently
  * regress. Runtime behavior (computed font-size, touch-target boxes, overlap,
- * sticky CTA) is covered separately by the Playwright mobile suite.
+ * CTA flow) is covered separately by the Playwright mobile suite.
  *
  * Usage: node scripts/mobile-ux-source.test.mjs
  */
@@ -44,15 +44,15 @@ assert(
   "funnel input/textarea helpers should use 'text-base md:text-[15px]'",
 );
 
-// 3. Funnel submit nav is sticky with safe-area padding on mobile.
+// 3. Funnel submit nav stays in document flow so it cannot cover fields.
 assert(
-  "AppointmentForm: funnel submit nav is sticky + safe-area",
-  /sticky bottom-0[^"]*env\(safe-area-inset-bottom\)/.test(apptForm),
-  "funnel nav should be 'sticky bottom-0 ... pb-[calc(env(safe-area-inset-bottom)...]'",
+  "AppointmentForm: funnel submit nav is non-sticky + safe-area",
+  !/(?:sticky|fixed) bottom-0/.test(apptForm) &&
+    /pb-\[calc\(env\(safe-area-inset-bottom\)/.test(apptForm),
+  "funnel nav must stay in normal flow and keep safe-area bottom padding",
 );
 
-// 3b. The funnel section must not be `overflow-hidden` (it would become the
-// sticky containing block and defeat the `sticky bottom-0` submit CTA).
+// 3b. Keep the funnel section free from accidental horizontal overflow.
 const funnelSection = read("client/src/components/sections/ScheduleRequestFunnel.tsx");
 assert(
   "ScheduleRequestFunnel: appointment section not overflow-hidden (uses overflow-x-clip)",

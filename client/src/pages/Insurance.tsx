@@ -144,18 +144,18 @@ const Insurance = () => {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3">
-                <Link href="/schedule#appointment">
-                  <Button className="ui-btn-primary">
+                <Button asChild className="ui-btn-primary">
+                  <Link href="/schedule#appointment">
                     Request an appointment
                     <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-                <a href={`tel:${officeInfo.phoneE164}`}>
-                  <Button variant="outline" className="ui-btn-outline">
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="ui-btn-outline">
+                  <a href={`tel:${officeInfo.phoneE164}`}>
                     Call {officeInfo.phone}
                     <Phone className="ml-2 h-4 w-4" />
-                  </Button>
-                </a>
+                  </a>
+                </Button>
               </div>
             </div>
 
@@ -297,17 +297,17 @@ const Insurance = () => {
               .
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
-              <Link href="/schedule#appointment">
-                <Button className="ui-btn-primary">
+              <Button asChild className="ui-btn-primary">
+                <Link href="/schedule#appointment">
                   Request an appointment
                   <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-              <Link href="/contact">
-                <Button variant="outline" className="ui-btn-outline">
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="ui-btn-outline">
+                <Link href="/contact">
                   Ask about your plan
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
           </div>
         </div>

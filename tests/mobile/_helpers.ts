@@ -1,13 +1,21 @@
-import type { Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 
 /**
  * Navigate to a route and wait for the SPA to hydrate. The site server-renders
  * markup but the interactive chrome (consent banner, mobile action bar, etc.)
  * is mounted client-side after hydration, so we wait for the network to settle
  * and give React a tick to mount the deferred/dynamic components.
+ *
+ * The status assertion is load-bearing: the 404 page renders a `main` element
+ * and never overflows, so without it a spec that names a route which no longer
+ * exists keeps passing while testing nothing.
  */
 export async function gotoAndHydrate(page: Page, path: string): Promise<void> {
-  await page.goto(path, { waitUntil: "domcontentloaded" });
+  const response = await page.goto(path, { waitUntil: "domcontentloaded" });
+  expect(
+    response?.status(),
+    `${path} did not return 200 — the spec would assert against the 404 page`,
+  ).toBe(200);
   // Best-effort: let lazy/dynamic chrome and data fetches settle. networkidle
   // can be flaky if analytics keeps a connection open, so cap the wait.
   await page
@@ -38,12 +46,12 @@ export async function advanceFunnelToContactStep(page: Page): Promise<void> {
   await appointmentGroup.waitFor({ state: "visible", timeout: 20_000 });
   await appointmentGroup.locator("label").first().click();
 
-  const continueBtn = page.getByRole("button", { name: /^continue$/i });
+  const continueBtn = page.getByRole("button", { name: /^continue to /i });
   await continueBtn.scrollIntoViewIfNeeded();
   await continueBtn.click();
 
   // Contact step is the final step: the submit CTA confirms we arrived.
   await page
-    .getByRole("button", { name: /request my appointment/i })
+    .getByRole("button", { name: /send appointment request/i })
     .waitFor({ state: "visible", timeout: 15_000 });
 }

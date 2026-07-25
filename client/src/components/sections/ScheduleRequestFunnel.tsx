@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   ArrowLeft,
   ArrowUpRight,
+  CheckCircle2,
   MapPin,
   PhoneCall,
   ShieldCheck,
@@ -71,14 +72,28 @@ const ScheduleRequestFunnel = () => {
             Request Your Appointment
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-slate-600 sm:text-lg">
-            Answer a few quick questions and we&apos;ll confirm by phone or email
-            within one business day.
+            Tell us what you need and when you&apos;re available. We&apos;ll contact you
+            within one business day to confirm a date and time.
           </p>
+          <p className="mx-auto mt-2 max-w-xl text-sm font-medium text-slate-500">
+            This sends a request—it does not book an appointment instantly.
+          </p>
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs font-medium text-slate-600">
+            {["No account needed", "About one minute", "No medical records requested"].map(
+              (item) => (
+                <span key={item} className="inline-flex items-center gap-1.5">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" aria-hidden="true" />
+                  {item}
+                </span>
+              ),
+            )}
+          </div>
         </div>
 
         <a
           href={`tel:${officeInfo.phoneE164}`}
-          className="ui-focus-premium group mt-6 flex items-center justify-between gap-3 rounded-2xl border border-rose-200 bg-rose-50/70 px-4 py-3 transition-colors hover:border-rose-300 hover:bg-rose-50"
+          aria-label={`Dental emergency? Call ${officeInfo.phone}`}
+          className="ui-focus-premium group mt-6 flex flex-col items-stretch justify-between gap-3 rounded-2xl border border-rose-200 bg-rose-50/70 px-4 py-3 transition-colors hover:border-rose-300 hover:bg-rose-50 sm:flex-row sm:items-center"
         >
           <span className="flex items-center gap-2.5 text-sm leading-5 text-rose-800">
             <PhoneCall className="h-4 w-4 shrink-0 text-rose-600" aria-hidden="true" />
@@ -87,8 +102,8 @@ const ScheduleRequestFunnel = () => {
               Calling is the fastest way to be seen.
             </span>
           </span>
-          <span className="hidden shrink-0 items-center gap-1.5 rounded-full bg-rose-600 px-3.5 py-2 text-sm font-semibold text-white transition-transform group-hover:-translate-y-0.5 sm:inline-flex">
-            Call {officeInfo.phone}
+          <span className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-rose-600 px-3.5 py-2 text-sm font-semibold text-white transition-transform group-hover:-translate-y-0.5">
+            Call now <span className="hidden lg:inline">· {officeInfo.phone}</span>
           </span>
         </a>
         {holiday ? (
@@ -112,8 +127,10 @@ const ScheduleRequestFunnel = () => {
         />
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          <Link href="/contact">
-            <div className="group rounded-[24px] border border-slate-200 bg-white/80 p-5 transition-[transform,box-shadow,border-color] hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-[0_24px_60px_-40px_rgba(15,23,42,0.35)]">
+          <Link
+            href="/contact"
+            className="ui-focus-premium group block rounded-[24px] border border-slate-200 bg-white/80 p-5 transition-[transform,box-shadow,border-color] hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-[0_24px_60px_-40px_rgba(15,23,42,0.35)]"
+          >
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <FeatureIcon icon={MapPin} size="sm" />
@@ -126,11 +143,12 @@ const ScheduleRequestFunnel = () => {
                 </div>
                 <ArrowUpRight className="h-5 w-5 shrink-0 text-primary transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
               </div>
-            </div>
           </Link>
 
-          <Link href="/insurance">
-            <div className="group rounded-[24px] border border-slate-200 bg-white/80 p-5 transition-[transform,box-shadow,border-color] hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-[0_24px_60px_-40px_rgba(15,23,42,0.35)]">
+          <Link
+            href="/insurance"
+            className="ui-focus-premium group block rounded-[24px] border border-slate-200 bg-white/80 p-5 transition-[transform,box-shadow,border-color] hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-[0_24px_60px_-40px_rgba(15,23,42,0.35)]"
+          >
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <FeatureIcon icon={ShieldCheck} size="sm" tone="emerald" />
@@ -143,7 +161,6 @@ const ScheduleRequestFunnel = () => {
                 </div>
                 <ArrowUpRight className="h-5 w-5 text-primary transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
               </div>
-            </div>
           </Link>
         </div>
       </div>

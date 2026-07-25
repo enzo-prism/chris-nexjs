@@ -141,20 +141,20 @@ const ZoomWhitening = () => {
                 ? Compare in‑office whitening and custom take‑home trays.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
-                <Link href="/schedule#appointment">
-                  <Button className="bg-white text-[#0b1f3a] hover:bg-blue-50 font-semibold px-6 py-6 h-auto rounded-full flex items-center gap-2 shadow-lg shadow-black/20">
-                    Book whitening visit
+                <Button asChild className="bg-white text-[#0b1f3a] hover:bg-blue-50 font-semibold px-6 py-6 h-auto rounded-full flex items-center gap-2 shadow-lg shadow-black/20">
+                  <Link href="/schedule?intent=whitening&source=zoom-whitening-page#appointment">
+                    Request a whitening visit
                     <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </Link>
-                <Link href="/contact">
-                  <Button
+                  </Link>
+                </Button>
+                <Button asChild
                     variant="outline"
                     className="border-white/60 text-white hover:text-white hover:border-white/80 bg-white/10 hover:bg-white/20"
                   >
+                  <Link href="/contact">
                     Ask a question
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               </div>
               <div className="mt-6 flex flex-wrap gap-3 text-sm text-white/90">
                 <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/15 px-3 py-2 shadow-sm backdrop-blur">
@@ -274,11 +274,11 @@ const ZoomWhitening = () => {
                 </p>
               </div>
               <div className="mt-6">
-                <Link href="/schedule#appointment">
-                  <Button className="w-full ui-btn-primary">
-                    Schedule ZOOM! whitening
-                  </Button>
-                </Link>
+                <Button asChild className="w-full ui-btn-primary">
+                  <Link href="/schedule?intent=whitening&source=zoom-whitening-page#appointment">
+                    Request ZOOM! whitening
+                  </Link>
+                </Button>
               </div>
             </div>
           </div>
@@ -311,16 +311,16 @@ const ZoomWhitening = () => {
             Request your ZOOM! teeth whitening visit in Palo Alto. We&apos;ll confirm you&apos;re a good candidate and set a shade goal that looks natural on you.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/schedule#appointment">
-              <Button className="ui-btn-primary px-6 py-3 font-semibold shadow-sm">
-                Schedule now
-              </Button>
-            </Link>
-            <Link href="/services">
-              <Button className="bg-white/10 text-white border border-white/70 hover:bg-white/20 px-6 py-3 font-semibold">
+            <Button asChild className="ui-btn-primary px-6 py-3 font-semibold shadow-sm">
+              <Link href="/schedule?intent=whitening&source=zoom-whitening-page#appointment">
+                Request an appointment
+              </Link>
+            </Button>
+            <Button asChild className="bg-white/10 text-white border border-white/70 hover:bg-white/20 px-6 py-3 font-semibold">
+              <Link href="/services">
                 Explore other services
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </div>
       </section>

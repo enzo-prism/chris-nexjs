@@ -156,15 +156,15 @@ const Locations = () => {
                 </span>
               </div>
               <div className="flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
-                <Link href="/schedule#appointment">
-                  <Button className="ui-btn-primary">Request an appointment</Button>
-                </Link>
-                <a href={`tel:${officeInfo.phoneE164}`}>
-                  <Button variant="outline" className="ui-btn-outline">
+                <Button asChild className="ui-btn-primary">
+                  <Link href="/schedule#appointment">Request an appointment</Link>
+                </Button>
+                <Button asChild variant="outline" className="ui-btn-outline">
+                  <a href={`tel:${officeInfo.phoneE164}`}>
                     Call {officeInfo.phone}
                     <Phone className="ml-2 h-4 w-4" />
-                  </Button>
-                </a>
+                  </a>
+                </Button>
               </div>
             </div>
 

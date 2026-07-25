@@ -25,7 +25,8 @@ const MobileActionBar = () => {
       <div className="grid grid-cols-3">
         <a
           href={`tel:${officeInfo.phoneE164}`}
-          className="flex min-h-[3.25rem] flex-col items-center justify-center gap-0.5 py-1.5 text-slate-700 transition-colors hover:text-primary"
+          aria-label={`Call Dr. Wong's office at ${officeInfo.phone}`}
+          className="ui-focus-premium flex min-h-14 flex-col items-center justify-center gap-0.5 border-r border-slate-200 py-1.5 text-slate-700 transition-[background-color,color] hover:bg-slate-50 hover:text-primary active:bg-slate-100"
         >
           <Phone className="h-5 w-5" aria-hidden="true" />
           <span className="text-[11px] font-semibold">Call</span>
@@ -34,17 +35,19 @@ const MobileActionBar = () => {
           href={officeInfo.mapUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex min-h-[3.25rem] flex-col items-center justify-center gap-0.5 py-1.5 text-slate-700 transition-colors hover:text-primary"
+          aria-label="Get directions to Dr. Wong's office (opens in a new tab)"
+          className="ui-focus-premium flex min-h-14 flex-col items-center justify-center gap-0.5 py-1.5 text-slate-700 transition-[background-color,color] hover:bg-slate-50 hover:text-primary active:bg-slate-100"
         >
           <MapPin className="h-5 w-5" aria-hidden="true" />
           <span className="text-[11px] font-semibold">Directions</span>
         </a>
         <Link
           href="/schedule#appointment"
-          className="flex min-h-[3.25rem] flex-col items-center justify-center gap-0.5 bg-primary py-1.5 text-white transition-colors hover:bg-primary/90"
+          aria-label="Request an appointment"
+          className="ui-focus-premium flex min-h-14 flex-col items-center justify-center gap-0.5 bg-primary py-1.5 text-white transition-colors hover:bg-primary/90 active:bg-primary/80"
         >
           <CalendarCheck className="h-5 w-5" aria-hidden="true" />
-          <span className="text-[11px] font-semibold">Request Visit</span>
+          <span className="text-[11px] font-semibold">Request Appointment</span>
         </Link>
       </div>
     </nav>

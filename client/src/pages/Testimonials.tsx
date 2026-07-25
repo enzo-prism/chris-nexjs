@@ -248,27 +248,27 @@ const Testimonials = ({ initialTestimonials }: TestimonialsProps) => {
             If we&rsquo;ve taken care of your smile, a Google review is the most helpful way to share it.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
+            <Button asChild className="bg-primary hover:bg-primary/90 text-white font-medium px-6 py-2 rounded-md shadow-md hover:shadow-lg transition-all duration-300">
+              <a
               href={officeInfo.reviewUrl}
               target="_blank"
               rel="noopener noreferrer"
               data-analytics-context="testimonials-share"
             >
-              <Button className="bg-primary hover:bg-primary/90 text-white font-medium px-6 py-2 rounded-md shadow-md hover:shadow-lg transition-all duration-300">
                 <Star className="mr-2 h-4 w-4" aria-hidden="true" />
                 Leave a Google Review
-              </Button>
-            </a>
-            <Link href="/contact">
-              <Button variant="outline" className="ui-btn-outline font-medium px-6 py-2 rounded-md transition-colors duration-300">
+              </a>
+            </Button>
+            <Button asChild variant="outline" className="ui-btn-outline font-medium px-6 py-2 rounded-md transition-colors duration-300">
+              <Link href="/contact">
                 Contact Us
-              </Button>
-            </Link>
-            <Link href="/schedule">
-              <Button variant="outline" className="ui-btn-outline font-medium px-6 py-2 rounded-md transition-colors duration-300">
-                Schedule Appointment
-              </Button>
-            </Link>
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="ui-btn-outline font-medium px-6 py-2 rounded-md transition-colors duration-300">
+              <Link href="/schedule">
+                Request an appointment
+              </Link>
+            </Button>
           </div>
         </div>
       </section>

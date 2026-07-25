@@ -628,11 +628,11 @@ const ZoomWhiteningSchedule = () => {
                   Review the in-office process, timeline, and expected results before your visit.
                 </p>
               </div>
-              <Link href="/zoom-whitening">
-                <Button className="h-12 w-full rounded-full px-6 text-base md:w-auto">
+              <Button asChild className="h-12 w-full rounded-full px-6 text-base md:w-auto">
+                <Link href="/zoom-whitening">
                   Explore the ZOOM! process
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
           </div>
         </div>

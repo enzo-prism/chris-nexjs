@@ -115,16 +115,16 @@ const CavityFillingsPaloAlto = () => {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3">
-                <Link href="/schedule#appointment">
-                  <Button className="ui-btn-primary">
-                    Schedule a filling visit
-                  </Button>
-                </Link>
-                <a href={`tel:${officeInfo.phoneE164}`}>
-                  <Button variant="outline" className="ui-btn-outline">
+                <Button asChild className="ui-btn-primary">
+                  <Link href="/schedule?intent=restorative&source=fillings-page#appointment">
+                    Request a filling visit
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="ui-btn-outline">
+                  <a href={`tel:${officeInfo.phoneE164}`}>
                     Call {officeInfo.phone}
-                  </Button>
-                </a>
+                  </a>
+                </Button>
               </div>
             </div>
 

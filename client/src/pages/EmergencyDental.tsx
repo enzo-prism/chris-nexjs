@@ -263,17 +263,17 @@ const EmergencyDental = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <a href={`tel:${officeInfo.phoneE164}`}>
-                  <Button className="bg-orange-600 hover:bg-orange-700 text-white font-medium px-8 py-3">
+                <Button asChild className="bg-orange-600 hover:bg-orange-700 text-white font-medium px-8 py-3">
+                  <a href={`tel:${officeInfo.phoneE164}`}>
                     Call Emergency Line
                     <Phone className="ml-2 h-5 w-5" />
-                  </Button>
-                </a>
-                <Link href="/contact">
-                  <Button variant="outline" className="border-orange-600 text-orange-600 hover:bg-orange-50 px-8 py-3">
+                  </a>
+                </Button>
+                <Button asChild variant="outline" className="border-orange-600 text-orange-600 hover:bg-orange-50 px-8 py-3">
+                  <Link href="/contact">
                     Contact Information
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               </div>
             </motion.div>
 
@@ -519,12 +519,12 @@ const EmergencyDental = () => {
               </div>
             </div>
 
-            <a href={`tel:${officeInfo.phoneE164}`}>
-              <Button className="bg-white text-primary hover:bg-gray-100 font-medium px-8 py-3 text-lg">
+            <Button asChild className="bg-white text-primary hover:bg-gray-100 font-medium px-8 py-3 text-lg">
+              <a href={`tel:${officeInfo.phoneE164}`}>
                 Call Emergency Line Now
                 <Phone className="ml-2 h-5 w-5" />
-              </Button>
-            </a>
+              </a>
+            </Button>
           </motion.div>
         </div>
       </section>
@@ -597,18 +597,18 @@ const EmergencyDental = () => {
               Palo Alto for prompt, professional care and clear next steps.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href={`tel:${officeInfo.phoneE164}`}>
-                <Button className="bg-orange-600 hover:bg-orange-700 text-white font-medium px-8 py-3">
+              <Button asChild className="bg-orange-600 hover:bg-orange-700 text-white font-medium px-8 py-3">
+                <a href={`tel:${officeInfo.phoneE164}`}>
                   Call Emergency Line
                   <Phone className="ml-2 h-5 w-5" />
-                </Button>
-              </a>
-              <Link href="/schedule">
-                <Button variant="outline" className="ui-btn-outline px-8 py-3">
-                  Schedule Regular Visit
+                </a>
+              </Button>
+              <Button asChild variant="outline" className="ui-btn-outline px-8 py-3">
+                <Link href="/schedule?intent=emergency&source=emergency-page#appointment">
+                  Request an appointment
                   <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
           </motion.div>
         </div>

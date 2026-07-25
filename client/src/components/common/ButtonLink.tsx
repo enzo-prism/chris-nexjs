@@ -12,17 +12,19 @@ type ButtonLinkProps = Omit<
     readonly href: string;
   };
 
-export default function ButtonLink({
-  href,
-  className,
-  variant,
-  size,
-  children,
-  ...props
-}: ButtonLinkProps): React.JSX.Element {
-  return (
-    <Link href={href} className={cn(buttonVariants({ variant, size, className }))} {...props}>
+const ButtonLink = React.forwardRef<HTMLAnchorElement, ButtonLinkProps>(
+  ({ href, className, variant, size, children, ...props }, ref) => (
+    <Link
+      ref={ref}
+      href={href}
+      className={cn(buttonVariants({ variant, size, className }))}
+      {...props}
+    >
       {children}
     </Link>
-  );
-}
+  ),
+);
+
+ButtonLink.displayName = "ButtonLink";
+
+export default ButtonLink;

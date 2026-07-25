@@ -271,11 +271,11 @@ const PatientResources = () => {
 
               <div className="mt-8 text-center">
                 <p className="text-[#333333] mb-4">Don't see your question here? Feel free to contact us!</p>
-                <Link href="/contact">
-                  <Button className="ui-btn-primary font-semibold">
+                <Button asChild className="ui-btn-primary font-semibold">
+                  <Link href="/contact">
                     Contact Us
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               </div>
             </TabsContent>
 
@@ -357,11 +357,11 @@ const PatientResources = () => {
                     </div>
                   </div>
                   
-                  <Link href="/schedule#appointment">
-                    <Button className="ui-btn-primary w-full font-semibold">
-                      Schedule Your First Visit
-                    </Button>
-                  </Link>
+                  <Button asChild className="ui-btn-primary w-full font-semibold">
+                    <Link href="/schedule#appointment">
+                      Request an appointment
+                    </Link>
+                  </Button>
                 </div>
               </div>
             </TabsContent>
@@ -406,11 +406,11 @@ const PatientResources = () => {
                   </div>
                 </div>
                 <div className="mt-8">
-                  <Link href="/contact">
-                    <Button className="ui-btn-primary font-semibold">
+                  <Button asChild className="ui-btn-primary font-semibold">
+                    <Link href="/contact">
                       Contact Us
-                    </Button>
-                  </Link>
+                    </Link>
+                  </Button>
                 </div>
               </div>
             </div>

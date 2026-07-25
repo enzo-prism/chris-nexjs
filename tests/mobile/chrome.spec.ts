@@ -6,7 +6,7 @@ import { gotoAndHydrate } from "./_helpers";
  *
  * - The analytics consent pop-up has been removed entirely (it hurt UX), so it
  *   must NOT appear on a fresh (no-storage) visit and must never cover the
- *   MobileActionBar Call / Request Visit buttons.
+ *   MobileActionBar Call / Request Appointment buttons.
  * - The skip-to-content link remains visually hidden until keyboard focus,
  *   then becomes visible so keyboard users can bypass repeated navigation.
  *

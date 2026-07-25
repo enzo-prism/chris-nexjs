@@ -3,6 +3,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight } from "lucide-react";
 import ButtonLink from "@/components/common/ButtonLink";
+import OptimizedImage from "@/components/seo/OptimizedImage";
 
 import { Service } from "@shared/schema";
 import { getServiceGradient } from "@/lib/serviceGradients";
@@ -35,33 +36,6 @@ const ServiceCard = ({ service }: ServiceCardProps) => {
     }
   };
 
-  // Custom CTA text based on service type
-  const getCtaText = (serviceTitle: string): string => {
-    switch(serviceTitle) {
-      case "Preventive Dentistry":
-        return "Request a Checkup";
-      case "Cosmetic Dentistry":
-        return "Transform Your Smile";
-      case "Restorative Dentistry":
-        return "Restore Your Teeth";
-      case "Pediatric Dentistry":
-        return "Request a Kid's Visit";
-      case "Orthodontics":
-        return "Start Your Alignment";
-      case "Emergency Dental Care":
-        return "Get Urgent Care";
-      default:
-        return "Request an Appointment";
-    }
-  };
-
-  const getDetailLabel = (slug: string): string => {
-    if (slug === "invisalign") {
-      return "Invisalign in Palo Alto";
-    }
-    return "View Details";
-  };
-
   const getBookingIntent = (slug: string): string => {
     switch (slug) {
       case "invisalign":
@@ -88,15 +62,35 @@ const ServiceCard = ({ service }: ServiceCardProps) => {
       className="ui-card-interactive group flex h-full w-full flex-col overflow-hidden rounded-3xl border"
       id={service.slug}
     >
-      <div
-        className={`relative flex min-h-[140px] w-full items-start justify-between rounded-b-[48px] bg-slate-100 ${getServiceGradient(service.title)} px-6 py-5`}
-      >
-        {service.slug === "preventive-dentistry" && (
-          <Badge className="bg-white/90 text-primary shadow-sm">
-            Popular
-          </Badge>
-        )}
-      </div>
+      {service.image ? (
+        <div
+          className={`relative min-h-[180px] w-full overflow-hidden rounded-b-[48px] bg-slate-100 ${getServiceGradient(service.title)}`}
+        >
+          <OptimizedImage
+            src={service.image}
+            alt=""
+            width={720}
+            height={480}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="absolute inset-0 h-full w-full"
+            objectPosition="center"
+          />
+          <div
+            className="absolute inset-0 bg-gradient-to-t from-slate-950/35 via-transparent to-transparent"
+            aria-hidden="true"
+          />
+          {service.slug === "preventive-dentistry" ? (
+            <Badge className="absolute left-5 top-5 bg-white/95 text-primary shadow-sm">
+              Popular
+            </Badge>
+          ) : null}
+        </div>
+      ) : (
+        <div
+          className={`h-3 w-full ${getServiceGradient(service.title)}`}
+          aria-hidden="true"
+        />
+      )}
 
       <CardContent className="flex flex-1 flex-col gap-4 p-6 md:p-7">
         <div>
@@ -115,15 +109,17 @@ const ServiceCard = ({ service }: ServiceCardProps) => {
             href={getDetailPath(service.slug)}
             variant="outline"
             className="w-full"
+            aria-label={`Learn about ${service.title}`}
           >
-            {getDetailLabel(service.slug)}
+            View service
             <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
           </ButtonLink>
           <ButtonLink
             href={`/schedule?intent=${getBookingIntent(service.slug)}&source=service-card#appointment`}
             className="w-full"
+            aria-label={`Request an appointment for ${service.title}`}
           >
-            {getCtaText(service.title)}
+            Request appointment
             <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
           </ButtonLink>
         </div>

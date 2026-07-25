@@ -117,16 +117,16 @@ const PediatricDentistPaloAlto = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3">
-            <Link href="/schedule#appointment">
-              <Button className="ui-btn-primary">
-                Schedule a kids’ visit
-              </Button>
-            </Link>
-            <a href={`tel:${officeInfo.phoneE164}`}>
-              <Button variant="outline" className="ui-btn-outline">
+            <Button asChild className="ui-btn-primary">
+              <Link href="/schedule?intent=pediatric&source=pediatric-local-page#appointment">
+                Request a kids’ visit
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="ui-btn-outline">
+              <a href={`tel:${officeInfo.phoneE164}`}>
                 Call {officeInfo.phone}
-              </Button>
-            </a>
+              </a>
+            </Button>
           </div>
         </div>
       </section>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { CheckCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import ButtonLink from '@/components/common/ButtonLink';
 import { Link } from 'wouter';
 import { drWongImages } from '@/lib/imageUrls';
 import OptimizedImage from '@/components/seo/OptimizedImage';
@@ -69,11 +69,12 @@ const AboutDoctorSection: React.FC = () => {
             </div>
             
             <div className="mt-8">
-              <Link href="/about">
-                <Button className="ui-btn-primary rounded-md px-6 py-3 font-semibold">
-                  Meet Dr. Christopher Wong
-                </Button>
-              </Link>
+              <ButtonLink
+                href="/about"
+                className="ui-btn-primary rounded-md px-6 py-3 font-semibold"
+              >
+                Meet Dr. Christopher Wong
+              </ButtonLink>
             </div>
           </div>
         </div>

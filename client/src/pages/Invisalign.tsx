@@ -366,21 +366,21 @@ const Invisalign = () => {
               </ul>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link href="/schedule#appointment">
-                  <Button className="bg-primary hover:bg-primary/90 text-white font-medium px-8 py-3">
-                    Schedule an Invisalign consult
+                <Button asChild className="bg-primary hover:bg-primary/90 text-white font-medium px-8 py-3">
+                  <Link href="/schedule?intent=invisalign&source=invisalign-page#appointment">
+                    Request an Invisalign consultation
                     <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </Link>
-                <a href={`tel:${officeInfo.phoneE164}`}>
-                  <Button
+                  </Link>
+                </Button>
+                <Button asChild
                     variant="outline"
                     className="ui-btn-outline px-8 py-3 w-full sm:w-auto"
                   >
+                  <a href={`tel:${officeInfo.phoneE164}`}>
                     Call {officeInfo.phone}
                     <Phone className="ml-2 h-5 w-5" />
-                  </Button>
-                </a>
+                  </a>
+                </Button>
               </div>
             </motion.div>
 
@@ -924,17 +924,17 @@ const Invisalign = () => {
               </div>
 
               <div className="mt-8 flex flex-col sm:flex-row gap-3">
-                <Link href="/schedule#appointment">
-                  <Button className="ui-btn-primary px-8 py-3">
+                <Button asChild className="ui-btn-primary px-8 py-3">
+                  <Link href="/schedule?intent=invisalign&source=invisalign-page#appointment">
                     Request a consultation
                     <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </Link>
-                <a href={`tel:${officeInfo.phoneE164}`}>
-                  <Button variant="outline" className="ui-btn-outline px-8 py-3">
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="ui-btn-outline px-8 py-3">
+                  <a href={`tel:${officeInfo.phoneE164}`}>
                     Call {officeInfo.phone}
-                  </Button>
-                </a>
+                  </a>
+                </Button>
               </div>
             </div>
 
@@ -961,12 +961,12 @@ const Invisalign = () => {
                   Explore a case study that combines Invisalign with whitening and bonding to create a natural,
                   confident smile.
                 </p>
-                <Link href="/patient-stories#invisalign-whitening-bonding-66yo">
-                  <Button className="ui-btn-primary">
+                <Button asChild className="ui-btn-primary">
+                  <Link href="/patient-stories#invisalign-whitening-bonding-66yo">
                     View Invisalign case study
                     <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               </div>
 
               <p className="text-xs text-slate-500">
@@ -994,12 +994,12 @@ const Invisalign = () => {
               Explore wear time tips, attachment guidance, refinements, and retainer
               planning in our Invisalign resources hub.
             </p>
-            <Link href="/invisalign/resources">
-              <Button className="ui-btn-primary">
+            <Button asChild className="ui-btn-primary">
+              <Link href="/invisalign/resources">
                 Explore Invisalign resources
                 <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
@@ -1034,17 +1034,17 @@ const Invisalign = () => {
               Transform your smile discreetly and comfortably.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/schedule#appointment">
-                <Button className="bg-white text-primary hover:bg-gray-100 font-medium px-8 py-3">
-                  Schedule Consultation
+              <Button asChild className="bg-white text-primary hover:bg-gray-100 font-medium px-8 py-3">
+                <Link href="/schedule?intent=invisalign&source=invisalign-page#appointment">
+                  Request a consultation
                   <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              <a href={`tel:${officeInfo.phoneE164}`}>
-                <Button className="bg-white text-primary hover:bg-white/90 border-white px-8 py-3">
+                </Link>
+              </Button>
+              <Button asChild className="bg-white text-primary hover:bg-white/90 border-white px-8 py-3">
+                <a href={`tel:${officeInfo.phoneE164}`}>
                   Call {officeInfo.phone}
-                </Button>
-              </a>
+                </a>
+              </Button>
             </div>
           </motion.div>
         </div>

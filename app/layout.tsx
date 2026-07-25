@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Lato, Source_Sans_3 } from "next/font/google";
 import { getSeoForPath } from "@/lib/seo";
-import CopyDashSanitizer from "@/components/common/CopyDashSanitizer";
 import VercelAnalytics from "@/components/common/VercelAnalytics";
 import {
   ANALYTICS_CONSENT_EVENT,
@@ -159,7 +158,6 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: googleTagBootstrap }} />
       </head>
       <body className="antialiased">
-        <CopyDashSanitizer />
         {children}
         <VercelAnalytics />
       </body>

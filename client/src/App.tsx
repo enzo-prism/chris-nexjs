@@ -160,8 +160,10 @@ function WouterPathSync() {
   const [location, navigate] = useLocation();
 
   useEffect(() => {
-    if (pathname !== location) {
-      navigate(pathname, { replace: true });
+    const wouterPathname = location.split(/[?#]/, 1)[0] || "/";
+    if (pathname !== wouterPathname) {
+      const target = `${pathname}${window.location.search}${window.location.hash}`;
+      navigate(target, { replace: true });
     }
   }, [pathname, location, navigate]);
 

@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Play, MapPin, ArrowRight, CalendarCheck } from "lucide-react";
+import { Play, Pause, MapPin, ArrowRight, CalendarCheck } from "lucide-react";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import ButtonLink from "@/components/common/ButtonLink";
 import OptimizedImage from "@/components/seo/OptimizedImage";
 import StructuredData from "@/components/seo/StructuredData";
 import { buildVideoObjectSchemas } from "@/lib/structuredData";
 import { officeInfo } from "@/lib/data";
+import { cn } from "@/lib/utils";
 
 const breadcrumbItems = [
   { name: "Home", path: "/" },
@@ -57,7 +58,6 @@ function TourClip({ stop }: { stop: TourStop }): React.JSX.Element {
         for (const entry of entries) {
           if (!entry.isIntersecting && !el.paused) {
             el.pause();
-            setIsPlaying(false);
           }
         }
       },
@@ -75,13 +75,11 @@ function TourClip({ stop }: { stop: TourStop }): React.JSX.Element {
       el.loop = true;
       try {
         await el.play();
-        setIsPlaying(true);
       } catch {
         // Autoplay can be blocked; ignore and keep the poster.
       }
     } else {
       el.pause();
-      setIsPlaying(false);
     }
   };
 
@@ -98,21 +96,29 @@ function TourClip({ stop }: { stop: TourStop }): React.JSX.Element {
           playsInline
           preload="none"
           controls={false}
-          onClick={toggle}
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
           onEnded={() => setIsPlaying(false)}
         />
-        {!isPlaying && (
-          <button
-            type="button"
-            onClick={toggle}
-            aria-label={`Play the ${stop.label} video`}
-            className="ui-focus-premium absolute inset-0 flex items-center justify-center bg-gradient-to-t from-black/40 via-black/5 to-transparent transition-colors"
-          >
+        <button
+          type="button"
+          onClick={toggle}
+          aria-label={`${isPlaying ? "Pause" : "Play"} the ${stop.label} video`}
+          className={cn(
+            "ui-focus-premium absolute flex items-center justify-center transition-[background-color,border-color,transform]",
+            isPlaying
+              ? "bottom-4 left-4 h-11 w-11 rounded-full border border-white/40 bg-black/45 text-white backdrop-blur-sm hover:bg-black/65"
+              : "inset-0 bg-gradient-to-t from-black/40 via-black/5 to-transparent",
+          )}
+        >
+          {isPlaying ? (
+            <Pause className="h-5 w-5 fill-current" aria-hidden="true" />
+          ) : (
             <span className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-white/90 text-primary shadow-lg ring-1 ring-white/70 transition-transform group-hover:scale-105">
               <Play className="h-7 w-7 translate-x-0.5 fill-current" aria-hidden="true" />
             </span>
-          </button>
-        )}
+          )}
+        </button>
       </div>
       <figcaption className="px-6 py-6">
         <h3 className="font-heading text-lg font-semibold text-slate-900">
@@ -157,6 +163,12 @@ const OfficeTour = (): React.JSX.Element => {
   // Click-to-play: a priority poster image is the LCP element (fast paint on
   // mobile); the video only mounts/loads when the visitor taps play.
   const [heroPlaying, setHeroPlaying] = useState(false);
+  const heroVideoRef = useRef<HTMLVideoElement>(null);
+
+  const pauseHeroVideo = () => {
+    heroVideoRef.current?.pause();
+    setHeroPlaying(false);
+  };
 
   return (
     <>
@@ -185,7 +197,14 @@ const OfficeTour = (): React.JSX.Element => {
                   className="ui-btn-primary inline-flex h-12 items-center gap-2 rounded-full px-7 text-base font-semibold"
                 >
                   <CalendarCheck className="h-5 w-5" aria-hidden="true" />
-                  Request a visit
+                  Request Appointment
+                </ButtonLink>
+                <ButtonLink
+                  href="/gallery"
+                  variant="outline"
+                  className="inline-flex h-12 items-center rounded-full px-6 text-base font-semibold"
+                >
+                  Browse the photo gallery
                 </ButtonLink>
                 <a
                   href={officeInfo.mapUrl}
@@ -201,16 +220,28 @@ const OfficeTour = (): React.JSX.Element => {
 
             <div className="relative aspect-[16/10] overflow-hidden rounded-[32px] bg-slate-900 shadow-[0_40px_100px_-30px_rgba(15,23,42,0.35)] ring-1 ring-slate-900/10">
               {heroPlaying ? (
-                <video
-                  src="/videos/office-atrium.mp4"
-                  className="h-full w-full object-cover"
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  controls={false}
-                  onEnded={() => setHeroPlaying(false)}
-                />
+                <>
+                  <video
+                    ref={heroVideoRef}
+                    src="/videos/office-atrium.mp4"
+                    className="h-full w-full object-cover"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    controls={false}
+                    onPause={() => setHeroPlaying(false)}
+                    onEnded={() => setHeroPlaying(false)}
+                  />
+                  <button
+                    type="button"
+                    onClick={pauseHeroVideo}
+                    aria-label="Pause the office tour video"
+                    className="ui-focus-premium absolute bottom-5 left-5 inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/40 bg-black/45 text-white backdrop-blur-sm transition-colors hover:bg-black/65"
+                  >
+                    <Pause className="h-5 w-5 fill-current" aria-hidden="true" />
+                  </button>
+                </>
               ) : (
                 <>
                   {/* Plain <img> (not OptimizedImage) so the LCP hero paints as
@@ -312,7 +343,7 @@ const OfficeTour = (): React.JSX.Element => {
             Come see it in person
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-blue-100">
-            New and returning patients are always welcome. Request a visit and
+            New and returning patients are always welcome. Request an appointment and
             we&rsquo;ll confirm by phone or email within one business day.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">

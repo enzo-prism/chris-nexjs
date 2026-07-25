@@ -110,16 +110,16 @@ const PediatricDentistry = () => {
             team provide gentle, age‑appropriate care for infants, kids, and teens.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/schedule#appointment">
-              <Button className="ui-btn-primary">
-                Schedule a kids’ visit
-              </Button>
-            </Link>
-            <Link href="/contact">
-              <Button variant="outline" className="ui-btn-outline">
+            <Button asChild className="ui-btn-primary">
+              <Link href="/schedule?intent=pediatric&source=pediatric-page#appointment">
+                Request a kids’ visit
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="ui-btn-outline">
+              <Link href="/contact">
                 Contact our office
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </div>
       </section>

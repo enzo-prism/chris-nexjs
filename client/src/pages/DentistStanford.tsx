@@ -134,18 +134,18 @@ const DentistStanford = () => {
               </p>
 
               <div className="flex flex-col gap-3 sm:flex-row">
-                <Link href="/schedule#appointment">
-                  <Button className="ui-btn-primary">
+                <Button asChild className="ui-btn-primary">
+                  <Link href="/schedule#appointment">
                     Request an appointment
                     <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-                <a href={`tel:${officeInfo.phoneE164}`}>
-                  <Button variant="outline" className="ui-btn-outline">
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="ui-btn-outline">
+                  <a href={`tel:${officeInfo.phoneE164}`}>
                     Call {officeInfo.phone}
                     <Phone className="ml-2 h-4 w-4" />
-                  </Button>
-                </a>
+                  </a>
+                </Button>
               </div>
 
               <ul className="grid gap-3 pt-2 text-sm text-slate-700 sm:grid-cols-2">
@@ -342,17 +342,17 @@ const DentistStanford = () => {
               predictable from the start.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Link href="/schedule#appointment">
-                <Button className="ui-btn-primary">
+              <Button asChild className="ui-btn-primary">
+                <Link href="/schedule#appointment">
                   Request an appointment
                   <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-              <Link href="/patient-resources#insurance">
-                <Button variant="outline" className="ui-btn-outline">
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="ui-btn-outline">
+                <Link href="/patient-resources#insurance">
                   Insurance and forms
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
           </div>
         </div>

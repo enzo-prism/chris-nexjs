@@ -1,5 +1,8 @@
-import { Link } from "wouter";
-import { Phone, MapPin, Mail, ExternalLink, Instagram, Star } from "lucide-react";
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Phone, MapPin, Mail, ArrowRight, Instagram, Star } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import {
   Accordion,
@@ -9,6 +12,8 @@ import {
 } from "@/components/ui/accordion";
 import { officeInfo } from "@/lib/data";
 import type { ChromeVariant } from "@/lib/chrome";
+import ButtonLink from "@/components/common/ButtonLink";
+import { cn } from "@/lib/utils";
 
 type FooterProps = {
   readonly variant?: ChromeVariant;
@@ -16,6 +21,8 @@ type FooterProps = {
 
 const Footer = ({ variant = "default" }: FooterProps) => {
   const currentYear = new Date().getFullYear();
+  const pathname = usePathname() || "/";
+  const isActive = (href: string) => pathname === href;
 
   const quickLinks = [
     { href: "/", label: "Home" },
@@ -82,7 +89,8 @@ const Footer = ({ variant = "default" }: FooterProps) => {
               <div className="flex flex-col gap-3 text-sm text-slate-600 sm:flex-row sm:flex-wrap sm:items-center">
                 <a
                   href={`tel:${officeInfo.phoneE164}`}
-                  className="ui-focus-premium inline-flex items-center gap-2 text-slate-700 transition-colors hover:text-primary"
+                  aria-label={`Call Dr. Wong's office at ${officeInfo.phone}`}
+                  className="ui-focus-premium inline-flex min-h-11 items-center gap-2 rounded-lg px-2 text-slate-700 transition-colors hover:text-primary"
                 >
                   <Phone className="h-4 w-4 text-primary" aria-hidden="true" />
                   {officeInfo.phone}
@@ -91,14 +99,16 @@ const Footer = ({ variant = "default" }: FooterProps) => {
                   href={officeInfo.mapUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="ui-focus-premium inline-flex items-center gap-2 text-slate-700 transition-colors hover:text-primary"
+                  aria-label="Get directions to Dr. Wong's office (opens in a new tab)"
+                  className="ui-focus-premium inline-flex min-h-11 items-center gap-2 rounded-lg px-2 text-slate-700 transition-colors hover:text-primary"
                 >
                   <MapPin className="h-4 w-4 text-primary" aria-hidden="true" />
                   {officeInfo.address.line1}, {officeInfo.address.city}
                 </a>
                 <a
                   href={`mailto:${officeInfo.email}`}
-                  className="ui-focus-premium inline-flex items-center gap-2 text-slate-700 transition-colors hover:text-primary"
+                  aria-label={`Email Dr. Wong's office at ${officeInfo.email}`}
+                  className="ui-focus-premium inline-flex min-h-11 items-center gap-2 rounded-lg px-2 text-slate-700 transition-colors hover:text-primary"
                 >
                   <Mail className="h-4 w-4 text-primary" aria-hidden="true" />
                   {officeInfo.email}
@@ -108,7 +118,8 @@ const Footer = ({ variant = "default" }: FooterProps) => {
                   target="_blank"
                   rel="noopener noreferrer"
                   data-analytics-context="footer-review"
-                  className="ui-focus-premium inline-flex items-center gap-2 text-slate-700 transition-colors hover:text-primary"
+                  aria-label="Review Dr. Wong on Google (opens in a new tab)"
+                  className="ui-focus-premium inline-flex min-h-11 items-center gap-2 rounded-lg px-2 text-slate-700 transition-colors hover:text-primary"
                 >
                   <Star className="h-4 w-4 text-primary" aria-hidden="true" />
                   Review us on Google
@@ -117,11 +128,15 @@ const Footer = ({ variant = "default" }: FooterProps) => {
             </div>
 
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-slate-600">
-              {legalLinks.slice(0, 3).map((link) => (
+              {legalLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="ui-link-premium px-1 py-0.5 text-slate-600"
+                  aria-current={isActive(link.href) ? "page" : undefined}
+                  className={cn(
+                    "ui-link-premium inline-flex min-h-11 items-center rounded-lg px-2 text-slate-600",
+                    isActive(link.href) && "bg-slate-100 font-semibold text-primary",
+                  )}
                 >
                   {link.label}
                 </Link>
@@ -155,52 +170,62 @@ const Footer = ({ variant = "default" }: FooterProps) => {
               </p>
               <div className="space-y-4">
                 <p className="flex items-center text-sm text-white/90">
-                  <Phone className="h-4 w-4 mr-3 flex-shrink-0 text-white/70" />
+                  <Phone className="h-4 w-4 mr-3 flex-shrink-0 text-white/70" aria-hidden="true" />
                   <a
                     href={`tel:${officeInfo.phoneE164}`}
                     className="ui-link-premium-dark px-1 py-0.5 text-white/90"
                     itemProp="telephone"
+                    aria-label={`Call Dr. Wong's office at ${officeInfo.phone}`}
                   >
                     {officeInfo.phone}
                   </a>
                 </p>
 
                 <p className="flex items-center text-sm text-white/90">
-                  <Mail className="h-4 w-4 mr-3 flex-shrink-0 text-white/70" />
+                  <Mail className="h-4 w-4 mr-3 flex-shrink-0 text-white/70" aria-hidden="true" />
                   <a
                     href={`mailto:${officeInfo.email}`}
                     className="ui-link-premium-dark break-all px-1 py-0.5 text-white/90"
                     itemProp="email"
+                    aria-label={`Email Dr. Wong's office at ${officeInfo.email}`}
                   >
                     {officeInfo.email}
                   </a>
                 </p>
 
                 <div className="flex items-start text-sm text-white/90">
-                  <MapPin className="h-4 w-4 mr-3 mt-0.5 flex-shrink-0 text-white/70" />
+                  <MapPin className="h-4 w-4 mr-3 mt-0.5 flex-shrink-0 text-white/70" aria-hidden="true" />
                   <address
                     className="not-italic"
                     itemProp="address"
                     itemScope
                     itemType="https://schema.org/PostalAddress"
                   >
-                    <span itemProp="streetAddress">{officeInfo.address.line1}</span>
-                    <br />
-                    <span>
-                      <span itemProp="addressLocality">{officeInfo.address.city}</span>,{" "}
-                      <span itemProp="addressRegion">{officeInfo.address.region}</span>{" "}
-                      <span itemProp="postalCode">{officeInfo.address.postalCode}</span>
-                    </span>
+                    <a
+                      href={officeInfo.mapUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ui-link-premium-dark inline-block rounded px-1 py-0.5 text-white/90"
+                      aria-label="Get directions to Dr. Wong's office (opens in a new tab)"
+                    >
+                      <span itemProp="streetAddress">{officeInfo.address.line1}</span>
+                      <br />
+                      <span>
+                        <span itemProp="addressLocality">{officeInfo.address.city}</span>,{" "}
+                        <span itemProp="addressRegion">{officeInfo.address.region}</span>{" "}
+                        <span itemProp="postalCode">{officeInfo.address.postalCode}</span>
+                      </span>
+                    </a>
                     <meta itemProp="addressCountry" content={officeInfo.address.country} />
                   </address>
                 </div>
                 <div className="flex space-x-2 mt-3">
-                  {socialMedia.map((social, index) => (
+                  {socialMedia.map((social) => (
                     <a
-                      key={index}
+                      key={social.href}
                       href={social.href}
                       className="ui-link-premium-dark inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white/80"
-                      aria-label={social.label}
+                      aria-label={`Visit Dr. Wong on ${social.label} (opens in a new tab)`}
                       rel="noopener noreferrer"
                       target="_blank"
                       itemProp="sameAs"
@@ -209,20 +234,32 @@ const Footer = ({ variant = "default" }: FooterProps) => {
                     </a>
                   ))}
                 </div>
+                <ButtonLink
+                  href="/schedule#appointment"
+                  aria-label="Request an appointment"
+                  className="mt-5 min-h-11 rounded-full border border-white/25 bg-white px-5 text-primary hover:bg-blue-50"
+                >
+                  Request Appointment
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </ButtonLink>
               </div>
             </div>
 
             <div>
               <h3 className="text-sm uppercase tracking-wider mb-4 font-medium">Quick Links</h3>
               <ul className="space-y-3">
-                {quickLinks.map((link, index) => (
-                  <li key={index} className="text-sm text-white/80">
+                {quickLinks.map((link) => (
+                  <li key={link.href} className="text-sm text-white/80">
                     <Link
                       href={link.href}
-                      className="group inline-flex items-center ui-link-premium-dark px-1 py-0.5 text-white/80"
+                      aria-current={isActive(link.href) ? "page" : undefined}
+                      className={cn(
+                        "group inline-flex items-center rounded-md px-2 py-1 ui-link-premium-dark text-white/80",
+                        isActive(link.href) && "bg-white/10 font-semibold text-white",
+                      )}
                     >
                       <span>{link.label}</span>
-                      <ExternalLink
+                      <ArrowRight
                         className="ml-1 h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100"
                         aria-hidden="true"
                       />
@@ -235,9 +272,16 @@ const Footer = ({ variant = "default" }: FooterProps) => {
             <div>
               <h3 className="text-sm uppercase tracking-wider mb-4 font-medium">Services</h3>
               <ul className="space-y-3">
-                {services.map((service, index) => (
-                  <li key={index} className="text-sm text-white/80">
-                    <Link href={service.href} className="ui-link-premium-dark px-1 py-0.5 text-white/80">
+                {services.map((service) => (
+                  <li key={service.href} className="text-sm text-white/80">
+                    <Link
+                      href={service.href}
+                      aria-current={isActive(service.href) ? "page" : undefined}
+                      className={cn(
+                        "rounded-md px-2 py-1 ui-link-premium-dark text-white/80",
+                        isActive(service.href) && "bg-white/10 font-semibold text-white",
+                      )}
+                    >
                       {service.label}
                     </Link>
                   </li>
@@ -267,18 +311,27 @@ const Footer = ({ variant = "default" }: FooterProps) => {
               </p>
             </div>
             <div className="flex space-x-4 mt-4 md:mt-0">
-              {legalLinks.map((link, index) => (
-                <Link key={index} href={link.href} className="ui-link-premium-dark px-1 py-0.5 text-xs text-white/70">
+              {legalLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  aria-current={isActive(link.href) ? "page" : undefined}
+                  className={cn(
+                    "ui-link-premium-dark rounded px-1 py-0.5 text-xs text-white/70",
+                    isActive(link.href) && "font-semibold text-white",
+                  )}
+                >
                   {link.label}
                 </Link>
               ))}
             </div>
             {internalLinks.length > 0 ? (
               <div className="mt-4 md:mt-0 flex flex-wrap items-center justify-center md:justify-end gap-2 text-[10px]">
-                {internalLinks.map((link, index) => (
+                {internalLinks.map((link) => (
                   <Link
-                    key={`internal-${index}`}
+                    key={link.href}
                     href={link.href}
+                    aria-current={isActive(link.href) ? "page" : undefined}
                     className="ui-link-premium-dark px-1 py-0.5 text-white/30"
                   >
                     {link.label}
@@ -298,12 +351,12 @@ const Footer = ({ variant = "default" }: FooterProps) => {
             <p className="text-sm text-white/80 mb-4">Comprehensive dental care in Palo Alto</p>
 
             <div className="flex justify-center space-x-2 mb-4">
-              {socialMedia.map((social, index) => (
+              {socialMedia.map((social) => (
                 <a
-                  key={index}
+                  key={social.href}
                   href={social.href}
                   className="ui-link-premium-dark inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white/80"
-                  aria-label={social.label}
+                  aria-label={`Visit Dr. Wong on ${social.label} (opens in a new tab)`}
                   rel="noopener noreferrer"
                   target="_blank"
                 >
@@ -313,48 +366,52 @@ const Footer = ({ variant = "default" }: FooterProps) => {
             </div>
           </div>
 
-          <div className="bg-white/10 rounded-lg p-4 mb-6">
-            <div className="space-y-3">
-              <p className="flex items-center text-sm">
-                <Phone className="h-4 w-4 mr-3 flex-shrink-0 text-white/70" />
-                <a
-                  href={`tel:${officeInfo.phoneE164}`}
-                  className="ui-link-premium-dark px-1 py-0.5 text-white/90"
-                  itemProp="telephone"
-                >
-                  {officeInfo.phone}
-                </a>
-              </p>
+          <div className="mb-6 rounded-lg bg-white/10 p-2">
+            <div className="space-y-1">
+              <a
+                href={`tel:${officeInfo.phoneE164}`}
+                className="ui-focus-premium flex min-h-11 items-center rounded-lg px-3 text-sm text-white/90 hover:bg-white/10"
+                itemProp="telephone"
+                aria-label={`Call Dr. Wong's office at ${officeInfo.phone}`}
+              >
+                <Phone className="mr-3 h-4 w-4 flex-shrink-0 text-white/70" aria-hidden="true" />
+                {officeInfo.phone}
+              </a>
 
-              <p className="flex items-center text-sm">
-                <Mail className="h-4 w-4 mr-3 flex-shrink-0 text-white/70" />
-                <a
-                  href={`mailto:${officeInfo.email}`}
-                  className="ui-link-premium-dark break-all px-1 py-0.5 text-white/90"
-                  itemProp="email"
-                >
-                  {officeInfo.email}
-                </a>
-              </p>
+              <a
+                href={`mailto:${officeInfo.email}`}
+                className="ui-focus-premium flex min-h-11 items-center rounded-lg px-3 text-sm text-white/90 hover:bg-white/10"
+                itemProp="email"
+                aria-label={`Email Dr. Wong's office at ${officeInfo.email}`}
+              >
+                <Mail className="mr-3 h-4 w-4 flex-shrink-0 text-white/70" aria-hidden="true" />
+                <span className="break-all">{officeInfo.email}</span>
+              </a>
 
-              <div className="flex items-start text-sm">
-                <MapPin className="h-4 w-4 mr-3 mt-0.5 flex-shrink-0 text-white/70" />
-                <address
-                  className="not-italic"
-                  itemProp="address"
-                  itemScope
-                  itemType="https://schema.org/PostalAddress"
+              <address
+                className="not-italic"
+                itemProp="address"
+                itemScope
+                itemType="https://schema.org/PostalAddress"
+              >
+                <a
+                  href={officeInfo.mapUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ui-focus-premium flex min-h-11 items-start rounded-lg px-3 py-2 text-sm text-white/90 hover:bg-white/10"
+                  aria-label="Get directions to Dr. Wong's office (opens in a new tab)"
                 >
-                  <span itemProp="streetAddress">{officeInfo.address.line1}</span>
-                  <br />
+                  <MapPin className="mr-3 mt-0.5 h-4 w-4 flex-shrink-0 text-white/70" aria-hidden="true" />
                   <span>
+                    <span itemProp="streetAddress">{officeInfo.address.line1}</span>
+                    <br />
                     <span itemProp="addressLocality">{officeInfo.address.city}</span>,{" "}
                     <span itemProp="addressRegion">{officeInfo.address.region}</span>{" "}
                     <span itemProp="postalCode">{officeInfo.address.postalCode}</span>
                   </span>
-                  <meta itemProp="addressCountry" content={officeInfo.address.country} />
-                </address>
-              </div>
+                </a>
+                <meta itemProp="addressCountry" content={officeInfo.address.country} />
+              </address>
             </div>
           </div>
 
@@ -365,9 +422,16 @@ const Footer = ({ variant = "default" }: FooterProps) => {
               </AccordionTrigger>
               <AccordionContent>
                 <ul className="space-y-2 py-2 pl-2">
-                  {quickLinks.map((link, index) => (
-                    <li key={index} className="text-sm text-white/80">
-                      <Link href={link.href} className="ui-link-premium-dark block px-2 py-1 text-white/80">
+                  {quickLinks.map((link) => (
+                    <li key={link.href} className="text-sm text-white/80">
+                      <Link
+                        href={link.href}
+                        aria-current={isActive(link.href) ? "page" : undefined}
+                        className={cn(
+                          "ui-focus-premium flex min-h-11 items-center rounded-lg px-3 text-white/80 hover:bg-white/10",
+                          isActive(link.href) && "bg-white/10 font-semibold text-white",
+                        )}
+                      >
                         {link.label}
                       </Link>
                     </li>
@@ -382,9 +446,16 @@ const Footer = ({ variant = "default" }: FooterProps) => {
               </AccordionTrigger>
               <AccordionContent>
                 <ul className="space-y-2 py-2 pl-2">
-                  {services.map((service, index) => (
-                    <li key={index} className="text-sm text-white/80">
-                      <Link href={service.href} className="ui-link-premium-dark block px-2 py-1 text-white/80">
+                  {services.map((service) => (
+                    <li key={service.href} className="text-sm text-white/80">
+                      <Link
+                        href={service.href}
+                        aria-current={isActive(service.href) ? "page" : undefined}
+                        className={cn(
+                          "ui-focus-premium flex min-h-11 items-center rounded-lg px-3 text-white/80 hover:bg-white/10",
+                          isActive(service.href) && "bg-white/10 font-semibold text-white",
+                        )}
+                      >
                         {service.label}
                       </Link>
                     </li>
@@ -413,11 +484,15 @@ const Footer = ({ variant = "default" }: FooterProps) => {
               </a>
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              {legalLinks.map((link, index) => (
+              {legalLinks.map((link) => (
                 <Link
-                  key={index}
+                  key={link.href}
                   href={link.href}
-                  className="ui-link-premium-dark px-1 py-0.5 text-xs text-white/70"
+                  aria-current={isActive(link.href) ? "page" : undefined}
+                  className={cn(
+                    "ui-focus-premium inline-flex min-h-11 items-center rounded-lg px-2 text-xs text-white/70",
+                    isActive(link.href) && "bg-white/10 font-semibold text-white",
+                  )}
                 >
                   {link.label}
                 </Link>

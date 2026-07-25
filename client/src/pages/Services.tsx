@@ -321,21 +321,21 @@ const Services = ({ initialServices }: ServicesProps) => {
       {/* CTA Section */}
       <section className="py-16 bg-primary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold font-heading text-white mb-6">Ready to Schedule Your Appointment?</h2>
-          <p className="text-white text-xl mb-8 max-w-3xl mx-auto">Contact us today to book your visit and take the first step toward optimal dental health.</p>
+          <h2 className="text-3xl md:text-4xl font-bold font-heading text-white mb-6">Ready to Request an Appointment?</h2>
+          <p className="text-white text-xl mb-8 max-w-3xl mx-auto">Send your request today. Our team will follow up to confirm an available time.</p>
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
             <ButtonLink
               href="/schedule#appointment"
               className="rounded-md bg-white px-8 py-3 font-semibold text-primary hover:bg-gray-100"
             >
-              Schedule Appointment
+              Request an Appointment
             </ButtonLink>
             <ButtonLink
               href="/contact"
               variant="outline"
               className="rounded-md border-2 border-white bg-transparent px-8 py-3 font-semibold text-white hover:bg-white/10"
             >
-              Contact Us
+              Ask a Question
             </ButtonLink>
           </div>
         </div>

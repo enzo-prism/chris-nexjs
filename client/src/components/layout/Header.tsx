@@ -84,13 +84,32 @@ const Header = ({ variant = "default" }: HeaderProps) => {
   );
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
   const headerRef = useRef<HTMLElement>(null);
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const previouslyFocusedElementRef = useRef<HTMLElement | null>(null);
   const frameRef = useRef<number>(0);
 
   const isActive = (path: string): boolean => pathname === path;
   const isParentActive = (children?: readonly NavChild[]): boolean =>
     Boolean(children?.some((child) => isActive(child.href)));
 
-  const toggleMobileMenu = () => setMobileMenuOpen((prev) => !prev);
+  const toggleMobileMenu = () => {
+    if (mobileMenuOpen) {
+      setMobileMenuOpen(false);
+      setExpandedMenus([]);
+      requestAnimationFrame(() => mobileMenuButtonRef.current?.focus());
+      return;
+    }
+
+    previouslyFocusedElementRef.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setExpandedMenus(
+      navLinks
+        .filter((link) => isParentActive(link.submenu))
+        .map((link) => link.label),
+    );
+    setMobileMenuOpen(true);
+  };
   const closeMenus = () => {
     setMobileMenuOpen(false);
     setExpandedMenus([]);
@@ -105,6 +124,14 @@ const Header = ({ variant = "default" }: HeaderProps) => {
   };
 
   const closeDesktopSubmenu = () => setOpenDesktopSubmenu(null);
+
+  const closeMobileMenuAndRestoreFocus = () => {
+    setMobileMenuOpen(false);
+    setExpandedMenus([]);
+    requestAnimationFrame(() => {
+      (previouslyFocusedElementRef.current ?? mobileMenuButtonRef.current)?.focus();
+    });
+  };
 
   const syncHeaderHeight = () => {
     const headerEl = headerRef.current;
@@ -199,13 +226,20 @@ const Header = ({ variant = "default" }: HeaderProps) => {
 
   // Lock body scroll when mobile menu is open.
   useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+
     if (mobileMenuOpen) {
       document.body.style.overflow = "hidden";
+      requestAnimationFrame(() => {
+        mobileMenuRef.current
+          ?.querySelector<HTMLElement>("[data-mobile-nav-focus]")
+          ?.focus();
+      });
     } else {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = previousOverflow;
     }
     return () => {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = previousOverflow;
     };
   }, [mobileMenuOpen]);
 
@@ -244,13 +278,15 @@ const Header = ({ variant = "default" }: HeaderProps) => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setOpenDesktopSubmenu(null);
-        setMobileMenuOpen(false);
+        if (mobileMenuOpen) {
+          closeMobileMenuAndRestoreFocus();
+        }
       }
     };
 
     window.addEventListener("keydown", handleEscape);
     return () => window.removeEventListener("keydown", handleEscape);
-  }, []);
+  }, [mobileMenuOpen]);
 
   const handleDesktopWrapperBlur = (event: FocusEvent<HTMLDivElement>) => {
     if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
@@ -296,7 +332,6 @@ const Header = ({ variant = "default" }: HeaderProps) => {
     if (event.key === "Escape") {
       event.preventDefault();
       closeDesktopSubmenu();
-      (event.currentTarget as HTMLAnchorElement).blur();
     }
   };
 
@@ -304,11 +339,62 @@ const Header = ({ variant = "default" }: HeaderProps) => {
     event: ReactKeyboardEvent<HTMLDivElement>,
     triggerId: string,
   ) => {
-    if (event.key !== "Escape") return;
+    const menuItems = Array.from(
+      event.currentTarget.querySelectorAll<HTMLAnchorElement>('[role="menuitem"]'),
+    );
+    const currentIndex = menuItems.indexOf(document.activeElement as HTMLAnchorElement);
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closeDesktopSubmenu();
+      document.getElementById(triggerId)?.focus();
+      return;
+    }
+
+    if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
     event.preventDefault();
-    closeDesktopSubmenu();
-    const trigger = document.getElementById(triggerId);
-    trigger?.focus();
+
+    if (event.key === "Home") {
+      menuItems[0]?.focus();
+      return;
+    }
+    if (event.key === "End") {
+      menuItems.at(-1)?.focus();
+      return;
+    }
+
+    const direction = event.key === "ArrowDown" ? 1 : -1;
+    const nextIndex =
+      currentIndex < 0
+        ? 0
+        : (currentIndex + direction + menuItems.length) % menuItems.length;
+    menuItems[nextIndex]?.focus();
+  };
+
+  const handleMobileMenuKeyDown = (
+    event: ReactKeyboardEvent<HTMLDivElement>,
+  ) => {
+    if (event.key !== "Tab") return;
+
+    const menuFocusables = Array.from(
+      mobileMenuRef.current?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled])',
+      ) ?? [],
+    );
+    const focusables = [mobileMenuButtonRef.current, ...menuFocusables].filter(
+      (element): element is HTMLElement => Boolean(element),
+    );
+    if (focusables.length === 0) return;
+
+    const first = focusables[0];
+    const last = focusables.at(-1);
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last?.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
   };
 
   if (variant === "conversion") {
@@ -324,7 +410,11 @@ const Header = ({ variant = "default" }: HeaderProps) => {
           )}
         >
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-            <Link href="/" className="group relative z-[102] min-w-0 shrink">
+            <Link
+              href="/"
+              className="ui-focus-premium group relative z-[102] min-w-0 shrink rounded-xl"
+              aria-label="Christopher B. Wong, DDS home"
+            >
               <div className="flex min-w-0 items-center gap-3">
                 <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white ring-1 ring-slate-200 transition-colors group-hover:bg-slate-50 sm:h-11 sm:w-11">
                   {!logoLoadFailed ? (
@@ -357,6 +447,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
 
             <a
               href={`tel:${officeInfo.phoneE164}`}
+              aria-label={`Call Dr. Wong's office at ${officeInfo.phone}`}
               className="ui-focus-premium inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-primary/15 bg-primary px-4 py-2 text-sm font-semibold text-white shadow-[0_18px_38px_-24px_rgba(37,99,235,0.7)] transition-transform hover:-translate-y-0.5 hover:bg-primary/95 sm:px-5"
             >
               <Phone className="h-4 w-4" aria-hidden="true" />
@@ -387,7 +478,8 @@ const Header = ({ variant = "default" }: HeaderProps) => {
           <div className="flex items-center space-x-6">
             <a
               href={`tel:${officeInfo.phoneE164}`}
-              className="ui-link-premium-dark group flex items-center px-1 py-0.5 text-white/85"
+              aria-label={`Call Dr. Wong's office at ${officeInfo.phone}`}
+              className="ui-link-premium-dark group flex min-h-10 items-center rounded-lg px-1 py-0.5 text-white/85"
             >
               <Phone
                 className="mr-2 h-3.5 w-3.5 text-blue-200 transition-transform group-hover:scale-110"
@@ -408,7 +500,8 @@ const Header = ({ variant = "default" }: HeaderProps) => {
               href={officeInfo.mapUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="ui-link-premium-dark group hidden items-center px-1 py-0.5 text-white/85 md:flex"
+              aria-label="Get directions to Dr. Wong's office (opens in a new tab)"
+              className="ui-link-premium-dark group hidden min-h-10 items-center rounded-lg px-1 py-0.5 text-white/85 md:flex"
             >
               <MapPin
                 className="mr-2 h-3.5 w-3.5 text-blue-200 transition-transform group-hover:scale-110"
@@ -422,8 +515,8 @@ const Header = ({ variant = "default" }: HeaderProps) => {
               href={officeInfo.socialMedia.instagram}
               target="_blank"
               rel="noopener noreferrer"
-              className="ui-link-premium-dark flex items-center px-2 py-1 text-white/85"
-              aria-label="Instagram"
+              className="ui-link-premium-dark flex min-h-10 min-w-10 items-center justify-center rounded-lg px-2 py-1 text-white/85"
+              aria-label="Visit Dr. Wong on Instagram (opens in a new tab)"
             >
               <Instagram className="h-4 w-4" aria-hidden="true" />
             </a>
@@ -443,8 +536,9 @@ const Header = ({ variant = "default" }: HeaderProps) => {
             {/* Logo */}
             <Link
               href="/"
+              aria-label="Christopher B. Wong, DDS home"
               className={cn(
-                "group relative z-[102] min-w-0 shrink",
+                "ui-focus-premium group relative z-[102] min-w-0 shrink rounded-xl",
                 "min-[1380px]:max-w-[20rem] 2xl:max-w-none",
               )}
             >
@@ -588,21 +682,30 @@ const Header = ({ variant = "default" }: HeaderProps) => {
                 aria-label="Request an appointment"
                 className="ui-btn-primary shrink-0 whitespace-nowrap rounded-full px-4 text-[13px] font-semibold 2xl:px-6 2xl:text-sm"
               >
-                Request <span className="hidden 2xl:inline">Appointment</span>
+                Request Appointment
               </ButtonLink>
             </div>
 
             {/* Mobile Menu Toggle */}
             <Button
+              ref={mobileMenuButtonRef}
               type="button"
               variant="ghost"
               size="icon"
               onClick={toggleMobileMenu}
+              onKeyDown={(event) => {
+                if (!mobileMenuOpen || event.key !== "Tab" || !event.shiftKey) return;
+                event.preventDefault();
+                const focusables = mobileMenuRef.current?.querySelectorAll<HTMLElement>(
+                  'a[href], button:not([disabled])',
+                );
+                focusables?.[focusables.length - 1]?.focus();
+              }}
               className={cn(
-                "relative z-50 h-auto w-auto rounded-md p-2 text-slate-900 transition-colors hover:bg-transparent hover:text-primary focus-visible:ring-primary focus-visible:ring-offset-2",
+                "relative z-50 rounded-xl text-slate-900 transition-colors hover:bg-slate-100 hover:text-primary focus-visible:ring-primary focus-visible:ring-offset-2",
                 "min-[1380px]:hidden",
               )}
-              aria-label="Toggle menu"
+              aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-nav"
             >
@@ -619,10 +722,13 @@ const Header = ({ variant = "default" }: HeaderProps) => {
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
         <div
+          ref={mobileMenuRef}
           id="mobile-nav"
+          aria-label="Mobile navigation"
           className={cn(
             "fixed inset-0 z-40 bg-[#0b1f3a] transition-opacity duration-200 min-[1380px]:hidden",
           )}
+          onKeyDown={handleMobileMenuKeyDown}
         >
           <div
             className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(147,197,253,0.12),transparent_45%),radial-gradient(circle_at_80%_70%,rgba(147,197,253,0.1),transparent_45%)] opacity-60"
@@ -645,6 +751,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
                       <Link
                         href={link.href}
                         onClick={closeMenus}
+                        data-mobile-nav-focus={link.href === "/" ? "true" : undefined}
                         className={cn(
                           "ui-focus-premium group flex items-center justify-between rounded-xl border-b border-white/5 px-3 py-4 font-serif text-xl font-medium transition-[color,background-color,border-color,box-shadow] sm:text-2xl",
                           active
@@ -727,24 +834,27 @@ const Header = ({ variant = "default" }: HeaderProps) => {
             <div className="mt-8 space-y-4">
               <ButtonLink
                 href="/schedule#appointment"
+                aria-label="Request an appointment"
                 onClick={closeMenus}
                 className="ui-btn-primary h-14 w-full rounded-xl text-lg font-bold"
               >
-                Request an Appointment
+                Request Appointment
               </ButtonLink>
 
               <div className="grid grid-cols-2 gap-4 pt-2">
                 <a
                   href={`tel:${officeInfo.phoneE164}`}
+                  aria-label={`Call Dr. Wong's office at ${officeInfo.phone}`}
                   className="ui-focus-premium flex flex-col items-center justify-center rounded-xl border border-white/5 bg-white/5 p-4 text-white transition-[background-color,border-color] hover:border-blue-200/40 hover:bg-white/10 active:bg-white/10"
                 >
                   <Phone className="mb-2 h-6 w-6 text-blue-200" aria-hidden="true" />
-                  <span className="text-sm font-medium">Call Us</span>
+                  <span className="text-sm font-medium">Call Office</span>
                 </a>
                 <a
                   href={officeInfo.mapUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label="Get directions to Dr. Wong's office (opens in a new tab)"
                   className="ui-focus-premium flex flex-col items-center justify-center rounded-xl border border-white/5 bg-white/5 p-4 text-white transition-[background-color,border-color] hover:border-blue-200/40 hover:bg-white/10 active:bg-white/10"
                 >
                   <MapPin className="mb-2 h-6 w-6 text-blue-200" aria-hidden="true" />

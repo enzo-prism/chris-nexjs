@@ -700,7 +700,7 @@ const Home = ({ initialServices = [] }: HomeProps) => {
             <div className="md:flex">
               <div className="bg-primary p-8 text-white md:w-1/2 md:p-12">
                 <h2 className="mb-4 font-heading text-3xl font-bold">
-                  Schedule Your Appointment
+                  Request an Appointment
                 </h2>
                 <p className="mb-6">
                   Send a quick request and our team will follow up to confirm a
@@ -750,7 +750,7 @@ const Home = ({ initialServices = [] }: HomeProps) => {
 
               <div className="p-8 md:w-1/2 md:p-12">
                 <h3 className="mb-4 font-heading text-xl font-bold text-[#333333]">
-                  Book Your Visit
+                  Tell Us What You Need
                 </h3>
                 <p className="mb-6 text-[#333333]">
                   Use our focused request form to tell us what you need and how

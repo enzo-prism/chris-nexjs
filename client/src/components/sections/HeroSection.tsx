@@ -85,7 +85,7 @@ const HeroSection = () => {
                 className="h-auto rounded-full bg-primary px-5 py-6 font-medium text-white shadow-sm transition-[background-color,transform] hover:bg-primary/90"
               >
                 <Calendar className="h-4 w-4" aria-hidden="true" />
-                <span>Schedule an appointment</span>
+                <span>Request an appointment</span>
               </ButtonLink>
               <ButtonLink
                 href="/services"

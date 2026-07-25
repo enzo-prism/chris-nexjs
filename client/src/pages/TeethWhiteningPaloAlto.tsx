@@ -179,18 +179,18 @@ const TeethWhiteningPaloAlto = () => {
               </ul>
 
               <div className="flex flex-col sm:flex-row gap-3">
-                <Link href="/schedule#appointment">
-                  <Button className="ui-btn-primary">
-                    Schedule whitening consultation
+                <Button asChild className="ui-btn-primary">
+                  <Link href="/schedule?intent=whitening&source=teeth-whitening-page#appointment">
+                    Request a whitening consultation
                     <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-                <a href={`tel:${officeInfo.phoneE164}`}>
-                  <Button variant="outline" className="ui-btn-outline">
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="ui-btn-outline">
+                  <a href={`tel:${officeInfo.phoneE164}`}>
                     Call {officeInfo.phone}
                     <Phone className="ml-2 h-4 w-4" />
-                  </Button>
-                </a>
+                  </a>
+                </Button>
               </div>
             </div>
 
@@ -288,12 +288,12 @@ const TeethWhiteningPaloAlto = () => {
                   Ideal if you want a noticeable change quickly. We isolate soft tissue, confirm your shade goal, and
                   tailor strength and timing to reduce irritation and sensitivity.
                 </p>
-                <Link href="/zoom-whitening">
-                  <Button variant="outline" className="ui-btn-outline">
+                <Button asChild variant="outline" className="ui-btn-outline">
+                  <Link href="/zoom-whitening">
                     Learn about ZOOM! whitening
                     <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               </div>
               <div className="rounded-2xl border border-slate-100 bg-[#F5F9FC] p-6">
                 <h3 className="text-xl font-semibold text-slate-900 mb-3">
@@ -303,12 +303,12 @@ const TeethWhiteningPaloAlto = () => {
                   Great for a slower change, touch‑ups, or patients prone to sensitivity. Trays fit precisely, so gel
                   stays where it belongs and results feel more predictable.
                 </p>
-                <Link href="/schedule#appointment">
-                  <Button variant="outline" className="ui-btn-outline">
+                <Button asChild variant="outline" className="ui-btn-outline">
+                  <Link href="/schedule?intent=whitening&source=teeth-whitening-page#appointment">
                     Ask about take‑home trays
                     <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               </div>
             </div>
           </div>
@@ -451,17 +451,17 @@ const TeethWhiteningPaloAlto = () => {
               ))}
             </div>
             <div className="flex flex-col sm:flex-row gap-3 pt-1">
-              <Link href="/schedule#appointment">
-                <Button className="ui-btn-primary">
+              <Button asChild className="ui-btn-primary">
+                <Link href="/schedule?intent=whitening&source=teeth-whitening-page#appointment">
                   Request an appointment
                   <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-              <Link href="/patient-resources#insurance">
-                <Button variant="outline" className="ui-btn-outline">
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="ui-btn-outline">
+                <Link href="/patient-resources#insurance">
                   Insurance & forms
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
           </div>
 
@@ -539,16 +539,16 @@ const TeethWhiteningPaloAlto = () => {
             natural on you. Schedule a visit or call our Palo Alto office today.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/schedule#appointment">
-              <Button className="ui-btn-primary font-semibold">
-                Book whitening visit
-              </Button>
-            </Link>
-            <a href={`tel:${officeInfo.phoneE164}`}>
-              <Button variant="outline" className="border-white text-white hover:bg-white/10">
+            <Button asChild className="ui-btn-primary font-semibold">
+              <Link href="/schedule?intent=whitening&source=teeth-whitening-page#appointment">
+                Request a whitening visit
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="border-white text-white hover:bg-white/10">
+              <a href={`tel:${officeInfo.phoneE164}`}>
                 Call {officeInfo.phone}
-              </Button>
-            </a>
+              </a>
+            </Button>
           </div>
         </div>
       </section>

@@ -427,15 +427,15 @@ const About = () => {
             Ready to meet Dr. Wong in person?
           </h2>
           <p className="max-w-xl text-sm text-white/80 sm:text-base">
-            New patients are always welcome. Request a visit online or give us a
+            New patients are always welcome. Request an appointment online or give us a
             call — we&rsquo;ll help you find a time that works.
           </p>
           <div className="flex flex-col items-center gap-3 sm:flex-row sm:gap-4">
-            <Link href="/schedule#appointment" data-analytics-context="about-midpage-cta">
-              <Button className="h-auto rounded-full bg-white px-6 py-3 font-medium text-[#0b1f3a] shadow-sm transition-colors hover:bg-blue-50">
-                Schedule an appointment
-              </Button>
-            </Link>
+            <Button asChild className="h-auto rounded-full bg-white px-6 py-3 font-medium text-[#0b1f3a] shadow-sm transition-colors hover:bg-blue-50">
+              <Link href="/schedule#appointment" data-analytics-context="about-midpage-cta">
+                Request an appointment
+              </Link>
+            </Button>
             <a
               href={`tel:${data.officeInfo.phoneE164}`}
               data-analytics-context="about-midpage-cta"

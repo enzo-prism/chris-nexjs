@@ -106,16 +106,16 @@ const RestorativeDentistry = () => {
             restorations designed to look natural and hold up to everyday life.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/schedule#appointment">
-              <Button className="ui-btn-primary">
-                Schedule a consult
-              </Button>
-            </Link>
-            <Link href="/contact">
-              <Button variant="outline" className="ui-btn-outline">
+            <Button asChild className="ui-btn-primary">
+              <Link href="/schedule?intent=restorative&source=restorative-page#appointment">
+                Request a consultation
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="ui-btn-outline">
+              <Link href="/contact">
                 Talk to our team
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
@@ -179,4 +179,3 @@ const RestorativeDentistry = () => {
 };
 
 export default RestorativeDentistry;
-

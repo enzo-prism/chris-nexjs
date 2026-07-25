@@ -162,17 +162,17 @@ const DentalVeneers = () => {
               We offer porcelain, composite, and no-prep veneer options with a conservative, patient-first approach.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/schedule">
-                <Button className="bg-primary hover:bg-primary/90 text-white font-medium px-8 py-3">
-                  Schedule Consultation
+              <Button asChild className="bg-primary hover:bg-primary/90 text-white font-medium px-8 py-3">
+                <Link href="/schedule?intent=cosmetic&source=veneers-page#appointment">
+                  Request a consultation
                   <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              <Link href="/contact">
-                <Button variant="outline" className="ui-btn-outline px-8 py-3">
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="ui-btn-outline px-8 py-3">
+                <Link href="/contact">
                   Learn More
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
           </motion.div>
         </div>
@@ -445,17 +445,17 @@ const DentalVeneers = () => {
               veneer consultation. Discover how dental veneers can give you the confident smile you deserve.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/schedule">
-                <Button className="bg-white text-primary hover:bg-gray-100 font-medium px-8 py-3">
-                  Schedule Your Consultation
+              <Button asChild className="bg-white text-primary hover:bg-gray-100 font-medium px-8 py-3">
+                <Link href="/schedule?intent=cosmetic&source=veneers-page#appointment">
+                  Request a consultation
                   <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              <Link href="/contact">
-                <Button variant="outline" className="border-white border-2 text-white bg-white/10 hover:bg-white/20 px-8 py-3 font-medium">
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="border-white border-2 text-white bg-white/10 hover:bg-white/20 px-8 py-3 font-medium">
+                <Link href="/contact">
                   Contact Our Practice
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
           </motion.div>
         </div>

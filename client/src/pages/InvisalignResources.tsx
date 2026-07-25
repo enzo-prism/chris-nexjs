@@ -82,12 +82,12 @@ const InvisalignResources = ({
         Invisalign page to learn how clear aligners work and how to get started.
       </p>
       <div className="mt-6">
-        <Link href="/invisalign">
-          <Button className="ui-btn-primary">
+        <Button asChild className="ui-btn-primary">
+          <Link href="/invisalign">
             Invisalign in Palo Alto
             <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </div>
     </div>
   );
@@ -122,17 +122,17 @@ const InvisalignResources = ({
             to prepare for a consultation or stay on track during treatment.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/invisalign">
-              <Button className="ui-btn-primary">
+            <Button asChild className="ui-btn-primary">
+              <Link href="/invisalign">
                 Invisalign in Palo Alto
                 <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-            <Link href="/schedule#appointment">
-              <Button variant="outline" className="ui-btn-outline">
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="ui-btn-outline">
+              <Link href="/schedule?intent=invisalign&source=invisalign-resources#appointment">
                 Request a consultation
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
@@ -168,21 +168,21 @@ const InvisalignResources = ({
             Ready to explore Invisalign in Palo Alto?
           </h2>
           <p className="text-[#333333] mb-8">
-            Schedule a personalized Invisalign consultation to review your
+            Request a personalized Invisalign consultation to review your
             goals, timeline, and treatment options with Dr. Wong.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/schedule#appointment">
-              <Button className="ui-btn-primary">
+            <Button asChild className="ui-btn-primary">
+              <Link href="/schedule?intent=invisalign&source=invisalign-resources#appointment">
                 Request a consultation
                 <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-            <Link href="/contact">
-              <Button variant="outline" className="ui-btn-outline">
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="ui-btn-outline">
+              <Link href="/contact">
                 Contact the office
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </div>
       </section>

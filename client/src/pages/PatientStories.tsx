@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import MetaTags from "@/components/common/MetaTags";
+import ButtonLink from "@/components/common/ButtonLink";
 import StructuredData from "@/components/seo/StructuredData";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -477,21 +477,21 @@ const CaseStory = ({ study, index, onShare, copiedId }: CaseStoryProps) => {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 pt-2">
-            <Link href="/schedule#appointment">
-              <Button className="ui-btn-primary w-full sm:w-auto">
-                Start your plan
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </Button>
-            </Link>
-            <Link href="/contact">
-              <Button
-                variant="outline"
-                className="border-primary text-primary hover:bg-primary/10 w-full sm:w-auto"
-              >
-                Talk with our team
-              </Button>
-            </Link>
+          <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+            <ButtonLink
+              href="/schedule?intent=cosmetic&source=patient-story#appointment"
+              className="ui-btn-primary w-full sm:w-auto"
+            >
+              Request a consultation
+              <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+            </ButtonLink>
+            <ButtonLink
+              href="/contact"
+              variant="outline"
+              className="w-full border-primary text-primary hover:bg-primary/10 sm:w-auto"
+            >
+              Ask a question
+            </ButtonLink>
           </div>
 
           <div className="text-sm text-primary/70">
@@ -506,7 +506,6 @@ const CaseStory = ({ study, index, onShare, copiedId }: CaseStoryProps) => {
 };
 
 const PatientStories = () => {
-  const [showStickyCTA, setShowStickyCTA] = useState(false);
   const [copiedCaseId, setCopiedCaseId] = useState<string | null>(null);
 
   const breadcrumbItems = [
@@ -543,14 +542,6 @@ const PatientStories = () => {
   if (breadcrumbSchema) {
     structuredData.unshift(breadcrumbSchema);
   }
-
-  useEffect(() => {
-    const onScroll = () => {
-      setShowStickyCTA(window.scrollY > 260);
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   const handleCopyLink = (id: string) => {
     if (typeof window === "undefined" || !navigator?.clipboard) return;
@@ -592,18 +583,17 @@ const PatientStories = () => {
               Mobile-friendly consults • HIPAA-safe forms • No-pressure recommendations
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Link href="/schedule#appointment">
-              <Button className="ui-btn-primary">
-                Schedule a consultation
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </Button>
-            </Link>
-            <Link href="/contact">
-              <Button variant="outline" className="border-primary text-primary hover:bg-primary/10">
-                Ask a question
-              </Button>
-            </Link>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <ButtonLink
+              href="/schedule?intent=cosmetic&source=patient-stories#appointment"
+              className="ui-btn-primary"
+            >
+              Request a consultation
+              <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+            </ButtonLink>
+            <ButtonLink href="/contact" variant="outline" className="border-primary text-primary hover:bg-primary/10">
+              Ask a question
+            </ButtonLink>
           </div>
           <div className="text-sm text-primary font-medium">
             <a href="#invisalign-whitening-bonding-66yo" className="underline underline-offset-4">
@@ -671,40 +661,19 @@ const PatientStories = () => {
           <p className="text-white/90 max-w-3xl mx-auto">
             Whether you want subtle refinements or a full smile refresh, we’ll map a plan that fits your goals and timeline.
           </p>
-          <div className="flex justify-center gap-3 flex-wrap">
-            <Link href="/schedule#appointment">
-              <Button className="bg-white text-primary hover:bg-white/90">
-                Start your plan
-              </Button>
-            </Link>
-            <Link href="/services">
-              <Button variant="outline" className="bg-white text-black hover:bg-white/90 hover:text-black">
-                View services
-              </Button>
-            </Link>
+          <div className="flex flex-wrap justify-center gap-3">
+            <ButtonLink
+              href="/schedule?intent=cosmetic&source=patient-stories-final#appointment"
+              className="bg-white text-primary hover:bg-white/90"
+            >
+              Request a consultation
+            </ButtonLink>
+            <ButtonLink href="/services" variant="outline" className="bg-white text-black hover:bg-white/90 hover:text-black">
+              View services
+            </ButtonLink>
           </div>
         </div>
       </section>
-
-      {showStickyCTA && (
-        <div className="fixed bottom-4 left-0 right-0 px-4 md:hidden z-40">
-          <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-4 flex items-center gap-3">
-            <div className="text-sm text-slate-800">
-              Ready to talk? <span className="text-slate-500">We’ll respond quickly.</span>
-            </div>
-            <div className="ml-auto flex gap-2">
-              <Link href="/contact">
-                <Button variant="outline" className="border-primary text-primary h-9">
-                  Questions
-                </Button>
-              </Link>
-              <Link href="/schedule#appointment">
-                <Button className="bg-primary text-white h-9 px-4">Book</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
 
       <Separator />
     </>

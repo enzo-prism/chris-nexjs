@@ -4,7 +4,6 @@ import {
   useEffect,
   useRef,
   useState,
-  type KeyboardEvent,
   type MouseEvent,
 } from "react";
 import Image from "next/image";
@@ -45,7 +44,6 @@ export default function GalleryTile({
         entries.forEach((entry) => {
           if (!entry.isIntersecting && !videoElement.paused) {
             videoElement.pause();
-            setIsInlinePlaying(false);
           }
         });
       },
@@ -56,22 +54,14 @@ export default function GalleryTile({
     return () => observer.disconnect();
   }, [item.kind]);
 
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      onOpen();
-    }
-  };
-
   const toggleInlinePlayback = async (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
 
     const videoElement = videoRef.current;
     if (!videoElement) return;
 
-    if (isInlinePlaying) {
+    if (!videoElement.paused) {
       videoElement.pause();
-      setIsInlinePlaying(false);
       return;
     }
 
@@ -80,7 +70,6 @@ export default function GalleryTile({
 
     try {
       await videoElement.play();
-      setIsInlinePlaying(true);
     } catch (_error) {
       setIsInlinePlaying(false);
     }
@@ -88,13 +77,8 @@ export default function GalleryTile({
 
   return (
     <div
-      role="button"
-      tabIndex={0}
-      onClick={onOpen}
-      onKeyDown={handleKeyDown}
-      aria-label={item.title}
       className={cn(
-        "ui-card-interactive ui-focus-premium group relative overflow-hidden rounded-[24px] border border-slate-900/5 bg-slate-100",
+        "ui-card-interactive group relative overflow-hidden rounded-[24px] border border-slate-900/5 bg-slate-100",
         className,
       )}
     >
@@ -134,30 +118,39 @@ export default function GalleryTile({
               loop
               preload="none"
               controls={false}
+              onPlay={() => setIsInlinePlaying(true)}
+              onPause={() => setIsInlinePlaying(false)}
+              onEnded={() => setIsInlinePlaying(false)}
               onError={() => setVideoErrored(true)}
             />
-          )}
-
-          {!videoErrored && (
-            <button
-              type="button"
-              onClick={toggleInlinePlayback}
-              className={cn(
-                "ui-focus-premium absolute inset-0 m-auto z-10 flex h-14 w-14 items-center justify-center rounded-full border border-white/30 bg-black/20 text-white backdrop-blur-md transition-all duration-300",
-                "opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 hover:bg-black/40",
-              )}
-              aria-label={isInlinePlaying ? "Pause preview clip" : "Play preview clip"}
-            >
-              {isInlinePlaying ? (
-                <Pause className="h-6 w-6 fill-current" />
-              ) : (
-                <Play className="h-6 w-6 fill-current" />
-              )}
-            </button>
           )}
         </div>
       )}
 
+      <button
+        type="button"
+        onClick={onOpen}
+        aria-label={`Open ${item.title} in gallery viewer`}
+        className="ui-focus-premium absolute inset-0 z-10 rounded-[24px]"
+      />
+
+      {item.kind === "video" && !videoErrored && (
+        <button
+          type="button"
+          onClick={toggleInlinePlayback}
+          className={cn(
+            "ui-focus-premium absolute inset-0 z-20 m-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/30 bg-black/30 text-white backdrop-blur-md transition-all duration-300",
+            "scale-100 opacity-100 hover:bg-black/50 sm:scale-90 sm:opacity-0 sm:group-hover:scale-100 sm:group-hover:opacity-100 sm:focus-visible:scale-100 sm:focus-visible:opacity-100",
+          )}
+          aria-label={isInlinePlaying ? `Pause ${item.title} preview` : `Play ${item.title} preview`}
+        >
+          {isInlinePlaying ? (
+            <Pause className="h-6 w-6 fill-current" aria-hidden="true" />
+          ) : (
+            <Play className="h-6 w-6 fill-current" aria-hidden="true" />
+          )}
+        </button>
+      )}
     </div>
   );
 }

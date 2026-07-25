@@ -47,17 +47,17 @@ const ThankYou = () => {
           
           {/* Action Buttons */}
           <div className="space-y-4">
-            <Link href="/">
-              <Button className="w-full bg-primary hover:bg-primary/90 text-white">
+            <Button asChild className="w-full bg-primary hover:bg-primary/90 text-white">
+              <Link href="/">
                 Return to Homepage
-              </Button>
-            </Link>
+              </Link>
+            </Button>
             
-            <Link href="/patient-resources">
-              <Button variant="outline" className="w-full">
+            <Button asChild variant="outline" className="w-full">
+              <Link href="/patient-resources">
                 View Patient Resources
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </div>
       </div>

@@ -9,3 +9,7 @@ vite.config.ts.*
 .env
 .vercel
 .env*
+
+# Playwright run artifacts (traces/screenshots from tests/mobile)
+/test-results/
+/playwright-report/

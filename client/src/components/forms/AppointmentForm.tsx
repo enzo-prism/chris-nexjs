@@ -54,8 +54,7 @@ import { cn } from "@/lib/utils";
 
 const EMERGENCY_APPOINTMENT_TYPE = "Emergency Visit";
 
-const scheduleFormSchema = z
-  .object({
+const scheduleFormBaseSchema = z.object({
     isEmergency: z.boolean(),
     appointmentType: z
       .string()
@@ -100,8 +99,9 @@ const scheduleFormSchema = z
     contactPreference: z.enum(contactPreferenceOptions),
     insuranceProvider: z.string().trim().max(80).optional().or(z.literal("")),
     message: z.string().trim().max(300).optional().or(z.literal("")),
-  })
-  .superRefine((value, ctx) => {
+  });
+
+const scheduleFormSchema = scheduleFormBaseSchema.superRefine((value, ctx) => {
     if (value.schedulingMode !== "choose_preferences") {
       return;
     }
@@ -123,6 +123,35 @@ const scheduleFormSchema = z
     }
   });
 
+const visitNeedsSchema = scheduleFormBaseSchema.pick({
+  appointmentType: true,
+  schedulingMode: true,
+});
+
+const schedulingPreferenceSchema = scheduleFormBaseSchema
+  .pick({
+    schedulingMode: true,
+    preferredDays: true,
+    preferredTime: true,
+  })
+  .superRefine((value, ctx) => {
+    if (value.schedulingMode !== "choose_preferences") return;
+    if (!value.preferredDays || value.preferredDays.length < 1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Pick at least one day.",
+        path: ["preferredDays"],
+      });
+    }
+    if (!value.preferredTime) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Please select a preferred time.",
+        path: ["preferredTime"],
+      });
+    }
+  });
+
 type ScheduleFormValues = z.infer<typeof scheduleFormSchema>;
 
 type SubmitStatus = "idle" | "submitting" | "success" | "error";
@@ -136,6 +165,10 @@ type StepConfig = {
 type FieldErrorSummary = {
   field: FieldPath<ScheduleFormValues>;
   message: string;
+};
+type ConfirmationDetails = {
+  method: ScheduleFormValues["contactPreference"];
+  destination: string;
 };
 type FormPresentation = "default" | "funnel";
 
@@ -193,8 +226,8 @@ const schedulingModeDetails: Record<ScheduleFormValues["schedulingMode"], {
   icon: typeof Clock3;
 }> = {
   first_available: {
-    title: "First available opening",
-    description: "Quickest visit, fewest choices.",
+    title: "Soonest available visit",
+    description: "Let our team suggest the earliest opening.",
     icon: Clock3,
   },
   choose_preferences: {
@@ -205,8 +238,8 @@ const schedulingModeDetails: Record<ScheduleFormValues["schedulingMode"], {
 };
 
 const contactPreferenceHints: Record<string, string> = {
-  phone: "Quick confirmations",
-  email: "Written details",
+  phone: "Call me to confirm",
+  email: "Email me to confirm",
 };
 
 const getDeviceType = (): "mobile" | "tablet" | "desktop" | "unknown" => {
@@ -240,8 +273,22 @@ const getScheduleFailureReason = (error: unknown): string => {
   return "server_error";
 };
 
+const getScheduleErrorMessage = (error: unknown): string => {
+  const reason = getScheduleFailureReason(error);
+  if (reason === "network_error") {
+    return "We couldn’t connect. Check your internet connection and try again.";
+  }
+
+  return "We couldn’t send your request. Your answers are still here—please try again.";
+};
+
 const formatPhoneInput = (value: string): string => {
-  const digits = value.replace(/\D/g, "").slice(0, 10);
+  const rawDigits = value.replace(/\D/g, "");
+  const digits = (
+    rawDigits.length > 10 && rawDigits.startsWith("1")
+      ? rawDigits.slice(1)
+      : rawDigits
+  ).slice(0, 10);
   if (digits.length === 0) {
     return "";
   }
@@ -262,7 +309,7 @@ const getChoiceCardClasses = (
   cn(
     presentation === "funnel"
       ? [
-          "ui-focus-premium flex min-h-14 cursor-pointer rounded-[18px] border px-4 py-3.5 transition-[border-color,background-color,box-shadow,transform]",
+          "ui-focus-premium relative flex min-h-14 cursor-pointer rounded-[18px] border px-4 py-3.5 transition-[border-color,background-color,box-shadow,transform]",
           centered
             ? "flex-col items-start text-left sm:items-center sm:text-center"
             : "items-center justify-start text-left",
@@ -271,7 +318,7 @@ const getChoiceCardClasses = (
             : "border-slate-200 bg-white hover:border-primary/30 hover:bg-primary/[0.02]",
         ]
       : [
-          "ui-chip-interactive flex min-h-11 cursor-pointer px-4 py-3 text-sm font-medium focus-within:border-primary focus-within:shadow-[var(--ui-focus-shadow)]",
+          "ui-chip-interactive relative flex min-h-11 cursor-pointer px-4 py-3 text-sm font-medium focus-within:border-primary focus-within:shadow-[var(--ui-focus-shadow)]",
           centered ? "items-center justify-center text-center" : "items-center justify-start",
         ],
   );
@@ -302,7 +349,9 @@ const OptionalDetailsFields = ({
         name="insuranceProvider"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Dental insurance provider</FormLabel>
+            <FormLabel>
+              Dental insurance provider <span className="font-normal text-slate-500">(optional)</span>
+            </FormLabel>
             <FormControl>
               <Input
                 inputMode="text"
@@ -325,10 +374,12 @@ const OptionalDetailsFields = ({
         name="message"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Anything else we should know?</FormLabel>
+            <FormLabel>
+              Scheduling note <span className="font-normal text-slate-500">(optional)</span>
+            </FormLabel>
             <FormControl>
               <Textarea
-                placeholder="Pain, referral details, treatment goals, or insurance notes."
+                placeholder="Share timing needs or a question for our scheduling team."
                 maxLength={300}
                 rows={presentation === "funnel" ? 4 : 4}
                 className={
@@ -338,8 +389,9 @@ const OptionalDetailsFields = ({
                 value={field.value ?? ""}
               />
             </FormControl>
-            <p className="mt-1 text-xs text-slate-500">
-              {remainingNotesCharacters} characters left.
+            <p className="mt-1 text-xs leading-5 text-slate-500">
+              Please don&apos;t include medical history or other sensitive health
+              details. Call us if you need to discuss care. {remainingNotesCharacters} characters left.
             </p>
             <FormMessage />
           </FormItem>
@@ -356,7 +408,7 @@ const OptionalDetailsFields = ({
     <details className="group rounded-2xl border border-dashed border-slate-300 bg-slate-50/70 open:bg-white">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 [&::-webkit-details-marker]:hidden">
         <span className="text-sm font-semibold text-slate-900">
-          Add insurance or notes{" "}
+          Add insurance or a scheduling note{" "}
           <span className="font-normal text-slate-500">(optional)</span>
         </span>
         <ChevronRight className="h-4 w-4 shrink-0 text-slate-400 transition-transform group-open:rotate-90" aria-hidden="true" />
@@ -426,6 +478,12 @@ const VisitNeedsStep = ({ control, presentation }: StepProps) => {
                           Urgent
                         </span>
                       ) : null}
+                      {presentation === "funnel" && isSelected && !isEmergencyOption ? (
+                        <CheckCircle2
+                          className="ml-auto h-5 w-5 shrink-0 text-primary"
+                          aria-hidden="true"
+                        />
+                      ) : null}
                     </label>
                   );
                 })}
@@ -485,7 +543,7 @@ const VisitNeedsStep = ({ control, presentation }: StepProps) => {
                         className="sr-only"
                       />
                       {presentation === "funnel" ? (
-                        <span className="flex items-start gap-3">
+                        <span className="flex min-w-0 flex-1 items-start gap-3 pr-6">
                           <FeatureIcon icon={Icon} size="sm" className="mt-0.5" />
                           <span>
                             <span className="block text-sm font-semibold leading-6 text-slate-900">
@@ -503,6 +561,12 @@ const VisitNeedsStep = ({ control, presentation }: StepProps) => {
                             : "I want to choose preferred days and times"}
                         </span>
                       )}
+                      {presentation === "funnel" && isSelected ? (
+                        <CheckCircle2
+                          className="absolute right-3 top-3 h-5 w-5 text-primary"
+                          aria-hidden="true"
+                        />
+                      ) : null}
                     </label>
                   );
                 })}
@@ -530,20 +594,26 @@ const PreferenceStep = ({ control, presentation }: StepProps) => {
               <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
                 {preferredDayOptions.map((day) => {
                   const checked = values.includes(day);
+                  const isAtLimit = values.length >= 3 && !checked;
                   return (
                     <label
                       key={day}
                       htmlFor={`preferred-day-${day}`}
                       data-selected={checked ? "true" : "false"}
-                      className={getChoiceCardClasses(presentation, checked)}
+                      aria-disabled={isAtLimit}
+                      className={cn(
+                        getChoiceCardClasses(presentation, checked),
+                        isAtLimit && "cursor-not-allowed opacity-45",
+                      )}
                     >
                       <span className="text-sm font-semibold text-slate-900">{day}</span>
                       <Checkbox
                         id={`preferred-day-${day}`}
                         checked={checked}
+                        disabled={isAtLimit}
                         onCheckedChange={(checkedValue) => {
                           const nextValues = checkedValue
-                            ? [...new Set([...values, day])].slice(0, 3)
+                            ? [...new Set([...values, day])]
                             : values.filter((value) => value !== day);
                           field.onChange(nextValues);
                         }}
@@ -553,7 +623,10 @@ const PreferenceStep = ({ control, presentation }: StepProps) => {
                   );
                 })}
               </div>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs leading-5 text-slate-500" aria-live="polite">
+                {values.length === 3
+                  ? "3 days selected. Unselect one to choose a different day."
+                  : `${values.length} of 3 days selected.`}{" "}
                 Wednesday visits end by 3:00 PM, Friday by 4:00 PM.
               </p>
               <FormMessage />
@@ -589,6 +662,12 @@ const PreferenceStep = ({ control, presentation }: StepProps) => {
                         className="sr-only"
                       />
                       <span className="text-sm font-semibold text-slate-900">{option}</span>
+                      {presentation === "funnel" && isSelected ? (
+                        <CheckCircle2
+                          className="ml-auto h-5 w-5 shrink-0 text-primary"
+                          aria-hidden="true"
+                        />
+                      ) : null}
                     </label>
                   );
                 })}
@@ -613,6 +692,10 @@ const ContactStep = ({
 }: ContactStepProps) => {
   return (
     <div className={cn(presentation === "funnel" ? "space-y-6" : "space-y-6")}>
+      <p className="rounded-xl bg-primary/[0.05] px-4 py-3 text-sm leading-6 text-slate-600">
+        Name, phone, email, and a contact choice are required. We ask for both
+        phone and email so we can reach you if your preferred method is unavailable.
+      </p>
       <div
         className={cn(
           "grid md:grid-cols-2",
@@ -627,6 +710,7 @@ const ContactStep = ({
               <FormLabel>First name</FormLabel>
               <FormControl>
                 <Input
+                  required
                   inputMode="text"
                   enterKeyHint="next"
                   autoComplete="given-name"
@@ -650,6 +734,7 @@ const ContactStep = ({
               <FormLabel>Last name</FormLabel>
               <FormControl>
                 <Input
+                  required
                   inputMode="text"
                   enterKeyHint="next"
                   autoComplete="family-name"
@@ -682,6 +767,7 @@ const ContactStep = ({
               <FormControl>
                 <Input
                   type="tel"
+                  required
                   inputMode="tel"
                   enterKeyHint="next"
                   autoComplete="tel"
@@ -709,6 +795,7 @@ const ContactStep = ({
               <FormControl>
                 <Input
                   type="email"
+                  required
                   inputMode="email"
                   enterKeyHint="done"
                   autoComplete="email"
@@ -758,6 +845,12 @@ const ContactStep = ({
                       />
                       {presentation === "funnel" ? (
                         <>
+                          {isSelected ? (
+                            <CheckCircle2
+                              className="absolute right-3 top-3 h-5 w-5 text-primary"
+                              aria-hidden="true"
+                            />
+                          ) : null}
                           <FeatureIcon icon={Icon} size="sm" />
                           <span className="mt-2 block text-sm font-semibold capitalize leading-5 text-slate-900">
                             {option}
@@ -794,21 +887,26 @@ const AppointmentForm = ({
   presentation = "default",
 }: AppointmentFormProps) => {
   const searchParams = useSearchParams();
-  const initialAppointmentType = getAppointmentTypeForIntent(
-    searchParams?.get("intent") ?? null,
-  );
+  const scheduleIntent = searchParams?.get("intent") ?? null;
+  const initialAppointmentType = scheduleIntent
+    ? getAppointmentTypeForIntent(scheduleIntent)
+    : "";
   const [step, setStep] = useState<number>(1);
   const [status, setStatus] = useState<SubmitStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [errorSummary, setErrorSummary] = useState<FieldErrorSummary[]>([]);
+  const [confirmationDetails, setConfirmationDetails] =
+    useState<ConfirmationDetails | null>(null);
   const hasTrackedStart = useRef(false);
   const hasTrackedView = useRef(false);
   const completionStateRef = useRef(false);
   const abandonmentTimersRef = useRef<number[]>([]);
   const lastStepViewRef = useRef("");
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const errorAlertRef = useRef<HTMLDivElement>(null);
   const honeypotRef = useRef<HTMLInputElement>(null);
   const shouldFocusHeadingRef = useRef(false);
+  const pendingFocusFieldRef = useRef<FieldPath<ScheduleFormValues> | null>(null);
   const stepTrackingRef = useRef<{ index: number; name: StepName }>({
     index: 1,
     name: "visit_needs",
@@ -831,13 +929,15 @@ const AppointmentForm = ({
       message: "",
     },
     mode: "onBlur",
+    shouldFocusError: false,
   });
 
   const {
     control,
-    trigger,
+    clearErrors,
     getValues,
     getFieldState,
+    setError,
     setFocus,
     setValue,
     handleSubmit,
@@ -958,8 +1058,17 @@ const AppointmentForm = ({
       return;
     }
     shouldFocusHeadingRef.current = false;
-    headingRef.current?.focus();
+    window.setTimeout(() => headingRef.current?.focus(), 80);
   }, [activeStep]);
+
+  useEffect(() => {
+    const field = pendingFocusFieldRef.current;
+    if (!field) {
+      return;
+    }
+    pendingFocusFieldRef.current = null;
+    window.requestAnimationFrame(() => setFocus(field));
+  }, [activeStep, setFocus]);
 
   const markScheduleStarted = () => {
     if (hasTrackedStart.current || typeof window === "undefined") return;
@@ -991,6 +1100,17 @@ const AppointmentForm = ({
     );
   };
 
+  const handleFormChange = () => {
+    markScheduleStarted();
+    if (errorSummary.length > 0) {
+      setErrorSummary([]);
+    }
+    if (status === "error") {
+      setStatus("idle");
+      setErrorMessage("");
+    }
+  };
+
   useEffect(() => {
     return () => {
       abandonmentTimersRef.current.forEach((timerId) => window.clearTimeout(timerId));
@@ -1010,25 +1130,45 @@ const AppointmentForm = ({
     return nextErrors;
   };
 
-  const trackFieldErrors = (errors: FieldErrorSummary[]) => {
+  const trackFieldErrors = (
+    errors: FieldErrorSummary[],
+    stepConfig: StepConfig = currentStep,
+  ) => {
     for (const error of errors) {
       trackGAEvent("schedule_field_error", {
         source: "schedule_page_form",
         field: error.field,
         error_type: error.message,
-        step_index: activeStep,
-        step_name: currentStep.name,
+        step_index: steps.findIndex((entry) => entry.name === stepConfig.name) + 1,
+        step_name: stepConfig.name,
         ...analyticsContext,
       });
     }
   };
 
-  const goToNextStep = async () => {
+  const goToNextStep = () => {
     markScheduleStarted();
     const currentFields = currentStep.fields;
-    const isValid = await trigger(currentFields);
-    if (!isValid) {
-      const errors = updateErrorSummary(currentFields);
+    const currentValues = getValues();
+    const validationResult =
+      currentStep.name === "visit_needs"
+        ? visitNeedsSchema.safeParse(currentValues)
+        : schedulingPreferenceSchema.safeParse(currentValues);
+    clearErrors(currentFields);
+
+    if (!validationResult.success) {
+      const errors = validationResult.error.issues.reduce<FieldErrorSummary[]>(
+        (items, issue) => {
+          const field = issue.path[0] as FieldPath<ScheduleFormValues> | undefined;
+          if (!field || !currentFields.includes(field)) return items;
+          if (items.some((item) => item.field === field)) return items;
+          setError(field, { type: "manual", message: issue.message });
+          items.push({ field, message: issue.message });
+          return items;
+        },
+        [],
+      );
+      setErrorSummary(errors);
       trackFieldErrors(errors);
       if (errors[0]) {
         setFocus(errors[0].field);
@@ -1076,7 +1216,11 @@ const AppointmentForm = ({
     const sourceUrl = window.location.href;
     const normalizedPhone = rawData.phone.trim();
 
-    const payload = scheduleRequestV2Schema.parse({
+    // Mirror-schema check before we touch the network. `safeParse` (not
+    // `parse`) so a drift between the form schema and the wire schema surfaces
+    // as the normal error panel instead of an unhandled rejection that leaves
+    // the button spinning with nothing on screen.
+    const parsedPayload = scheduleRequestV2Schema.safeParse({
       isEmergency: rawData.isEmergency,
       appointmentType: rawData.appointmentType,
       schedulingMode: rawData.schedulingMode,
@@ -1098,7 +1242,23 @@ const AppointmentForm = ({
       source: "schedule_page_form_v2",
       sourceUrl,
       utmParams: extractUtmParams(sourceUrl),
-    }) as ScheduleRequestV2;
+    });
+
+    if (!parsedPayload.success) {
+      setErrorMessage(
+        "We couldn’t send your request. Please review your answers, or call the office.",
+      );
+      trackAnalyticsEvent(ANALYTICS_EVENTS.scheduleSubmitFailure, {
+        source: "schedule_page_form",
+        reason: "client_payload_invalid",
+        ...analyticsContext,
+      });
+      setStatus("error");
+      window.requestAnimationFrame(() => errorAlertRef.current?.focus());
+      return;
+    }
+
+    const payload = parsedPayload.data as ScheduleRequestV2;
 
     trackGAEvent("schedule_submit_attempt", {
       source: "schedule_page_form",
@@ -1179,29 +1339,45 @@ const AppointmentForm = ({
       }
 
       completionStateRef.current = true;
+      setConfirmationDetails({
+        method: rawData.contactPreference,
+        destination:
+          rawData.contactPreference === "phone"
+            ? rawData.phone
+            : rawData.email.trim().toLowerCase(),
+      });
       setStatus("success");
       setStep(1);
       reset();
     } catch (error) {
-      setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : "Something went wrong. Please try again.",
-      );
+      setErrorMessage(getScheduleErrorMessage(error));
       trackAnalyticsEvent(ANALYTICS_EVENTS.scheduleSubmitFailure, {
         source: "schedule_page_form",
         reason: getScheduleFailureReason(error),
         ...analyticsContext,
       });
       setStatus("error");
+      window.requestAnimationFrame(() => errorAlertRef.current?.focus());
     }
   };
 
   const onInvalidSubmit = () => {
-    const errors = updateErrorSummary(currentStep.fields);
-    trackFieldErrors(errors);
+    const invalidStep =
+      steps.find((entry) =>
+        entry.fields.some((field) => getFieldState(field).invalid),
+      ) ?? currentStep;
+    const errors = updateErrorSummary(invalidStep.fields);
+    trackFieldErrors(errors, invalidStep);
     if (errors[0]) {
-      setFocus(errors[0].field);
+      const invalidStepIndex = steps.findIndex(
+        (entry) => entry.name === invalidStep.name,
+      );
+      if (invalidStepIndex >= 0 && invalidStepIndex + 1 !== activeStep) {
+        pendingFocusFieldRef.current = errors[0].field;
+        setStep(invalidStepIndex + 1);
+      } else {
+        setFocus(errors[0].field);
+      }
     }
   };
 
@@ -1225,7 +1401,18 @@ const AppointmentForm = ({
           We&apos;ll confirm your appointment shortly.
         </h3>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-slate-600">
-          Our team will follow up within one business day by phone or email to lock in your visit and answer any final questions.
+          Our team will follow up within one business day
+          {confirmationDetails ? (
+            <>
+              {" "}by {confirmationDetails.method} at{" "}
+              <span className="font-semibold text-slate-800">
+                {confirmationDetails.destination}
+              </span>
+            </>
+          ) : (
+            " by phone or email"
+          )}{" "}
+          to confirm an available time. Your visit is not booked until we confirm it.
         </p>
         <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <a
@@ -1233,7 +1420,7 @@ const AppointmentForm = ({
             className="ui-focus-premium inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5 hover:bg-primary/95"
           >
             <PhoneCall className="h-4 w-4" aria-hidden="true" />
-            Call {officeInfo.phone}
+            Call the office
           </a>
           <a
             href="/contact"
@@ -1256,14 +1443,20 @@ const AppointmentForm = ({
       ? formValues.preferredDays.join(", ")
       : "Any day";
   const reviewTime = formValues.preferredTime || "Any time";
+  const nextButtonLabel =
+    currentStep.name === "visit_needs" && schedulingMode === "choose_preferences"
+      ? "Continue to Availability"
+      : "Continue to Contact Details";
 
   return (
     <Form {...form}>
       <form
         onSubmit={handleSubmit(onSubmit, onInvalidSubmit)}
-        onChangeCapture={markScheduleStarted}
+        onChangeCapture={handleFormChange}
         className={formClasses}
         autoComplete="on"
+        noValidate
+        aria-busy={isSubmitting || status === "submitting"}
         data-hj-suppress
       >
         {/* Honeypot — hidden from real users; bots that fill it are dropped. */}
@@ -1286,7 +1479,7 @@ const AppointmentForm = ({
               </p>
               <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400">
                 <ShieldCheck className="h-3.5 w-3.5 text-primary/70" aria-hidden="true" />
-                Secure request
+                No medical details needed
               </span>
             </div>
             <div
@@ -1391,7 +1584,7 @@ const AppointmentForm = ({
                   <dt className="text-slate-500">Scheduling</dt>
                   <dd className="mt-0.5 font-medium text-slate-900">
                     {schedulingMode === "first_available"
-                      ? "First available opening"
+                      ? "Soonest available visit"
                       : `${reviewDays} · ${reviewTime}`}
                   </dd>
                 </div>
@@ -1411,7 +1604,23 @@ const AppointmentForm = ({
                   Edit
                 </Button>
               </div>
+              <div className="border-t border-slate-200 pt-3">
+                <dt className="text-slate-500">Confirmation</dt>
+                <dd className="mt-0.5 font-medium text-slate-900">
+                  {formValues.contactPreference === "phone" ? "Phone" : "Email"}
+                  {formValues.contactPreference === "phone" && formValues.phone
+                    ? ` · ${formValues.phone}`
+                    : null}
+                  {formValues.contactPreference === "email" && formValues.email
+                    ? ` · ${formValues.email}`
+                    : null}
+                </dd>
+              </div>
             </dl>
+            <p className="mt-4 border-t border-slate-200 pt-3 text-xs leading-5 text-slate-500">
+              Sending this form requests a time; it does not book an appointment.
+              We&apos;ll confirm the final date and time with you.
+            </p>
           </div>
         ) : null}
 
@@ -1443,16 +1652,32 @@ const AppointmentForm = ({
         ) : null}
 
         {status === "error" && errorMessage ? (
-          <p className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-            {errorMessage}
-          </p>
+          <div
+            ref={errorAlertRef}
+            tabIndex={-1}
+            className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+            role="alert"
+            aria-live="assertive"
+          >
+            <p className="flex items-center gap-2 font-semibold">
+              <TriangleAlert className="h-4 w-4 shrink-0" aria-hidden="true" />
+              Your request wasn&apos;t sent
+            </p>
+            <p className="mt-1.5 leading-6">{errorMessage}</p>
+            <a
+              href={`tel:${officeInfo.phoneE164}`}
+              className="ui-focus-premium mt-2 inline-flex rounded text-sm font-semibold underline underline-offset-2"
+            >
+              Or call {officeInfo.phone}
+            </a>
+          </div>
         ) : null}
 
         {presentation === "funnel" ? (
-          <div className="sticky bottom-0 z-10 flex flex-col gap-3 border-t border-slate-200 bg-white/95 pt-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] backdrop-blur supports-[backdrop-filter]:bg-white/85 sm:static sm:flex-row sm:items-center sm:justify-between sm:border-slate-100 sm:bg-transparent sm:pt-5 sm:pb-0 sm:backdrop-blur-none">
+          <div className="flex flex-col gap-3 border-t border-slate-200 pt-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] sm:flex-row sm:items-center sm:justify-between sm:border-slate-100 sm:pt-5 sm:pb-0">
             <p className="order-2 text-xs leading-5 text-slate-500 sm:order-1">
               {isFinalStep
-                ? "We'll confirm by phone or email within one business day."
+                ? "Your request is not booked until our team confirms it."
                 : "Most patients finish in under a minute."}
             </p>
             <div className="order-1 flex gap-2 sm:order-2 sm:min-w-[300px] sm:justify-end">
@@ -1475,17 +1700,22 @@ const AppointmentForm = ({
                   disabled={isSubmitting || status === "submitting"}
                 >
                   {isSubmitting || status === "submitting"
-                    ? "Submitting..."
-                    : "Request My Appointment"}
+                    ? "Sending request..."
+                    : status === "error"
+                      ? "Try Sending Again"
+                      : "Send Appointment Request"}
                 </Button>
               ) : (
                 <Button
                   type="button"
                   className="ui-btn-primary min-h-11 flex-1 text-base font-semibold sm:min-w-[180px]"
-                  onClick={goToNextStep}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    goToNextStep();
+                  }}
                   disabled={isSubmitting || status === "submitting"}
                 >
-                  Continue
+                  {nextButtonLabel}
                   <ChevronRight className="ml-1 h-4 w-4" aria-hidden="true" />
                 </Button>
               )}
@@ -1494,7 +1724,7 @@ const AppointmentForm = ({
         ) : (
           <div
             className={cn(
-              "sticky bottom-0 z-10 -mx-2 border-t border-slate-200 bg-white/95 px-2 pt-3 backdrop-blur",
+              "-mx-2 border-t border-slate-200 px-2 pt-3",
               "pb-[calc(env(safe-area-inset-bottom)+0.75rem)] sm:-mx-0 sm:px-0",
             )}
           >
@@ -1528,17 +1758,22 @@ const AppointmentForm = ({
                   disabled={isSubmitting || status === "submitting"}
                 >
                   {isSubmitting || status === "submitting"
-                    ? "Submitting..."
-                    : "Request My Appointment"}
+                    ? "Sending request..."
+                    : status === "error"
+                      ? "Try Sending Again"
+                      : "Send Appointment Request"}
                 </Button>
               ) : (
                 <Button
                   type="button"
                   className="ui-btn-primary min-h-11 flex-1 text-base font-semibold"
-                  onClick={goToNextStep}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    goToNextStep();
+                  }}
                   disabled={isSubmitting || status === "submitting"}
                 >
-                  Continue
+                  {nextButtonLabel}
                   <ChevronRight className="ml-1 h-4 w-4" aria-hidden="true" />
                 </Button>
               )}

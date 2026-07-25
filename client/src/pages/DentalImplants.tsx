@@ -227,13 +227,13 @@ const DentalImplants = () => {
               At the practice of Christopher B. Wong, DDS, we specialize in advanced implant dentistry, 
               providing durable, comfortable, and aesthetically pleasing tooth replacement options.
             </p>
-            <Link href="/schedule">
-              <Button className="bg-white text-primary hover:bg-gray-100 font-medium px-6 py-3 sm:px-8 sm:py-3 text-base sm:text-lg w-full sm:w-auto">
-                <span className="hidden sm:inline">Schedule Your Dental Implant Consultation Today</span>
-                <span className="sm:hidden">Schedule Consultation</span>
+            <Button asChild className="bg-white text-primary hover:bg-gray-100 font-medium px-6 py-3 sm:px-8 sm:py-3 text-base sm:text-lg w-full sm:w-auto">
+              <Link href="/schedule?intent=implants&source=implants-page#appointment">
+                <span className="hidden sm:inline">Request a dental implant consultation</span>
+                <span className="sm:hidden">Request a consultation</span>
                 <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </MotionDiv>
         </div>
       </section>
@@ -608,18 +608,18 @@ const DentalImplants = () => {
               – let us help you rediscover the joy of a complete and beautiful smile.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 justify-center">
-              <Link href="/schedule">
-                <Button className="bg-white text-primary hover:bg-gray-100 font-medium px-6 py-3 sm:px-8 sm:py-3 w-full sm:w-auto">
-                  <span className="hidden sm:inline">Schedule Your Consultation</span>
-                  <span className="sm:hidden">Schedule Consultation</span>
+              <Button asChild className="bg-white text-primary hover:bg-gray-100 font-medium px-6 py-3 sm:px-8 sm:py-3 w-full sm:w-auto">
+                <Link href="/schedule?intent=implants&source=implants-page#appointment">
+                  <span className="hidden sm:inline">Request a consultation</span>
+                  <span className="sm:hidden">Request a consultation</span>
                   <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
-                </Button>
-              </Link>
-              <Link href="/contact">
-                <Button variant="outline" className="border-white border-2 text-white bg-white/10 hover:bg-white/20 px-6 py-3 sm:px-8 sm:py-3 font-medium w-full sm:w-auto">
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="border-white border-2 text-white bg-white/10 hover:bg-white/20 px-6 py-3 sm:px-8 sm:py-3 font-medium w-full sm:w-auto">
+                <Link href="/contact">
                   Contact Our Practice
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
           </MotionDiv>
         </div>

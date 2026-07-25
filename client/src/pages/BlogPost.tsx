@@ -438,7 +438,7 @@ const BlogPost = ({ params, initialPosts }: BlogPostPageProps) => {
         },
         {
           href: "/schedule",
-          anchorText: "Schedule a restorative exam",
+          anchorText: "Request a restorative exam",
         },
       ];
     }
@@ -477,7 +477,7 @@ const BlogPost = ({ params, initialPosts }: BlogPostPageProps) => {
 
     return [
       { href: "/services", anchorText: "Dental services in Palo Alto" },
-      { href: "/schedule", anchorText: "Schedule an appointment" },
+      { href: "/schedule", anchorText: "Request an appointment" },
       { href: "/contact", anchorText: "Contact our office" },
     ];
   })();

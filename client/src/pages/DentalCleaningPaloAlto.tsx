@@ -112,16 +112,16 @@ const DentalCleaningPaloAlto = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3">
-            <Link href="/schedule#appointment">
-              <Button className="ui-btn-primary">
+            <Button asChild className="ui-btn-primary">
+              <Link href="/schedule?intent=preventive&source=cleaning-page#appointment">
                 Request a cleaning
-              </Button>
-            </Link>
-            <a href={`tel:${officeInfo.phoneE164}`}>
-              <Button variant="outline" className="ui-btn-outline">
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="ui-btn-outline">
+              <a href={`tel:${officeInfo.phoneE164}`}>
                 Call {officeInfo.phone}
-              </Button>
-            </a>
+              </a>
+            </Button>
           </div>
         </div>
       </section>

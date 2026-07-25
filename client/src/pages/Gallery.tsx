@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Volume2, VolumeOff, Camera, Video, LayoutGrid } from "lucide-react";
+import { Volume2, VolumeOff, Camera, Pause, Play, LayoutGrid } from "lucide-react";
 import { motion, AnimatePresence } from "@/lib/motion-lite";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import StructuredData from "@/components/seo/StructuredData";
@@ -27,12 +27,29 @@ const CATEGORIES: (GalleryCategory | "All")[] = [
 
 function GalleryHero({ video }: { video: GalleryMediaItem }): React.JSX.Element {
   const [isMuted, setIsMuted] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
   const heroVideoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     if (!heroVideoRef.current) return;
     heroVideoRef.current.muted = isMuted;
   }, [isMuted]);
+
+  const togglePlayback = async () => {
+    const videoElement = heroVideoRef.current;
+    if (!videoElement) return;
+
+    if (!videoElement.paused) {
+      videoElement.pause();
+      return;
+    }
+
+    try {
+      await videoElement.play();
+    } catch {
+      setIsPlaying(false);
+    }
+  };
 
   return (
     <section className="relative overflow-hidden bg-white pt-8 lg:pt-12">
@@ -47,25 +64,32 @@ function GalleryHero({ video }: { video: GalleryMediaItem }): React.JSX.Element 
             <div className="space-y-4">
               <span className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-blue-600 ring-1 ring-inset ring-blue-600/10">
                 <Camera className="h-3.5 w-3.5" />
-                Office Gallery
+                Photo &amp; Video Gallery
               </span>
               <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-6xl">
-                Experience the <br />
-                <span className="text-blue-600">Difference</span>
+                See our office, <br />
+                <span className="text-blue-600">care, and team</span>
               </h1>
               <p className="max-w-xl text-lg leading-relaxed text-slate-600">
-                Take a virtual tour of our state-of-the-art Palo Alto office. 
-                From our serene garden views to our advanced technology, 
-                every detail is designed with your comfort in mind.
+                Browse real photos and short clips of our Palo Alto practice,
+                from serene garden views to the people and technology behind
+                your care.
               </p>
             </div>
             
             <div className="flex flex-wrap gap-4">
-              <ButtonLink href="/schedule#appointment" className="ui-btn-primary h-12 rounded-full px-8 text-base font-semibold">
-                Request a Visit
+              <ButtonLink href="/schedule?intent=cosmetic&source=gallery#appointment" className="ui-btn-primary h-12 rounded-full px-8 text-base font-semibold">
+                Request Appointment
+              </ButtonLink>
+              <ButtonLink
+                href="/office-tour"
+                variant="outline"
+                className="h-12 rounded-full px-7 text-base font-semibold"
+              >
+                Watch the guided office tour
               </ButtonLink>
               <div className="flex items-center gap-4 text-slate-500 text-sm font-medium">
-                <div className="flex -space-x-2">
+                <div className="flex -space-x-2" aria-hidden="true">
                   {[1, 2, 3].map((i) => (
                     <div key={i} className="h-8 w-8 rounded-full border-2 border-white bg-slate-100 shadow-sm" />
                   ))}
@@ -91,20 +115,38 @@ function GalleryHero({ video }: { video: GalleryMediaItem }): React.JSX.Element 
                 loop
                 muted={isMuted}
                 playsInline
+                onPlay={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}
+                onEnded={() => setIsPlaying(false)}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
               
-              <button
-                type="button"
-                onClick={() => setIsMuted((value) => !value)}
-                className="ui-focus-premium absolute bottom-6 left-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/30 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white backdrop-blur-md transition-[background-color,border-color,transform] hover:border-white/40 hover:bg-black/50 active:translate-y-[0.5px]"
-              >
-                {isMuted ? (
-                  <><VolumeOff className="h-4 w-4" /> Unmute Tour</>
-                ) : (
-                  <><Volume2 className="h-4 w-4" /> Mute Tour</>
-                )}
-              </button>
+              <div className="absolute bottom-6 left-6 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={togglePlayback}
+                  className="ui-focus-premium inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/30 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white backdrop-blur-md transition-[background-color,border-color,transform] hover:border-white/40 hover:bg-black/50 active:translate-y-[0.5px]"
+                  aria-label={isPlaying ? "Pause gallery highlights" : "Play gallery highlights"}
+                >
+                  {isPlaying ? (
+                    <><Pause className="h-4 w-4" aria-hidden="true" /> Pause</>
+                  ) : (
+                    <><Play className="h-4 w-4" aria-hidden="true" /> Play</>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsMuted((value) => !value)}
+                  className="ui-focus-premium inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/30 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white backdrop-blur-md transition-[background-color,border-color,transform] hover:border-white/40 hover:bg-black/50 active:translate-y-[0.5px]"
+                  aria-label={isMuted ? "Unmute gallery highlights" : "Mute gallery highlights"}
+                >
+                  {isMuted ? (
+                    <><VolumeOff className="h-4 w-4" aria-hidden="true" /> Sound off</>
+                  ) : (
+                    <><Volume2 className="h-4 w-4" aria-hidden="true" /> Sound on</>
+                  )}
+                </button>
+              </div>
 
             </div>
           </motion.div>
@@ -146,15 +188,19 @@ export default function Gallery(): React.JSX.Element {
           {/* Category Filter */}
           <div className="mb-12 flex flex-col items-center justify-between gap-8 md:flex-row">
             <div className="space-y-1 text-center md:text-left">
-              <h2 className="text-3xl font-bold tracking-tight text-slate-900">Explore our Space</h2>
-              <p className="text-slate-500 font-medium">Select a category to see more</p>
+              <h2 className="text-3xl font-bold tracking-tight text-slate-900">Browse the gallery</h2>
+              <p className="text-slate-500 font-medium">Choose a category, then open any photo or clip</p>
             </div>
             
             <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl bg-slate-50 p-1.5 ring-1 ring-slate-200/60">
               {CATEGORIES.map((category) => (
                 <button
                   key={category}
-                  onClick={() => setActiveCategory(category)}
+                  type="button"
+                  onClick={() => {
+                    setActiveCategory(category);
+                    setActiveIndex(null);
+                  }}
                   data-selected={activeCategory === category ? "true" : "false"}
                   aria-pressed={activeCategory === category}
                   className={cn(
@@ -247,7 +293,7 @@ export default function Gallery(): React.JSX.Element {
             Join the many Palo Alto families who trust Dr. Wong for their dental care.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-4">
-            <ButtonLink href="/schedule#appointment" className="rounded-full px-10 h-14 text-lg">
+            <ButtonLink href="/schedule?intent=cosmetic&source=gallery#appointment" className="rounded-full px-10 h-14 text-lg">
               Request Appointment
             </ButtonLink>
             <ButtonLink href="/contact" variant="outline" className="rounded-full px-10 h-14 text-lg">
