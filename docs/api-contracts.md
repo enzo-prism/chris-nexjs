@@ -33,8 +33,25 @@ Body limits:
 - contact and scheduling: `32 KiB`
 - newsletter: `8 KiB`
 
-Schema or field validation failures return `400`. Unexpected delivery or server
-failures return `500` without exposing secrets or full vendor response bodies.
+A body that is not parseable JSON returns `400` with a fixed message; it must
+never surface the parser's own error text. Schema or field validation failures
+return `400`. Unexpected delivery or server failures return `500` without
+exposing secrets or full vendor response bodies — the raw error is logged
+server-side and the patient sees a fixed, actionable line, because the
+scheduling form renders the returned `message` verbatim.
+
+`POST /api/schedule-request` accepts both the current (v2) funnel payload and
+the legacy schedule-page payload. When a submission carries any v2-only key
+(`schedulingMode`, `isEmergency`, `contactPreference`) its validation errors are
+reported against the v2 schema; the legacy schema is only tried for bodies that
+carry no v2 signal. Without that split, a v2 submission with one bad field is
+re-parsed as legacy and the patient is told that fields the form never had
+(`emergency`, `preferredTimeOfDay`) are missing.
+
+`POST /api/newsletter` validates `email` as a real address, caps it at 254
+characters, and normalizes it (trim + lowercase) before the duplicate check.
+The column's `UNIQUE` index is case-sensitive, so without normalization
+`A@x.com` and `a@x.com` both store as separate subscribers.
 
 ## Delivery behavior
 
@@ -49,8 +66,11 @@ eight-second timeout per destination; those optional failures are returned as
 forwarding status and do not turn a delivered inbox request into a patient-facing
 failure.
 
-Honeypot-triggered contact and scheduling requests return a quiet `201` but are
-not sent to the office, stored, or tracked as conversions.
+Honeypot-triggered contact, newsletter, and scheduling requests return a quiet
+`201` but are not sent to the office, stored, or tracked as conversions. All
+three use the same decoy field (`company`, exported as `HONEYPOT_FIELD`), and
+each form renders a matching off-screen input — the server check only catches
+bots if the field exists in the DOM for them to fill.
 
 ## Privacy and logging
 
@@ -72,5 +92,14 @@ pnpm run test:routes
 The contract suite mocks outbound Formspree, CRM, and Slack calls. Do not verify
 production by submitting a fake patient request without explicit approval.
 
-Current limitation: request policy is per-request validation; the app does not
-yet provide a shared distributed rate limiter across serverless instances.
+Current limitations:
+
+- Request policy is per-request validation; the app does not yet provide a
+  shared distributed rate limiter across serverless instances.
+- `POST /api/newsletter` is live and writes to storage, but `NewsletterForm` is
+  not mounted on any page — the endpoint currently has no UI in front of it.
+  Either wire the form into a surface (the footer is the natural home) or retire
+  the endpoint; leaving an unreferenced write endpoint exposed is the worst of
+  the three options.
+- `GET /api/search` sets a public `s-maxage`, so each distinct `query` string is
+  a separate CDN cache key and the query length is unbounded.

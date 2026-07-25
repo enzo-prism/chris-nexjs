@@ -14,6 +14,27 @@ This runbook defines how technical SEO is implemented and validated in productio
   - adds route-level Open Graph / Twitter / canonical / robots
   - adds feed discovery via RSS alternate link type
 
+## Social share images (`og:image`)
+
+Every `ogImage` in `shared/seo.ts` must point into `public/images/og/` and be a
+JPEG. Unlike on-page images, `og:image` bypasses `next/image` entirely — the URL
+in the meta tag is exactly what Facebook, LinkedIn, Slack, iMessage, and
+WhatsApp fetch, so source resolution and format reach the crawler unchanged.
+
+Two rules, both learned from real breakage:
+
+- **Size.** The source photos are 2–4 MB PNGs. Served raw they make unfurls slow
+  and, past each crawler's own ceiling, silently imageless.
+- **Format.** WebP `og:image` is not rendered by X/Twitter or LinkedIn. A small
+  WebP still loses its share card.
+
+`scripts/generate-og-images.mjs` (`pnpm run og:generate`) reads every `ogImage`
+and `DEFAULT_OG_IMAGE` literal out of `shared/seo.ts`, writes 1200x675
+progressive JPEGs — 16:9, matching the source aspect, so nothing is cropped —
+into `public/images/og/`, and reports any missing source. Remote URLs
+(Cloudinary) are left alone. Re-run it after adding or replacing a source photo,
+then repoint the `ogImage` literal at the generated `/images/og/*.jpg`.
+
 ## Crawl surfaces
 
 - `app/robots.ts`
@@ -32,6 +53,13 @@ This runbook defines how technical SEO is implemented and validated in productio
   - emits `lastModified` only when a parseable date exists
   - omits ignored `priority` and `changefreq` hints
   - never emits current-time fallback timestamps for unknown dates
+  - known issue: `sitemap.xml` is still a full `urlset`, not a sitemap index, so
+    every URL it lists is also listed by the segment sitemaps
+    (`sitemap-services.xml`, `sitemap-locations.xml`, `sitemap-blog.xml`) that
+    `robots.txt` submits alongside it. The duplicates also disagree on `lastmod`
+    format (`2026-07-15T00:00:00.000Z` vs `2026-07-15`). Converting the root to
+    a `sitemapindex` is the right shape but changes what `test:seo` and
+    `test:seo:freshness` read, so it needs its own pass.
 - RSS feed:
   - canonical feed URL: `/rss.xml` (`app/rss.xml/route.ts`)
   - backward-compatible API route: `/api/rss.xml`
@@ -59,6 +87,9 @@ This runbook defines how technical SEO is implemented and validated in productio
 8. Retired city pages and duplicate article URLs must use one-hop redirects and remain absent from sitemaps and internal links.
 9. The practice `Dentist`/`Organization` entity schema belongs on the homepage. Nearby-city pages must not represent separate local businesses.
 10. Visible third-party reviews may remain for trust, but the practice does not emit self-serving `Review` or `aggregateRating` schema.
+11. Schema properties are omitted, never emitted empty. `specialOpeningHoursSpecification` disappears once every temporary-hours entry has expired rather than serializing as `[]`.
+12. Display copy is not reused as schema values without checking the relationship it asserts. `doctorInfo.credentials` is About-page copy and names the dental school as "… Graduate"; mapped straight into `memberOf` it invents an organization by that name and duplicates `alumniOf`, so the alumni entry is filtered out in `buildPersonSchema`.
+13. Every `ogImage` resolves to a JPEG under `public/images/og/` (see "Social share images").
 
 ## Automated SEO gates
 

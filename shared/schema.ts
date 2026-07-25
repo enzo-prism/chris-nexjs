@@ -57,10 +57,24 @@ export const newsletterSubscriptions = pgTable("newsletter_subscriptions", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const insertNewsletterSubscriptionSchema = createInsertSchema(newsletterSubscriptions).omit({
-  id: true,
-  createdAt: true,
-});
+// The generated insert schema only knows the column is a non-null string, so
+// it accepts any text as an "email". Normalizing here (trim + lowercase) also
+// makes the duplicate check meaningful: the column's UNIQUE index is
+// case-sensitive, so `A@x.com` and `a@x.com` would otherwise both be stored.
+export const insertNewsletterSubscriptionSchema = createInsertSchema(newsletterSubscriptions)
+  .omit({
+    id: true,
+    createdAt: true,
+  })
+  .extend({
+    email: z
+      .string()
+      .trim()
+      .min(1, "Enter your email address.")
+      .max(254, "That email address is too long.")
+      .email("Enter a valid email address.")
+      .transform((value) => value.toLowerCase()),
+  });
 
 // Services schema
 export const services = pgTable("services", {

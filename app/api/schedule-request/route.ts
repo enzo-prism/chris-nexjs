@@ -31,13 +31,35 @@ type ScheduleDispatchPayload = Omit<ScheduleRequestV2, "phone"> & {
   timestamp: string;
 };
 
+// Keys only the current (v2) form sends. Their presence means the submission
+// came from the live funnel, so a v2 failure must surface the v2 error rather
+// than being re-parsed as legacy — otherwise patients get told that
+// `emergency` / `preferredTimeOfDay` are missing, fields the form never had.
+const V2_ONLY_KEYS = ["schedulingMode", "isEmergency", "contactPreference"] as const;
+
+const looksLikeV2Payload = (body: unknown): boolean =>
+  Boolean(body) &&
+  typeof body === "object" &&
+  V2_ONLY_KEYS.some((key) => key in (body as Record<string, unknown>));
+
 const normalizeIncomingScheduleRequest = (body: unknown): ScheduleRequestV2 => {
   const parsedV2 = scheduleRequestV2Schema.safeParse(body);
   if (parsedV2.success) {
     return parsedV2.data;
   }
 
-  const legacyPayload = legacyScheduleRequestSchema.parse(body);
+  if (looksLikeV2Payload(body)) {
+    throw parsedV2.error;
+  }
+
+  const parsedLegacy = legacyScheduleRequestSchema.safeParse(body);
+  if (!parsedLegacy.success) {
+    // Neither shape matched and the body carried no legacy-only signal, so the
+    // v2 error is the one that describes the fields we actually ask for.
+    throw parsedV2.error;
+  }
+
+  const legacyPayload = parsedLegacy.data;
   const schedulingMode =
     legacyPayload.preferredTimeOfDay === "First Available"
       ? "first_available"
@@ -234,7 +256,15 @@ export async function POST(request: NextRequest) {
     const requestError = validateJsonRequest(request);
     if (requestError) return requestError;
 
-    const body = await request.json();
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { message: "Request body must be valid JSON." },
+        { status: 400 },
+      );
+    }
 
     // Silently accept honeypot-tripped submissions: bots see success, but the
     // request is never forwarded to the office inbox.
@@ -358,8 +388,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const message =
-      error instanceof Error ? error.message : "Failed to submit appointment request.";
-    return NextResponse.json({ message }, { status: 500 });
+    // Never echo the raw failure: it can carry the upstream inbox provider's
+    // response body. Log it for us, return a safe, actionable line to the
+    // patient (the form renders this verbatim).
+    console.error("[schedule-request] Failed to deliver appointment request:", error);
+    return NextResponse.json(
+      {
+        message:
+          "We couldn't send your request. Please call the office or try again.",
+      },
+      { status: 500 },
+    );
   }
 }

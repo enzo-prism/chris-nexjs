@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { fromZodError } from "zod-validation-error";
 import { ZodError } from "zod";
 import { ANALYTICS_EVENTS, getAnalyticsPathFromUrl } from "@shared/analytics";
+import { isHoneypotTripped } from "@shared/formspree";
 import { insertNewsletterSubscriptionSchema } from "@shared/schema";
 import { getStorage } from "../../../server/storage/repository";
 import { trackVercelServerEvent } from "../../../server/vercelAnalytics";
@@ -12,7 +13,22 @@ export async function POST(request: NextRequest) {
     const requestError = validateJsonRequest(request, 8 * 1024);
     if (requestError) return requestError;
 
-    const body = await request.json();
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { message: "Request body must be valid JSON." },
+        { status: 400 },
+      );
+    }
+
+    // Same decoy field the contact and schedule endpoints use: bots that fill
+    // it get a success response but are never stored.
+    if (isHoneypotTripped(body)) {
+      return NextResponse.json({ ok: true }, { status: 201 });
+    }
+
     const payload = insertNewsletterSubscriptionSchema.parse(body);
     const storage = await getStorage();
     const existing = await storage.getNewsletterSubscriptionByEmail(payload.email);

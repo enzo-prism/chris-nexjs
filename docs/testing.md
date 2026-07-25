@@ -82,6 +82,7 @@ If local dev is on port `5000`, set `SEO_AUDIT_BASE_URL=http://localhost:5000`.
   - Static source guards: form-field font sizes (≥16px on mobile), 44px touch targets, sticky funnel CTA, contact-form delivery, landing-page H1 sizing, etc.
 - `pnpm run test:mobile`
   - Playwright suite under `tests/mobile/` (builds + serves the app, runs against an iPhone-class viewport via system Chrome): no horizontal overflow, touch targets, the responsive testimonials split (mobile card vs desktop carousel), the `/office-tour` page, and more.
+  - Navigate through `gotoAndHydrate` in `tests/mobile/_helpers.ts`. It asserts the response is `200` before anything else, and that assertion is load-bearing: the 404 page renders a `main` element, has one `h1`, and never overflows, so a spec naming a route that does not exist will otherwise pass while testing nothing. `overflow.spec.ts` asserted against `/dentist-palo-alto` — a route the site has never had — for exactly this reason. Whenever you add a route to a spec's list, the guard is what tells you the route is real.
 
 ### Performance checks
 

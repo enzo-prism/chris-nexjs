@@ -26,7 +26,12 @@ Use this file as the central index for project documentation.
 - `production-readiness-spec.md`  
   Release quality criteria and gates.
 - `release-2026-07-15-growth-and-hardening.md`
-  Shipped SEO, conversion, privacy, and reliability changes for this release.
+  Shipped SEO, conversion, privacy, and reliability changes for that release.
+- `release-2026-07-24-bugfix-audit.md`
+  Full-codebase bug hunt: lead-API error handling, structured-data accuracy,
+  `og:image` delivery, and a Playwright spec that was asserting against the 404
+  page. Each fix notes why the existing gates missed it; ends with the known
+  issues left open on purpose.
 
 ## SEO documentation
 

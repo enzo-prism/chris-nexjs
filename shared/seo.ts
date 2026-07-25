@@ -37,7 +37,7 @@ export const DEFAULT_ROBOTS =
   "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1";
 export const NOINDEX_ROBOTS = "noindex, nofollow, noarchive";
 
-const DEFAULT_OG_IMAGE = "/images/dr_wong_polaroids.png";
+const DEFAULT_OG_IMAGE = "/images/og/dr_wong_polaroids.jpg";
 const DEFAULT_PRIORITY = 0.7;
 const DEFAULT_CHANGEFREQ: SitemapEntry["changefreq"] = "monthly";
 const CLUSTER_PRIORITY_DEFAULTS: Record<
@@ -81,56 +81,56 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "Accepting new patients in Palo Alto for preventive, cosmetic and restorative dentistry, Invisalign, implants and urgent dental care. Request a visit.",
     canonicalPath: "/",
-    ogImage: "/images/office/reception-area.png",
+    ogImage: "/images/og/reception-area.jpg",
   },
   "/about": {
     title: "Christopher B. Wong, DDS | Palo Alto Family Dentist",
     description:
       "Learn about Dr. Wong, a Palo Alto dentist focused on conservative care, Invisalign, and implant restoration. Looking for a Wong dentist in Palo Alto? Meet the team and our approach.",
     canonicalPath: "/about",
-    ogImage: "/images/office/dr-wong-portrait-2.png",
+    ogImage: "/images/og/dr-wong-portrait-2.jpg",
   },
   "/services": {
     title: "Palo Alto Dental Services | Christopher B. Wong, DDS",
     description:
       "Complete dental services in Palo Alto: preventive care, cosmetic dentistry, restorative treatments, orthodontics & emergency dental care. Top Palo Alto dentist.",
     canonicalPath: "/services",
-    ogImage: "/images/office/practice-og.png",
+    ogImage: "/images/og/practice-og.jpg",
   },
   "/preventive-dentistry": {
     title: "Preventive Dentistry in Palo Alto | Christopher B. Wong, DDS",
     description:
       "Preventive dentistry in Palo Alto including exams, cleanings, screenings, and personalized care to avoid cavities and gum disease.",
     canonicalPath: "/preventive-dentistry",
-    ogImage: "/images/generated/services/preventive-dentistry.webp",
+    ogImage: "/images/og/preventive-dentistry.jpg",
   },
   "/restorative-dentistry": {
     title: "Restorative Dentistry Palo Alto | Christopher B. Wong, DDS",
     description:
       "Restore damaged or missing teeth with restorative dentistry in Palo Alto. Dr. Wong offers fillings, crowns, bridges, and implant restorations.",
     canonicalPath: "/restorative-dentistry",
-    ogImage: "/images/office/courtyard-operatory.png",
+    ogImage: "/images/og/courtyard-operatory.jpg",
   },
   "/pediatric-dentistry": {
     title: "Pediatric Dentistry in Palo Alto | Christopher B. Wong, DDS",
     description:
       "Gentle pediatric dentistry in Palo Alto for infants, kids, and teens. Preventive cleanings, sealants, and family‑friendly care.",
     canonicalPath: "/pediatric-dentistry",
-    ogImage: "/images/office/reception-desk.png",
+    ogImage: "/images/og/reception-desk.jpg",
   },
   "/patient-resources": {
     title: "Patient Resources | Palo Alto | Christopher B. Wong, DDS",
     description:
       "Patient forms, insurance info & visit preparation for Dr. Wong's Palo Alto dental practice. Convenient resources for our dental patients.",
     canonicalPath: "/patient-resources",
-    ogImage: "/images/office/office-entrance.png",
+    ogImage: "/images/og/office-entrance.jpg",
   },
   "/insurance": {
     title: "Insurance & Payment Options | Christopher B. Wong, DDS",
     description:
       "How dental insurance works at our Palo Alto office: PPO plans accepted out-of-network, benefits verified before your visit, plus flexible payment options.",
     canonicalPath: "/insurance",
-    ogImage: "/images/office/office-entrance.png",
+    ogImage: "/images/og/office-entrance.jpg",
     seoCluster: "trust",
     primaryKeyword: "dental insurance palo alto",
     secondaryKeywords: [
@@ -143,7 +143,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "Read patient reviews for Dr. Christopher Wong, trusted Palo Alto dentist. Real testimonials from satisfied patients in Palo Alto and surrounding areas.",
     canonicalPath: "/testimonials",
-    ogImage: "/images/office/team-photo.png",
+    ogImage: "/images/og/team-photo.jpg",
   },
   "/patient-stories": {
     title: "Patient Stories & Transformations | Christopher B. Wong, DDS",
@@ -158,7 +158,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "Dental health tips and news from Dr. Wong's Palo Alto dental practice. Stay informed about oral health and dental technology advances.",
     canonicalPath: "/blog",
-    ogImage: "/images/office/historical-photos.png",
+    ogImage: "/images/og/historical-photos.jpg",
   },
   "/changelog": {
     title: "Website Changelog | Christopher B. Wong, DDS",
@@ -173,7 +173,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "Take a look at our Palo Alto dental office, treatment rooms, and care-first environment through real photos and short walkthrough videos from Dr. Wong's team.",
     canonicalPath: "/gallery",
-    ogImage: "/images/office/polaroid-collage.png",
+    ogImage: "/images/og/polaroid-collage.jpg",
     seoCluster: "trust",
   },
   "/office-tour": {
@@ -181,56 +181,56 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "Take a virtual tour of Dr. Christopher Wong's Palo Alto dental office: a calming garden courtyard, a relaxing reception lounge, modern treatment rooms, and the team that cares for you.",
     canonicalPath: "/office-tour",
-    ogImage: "/images/office/atrium-courtyard.webp",
+    ogImage: "/images/og/atrium-courtyard.jpg",
     seoCluster: "trust",
   },
   "/contact": {
     title: "Contact | Palo Alto Dentist | Christopher B. Wong, DDS",
     description: `Contact Palo Alto dentist Dr. Christopher Wong at ${officeInfo.address.line1}, ${officeInfo.address.line2}. Call ${officeInfo.phone} to schedule your visit.`,
     canonicalPath: "/contact",
-    ogImage: "/images/office/exterior-entry.png",
+    ogImage: "/images/og/exterior-entry.jpg",
   },
   "/schedule": {
     title: "Request a Dental Appointment | Palo Alto, CA",
     description:
       "Schedule your appointment with Palo Alto dentist Dr. Christopher Wong. New patients welcome. Easy online booking for dental care in Palo Alto.",
     canonicalPath: "/schedule",
-    ogImage: "/images/office/operatory-room.png",
+    ogImage: "/images/og/operatory-room.jpg",
   },
   "/invisalign": {
     title: "Invisalign in Palo Alto, CA | Christopher B. Wong, DDS",
     description:
       "Invisalign dentist in Palo Alto offering clear aligners with digital scans, personalized plans, and easy checkups for teens and adults. Schedule a consult today.",
     canonicalPath: "/invisalign",
-    ogImage: "/images/invisalign-treatment.jpg",
+    ogImage: "/images/og/invisalign-treatment.jpg",
   },
   "/invisalign/resources": {
     title: "Invisalign Resources in Palo Alto | Christopher B. Wong, DDS",
     description:
       "Invisalign resources for Palo Alto patients: timelines, attachments, costs, and aftercare. Explore clear aligner guidance and book a consult.",
     canonicalPath: "/invisalign/resources",
-    ogImage: "/images/invisalign-treatment.jpg",
+    ogImage: "/images/og/invisalign-treatment.jpg",
   },
   "/emergency-dental": {
     title: "Emergency Dentist in Palo Alto | Christopher B. Wong, DDS",
     description:
       "Emergency dentist in Palo Alto offering same-day care for urgent toothaches, broken teeth, infections, and dental trauma. Call now for relief.",
     canonicalPath: "/emergency-dental",
-    ogImage: "/images/generated/services/emergency-dental.webp",
+    ogImage: "/images/og/emergency-dental.jpg",
   },
   "/zoom-whitening": {
     title: "ZOOM Teeth Whitening, Palo Alto | Christopher B. Wong, DDS",
     description:
       "In‑office ZOOM! whitening in Palo Alto for a noticeably brighter smile. Professional isolation, shade planning, and sensitivity management—book a visit.",
     canonicalPath: "/zoom-whitening",
-    ogImage: "/images/office/historical-photos.png",
+    ogImage: "/images/og/historical-photos.jpg",
   },
   "/zoom-whitening/schedule": {
     title: "Invite Only - Whitening Appointment Schedule",
     description:
       "Private scheduling page for invited patients booking a complimentary in-office ZOOM! Whitening session with photo and video capture.",
     canonicalPath: "/zoom-whitening/schedule",
-    ogImage: "/images/office/historical-photos.png",
+    ogImage: "/images/og/historical-photos.jpg",
     robots: NOINDEX_ROBOTS,
   },
   "/teeth-whitening-palo-alto": {
@@ -238,63 +238,63 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "Palo Alto teeth whitening with dentist‑supervised options: in‑office whitening and custom take‑home trays. Safe care with sensitivity planning—schedule a visit.",
     canonicalPath: "/teeth-whitening-palo-alto",
-    ogImage: "/images/generated/services/teeth-whitening-palo-alto.webp",
+    ogImage: "/images/og/teeth-whitening-palo-alto.jpg",
   },
   "/dental-cleaning-palo-alto": {
     title: "Dental Cleaning in Palo Alto | Christopher B. Wong, DDS",
     description:
       "Gentle dental cleanings in Palo Alto to remove plaque, prevent cavities, and keep gums healthy. Family‑friendly care at Dr. Wong’s office.",
     canonicalPath: "/dental-cleaning-palo-alto",
-    ogImage: "/images/office/operatory-equipment.png",
+    ogImage: "/images/og/operatory-equipment.jpg",
   },
   "/cavity-fillings-palo-alto": {
     title: "Cavity Fillings in Palo Alto | Christopher B. Wong, DDS",
     description:
       "Treat cavities early with tooth‑colored fillings in Palo Alto. Conservative composite restorations that look natural and restore strength.",
     canonicalPath: "/cavity-fillings-palo-alto",
-    ogImage: "/images/generated/services/cavity-fillings-palo-alto.webp",
+    ogImage: "/images/og/cavity-fillings-palo-alto.jpg",
   },
   "/crowns-palo-alto": {
     title: "Dental Crowns in Palo Alto | Christopher B. Wong, DDS",
     description:
       "Custom dental crowns in Palo Alto to repair large cavities or cracks. Durable, natural‑looking restorations designed for comfort.",
     canonicalPath: "/crowns-palo-alto",
-    ogImage: "/images/office/operatory-room.png",
+    ogImage: "/images/og/operatory-room.jpg",
   },
   "/pediatric-dentist-palo-alto": {
     title: "Pediatric Dentist in Palo Alto | Christopher B. Wong, DDS",
     description:
       "Gentle pediatric dentistry in Palo Alto for infants, kids, and teens. Preventive cleanings, sealants, and family‑centered care.",
     canonicalPath: "/pediatric-dentist-palo-alto",
-    ogImage: "/images/office/reception-area.png",
+    ogImage: "/images/og/reception-area.jpg",
   },
   "/dentist-menlo-park": {
     title: "Menlo Park Family Dentist | Christopher B. Wong, DDS",
     description:
       "Family dentist near Menlo Park for kids, teens, adults, and seniors. Preventive checkups, cleanings, fillings, Invisalign, and emergency care—visit our nearby Palo Alto office.",
     canonicalPath: "/dentist-menlo-park",
-    ogImage: "/images/generated/locations/dentist-menlo-park.webp",
+    ogImage: "/images/og/dentist-menlo-park.jpg",
   },
   "/dentist-stanford": {
     title: "Stanford Dentist | Palo Alto Care, Christopher B. Wong, DDS",
     description:
       "Stanford students and families choose Dr. Wong in Palo Alto for cleanings, Invisalign, restorations, and same‑day emergency visits.",
     canonicalPath: "/dentist-stanford",
-    ogImage: "/images/stanford-dentist.png",
+    ogImage: "/images/og/stanford-dentist.jpg",
   },
   "/dentist-mountain-view": {
     title: "Mountain View Family Dentist | Christopher B. Wong, DDS",
     description:
       "Mountain View families visit our nearby Palo Alto office for cleanings, fillings, Invisalign, cosmetic dentistry, and emergency care.",
     canonicalPath: "/dentist-mountain-view",
-    ogImage: "/images/generated/locations/dentist-mountain-view.webp",
+    ogImage: "/images/og/dentist-mountain-view.jpg",
   },
   "/dentist-los-altos": {
     title: "Los Altos Family Dentist | Christopher B. Wong, DDS",
     description:
       "Los Altos patients choose our Palo Alto dentist for preventive care, cosmetic improvements, restorations, Invisalign, and urgent visits.",
     canonicalPath: "/dentist-los-altos",
-    ogImage: "/images/generated/locations/dentist-los-altos.webp",
+    ogImage: "/images/og/dentist-los-altos.jpg",
     indexable: false,
   },
   "/dentist-los-altos-hills": {
@@ -302,7 +302,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "Los Altos Hills patients visit our Palo Alto office for preventive care, cosmetic dentistry, restorative treatment, Invisalign, and emergency visits.",
     canonicalPath: "/dentist-los-altos-hills",
-    ogImage: "/images/office/garden-courtyard.png",
+    ogImage: "/images/og/garden-courtyard.jpg",
     indexable: false,
   },
   "/dentist-sunnyvale": {
@@ -310,7 +310,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "Sunnyvale families choose our Palo Alto dentist for cleanings, fillings, Invisalign, cosmetic dentistry, and same-day emergency care.",
     canonicalPath: "/dentist-sunnyvale",
-    ogImage: "/images/generated/locations/dentist-sunnyvale.webp",
+    ogImage: "/images/og/dentist-sunnyvale.jpg",
     indexable: false,
   },
   "/dentist-cupertino": {
@@ -318,7 +318,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "Cupertino families visit our Palo Alto office for cleanings, fillings, Invisalign, cosmetic dentistry, and emergency care.",
     canonicalPath: "/dentist-cupertino",
-    ogImage: "/images/office/office-entrance.png",
+    ogImage: "/images/og/office-entrance.jpg",
     indexable: false,
   },
   "/dentist-redwood-city": {
@@ -326,7 +326,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "Redwood City patients choose our Palo Alto dentist for preventive care, restorative treatment, Invisalign, and urgent visits.",
     canonicalPath: "/dentist-redwood-city",
-    ogImage: "/images/office/exterior-hallway.png",
+    ogImage: "/images/og/exterior-hallway.jpg",
     indexable: false,
   },
   "/dentist-atherton": {
@@ -334,7 +334,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "Atherton patients visit our Palo Alto office for preventive care, restorative treatment, Invisalign, cosmetic dentistry, and emergency visits.",
     canonicalPath: "/dentist-atherton",
-    ogImage: "/images/office/atrium-courtyard.webp",
+    ogImage: "/images/og/atrium-courtyard.jpg",
     indexable: false,
   },
   "/dentist-redwood-shores": {
@@ -342,7 +342,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "Redwood Shores patients choose our Palo Alto dentist for cleanings, fillings, Invisalign, cosmetic dentistry, and urgent visits.",
     canonicalPath: "/dentist-redwood-shores",
-    ogImage: "/images/office/exterior-entry.png",
+    ogImage: "/images/og/exterior-entry.jpg",
     indexable: false,
   },
   "/locations": {
@@ -350,21 +350,21 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "Explore the Peninsula locations we serve from our Palo Alto dental office, including Menlo Park, Stanford, Mountain View, Los Altos, and more.",
     canonicalPath: "/locations",
-    ogImage: "/images/palo-alto-community-serving.png",
+    ogImage: "/images/og/palo-alto-community-serving.jpg",
   },
   "/dental-implants": {
     title: "Dental Implants in Palo Alto | Christopher B. Wong, DDS",
     description:
       "Replace missing teeth with dental implants in Palo Alto. Dr. Wong offers implant planning, placement partners, and natural-looking restorations.",
     canonicalPath: "/dental-implants",
-    ogImage: "/images/office/practice-og.png",
+    ogImage: "/images/og/practice-og.jpg",
   },
   "/dental-veneers": {
     title: "Dental Veneers in Palo Alto | Christopher B. Wong, DDS",
     description:
       "Transform your smile with dental veneers in Palo Alto. Dr. Wong offers porcelain, composite, and no-prep options for beautiful results.",
     canonicalPath: "/dental-veneers",
-    ogImage: "/images/office/practice-og.png",
+    ogImage: "/images/og/practice-og.jpg",
   },
   "/accessibility": {
     title: "Accessibility Statement | Christopher B. Wong, DDS",

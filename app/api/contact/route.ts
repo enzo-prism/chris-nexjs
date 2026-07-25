@@ -81,7 +81,15 @@ export async function POST(request: NextRequest) {
     const requestError = validateJsonRequest(request);
     if (requestError) return requestError;
 
-    const body = await request.json();
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { message: "Request body must be valid JSON." },
+        { status: 400 },
+      );
+    }
 
     // Silently accept honeypot-tripped submissions so bots see success but
     // nothing reaches the office inbox or the database.

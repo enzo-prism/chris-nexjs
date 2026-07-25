@@ -146,6 +146,7 @@ Release convenience gate:
 
 Utility:
 - `pnpm run changelog:generate`
+- `pnpm run og:generate` (rebuilds `public/images/og/*.jpg` from the `ogImage` sources in `shared/seo.ts`; run after adding or replacing a share photo — see `docs/seo-technical-architecture.md`)
 - `pnpm run llms:generate` (regenerates both tracked `llms.txt` copies; CI rejects drift)
 - `pnpm run reviews:import`
 - `pnpm run reviews:audit`

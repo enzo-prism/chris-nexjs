@@ -144,10 +144,16 @@ export const buildOrganizationSchema = (options?: {
       "Emergency dental care",
     ],
     openingHoursSpecification: officeInfo.openingHoursSpecification,
-    specialOpeningHoursSpecification:
-      officeInfo.specialOpeningHoursSpecification.filter(
+    // Omit the key entirely once every temporary-hours entry has expired —
+    // an empty array is a meaningless property for consumers to parse.
+    ...(() => {
+      const specialHours = officeInfo.specialOpeningHoursSpecification.filter(
         (entry) => entry.validThrough >= getOfficeTodayISO(),
-      ),
+      );
+      return specialHours.length
+        ? { specialOpeningHoursSpecification: specialHours }
+        : {};
+    })(),
     contactPoint: [
       {
         "@type": "ContactPoint",
@@ -217,10 +223,17 @@ export const buildPersonSchema = () => {
         name: "University of the Pacific Arthur A. Dugoni School of Dentistry",
       },
     ],
-    memberOf: doctorInfo.credentials.map((credential) => ({
-      "@type": "Organization",
-      name: credential,
-    })),
+    // `credentials` is display copy for the About page and includes the dental
+    // school as "… Graduate". That is an alumni relationship, not an
+    // organization Dr. Wong is a member of, and it is already expressed by
+    // `alumniOf` above — emitting it here would name a nonexistent
+    // organization and duplicate the school.
+    memberOf: doctorInfo.credentials
+      .filter((credential) => !/\bgraduate\b/i.test(credential))
+      .map((credential) => ({
+        "@type": "Organization",
+        name: credential,
+      })),
   };
 };
 

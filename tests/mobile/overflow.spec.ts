@@ -14,7 +14,10 @@ const ROUTES = [
   "/services",
   "/schedule",
   "/contact",
-  "/dentist-palo-alto",
+  // A location page: the widest layouts on the site (hero + city cards).
+  // `/dentist-palo-alto` used to be listed here but has never existed as a
+  // route, so this case was silently asserting against the 404 page.
+  "/dentist-menlo-park",
 ];
 
 for (const route of ROUTES) {

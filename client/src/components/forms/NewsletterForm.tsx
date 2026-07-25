@@ -1,20 +1,22 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { insertNewsletterSubscriptionSchema, InsertNewsletterSubscription } from "@shared/schema";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { trackLeadConversion } from "@/lib/analytics";
 import { ANALYTICS_EVENTS, getAnalyticsPageContext } from "@shared/analytics";
 import { ArrowRight } from "lucide-react";
+import { HONEYPOT_FIELD } from "@shared/formspree";
 
 const NewsletterForm = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const honeypotRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<InsertNewsletterSubscription>({
     resolver: zodResolver(insertNewsletterSubscriptionSchema),
@@ -54,12 +56,28 @@ const NewsletterForm = () => {
 
   const onSubmit = (data: InsertNewsletterSubscription) => {
     setIsSubmitting(true);
-    subscriptionMutation.mutate(data);
+    subscriptionMutation.mutate({
+      ...data,
+      [HONEYPOT_FIELD]: honeypotRef.current?.value ?? "",
+    } as InsertNewsletterSubscription);
   };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="mb-2">
+        {/* Honeypot — hidden from real users; bots that fill it are dropped. */}
+        <div aria-hidden="true" className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
+          <label htmlFor="newsletter-company">Company</label>
+          <Input
+            ref={honeypotRef}
+            id="newsletter-company"
+            type="text"
+            name={HONEYPOT_FIELD}
+            tabIndex={-1}
+            autoComplete="off"
+          />
+        </div>
+
         <div className="flex rounded-full bg-white/20 p-1">
           <FormField
             control={form.control}
@@ -79,6 +97,7 @@ const NewsletterForm = () => {
                     {...field}
                   />
                 </FormControl>
+                <FormMessage className="px-3 text-white" />
               </FormItem>
             )}
           />
