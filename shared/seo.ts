@@ -150,8 +150,9 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     description:
       "Real patient case studies showing Invisalign, whitening, and bonding transformations by Palo Alto dentist Dr. Christopher Wong.",
     canonicalPath: "/patient-stories",
-    ogImage:
-      "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1765382510/IMG_8356_bjxk7p.webp",
+    // Local JPEG derivative of the Cloudinary hero (IMG_8356) — a remote WebP
+    // og:image is silently dropped by X/Twitter and LinkedIn.
+    ogImage: "/images/og/patient-stories.jpg",
   },
   "/blog": {
     title: "Dental Health Blog | Christopher B. Wong, DDS, Palo Alto",

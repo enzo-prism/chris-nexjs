@@ -137,7 +137,7 @@ export function AppPageShell({
               never covers the last page content on small screens. */}
           <div
             aria-hidden="true"
-            className="h-[calc(3.25rem+env(safe-area-inset-bottom))] md:hidden"
+            className="h-[calc(3.5rem+env(safe-area-inset-bottom))] md:hidden"
           />
           <MobileActionBar />
         </>

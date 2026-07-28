@@ -9,7 +9,6 @@ import {
   buildExcerpt,
   NOINDEX_ROBOTS,
 } from "@shared/seo";
-import { resolveBlogImagePath } from "@shared/blogArt";
 import { getBlogSeoMetadata } from "@shared/blogSeo";
 import LegacyShell from "./legacy-shell";
 
@@ -66,9 +65,11 @@ export async function generateMetadata({
     const post = await storage.getBlogPostBySlug(postSlug);
 
     if (post) {
-      const absoluteImage = toAbsoluteUrl(
-        resolveBlogImagePath(post) ?? "/images/dr_wong_polaroids.png",
-      );
+      // Share both og:image and twitter:image from the opengraph-image PNG
+      // route: several posts carry generated .webp art, and X/Twitter and
+      // LinkedIn silently drop WebP card images. Config images here take
+      // precedence over the file convention, so this must be explicit.
+      const shareImage = toAbsoluteUrl(`/blog/${postSlug}/opengraph-image`);
       const blogSeo = getBlogSeoMetadata(post);
       const pageTitle = blogSeo?.title ?? `${post.title} | Christopher B. Wong, DDS`;
       const excerpt = blogSeo?.description ?? buildExcerpt(post.content);
@@ -91,7 +92,7 @@ export async function generateMetadata({
           url: seoMetadata.canonical,
           title: pageTitle,
           description: excerpt,
-          images: [absoluteImage],
+          images: [shareImage],
           publishedTime: published,
           modifiedTime: published,
           authors: ["Christopher B. Wong, DDS"],
@@ -102,7 +103,7 @@ export async function generateMetadata({
           site: "@chriswongdds",
           title: pageTitle,
           description: excerpt,
-          images: [absoluteImage],
+          images: [shareImage],
         },
       };
     }
@@ -135,7 +136,7 @@ export async function generateMetadata({
     ? seoMetadata.image.startsWith("http")
       ? seoMetadata.image
       : `${CANONICAL_ORIGIN}${seoMetadata.image.startsWith("/") ? seoMetadata.image : `/${seoMetadata.image}`}`
-    : `${CANONICAL_ORIGIN}/images/dr_wong_polaroids.png`;
+    : `${CANONICAL_ORIGIN}/images/og/dr_wong_polaroids.jpg`;
 
   return {
     title: seoMetadata.title,

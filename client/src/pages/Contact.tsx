@@ -12,7 +12,10 @@ import { FeatureIcon } from "@/components/common/FeatureIcon";
 import { officeInfo } from "@/lib/data";
 import { useHolidayHours } from "@/hooks/useHolidayHours";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
-import { Link } from "wouter";
+// next/link, not wouter: this page renders on the dedicated /contact route,
+// where there is no wouter <Switch> — a wouter Link updates the URL but never
+// swaps the page content.
+import Link from "next/link";
 import {
   buildBreadcrumbSchema,
   type StructuredDataNode,
@@ -216,7 +219,7 @@ const Contact = () => {
         withSchema
         schemaUrl="https://www.chriswongdds.com/contact"
         schemaName="Christopher B. Wong, DDS"
-        schemaImage="https://www.chriswongdds.com/images/dr_wong_polaroids.png"
+        schemaImage="https://www.chriswongdds.com/images/og/dr_wong_polaroids.jpg"
       />
 
       <section className="py-12 bg-[#F5F9FC]">

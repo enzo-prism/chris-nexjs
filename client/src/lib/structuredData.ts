@@ -95,7 +95,7 @@ export const buildOrganizationSchema = (options?: {
     url: baseUrl,
     telephone: officeInfo.phoneE164,
     email: officeInfo.email,
-    image: absoluteUrl("/images/dr_wong_polaroids.png"),
+    image: absoluteUrl("/images/og/dr_wong_polaroids.jpg"),
     logo: absoluteUrl("/favicon/apple-touch-icon.png"),
     priceRange: "$$",
     currenciesAccepted: "USD",

@@ -69,8 +69,12 @@ const normalizeIncomingScheduleRequest = (body: unknown): ScheduleRequestV2 => {
     appointmentType: legacyPayload.appointmentType,
     isEmergency: legacyPayload.emergency,
     schedulingMode,
+    // The v2 schema caps preferredDays at 3; legacy clients could pick all 5
+    // weekdays, so trim instead of rejecting the lead with a 400.
     preferredDays:
-      schedulingMode === "choose_preferences" ? legacyPayload.preferredDays : undefined,
+      schedulingMode === "choose_preferences"
+        ? legacyPayload.preferredDays.slice(0, 3)
+        : undefined,
     preferredTime:
       schedulingMode === "choose_preferences"
         ? legacyPayload.preferredTimeOfDay

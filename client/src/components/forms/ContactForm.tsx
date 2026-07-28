@@ -24,7 +24,10 @@ import { trackLeadConversion } from "@/lib/analytics";
 import { officeInfo } from "@/lib/data";
 import { ANALYTICS_EVENTS, getAnalyticsPageContext } from "@shared/analytics";
 import { HONEYPOT_FIELD } from "@shared/formspree";
-import { Link } from "wouter";
+// next/link, not wouter: this form renders on the dedicated /contact route,
+// where there is no wouter <Switch> — a wouter Link updates the URL but never
+// swaps the page content.
+import Link from "next/link";
 
 const contactFormSchema = insertContactMessageSchema.extend({
   fullName: z.string().trim().min(1, "Enter your full name."),

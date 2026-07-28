@@ -2,7 +2,10 @@
 
 import { CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "wouter";
+// next/link, not wouter: this page renders on the dedicated /thank-you route,
+// where there is no wouter <Switch> — a wouter Link updates the URL but never
+// swaps the page content.
+import Link from "next/link";
 import MetaTags from "@/components/common/MetaTags";
 import { officeInfo } from "@shared/officeInfo";
 
