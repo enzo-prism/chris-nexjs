@@ -46,7 +46,10 @@ the legacy schedule-page payload. When a submission carries any v2-only key
 reported against the v2 schema; the legacy schema is only tried for bodies that
 carry no v2 signal. Without that split, a v2 submission with one bad field is
 re-parsed as legacy and the patient is told that fields the form never had
-(`emergency`, `preferredTimeOfDay`) are missing.
+(`emergency`, `preferredTimeOfDay`) are missing. The legacy schema allows 1–5
+`preferredDays` while v2 caps the field at 3, so the legacy→v2 conversion trims
+to the first three days — a valid legacy submission must never 400 on the
+stricter v2 re-parse.
 
 `POST /api/newsletter` validates `email` as a real address, caps it at 254
 characters, and normalizes it (trim + lowercase) before the duplicate check.
@@ -55,12 +58,18 @@ The column's `UNIQUE` index is case-sensitive, so without normalization
 
 ## Delivery behavior
 
-Contact and scheduling requests use Formspree as the primary office-inbox
-delivery path. Each outbound request has an eight-second timeout. A contact or
-scheduling request is not reported as successful until the primary inbox
-delivery succeeds.
+Contact, scheduling, and newsletter requests use Formspree as the primary
+office-inbox delivery path. Each outbound request has an eight-second timeout.
+A request is not reported as successful until the primary inbox delivery
+succeeds. Newsletter delivery was storage-only until July 27, 2026 — on
+serverless, storage without `DATABASE_URL` is a per-lambda in-memory fallback,
+so signups could return `201` and vanish; the inbox post
+(`form_key: "newsletter_signup"`) is what makes the endpoint durable.
 
-Contact database persistence is best effort after inbox delivery. Optional
+Contact and newsletter database persistence is best effort after inbox
+delivery, as is the newsletter duplicate check (on memory storage it only
+dedupes within one lambda instance — Formspree receives every signup either
+way). Optional
 scheduling CRM and Slack forwarding also runs after inbox delivery and has an
 eight-second timeout per destination; those optional failures are returned as
 forwarding status and do not turn a delivered inbox request into a patient-facing
@@ -96,8 +105,9 @@ Current limitations:
 
 - Request policy is per-request validation; the app does not yet provide a
   shared distributed rate limiter across serverless instances.
-- `POST /api/newsletter` is live and writes to storage, but `NewsletterForm` is
-  not mounted on any page — the endpoint currently has no UI in front of it.
+- `POST /api/newsletter` is live and delivers to the office inbox, but
+  `NewsletterForm` is not mounted on any page — the endpoint currently has no
+  UI in front of it.
   Either wire the form into a surface (the footer is the natural home) or retire
   the endpoint; leaving an unreferenced write endpoint exposed is the worst of
   the three options.

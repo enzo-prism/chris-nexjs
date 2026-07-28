@@ -32,6 +32,12 @@ Use this file as the central index for project documentation.
   `og:image` delivery, and a Playwright spec that was asserting against the 404
   page. Each fix notes why the existing gates missed it; ends with the known
   issues left open on purpose.
+- `release-2026-07-27-bugfix-sweep.md`
+  Three-track review follow-up: newsletter signups now delivered durably via
+  Formspree, legacy schedule payloads no longer 400 on the v2 day cap, wouter
+  links replaced with `next/link` on dedicated routes, blog and
+  `/patient-stories` share images fixed (WebP → PNG/JPEG), divergent Dentist
+  schemas reconciled, and the mobile action-bar spacer matched to the bar.
 
 ## SEO documentation
 

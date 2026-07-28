@@ -13,6 +13,26 @@ export type ChangelogEntry = {
 
 export const changelogEntries: readonly ChangelogEntry[] = [
   {
+    "date": "2026-07-28",
+    "commitDate": "2026-07-28T03:47:02.000Z",
+    "type": "fix",
+    "title": "Lead-delivery, navigation, and share-image bugs",
+    "summary": "Lead-delivery, navigation, and share-image bugs.",
+    "sha": "68b94619",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/68b946193023b3454f5c7fa59dfd0affa75af1e6",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-07-25",
+    "commitDate": "2026-07-25T03:58:15.000Z",
+    "type": "update",
+    "title": "Regenerate changelog through the current release",
+    "summary": "Regenerate changelog through the current release.",
+    "sha": "0e685d86",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/0e685d86c4cc3b074ec02ca5868fdddea61eb13b",
+    "source": "Current Website"
+  },
+  {
     "date": "2026-07-25",
     "commitDate": "2026-07-25T03:55:57.000Z",
     "type": "fix",

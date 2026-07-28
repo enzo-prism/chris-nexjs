@@ -32,8 +32,19 @@ Two rules, both learned from real breakage:
 and `DEFAULT_OG_IMAGE` literal out of `shared/seo.ts`, writes 1200x675
 progressive JPEGs — 16:9, matching the source aspect, so nothing is cropped —
 into `public/images/og/`, and reports any missing source. Remote URLs
-(Cloudinary) are left alone. Re-run it after adding or replacing a source photo,
-then repoint the `ogImage` literal at the generated `/images/og/*.jpg`.
+(Cloudinary) are skipped by the generator — which means a remote WebP is
+**not** an acceptable `ogImage` value; download it and commit a local JPEG
+derivative instead (`/patient-stories` broke exactly this way). Re-run the
+generator after adding or replacing a source photo, then repoint the `ogImage`
+literal at the generated `/images/og/*.jpg`.
+
+Blog posts do not use `shared/seo.ts` images at all: both `og:image` and
+`twitter:image` are set explicitly to the `/blog/<slug>/opengraph-image` PNG
+title-card route in the catch-all `generateMetadata`. That explicitness is
+load-bearing — config metadata takes precedence over the file-based
+`opengraph-image.tsx` convention, so pointing config images at a post's
+generated `.webp` art ships a WebP card (dropped by X/Twitter and LinkedIn)
+even though the PNG route exists.
 
 ## Crawl surfaces
 
