@@ -314,4 +314,5 @@ export const googleReviewSeedData: SeedTestimonial[] = [
   {"name":"Jessica Frank","rating":5,"location":"Google Review","text":"Wonderful experience. Beautiful office with a fish take in lobby, which entertained the kids (and myself!). Dr. Kumata was so patient with my young children who are both very sensitive."},
   {"name":"Mark Dominguez","rating":5,"location":"Google Review","text":"Great Dentist"},
   {"name":"Leland Erickson","rating":5,"location":"Google Review","text":"Dr. Hamamoto was unavailable to see my wife last year when we needed an emergency appointment to address a tooth that..."},
+  {"name":"Robert Rodriguez","rating":5,"location":"Google Review","text":"Best dental office! I would give it more stars if possible!"},
 ];
