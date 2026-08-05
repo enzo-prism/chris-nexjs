@@ -12,14 +12,14 @@ export const PUBLISHED_REVIEW_RATING = 5;
 
 // Google reviews only — used by Google-branded surfaces (hero badge, Google
 // reviews widget) so their copy stays accurate.
-export const GOOGLE_REVIEW_COUNT = 309;
+export const GOOGLE_REVIEW_COUNT = 349;
 
 // All published 5-star reviews across sources (Google + Yelp). Drives the
 // /testimonials total. NOT emitted as a Dentist-schema aggregateRating —
 // Google disallows aggregate ratings copied from third-party platforms. Must
 // equal `publishedTestimonialReviewCount` (guarded at build time in
 // testimonialsData.ts).
-export const PUBLISHED_REVIEW_COUNT = 319;
+export const PUBLISHED_REVIEW_COUNT = 359;
 
 export const publishedTestimonialAggregateRating = {
   ratingValue: PUBLISHED_REVIEW_RATING,
