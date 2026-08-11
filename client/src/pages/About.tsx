@@ -349,7 +349,7 @@ const About = () => {
                     {data.doctorInfo.bio}
                   </p>
                   <p className="text-[#333333] leading-relaxed text-sm sm:text-base">
-                    Dr. Wong is the Wong dentist patients know for conservative care, clear communication,
+                    Dr. Wong is the one dentist patients know for conservative care, clear communication,
                     and a comfortable experience in Palo Alto.
                   </p>
                 </div>
