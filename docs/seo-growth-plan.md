@@ -167,8 +167,8 @@ request language across:
 
 - Accepted methods in copy: Visa, MasterCard, FSA/HSA, and the in-house dental
   plan.
-- Keep `Insurance.tsx` and the payment FAQ in `client/src/lib/data.ts` in
-  lockstep.
+- Keep `Insurance.tsx`, the payment FAQ in `client/src/lib/data.ts`, and the
+  Patient Resources payment FAQ in lockstep.
 - Do not list CareCredit, Amex, or Discover unless those methods are
   reintroduced as accepted payment options.
 
