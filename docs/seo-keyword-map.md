@@ -48,6 +48,13 @@ Primary keyword mapping for canonical indexable URLs. This is the anti-cannibali
 - Naming style rule in authored content:
   - use `Dr. Christopher B. Wong` or `Christopher B. Wong, DDS`
   - do not use `Dr. ... DDS` in the same line
+- Body-copy anti-stuffing:
+  - Primary keywords belong in metadata, titles, and this planning map — not as
+    unnatural phrases in patient-facing body copy.
+  - The `/wong-dentist` redirect may exist as branded SEO routing, but that
+    phrase must not appear as stuffed body text on About or service pages.
+  - When describing CTAs, `/schedule` intent is an appointment *request*, not
+    instant booking.
 
 ## Consolidated location policy
 

@@ -111,6 +111,29 @@ Doctor naming:
 
 Never use `Dr.` and `DDS` on one line.
 
+Person schema:
+- Use `name: "Christopher B. Wong"` with `honorificPrefix` / `honorificSuffix`.
+- Do not put SEO keyword phrases like “Wong dentist in Palo Alto” into Person
+  `alternateName`.
+
+Body copy and CTAs:
+- No keyword-stuffed openers such as “Looking for a … dentist in Palo Alto?” in
+  patient-facing body copy. Keywords belong in metadata and planning docs;
+  body copy must read naturally.
+- Prefer “preventive” spelling.
+- Keep schedule/appointment CTAs as request language when forms do not book
+  instantly (`/schedule` is an appointment request, not instant booking).
+
+Payments:
+- Payment copy must match accepted methods: Visa, MasterCard, FSA/HSA, and the
+  in-house dental plan.
+- Do not list CareCredit, Amex, or Discover unless those methods are
+  reintroduced as accepted payment options.
+
+Clinical consistency:
+- Implant messaging must stay consistent with surgical partners for placement
+  plus in-office restoration when that is the clinical model.
+
 ## Ownership
 
 1. Engineering:

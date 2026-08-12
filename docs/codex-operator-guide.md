@@ -46,6 +46,11 @@ Then load topic-specific docs only as needed:
   - `Dr. Christopher B. Wong`
   - `Christopher B. Wong, DDS`
 - Never combine `Dr.` and `DDS` on the same line.
+- Payment copy must match accepted methods (Visa, MasterCard, FSA/HSA, in-house
+  dental plan). Do not reintroduce CareCredit/Amex/Discover in UI copy unless
+  those methods are actually accepted again.
+- Do not SEO-stuff patient-facing body copy or Person `alternateName` with
+  phrases like “Wong dentist in Palo Alto” or “Looking for a … dentist…?”.
 
 ## Safe default workflow
 

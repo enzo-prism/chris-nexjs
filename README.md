@@ -226,6 +226,10 @@ Doctor name format must be one of:
 
 Never combine `Dr.` and `DDS` in the same line.
 
+Payment copy must match accepted methods (Visa, MasterCard, FSA/HSA, in-house
+plan). Keep body copy free of SEO keyword stuffing; do not put stuffed phrases
+into Person `alternateName`.
+
 ## Documentation index
 
 - Codex/operator guide: `docs/codex-operator-guide.md`

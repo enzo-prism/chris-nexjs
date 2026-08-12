@@ -38,6 +38,11 @@ Use this file as the central index for project documentation.
   links replaced with `next/link` on dedicated routes, blog and
   `/patient-stories` share images fixed (WebP → PNG/JPEG), divergent Dentist
   schemas reconciled, and the mobile action-bar spacer matched to the bar.
+- `release-2026-08-12-sitewide-copy-cleanup.md`
+  Sitewide copy/SEO trust cleanup on PR #6: removed “Wong dentist” stuffing and
+  CareCredit drift, fixed experience/implant/safety FAQ accuracy, doctor-name
+  and Person schema formatting, softened service openers, request-not-book CTAs,
+  and light UX polish (404s, team bios, testimonials, ZOOM!, holiday hours).
 
 ## SEO documentation
 

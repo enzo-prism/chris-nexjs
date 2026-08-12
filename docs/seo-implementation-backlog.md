@@ -21,6 +21,22 @@ Current technical and editorial SEO work for `chris-nexjs`.
 - Added automated checks for canonicals, robots, sitemap membership, on-page
   headings, link integrity, structured data, and freshness.
 
+## Completed August 12, 2026
+
+Sitewide copy and SEO-trust cleanup on `cursor/sitewide-copy-fixes-3222`
+(PR #6); see `docs/release-2026-08-12-sitewide-copy-cleanup.md`.
+
+- Removed remaining “Wong dentist” stuffing from About hero/meta and Person
+  `alternateName`.
+- Aligned payment copy with accepted methods (no CareCredit drift).
+- Corrected inaccurate experience claims, implant partner/restoration wording,
+  and outdated COVID safety FAQ language.
+- Enforced doctor-name formatting and Person schema name without duplicated
+  Dr./DDS on one line.
+- Softened keyword-stuffed service openers; schedule CTAs use request language.
+- Polished 404s, team bios, testimonials, ZOOM! nav label, holiday hours, and
+  light location lead differentiation.
+
 ## P0: evidence and entity accuracy
 
 1. Establish a clinical editorial workflow.

@@ -51,3 +51,6 @@ Allowed doctor naming:
 - `Christopher B. Wong, DDS`
 
 Never combine `Dr.` and `DDS` on one line.
+
+Payment copy must match accepted methods (Visa, MasterCard, FSA/HSA, in-house
+plan). Avoid SEO keyword stuffing in body copy and Person `alternateName`.
