@@ -119,7 +119,7 @@ export const faqItems = [
   },
   {
     question: "What payment options do you offer?",
-    answer: "We work with most major PPO plans as an out-of-network provider. Many plans include out-of-network benefits, and our team can verify coverage before treatment. We also accept Visa, MasterCard, FSA funds, and offer an in-house dental plan."
+    answer: "We work with most major PPO plans as an out-of-network provider. Many plans include out-of-network benefits, and our team can verify coverage before treatment. We also accept Visa, MasterCard, FSA/HSA funds, and offer an in-house dental plan."
   },
   {
     question: "Do you offer emergency dental services?",

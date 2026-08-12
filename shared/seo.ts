@@ -396,9 +396,9 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     ogImage: DEFAULT_OG_IMAGE,
   },
   "/thank-you": {
-    title: "Thank You - Appointment Scheduled | Christopher B. Wong, DDS",
+    title: "Thank You | Request Received | Christopher B. Wong, DDS",
     description:
-      "Thank you for scheduling your appointment with Dr. Wong's dental practice in Palo Alto. We look forward to providing exceptional care at your upcoming visit.",
+      "Thanks for contacting Dr. Wong's Palo Alto dental practice. We received your message and will follow up soon.",
     canonicalPath: "/thank-you",
     ogImage: DEFAULT_OG_IMAGE,
     robots: NOINDEX_ROBOTS,
@@ -459,11 +459,14 @@ const CHANGEFREQ_OVERRIDES: Partial<
 // drift past the per-cluster staleness threshold). Last real change:
 // June 2026 office-hours/holiday-notice updates rendered on every page.
 const LASTMOD_OVERRIDES: Partial<Record<string, string>> = {
-  "/": "2026-07-15",
-  "/services": "2026-07-15",
-  "/schedule": "2026-07-15",
+  "/": "2026-08-12",
+  "/services": "2026-08-12",
+  "/schedule": "2026-08-12",
   "/contact": "2026-07-15",
-  "/insurance": "2026-07-15",
+  "/insurance": "2026-08-12",
+  "/about": "2026-08-12",
+  "/dental-implants": "2026-08-12",
+  "/thank-you": "2026-08-12",
   "/dentist-menlo-park": "2026-06-11",
   "/dentist-stanford": "2026-06-11",
   "/dentist-mountain-view": "2026-06-11",

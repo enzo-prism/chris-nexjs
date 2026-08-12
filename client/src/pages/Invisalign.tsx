@@ -836,8 +836,8 @@ const Invisalign = () => {
                 Dr. Wong's Personalized Approach
               </h2>
               <p className="text-[#333333] mb-6">
-                Dr. Christopher B. Wong combines years of experience with the latest Invisalign technology 
-                to create personalized treatment plans. His careful attention to detail ensures optimal 
+                Dr. Christopher B. Wong pairs careful clinical judgment with current Invisalign technology
+                to create personalized treatment plans. His careful attention to detail ensures optimal
                 results while maintaining your comfort throughout the process.
               </p>
               <div className="space-y-4">

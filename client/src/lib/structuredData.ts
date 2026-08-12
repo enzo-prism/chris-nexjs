@@ -243,7 +243,7 @@ export const buildWebSiteSchema = () => {
     "@type": "WebSite",
     "@id": schemaId("/", "website"),
     name: officeInfo.name,
-    alternateName: "Dr. Christopher Wong Palo Alto Dentist",
+    alternateName: officeInfo.name,
     url: absoluteUrl("/"),
     publisher: {
       "@id": schemaId("/", "organization"),

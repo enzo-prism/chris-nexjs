@@ -122,7 +122,7 @@ const ScheduleRequestFunnel = () => {
           gridClassName="xl:grid-cols-3"
           eyebrow="Google Reviews"
           title="Patients say the process feels straightforward from the start"
-          subtitle="For new-patient booking, the strongest reviews mention clear guidance, a caring team, and visits that feel easy to navigate instead of stressful."
+          subtitle="For new-patient visit requests, the strongest reviews mention clear guidance, a caring team, and visits that feel easy to navigate instead of stressful."
           testimonials={scheduleTestimonials}
         />
 
