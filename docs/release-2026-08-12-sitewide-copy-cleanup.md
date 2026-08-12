@@ -44,6 +44,7 @@ and keep the calm patient-facing voice.
   “Looking for a … dentist in Palo Alto?” stuffing.
 - `AppointmentSection` and related schedule CTAs use request-not-book language,
   matching forms that submit an appointment request rather than instant booking.
+  Schedule meta description updated to match (no “easy online booking”).
 
 ## UX polish
 
