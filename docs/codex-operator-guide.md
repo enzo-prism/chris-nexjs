@@ -50,7 +50,8 @@ Then load topic-specific docs only as needed:
 - Never combine `Dr.` and `DDS` on the same line.
 - Payment copy must match accepted methods (Visa, MasterCard, FSA/HSA, in-house
   dental plan). Keep `Insurance.tsx` and the payment FAQ in `data.ts` in
-  lockstep. Do not reintroduce CareCredit/Amex/Discover unless product changes.
+  lockstep (`Insurance.tsx`, `client/src/lib/data.ts` FAQ, and Patient Resources
+  payment FAQ). Do not reintroduce CareCredit/Amex/Discover unless product changes.
 - Do not SEO-stuff patient-facing body copy. Do not put keyword phrases into
   Person **or** WebSite `alternateName`.
 - Request-not-book language on `/schedule`, `AppointmentSection`,
