@@ -23,3 +23,9 @@ Use Conventional Commits (`feat: ...`, `fix: ...`, `docs: ...`) with concise sub
 
 ## Local Preview Tips
 `LOCAL_DEV.md` documents local setup, port behavior, runtime SEO audit usage, and troubleshooting. Use it as the source of truth for localhost setup.
+
+## Cursor Cloud specific instructions
+- Dependencies are refreshed automatically on startup via `pnpm install` (the update script). Standard commands live in `package.json`, `README.md`, and `LOCAL_DEV.md`.
+- `DATABASE_URL` is not required for dev/testing: `server/storage` falls back to in-memory storage, so read/write API routes (e.g. `POST /api/newsletter`, `POST /api/contact`) work end-to-end without a database. Only set `DATABASE_URL` when exercising Drizzle/Postgres mode.
+- Non-obvious port gotcha: `pnpm run dev` (`next dev`) serves on `http://localhost:3000` even though `.env` sets `PORT=5000` (Next dev does not bind the listen port from `.env`). When running runtime audit scripts against dev, point `SEO_AUDIT_BASE_URL`/`IMAGE_AUDIT_BASE_URL` at `http://localhost:3000`, or pass `next dev -p 5000` if you specifically need port 5000.
+- `pnpm install` logs "Ignored build scripts: bufferutil, esbuild, sharp"; this is expected and harmless — `pnpm run check`, `test:api`, `test:routes`, and the dev server all work with the prebuilt binaries.
