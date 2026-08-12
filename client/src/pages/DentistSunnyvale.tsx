@@ -120,7 +120,7 @@ const DentistSunnyvale = () => {
                 Sunnyvale Family Dentist - Care Nearby in Palo Alto
               </h1>
               <p className="text-lg text-slate-700 leading-relaxed max-w-3xl">
-                Sunnyvale patients visit Dr. Christopher B. Wong for modern, conservative dental care in nearby Palo Alto.
+                A short commute from Sunnyvale, patients visit Dr. Christopher B. Wong for modern, conservative dental care in nearby Palo Alto.
                 We serve kids, teens, adults, and seniors with a focus on comfort, clear explanations, and long-term oral health.
               </p>
               <p className="text-lg text-slate-700 leading-relaxed max-w-3xl">

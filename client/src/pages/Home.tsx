@@ -47,18 +47,18 @@ type HomeProps = {
 
 const homeSpotlightTestimonials: readonly InsertTestimonial[] = [
   {
-    name: "Lauren Hall",
-    rating: 5,
-    location: "Google Review",
-    image: "/images/testimonials/lauren-hall-testimonial.webp",
-    text: "Only the best. These pearly whites stay pearly year around thanks to these guys. If your not coming here your missing out",
-  },
-  {
-    name: "Anat Sipres",
+    name: "Marypat Power",
     rating: 5,
     location: "Google Review",
     image: "",
-    text: "I can't say enough good things about Dr. Wong's and the entire team. From the warm welcome at the front desk to the thorough care provided by the hygienist, every visit is a pleasure. Highly recommended!",
+    text: "Dr Kris and Dr Wong are both so personable, professional, and gentle. I highly recommend them!",
+  },
+  {
+    name: "Steve Collins",
+    rating: 5,
+    location: "Google Review",
+    image: "",
+    text: "High skill level, modern tools, helpful guidance and a friendly demeanor. An excellent experience for cleanings and fillings. Strong recommend.",
   },
   {
     name: "Amy Hamachi",
@@ -486,10 +486,10 @@ const Home = ({ initialServices = [] }: HomeProps) => {
                 Dentist in Palo Alto, CA
               </h2>
               <p className="text-lg text-slate-700 leading-relaxed">
-                If you’re looking for a dentist in Palo Alto, our team provides
-                modern, conservative dentistry focused on long‑term comfort and
-                oral health. We welcome patients from Palo Alto, Stanford,
-                Menlo Park, and nearby Peninsula neighborhoods.
+                Our team provides modern, conservative dentistry focused on
+                long‑term comfort and oral health. We welcome patients from
+                Palo Alto, Stanford, Menlo Park, and nearby Peninsula
+                neighborhoods.
               </p>
               <p className="text-lg text-slate-700 leading-relaxed">
                 From checkups and cleanings to Invisalign, cosmetic veneers, and

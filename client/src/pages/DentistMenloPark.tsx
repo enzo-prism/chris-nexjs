@@ -44,7 +44,7 @@ const DentistMenloPark = () => {
         "Yes. We’re a family practice and care for children, teens, adults, and seniors. We focus on prevention first and explain options clearly so families can make confident decisions.",
     },
     {
-      question: "Can family members book appointments together?",
+      question: "Can family members schedule appointments together?",
       answer:
         "Often, yes. If you’d like to coordinate visits for multiple family members, call our team and we’ll do our best to find times that fit your schedule.",
     },

@@ -20,7 +20,6 @@ const testimonialEntries = [
   ["Barbara Cruz", "Dr. Hamamoto was very thorough for my first visit. Was surprised that she did the cleaning. The staff was welcoming. We agreed to get the dental plan pre-approved by my insurance and then schedule appointments."],
   ["Benjamin Wendorf", "With a lot of family pressure, I was convinced to try out this dentistry. I am go glad I did. Never felt like I am..."],
   ["Bill Quarre", "Kris is the best! I had to have a last minute root canal. She referred me to a awesome endodontist, then she put on a..."],
-  ["Briana Rico", "Alex Yen provides exceptional service. The first time I've ever left a dentist feeling confident about my oral health. I absolutely recommend."],
   ["Bruce N", "Dr. Hamamoto is great. I had a loose filling and she was quick to take care of it. She's caring and very nice. Her quality of work is great. I highly recommend her."],
   ["Gordon Hamachi", "Although Dr. Wong has been my dentist for a while, he has yet to perform any involved procedures for me. I take this as..."],
   ["John David Molitoris", "Highly recommended! Dr. Kris and staff are the very best! Great dental work for the whole family. These people really care about you. Been coming these since 1982!"],

@@ -119,7 +119,7 @@ const ServiceCard = ({ service }: ServiceCardProps) => {
             className="w-full"
             aria-label={`Request an appointment for ${service.title}`}
           >
-            Request appointment
+            Request an appointment
             <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
           </ButtonLink>
         </div>
