@@ -194,7 +194,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
   "/schedule": {
     title: "Request a Dental Appointment | Palo Alto, CA",
     description:
-      "Schedule your appointment with Palo Alto dentist Dr. Christopher Wong. New patients welcome. Easy online booking for dental care in Palo Alto.",
+      "Request an appointment with Palo Alto dentist Dr. Christopher Wong. New patients welcome. Send a visit request online and our team will confirm.",
     canonicalPath: "/schedule",
     ogImage: "/images/og/operatory-room.jpg",
   },

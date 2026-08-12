@@ -1,8 +1,9 @@
 # Sitewide Copy Cleanup — August 12, 2026
 
 Editorial and SEO-trust pass on branch `cursor/sitewide-copy-fixes-3222`
-([PR #6](https://github.com/enzo-prism/chris-nexjs/pull/6)), not yet merged to
-`main` at documentation time. The work followed an About-page typo audit
+([PR #6](https://github.com/enzo-prism/chris-nexjs/pull/6)). Merged to `main`
+for production on the primary Vercel project (`chris-wong-dds` /
+`www.chriswongdds.com`). The work followed an About-page typo audit
 (Wong→one) and widened into a full-site cleanup: remove remaining SEO stuffing,
 fix factual drift, align payment and implant messaging with practice reality,
 and keep the calm patient-facing voice.
