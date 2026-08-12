@@ -28,7 +28,7 @@ export const supplementalContentByPath: Record<string, SupplementalBlock[]> = {
     {
       heading: "Meet Dr. Christopher B. Wong and the team",
       paragraphs: [
-        "Dr. Wong combines decades of clinical experience with a calm, detail-focused approach. He explains findings in plain language and outlines options so patients can choose the level of care that fits their goals.",
+        "Dr. Wong brings careful, experience-backed care with a calm, detail-focused approach. He explains findings in plain language and outlines options so patients can choose the level of care that fits their goals.",
         "Continuing education and modern tools like digital imaging help the team plan precise, conservative treatment. The practice serves generations of families across Palo Alto and the Peninsula.",
       ],
       bullets: [

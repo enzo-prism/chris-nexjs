@@ -31,7 +31,7 @@ const AboutDoctorSection: React.FC = () => {
           <div className="md:w-2/3 md:pl-12">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">Conservative Dental Care You Can Trust</h3>
             <p className="text-gray-700 mb-4">
-              Dr Christopher Wong was born and raised in Sacramento and earned his bachelor's degree in Biology from UC Davis. 
+              Dr. Christopher B. Wong was born and raised in Sacramento and earned his bachelor's degree in Biology from UC Davis. 
               He graduated from the prestigious University of the Pacific Arthur A. Dugoni School of Dentistry in San Francisco in 2018.
               He is passionate about delivering high-quality care using conservative dentistry to help patients achieve healthy, 
               functional, and brilliant smiles.

@@ -36,15 +36,15 @@ const PatientResources = () => {
     },
     {
       question: "What payment options do you offer?",
-      answer: "We work with most major PPO plans as an out-of-network provider. Many plans still include benefits, and our team can help verify coverage before treatment."
+      answer: "We work with most major PPO plans as an out-of-network provider. Many plans include out-of-network benefits, and our team can verify coverage before treatment. We also accept Visa, MasterCard, FSA funds, and offer an in-house dental plan."
     },
     {
       question: "Do you offer emergency dental services?",
       answer: "Yes, we provide emergency dental care. If you're experiencing severe pain, swelling, bleeding, or have a knocked-out tooth, please call our office immediately. We reserve time in our schedule for emergency appointments and will do our best to see you the same day."
     },
     {
-      question: "What COVID-19 safety measures are in place?",
-      answer: "We follow all CDC, ADA, and local health department guidelines to ensure your safety. Our measures include enhanced sterilization procedures, personal protective equipment for staff, pre-screening questions, temperature checks, and social distancing in waiting areas. We've also installed medical-grade air purifiers throughout the office."
+      question: "What safety measures do you follow?",
+      answer: "We follow current CDC and ADA infection-control guidelines to keep every visit safe. That includes rigorous sterilization, personal protective equipment for our team, and medical-grade air filtration throughout the office."
     },
   ];
 
@@ -241,7 +241,7 @@ const PatientResources = () => {
                     </div>
                     
                     <div className="ui-card-interactive rounded-xl border p-4">
-                      <h4 className="font-semibold text-[#333333] mb-1">In-Office Dental Plan</h4>
+                      <h4 className="font-semibold text-[#333333] mb-1">In-House Dental Plan</h4>
                       <p className="text-sm text-[#333333]">For patients without insurance, we offer an in-house dental plan with significant savings on preventive care and treatments.</p>
                     </div>
                   </div>

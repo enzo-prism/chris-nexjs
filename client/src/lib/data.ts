@@ -21,7 +21,6 @@ export const doctorInfo = {
     "Dr. Christopher Wong",
     "Christopher B. Wong, DDS",
     "Dr. Wong",
-    "Wong dentist in Palo Alto",
     "Christopher Wong, DDS",
   ],
   profileUrl: "/about",
@@ -57,7 +56,7 @@ export const teamMembers = [
     name: "Dr. Pearl Tran",
     role: "Periodontist",
     image: "/images/team/dr-pearl-tran.png",
-    bio: "Dr. Tran, a DMD graduate, served in the Navy and specializes in periodontics and orofacial pain. She is a Diplomate of the American Board of Periodontology and loves re-establishing her practice in the Bay Area."
+    bio: "Dr. Tran, a DMD graduate, served in the Navy and specializes in periodontics and orofacial pain. She is a Diplomate of the American Board of Periodontology and is glad to practice periodontics again in the Bay Area."
   },
   {
     name: "Kaye",
@@ -75,19 +74,19 @@ export const teamMembers = [
     name: "Rachel",
     role: "Insurance Coordinator",
     image: "/images/team/rachel.jpeg",
-    bio: "After graduating from San Jose State University, Rachel Hamamoto started working at the office in 2019. She currently works as Dr. Wong's insurance coordinator and front desk. She likes to do arts and crafts, watch Asian dramas and spend time with family and friends."
+    bio: "After graduating from San Jose State University, Rachel Hamamoto started working at the office in 2019. She currently works as Dr. Wong's insurance coordinator and front-desk lead. She likes to do arts and crafts, watch Asian dramas and spend time with family and friends."
   },
   {
     name: "Kelty",
     role: "Scheduling Coordinator",
     image: "/images/team/kelty.jpeg",
-    bio: "Kelty is a native San Franciscan who graduated from Loyola Marymount University with a bachelor's degree in health and human sciences and a minor in psychology. She was first introduced into the dental field by her mother, a retired dentist and dental professor at the University of the Pacific."
+    bio: "Kelty is a native San Franciscan who graduated from Loyola Marymount University with a bachelor's degree in health and human sciences and a minor in psychology. She was first introduced to dentistry by her mother, a retired dentist and dental professor at the University of the Pacific."
   },
   {
     name: "Angelisa",
     role: "Registered Dental Hygienist",
     image: "/images/team/angelisa.png",
-    bio: "Angelisa has been a dedicated dental hygienist in our office since 2008. A proud mother of three boys, aged 21, 16, and 7, she loves spending quality time with her family and is committed to helping patients feel at ease while providing exceptional care."
+    bio: "Angelisa has been a dedicated dental hygienist in our office since 2008. A proud mother of three boys, she loves spending quality time with her family and is committed to helping patients feel at ease while providing exceptional care."
   },
   {
     name: "Jamal",
@@ -121,15 +120,15 @@ export const faqItems = [
   },
   {
     question: "What payment options do you offer?",
-    answer: "We work with most major PPO plans as an out-of-network provider. Many plans include out-of-network benefits, and our team can verify coverage before treatment. We also accept Visa, MasterCard, FSA funds, and offer an in-office dental plan."
+    answer: "We work with most major PPO plans as an out-of-network provider. Many plans include out-of-network benefits, and our team can verify coverage before treatment. We also accept Visa, MasterCard, FSA funds, and offer an in-house dental plan."
   },
   {
     question: "Do you offer emergency dental services?",
     answer: "Yes, we provide emergency dental care. If you're experiencing severe pain, swelling, bleeding, or have a knocked-out tooth, please call our office immediately. We reserve time in our schedule for emergency appointments and will do our best to see you the same day."
   },
   {
-    question: "What COVID-19 safety measures are in place?",
-    answer: "We follow all CDC, ADA, and local health department guidelines to ensure your safety. Our measures include enhanced sterilization procedures, personal protective equipment for staff, pre-screening questions, temperature checks, and social distancing in waiting areas. We've also installed medical-grade air purifiers throughout the office."
+    question: "What safety measures do you follow?",
+    answer: "We follow current CDC and ADA infection-control guidelines to keep every visit safe. That includes rigorous sterilization, personal protective equipment for our team, and medical-grade air filtration throughout the office."
   },
 ];
 

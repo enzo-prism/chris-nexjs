@@ -68,7 +68,7 @@ const About = () => {
       name: "Dr. Christopher B. Wong",
       role: "Lead Dentist",
       image: drWongImages.drWongPortrait1,
-      bio: "Dr Christopher Wong was born and raised in Sacramento and earned his bachelor's degree in Biology from UC Davis. He graduated from the University of the Pacific School of Dentistry in San Francisco in 2018. He specializes in conservative dentistry, Invisalign, and implant restoration while practicing ethical and non-invasive care."
+      bio: "Dr. Christopher B. Wong was born and raised in Sacramento and earned his bachelor's degree in Biology from UC Davis. He graduated from the University of the Pacific Arthur A. Dugoni School of Dentistry in San Francisco in 2018. He specializes in conservative dentistry, Invisalign, and implant restoration while practicing ethical and non-invasive care."
     },
     ...aboutPageTeamMembers
   ];
@@ -140,8 +140,8 @@ const About = () => {
               About Dr. Christopher B. Wong
             </h1>
             <p className="text-lg sm:text-xl text-[#333333] max-w-3xl mx-auto leading-relaxed">
-              Get to know Dr. Wong and the dedicated dental team committed to providing exceptional care
-              in Palo Alto. Looking for a Wong dentist in Palo Alto? We are here to help.
+              Get to know Dr. Wong and the dedicated dental team committed to conservative, comfortable care
+              in Palo Alto.
             </p>
           </div>
         </div>
@@ -349,8 +349,8 @@ const About = () => {
                     {data.doctorInfo.bio}
                   </p>
                   <p className="text-[#333333] leading-relaxed text-sm sm:text-base">
-                    Dr. Wong is the one dentist patients know for conservative care, clear communication,
-                    and a comfortable experience in Palo Alto.
+                    Patients trust Dr. Wong for conservative care, clear communication,
+                    and a comfortable visit in Palo Alto.
                   </p>
                 </div>
 
