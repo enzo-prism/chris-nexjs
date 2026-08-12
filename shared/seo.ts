@@ -86,14 +86,14 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
   "/about": {
     title: "Christopher B. Wong, DDS | Palo Alto Family Dentist",
     description:
-      "Learn about Dr. Wong, a Palo Alto dentist focused on conservative care, Invisalign, and implant restoration. Looking for a Wong dentist in Palo Alto? Meet the team and our approach.",
+      "Meet Dr. Wong and the Palo Alto team—conservative care, Invisalign, and implant restorations with a prevention-first approach for families.",
     canonicalPath: "/about",
     ogImage: "/images/og/dr-wong-portrait-2.jpg",
   },
   "/services": {
     title: "Palo Alto Dental Services | Christopher B. Wong, DDS",
     description:
-      "Complete dental services in Palo Alto: preventive care, cosmetic dentistry, restorative treatments, orthodontics & emergency dental care. Top Palo Alto dentist.",
+      "Dental services in Palo Alto: preventive care, cosmetic dentistry, restorative treatments, Invisalign, and emergency dental care for the whole family.",
     canonicalPath: "/services",
     ogImage: "/images/og/practice-og.jpg",
   },
@@ -114,7 +114,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
   "/pediatric-dentistry": {
     title: "Pediatric Dentistry in Palo Alto | Christopher B. Wong, DDS",
     description:
-      "Gentle pediatric dentistry in Palo Alto for infants, kids, and teens. Preventive cleanings, sealants, and family‑friendly care.",
+      "Pediatric dentistry in Palo Alto with gentle exams, cleanings, and sealants for infants, kids, and teens in a calm family setting.",
     canonicalPath: "/pediatric-dentistry",
     ogImage: "/images/og/reception-desk.jpg",
   },
@@ -141,7 +141,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
   "/testimonials": {
     title: "Patient Reviews | Palo Alto | Christopher B. Wong, DDS",
     description:
-      "Read patient reviews for Dr. Christopher Wong, trusted Palo Alto dentist. Real testimonials from satisfied patients in Palo Alto and surrounding areas.",
+      "Read patient reviews for Dr. Christopher Wong in Palo Alto. Real testimonials from families and neighbors who visit our Cambridge Ave practice.",
     canonicalPath: "/testimonials",
     ogImage: "/images/og/team-photo.jpg",
   },
@@ -265,7 +265,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
   "/pediatric-dentist-palo-alto": {
     title: "Pediatric Dentist in Palo Alto | Christopher B. Wong, DDS",
     description:
-      "Gentle pediatric dentistry in Palo Alto for infants, kids, and teens. Preventive cleanings, sealants, and family‑centered care.",
+      "Find a pediatric dentist in Palo Alto for kids and teens—preventive visits, sealants, and patient coaching in a welcoming office.",
     canonicalPath: "/pediatric-dentist-palo-alto",
     ogImage: "/images/og/reception-area.jpg",
   },
@@ -356,7 +356,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
   "/dental-implants": {
     title: "Dental Implants in Palo Alto | Christopher B. Wong, DDS",
     description:
-      "Replace missing teeth with dental implants in Palo Alto. Dr. Wong offers implant planning, placement partners, and natural-looking restorations.",
+      "Replace missing teeth with dental implants in Palo Alto—planning, placement partners, and natural-looking restorations coordinated by Dr. Wong.",
     canonicalPath: "/dental-implants",
     ogImage: "/images/og/practice-og.jpg",
   },

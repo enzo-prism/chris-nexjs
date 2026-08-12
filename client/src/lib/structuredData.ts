@@ -205,7 +205,7 @@ export const buildPersonSchema = () => {
     "@context": "https://schema.org",
     "@type": "Person",
     "@id": schemaId("/", "person-dr-wong"),
-    name: doctorInfo.name,
+    name: "Christopher B. Wong",
     alternateName: doctorInfo.alternateNames,
     description: doctorInfo.bio,
     jobTitle: "Doctor of Dental Surgery",

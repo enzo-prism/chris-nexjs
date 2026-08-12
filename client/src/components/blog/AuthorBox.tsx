@@ -24,10 +24,10 @@ const AuthorBox = () => {
                   About the practice
                 </p>
                 <h3 className="text-2xl font-heading font-bold text-slate-900">
-                  {doctorInfo.name}, {doctorInfo.title}
+                  {doctorInfo.name}
                 </h3>
                 <p className="text-slate-600 text-sm mt-1">
-                  Lead dentist at Christopher B. Wong, DDS in Palo Alto.
+                  Lead dentist in Palo Alto.
                 </p>
               </div>
 

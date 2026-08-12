@@ -17,7 +17,6 @@ import {
   BadgeCheck,
   Clock,
   CreditCard,
-  HeartHandshake,
   MapPin,
   Phone,
   ShieldCheck,
@@ -57,12 +56,12 @@ const Insurance = () => {
     {
       question: "What if I don't have dental insurance?",
       answer:
-        "We offer an in-house dental plan with savings on preventive care and treatments for patients without insurance, and we accept flexible payment options including credit cards, FSA/HSA funds, and CareCredit financing. Call our office for current plan details.",
+        "We offer an in-house dental plan with savings on preventive care and treatments for patients without insurance, and we accept Visa, MasterCard, and FSA/HSA funds. Call our office for current plan details.",
     },
     {
       question: "Do you offer payment plans or financing?",
       answer:
-        "We accept CareCredit financing, which lets you spread treatment costs over time, along with credit cards and flexible spending account (FSA) or health savings account (HSA) funds. Our team can help you choose the option that fits your situation.",
+        "We accept Visa and MasterCard, along with flexible spending account (FSA) or health savings account (HSA) funds. Patients without insurance can also ask about our in-house dental plan. Our team can help you choose the option that fits your situation.",
     },
     {
       question: "Will you give me a cost estimate before treatment?",
@@ -86,9 +85,9 @@ const Insurance = () => {
     },
     {
       icon: CreditCard,
-      title: "Credit cards & cash",
+      title: "Visa & MasterCard",
       description:
-        "We accept major credit cards and cash for treatment and preventive visits.",
+        "We accept Visa and MasterCard for treatment and preventive visits, along with cash when preferred.",
     },
     {
       icon: Wallet,
@@ -97,16 +96,10 @@ const Insurance = () => {
         "Flexible spending and health savings accounts can be used for eligible dental care.",
     },
     {
-      icon: HeartHandshake,
-      title: "CareCredit financing",
-      description:
-        "Spread treatment costs over time with CareCredit healthcare financing.",
-    },
-    {
       icon: BadgeCheck,
       title: "In-house dental plan",
       description:
-        "No insurance? Our in-house plan offers savings on preventive care and treatments. Ask our team for current details.",
+        "No insurance? Our in-house dental plan offers savings on preventive care and treatments. Ask our team for current details.",
     },
   ];
 
@@ -133,8 +126,8 @@ const Insurance = () => {
                 We work with most major PPO dental insurance plans as an
                 out-of-network provider, verify your benefits before your
                 visit, and explain expected costs before any treatment begins.
-                No insurance? We offer an in-house dental plan, CareCredit
-                financing, and FSA/HSA-friendly payment options.
+                No insurance? We offer an in-house dental plan plus Visa,
+                MasterCard, and FSA/HSA-friendly payment options.
               </p>
               <p className="text-lg text-slate-700 leading-relaxed max-w-3xl">
                 Insurance shouldn&rsquo;t be the confusing part of dental care.
@@ -179,7 +172,7 @@ const Insurance = () => {
                   <li className="flex items-start gap-3">
                     <CreditCard className="h-5 w-5 text-primary mt-0.5 shrink-0" aria-hidden="true" />
                     <span>
-                      Credit cards, FSA/HSA, CareCredit, and an in-house plan
+                      Visa, MasterCard, FSA/HSA, and an in-house dental plan
                       for uninsured patients
                     </span>
                   </li>

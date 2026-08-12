@@ -32,7 +32,8 @@ export default function NotFoundPage() {
             <h1 className="text-2xl font-bold text-slate-900">404 Page Not Found</h1>
           </div>
           <p className="mb-6 text-sm text-slate-600">
-            Did you forget to add the page to the router?
+            Sorry — we can&apos;t find that page. Try the homepage, or contact
+            the office if you need help scheduling.
           </p>
           <Link
             href="/"

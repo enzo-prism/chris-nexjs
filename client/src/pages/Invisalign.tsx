@@ -333,13 +333,12 @@ const Invisalign = () => {
                 Invisalign® in Palo Alto, CA
               </h1>
               <p className="text-xl text-[#333333] max-w-3xl mb-4">
-                Looking for an Invisalign dentist in Palo Alto? Dr. Christopher B. Wong provides clear aligner
-                treatment for adults and teens using 3D digital scans, personalized planning, and checkups built
-                for busy schedules.
+                Dr. Christopher B. Wong provides clear aligner treatment for adults and teens using 3D digital
+                scans, personalized planning, and checkups built for busy schedules.
               </p>
               <p className="text-lg text-[#333333] max-w-3xl mb-4">
-                Invisalign Palo Alto patients appreciate clear timelines, conservative tooth movement, and a care
-                team that keeps treatment comfortable from start to finish.
+                Patients appreciate clear timelines, conservative tooth movement, and a care team that keeps
+                treatment comfortable from start to finish.
               </p>
               <p className="text-base text-[#333333] max-w-3xl mb-6">
                 Our Cambridge Ave office welcomes Invisalign patients from Palo Alto, Menlo Park, Stanford, and
@@ -481,7 +480,7 @@ const Invisalign = () => {
                 Reviewed by Dr. Wong
               </p>
               <p className="text-xl font-bold text-[#333333] mt-2">
-                {doctorInfo.name}, {doctorInfo.title}
+                {doctorInfo.name}
               </p>
               <p className="text-sm text-slate-600 mt-2">
                 Invisalign plans are tailored and reviewed by Dr. Wong for accuracy, comfort, and long‑term stability.
