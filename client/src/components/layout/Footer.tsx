@@ -34,9 +34,9 @@ const Footer = ({ variant = "default" }: FooterProps) => {
     { href: "/gallery", label: "Gallery" },
     { href: "/office-tour", label: "Office Tour" },
     { href: "/blog", label: "Blog" },
-    { href: "/dentist-menlo-park", label: "Menlo Park Families" },
-    { href: "/dentist-stanford", label: "Stanford Patients" },
-    { href: "/dentist-mountain-view", label: "Mountain View Families" },
+    { href: "/dentist-menlo-park", label: "Menlo Park" },
+    { href: "/dentist-stanford", label: "Stanford" },
+    { href: "/dentist-mountain-view", label: "Mountain View" },
     { href: "/locations", label: "All Locations" },
     { href: "/contact", label: "Contact" },
   ];
@@ -166,7 +166,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
                 Dr. Christopher B. Wong
               </h3>
               <p className="text-sm text-white/80 mb-6 leading-relaxed">
-                Comprehensive dental care in a comfortable, state-of-the-art environment.
+                Comprehensive dental care in a comfortable Palo Alto office.
               </p>
               <div className="space-y-4">
                 <p className="flex items-center text-sm text-white/90">
@@ -306,7 +306,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
                   rel="noopener noreferrer"
                   className="ui-link-premium-dark px-1 py-0.5 text-white/70"
                 >
-                  Prism in silicon valley
+                  Prism in Silicon Valley
                 </a>
               </p>
             </div>
@@ -480,7 +480,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
                 rel="noopener noreferrer"
                 className="ui-link-premium-dark px-1 py-0.5 text-white/70"
               >
-                Prism in silicon valley
+                Prism in Silicon Valley
               </a>
             </p>
             <div className="flex flex-wrap justify-center gap-4">

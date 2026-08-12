@@ -5,18 +5,18 @@ const FeaturesSection = () => {
   const features: { icon: LucideIcon; title: string; description: string }[] = [
     {
       icon: Star,
-      title: "Exceptional Results",
-      description: "Our patients consistently achieve outstanding outcomes through our personalized care approach and attention to detail.",
+      title: "Careful, Conservative Care",
+      description: "Treatment plans prioritize preserving healthy tooth structure and explaining options clearly.",
     },
     {
       icon: Heart,
       title: "Patient-First Experience",
-      description: "Every aspect of your visit is designed with your comfort and satisfaction in mind, from scheduling to treatment.",
+      description: "Every aspect of your visit is designed with your comfort in mind, from scheduling to treatment.",
     },
     {
       icon: Users,
-      title: "Community-Loved Team",
-      description: "Our dedicated team has earned the trust and affection of the local community through years of compassionate service.",
+      title: "Trusted Local Team",
+      description: "Our team has earned the trust of Palo Alto families through years of consistent, compassionate care.",
     },
   ];
 
@@ -29,7 +29,7 @@ const FeaturesSection = () => {
             Why Choose Dr. Wong
           </h2>
           <p className="text-base text-gray-600 max-w-2xl mx-auto">
-            Discover a dental practice committed to exceptional service, outstanding results, and a patient experience that has earned the trust of our community
+            A dental practice focused on clear communication, conservative treatment, and care that families return to.
           </p>
         </div>
 

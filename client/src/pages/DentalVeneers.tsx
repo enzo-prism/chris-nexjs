@@ -25,7 +25,7 @@ const DentalVeneers = () => {
   const veneerTypes = [
     {
       title: "Porcelain Veneers",
-      subtitle: "The Gold Standard for a Lasting, Natural Look",
+      subtitle: "Durable, natural-looking porcelain shells",
       features: [
         "Natural aesthetics with translucent appearance",
         "Durability & longevity (10-15+ years)",
@@ -155,11 +155,11 @@ const DentalVeneers = () => {
             className="text-center"
           >
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-heading text-[#333333] mb-6">
-              Achieve Your Dream Smile with Dental Veneers
+              Dental Veneers in Palo Alto
             </h1>
             <p className="text-xl text-[#333333] max-w-4xl mx-auto mb-8">
-              Transform your smile with custom dental veneers at Dr. Christopher B. Wong's Palo Alto practice. 
-              We offer porcelain, composite, and no-prep veneer options with a conservative, patient-first approach.
+              Custom dental veneers at the practice of Christopher B. Wong, DDS.
+              We offer porcelain, composite, and no-prep options with a conservative, patient-first approach.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild className="bg-primary hover:bg-primary/90 text-white font-medium px-8 py-3">
@@ -438,11 +438,11 @@ const DentalVeneers = () => {
             viewport={{ once: true }}
           >
             <h2 className="text-3xl font-bold font-heading mb-6">
-              Ready to Transform Your Smile?
+              Ready to Discuss Veneers?
             </h2>
             <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-              Contact Dr. Christopher B. Wong's Palo Alto dental practice today to schedule your personalized 
-              veneer consultation. Discover how dental veneers can give you the confident smile you deserve.
+              Request a veneer consultation at our Palo Alto office. We&apos;ll review your goals,
+              explain options, and outline a clear treatment plan.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild className="bg-white text-primary hover:bg-gray-100 font-medium px-8 py-3">

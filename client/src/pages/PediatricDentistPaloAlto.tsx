@@ -97,10 +97,9 @@ const PediatricDentistPaloAlto = () => {
             Pediatric Dentist in Palo Alto
           </h1>
           <p className="text-lg text-slate-700 leading-relaxed">
-            Looking for a pediatric dentist in Palo Alto who treats your child like
-            family? Dr. Christopher B. Wong and our team provide gentle, preventative
-            care for infants, kids, and teens. We focus on building confidence early
-            so dental visits feel normal—not scary.
+            Gentle pediatric dental care in Palo Alto for infants, kids, and teens.
+            Dr. Christopher B. Wong and our team focus on preventive care and building
+            confidence early so dental visits feel normal—not scary.
           </p>
           <p className="text-lg text-slate-700 leading-relaxed">
             Children’s teeth change quickly. Early checkups let us monitor growth,

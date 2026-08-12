@@ -41,13 +41,13 @@ const AppointmentSection = () => {
           variants={fadeIn}
         >
           <div className="inline-block px-6 py-2 bg-primary text-white rounded-full mb-4">
-            <p className="text-sm font-medium">Easy Online Scheduling</p>
+            <p className="text-sm font-medium">Request Your Visit</p>
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold font-heading mb-3">
-            Book Your Dental Visit Today
+            Request Your Dental Visit
           </h2>
           <p className="text-[#333333] max-w-2xl mx-auto text-sm sm:text-base md:text-lg">
-            Send a quick request and our team will respond within one business day.
+            Send a quick request—we&apos;ll confirm within one business day.
           </p>
         </motion.div>
         
@@ -62,7 +62,7 @@ const AppointmentSection = () => {
           <div className="flex flex-col lg:flex-row">
             {/* Left side - info section */}
             <div className="lg:w-2/5 bg-primary p-6 sm:p-8 lg:p-12 text-white">
-              <h2 className="text-xl sm:text-2xl font-bold font-heading mb-6">Why Schedule with Us?</h2>
+              <h2 className="text-xl sm:text-2xl font-bold font-heading mb-6">Why request with us?</h2>
               
               {/* Enhanced Benefits list */}
               <div className="mb-8 space-y-5">

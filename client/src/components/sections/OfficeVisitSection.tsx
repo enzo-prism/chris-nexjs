@@ -23,7 +23,7 @@ export default function OfficeVisitSection({
   imageAlt,
   className,
   title = "Visit Our Office",
-  subtitle = "Come see our state-of-the-art facilities in Palo Alto.",
+  subtitle = "Visit our Palo Alto office for thoughtful, comfortable dental care.",
   showEmail = false,
   showDirectionsButton = false,
   withSchema = false,

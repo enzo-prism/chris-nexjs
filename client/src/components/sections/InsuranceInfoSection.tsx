@@ -59,8 +59,8 @@ export default function InsuranceInfoSection({
                 through expected out-of-pocket costs.
               </p>
               <p className="mb-4 text-[#333333]">
-                If you do not have insurance, ask about flexible payment options
-                and our in-office dental plan.
+                If you do not have insurance, ask about our in-house dental plan.
+                We also accept Visa, MasterCard, and FSA/HSA funds.
               </p>
               <p className="flex items-center text-[#333333]">
                 <Phone className="mr-2 h-5 w-5 text-primary" aria-hidden="true" />

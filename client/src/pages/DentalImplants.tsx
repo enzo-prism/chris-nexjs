@@ -33,12 +33,12 @@ function MotionDiv({ className, children }: MotionDivProps) {
 
 const benefits = [
   "Natural Look and Feel: Implants fuse with your jawbone, becoming a permanent part of your mouth",
-  "Exceptional Durability & Longevity: With proper care, dental implants can last a lifetime",
-  "Improved Chewing Ability: Eat your favorite foods with confidence and full chewing power",
-  "Preservation of Jawbone: Implants stimulate bone, preventing bone loss and maintaining facial structure",
+  "Durability & Longevity: With proper care, dental implants can last many years",
+  "Improved Chewing Ability: Eat comfortably with stable chewing support",
+  "Preservation of Jawbone: Implants help stimulate bone and support facial structure",
   "No Impact on Adjacent Teeth: Unlike bridges, implants don't require altering healthy neighboring teeth",
-  "Enhanced Confidence & Quality of Life: A complete, beautiful smile boosts self-esteem significantly",
-  "Easy Maintenance: Care for implants just like natural teeth with regular brushing and flossing"
+  "Everyday Confidence: A complete smile that looks and functions more like natural teeth",
+  "Straightforward Maintenance: Care for implants much like natural teeth with brushing and flossing"
 ];
 
 const candidateRequirements = [
@@ -71,11 +71,11 @@ const implantTypes = [
 const procedureSteps = [
   {
     title: "Initial Consultation and Treatment Planning",
-    description: "Comprehensive oral examination, including X-rays and potentially 3D imaging. Discussion of your medical history, smile goals, and treatment options."
+    description: "Comprehensive oral examination, including X-rays and potentially 3D imaging. Discussion of your medical history, smile goals, and treatment options. We coordinate surgical placement with trusted partners when needed."
   },
   {
     title: "Implant Placement",
-    description: "Minor surgical procedure performed under local anesthesia. The titanium implant post is precisely placed into the jawbone."
+    description: "Surgical placement of the titanium implant post into the jawbone, performed by a surgical partner under local anesthesia when indicated."
   },
   {
     title: "Osseointegration (Healing Period)",
@@ -87,7 +87,7 @@ const procedureSteps = [
   },
   {
     title: "Custom Crown Fabrication & Placement",
-    description: "Impressions are taken to create a custom-made dental crown that perfectly matches your natural teeth."
+    description: "Impressions are taken to create a custom dental crown. Dr. Wong restores the implant so it matches your natural teeth."
   }
 ];
 
@@ -106,11 +106,11 @@ const faqs = [
   },
   {
     question: "How long do dental implants last?",
-    answer: "With proper care and regular dental visits, dental implants can last a lifetime. The crown attached to the implant may need replacement after 10-15 years due to normal wear and tear."
+    answer: "With proper care and regular dental visits, dental implants can last many years—often a lifetime. The crown attached to the implant may need replacement after 10-15 years due to normal wear and tear."
   },
   {
     question: "How successful are dental implants?",
-    answer: "Dental implants have a very high success rate, typically above 95%, when placed by an experienced implant dentist and properly cared for."
+    answer: "Dental implants have a high success rate—typically above 95%—when carefully planned, placed by an experienced surgeon, and properly cared for."
   },
   {
     question: "Can I get a dental implant if I have bone loss?",
@@ -132,14 +132,14 @@ const DentalImplants = () => {
   const implantServiceSchema = buildServiceSchema({
     name: "Dental Implants",
     description:
-      "Comprehensive dental implant planning, placement, and restoration for single or multiple missing teeth.",
+      "Dental implant planning and restoration in Palo Alto, with surgical placement coordinated through trusted partners when needed.",
     slug: "/dental-implants",
   });
 
   const implantHowToSchema = buildHowToSchema({
     name: "Dental implant treatment process",
     description:
-      "Overview of the steps patients complete when receiving dental implants at our Palo Alto office.",
+      "Overview of implant planning, surgical placement with partners, and restoration at our Palo Alto office.",
     steps: procedureSteps.map((step) => ({
       title: step.title,
       description: step.description,
@@ -217,15 +217,15 @@ const DentalImplants = () => {
             transition={{ duration: 0.6 }}
           >
             <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold font-heading mb-4 sm:mb-6 leading-tight">
-              Dental Implants in Palo Alto: A Comprehensive Guide to Restoring Your Smile
+              Dental Implants in Palo Alto: Restoring Missing Teeth
             </h1>
             <p className="text-base sm:text-lg lg:text-xl text-blue-100 mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed">
-              Are you missing one or more teeth and looking for a permanent, natural-looking solution in Palo Alto? 
-              Dental implants offer a revolutionary way to restore not just the appearance of your smile, but its full function and health.
+              Missing one or more teeth? Dental implants can restore chewing function and a natural-looking smile
+              with a long-lasting replacement option.
             </p>
             <p className="text-sm sm:text-base lg:text-lg text-blue-100 mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed">
-              At the practice of Christopher B. Wong, DDS, we specialize in advanced implant dentistry, 
-              providing durable, comfortable, and aesthetically pleasing tooth replacement options.
+              At the practice of Christopher B. Wong, DDS, we focus on careful implant planning and restoration.
+              When surgical placement is needed, we coordinate with trusted surgical partners and restore the final crown in our office.
             </p>
             <Button asChild className="bg-white text-primary hover:bg-gray-100 font-medium px-6 py-3 sm:px-8 sm:py-3 text-base sm:text-lg w-full sm:w-auto">
               <Link href="/schedule?intent=implants&source=implants-page#appointment">
@@ -249,11 +249,11 @@ const DentalImplants = () => {
             className="text-center mb-8 sm:mb-12"
           >
             <h2 className="text-2xl sm:text-3xl font-bold font-heading text-[#333333] mb-4 sm:mb-6 leading-tight">
-              Why Choose Dental Implants? The Unmatched Benefits for Your Smile & Health
+              Why Choose Dental Implants?
             </h2>
             <p className="text-[#333333] text-base sm:text-lg max-w-3xl mx-auto leading-relaxed">
-              Dental implants are widely recognized as the gold standard for tooth replacement, and for good reason. 
-              Unlike other options, they offer unique advantages:
+              Dental implants are a well-established option for tooth replacement.
+              Compared with bridges or removable dentures, they offer several practical advantages:
             </p>
           </MotionDiv>
 
@@ -345,11 +345,11 @@ const DentalImplants = () => {
             className="text-center mb-8 sm:mb-12"
           >
             <h2 className="text-2xl sm:text-3xl font-bold font-heading text-[#333333] mb-4 sm:mb-6 leading-tight">
-              The Dental Implant Procedure: What to Expect with Dr. Wong
+              The Dental Implant Process with Dr. Wong
             </h2>
             <p className="text-[#333333] text-base sm:text-lg leading-relaxed">
-              The dental implant process is a multi-step journey tailored to your individual needs. 
-              Dr. Wong and our compassionate Palo Alto team will guide you through each phase:
+              Implant care is a multi-step process tailored to your needs. Dr. Wong plans your treatment,
+              coordinates surgical placement with trusted partners when needed, and restores the final crown in our Palo Alto office:
             </p>
           </MotionDiv>
 
@@ -425,10 +425,10 @@ const DentalImplants = () => {
             className="text-center mb-10 sm:mb-12"
           >
             <h3 className="text-2xl sm:text-3xl font-bold font-heading text-[#1F2933] leading-tight">
-              Restoring confidence with advanced implant care
+              Patient experiences with implant care
             </h3>
             <p className="mt-4 text-sm text-[#4B5563] sm:text-base">
-              Patients trust Dr. Wong and our team for transparent guidance, same-day support, and beautiful, lasting results.
+              Patients appreciate clear guidance, careful planning, and restorations that look and feel natural.
             </p>
           </MotionDiv>
 
@@ -451,7 +451,7 @@ const DentalImplants = () => {
             className="text-center mb-12"
           >
             <h2 className="text-3xl font-bold font-heading text-[#333333] mb-6">
-              Investing in Your Smile: Understanding Dental Implant Cost in Palo Alto
+              Understanding Dental Implant Cost in Palo Alto
             </h2>
             <p className="text-[#333333] text-lg mb-8">
               The cost of dental implants can vary based on several factors:
@@ -484,12 +484,12 @@ const DentalImplants = () => {
               </li>
             </ul>
             <p className="text-[#333333] mb-4">
-              While dental implants may represent a more significant initial investment than other tooth replacement options, 
-              their longevity, durability, and numerous benefits often make them the most cost-effective solution over time.
+              While dental implants may cost more initially than other tooth replacement options,
+              their longevity and function often make them a sound long-term choice.
             </p>
             <p className="text-[#333333]">
-              During your consultation, we will provide a transparent and detailed breakdown of all associated costs for your specific treatment plan. 
-              Our Palo Alto dental office also offers information on financing options to help make this life-changing treatment more accessible.
+              During your consultation, we will provide a clear breakdown of costs for your treatment plan.
+              Our Palo Alto office can also discuss financing options when helpful.
             </p>
           </MotionDiv>
         </div>
@@ -543,21 +543,21 @@ const DentalImplants = () => {
             className="text-center mb-12"
           >
             <h2 className="text-3xl font-bold font-heading text-[#333333] mb-6">
-              Why Choose Dr. Christopher B. Wong for Your Dental Implants in Palo Alto?
+              Why Choose Dr. Christopher B. Wong for Dental Implants in Palo Alto?
             </h2>
             <p className="text-[#333333] text-lg">
-              Choosing the right dentist for your dental implants is crucial for a successful outcome. Dr. Christopher B. Wong offers:
+              Choosing the right dentist for implant care matters. Dr. Christopher B. Wong offers:
             </p>
           </MotionDiv>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              { icon: Award, title: "Experience and Expertise", desc: "Extensive training and experience in implant dentistry, from single tooth replacements to complex cases." },
-              { icon: Clock, title: "Advanced Technology", desc: "State-of-the-art diagnostic and treatment technology for precise planning and placement." },
-              { icon: Heart, title: "Personalized Care", desc: "We take time to understand your individual needs and goals, creating a tailored treatment plan." },
+              { icon: Award, title: "Experience and Expertise", desc: "Careful implant planning and restoration, from single-tooth cases to more complex restorations." },
+              { icon: Clock, title: "Thoughtful Technology", desc: "Digital imaging and planning tools to support precise diagnosis and treatment coordination." },
+              { icon: Heart, title: "Personalized Care", desc: "We take time to understand your needs and create a tailored treatment plan." },
               { icon: Shield, title: "Conservative Approach", desc: "Committed to preserving natural tooth structure and recommending implants when they're truly the best solution." },
-              { icon: Smile, title: "Comfortable Environment", desc: "We strive to make your experience comfortable and stress-free, offering sedation options if needed." },
-              { icon: Users, title: "Long-Term Health Focus", desc: "Our goal is to restore your smile and ensure its health and function for years to come." }
+              { icon: Smile, title: "Coordinated Surgical Partners", desc: "When placement surgery is needed, we work with trusted surgical partners and restore the final crown in-office." },
+              { icon: Users, title: "Long-Term Health Focus", desc: "Our goal is to restore function and help keep your smile healthy for years to come." }
             ].map((feature, index) => (
               <MotionDiv
                 key={index}
@@ -600,12 +600,11 @@ const DentalImplants = () => {
             viewport={{ once: true }}
           >
             <h2 className="text-2xl sm:text-3xl font-bold font-heading mb-4 sm:mb-6 leading-tight">
-              Take the Next Step Towards a Renewed Smile in Palo Alto
+              Request a Dental Implant Consultation in Palo Alto
             </h2>
             <p className="text-base sm:text-lg lg:text-xl text-blue-100 mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed">
-              If you're ready to learn more about how dental implants can transform your smile, health, and confidence, 
-              we invite you to schedule a consultation with Dr. Christopher B. Wong. Contact our Palo Alto dental practice today 
-              – let us help you rediscover the joy of a complete and beautiful smile.
+              If you&apos;d like to learn whether dental implants are a good fit, request a consultation with
+              Dr. Christopher B. Wong. We&apos;ll review your options and outline a clear next step.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 justify-center">
               <Button asChild className="bg-white text-primary hover:bg-gray-100 font-medium px-6 py-3 sm:px-8 sm:py-3 w-full sm:w-auto">
