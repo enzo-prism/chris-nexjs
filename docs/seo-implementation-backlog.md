@@ -34,8 +34,18 @@ Sitewide copy and SEO-trust cleanup on `cursor/sitewide-copy-fixes-3222`
 - Enforced doctor-name formatting and Person schema name without duplicated
   Dr./DDS on one line.
 - Softened keyword-stuffed service openers; schedule CTAs use request language.
-- Polished 404s, team bios, testimonials, ZOOM! nav label, holiday hours, and
-  light location lead differentiation.
+- Polished 404 body copy, team bios, testimonials, ZOOM! nav label, holiday
+  hours, and light location lead differentiation.
+- Note: Menlo Park, Stanford, and Mountain View are **not** retired — only the
+  seven thin city URLs redirect to `/locations`. Correct noindex list:
+  `docs/seo-growth-plan.md` baseline snapshot.
+
+### Follow-up (docs audit residuals)
+
+On `cursor/docs-copy-audit-followup-3222`: WebSite `alternateName` cleaned to
+office name; `/thank-you` meta request-received language; payment FAQ FSA/HSA
+lockstep; `LASTMOD_OVERRIDES` bumped for touched Aug 12 routes; Invisalign /
+  ScheduleRequestFunnel wording softened.
 
 ## P0: evidence and entity accuracy
 

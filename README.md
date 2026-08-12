@@ -226,9 +226,15 @@ Doctor name format must be one of:
 
 Never combine `Dr.` and `DDS` in the same line.
 
+Person schema `name` is `Christopher B. Wong` with separate honorifics — do not
+duplicate `Dr.` in the name string. Do not put SEO phrases into Person **or**
+WebSite `alternateName`.
+
 Payment copy must match accepted methods (Visa, MasterCard, FSA/HSA, in-house
-plan). Keep body copy free of SEO keyword stuffing; do not put stuffed phrases
-into Person `alternateName`.
+plan); keep Insurance UI and the `data.ts` payment FAQ in lockstep. Keep body
+copy free of SEO keyword stuffing. After substantive copy changes, update
+`LASTMOD_OVERRIDES` in `shared/seo.ts`. Full standing rules:
+`docs/seo-growth-plan.md` Editorial guardrails.
 
 ## Documentation index
 
@@ -242,6 +248,7 @@ into Person `alternateName`.
 - SEO growth plan: `docs/seo-growth-plan.md`
 - SEO keyword map: `docs/seo-keyword-map.md`
 - SEO implementation backlog: `docs/seo-implementation-backlog.md`
+- Aug 12 sitewide copy cleanup: `docs/release-2026-08-12-sitewide-copy-cleanup.md`
 - Gallery feature guide: `docs/gallery.md`
 - Review data runbook: `docs/reviews-data.md`
 - Changelog operations guide: `docs/changelog.md`

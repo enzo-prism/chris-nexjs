@@ -39,17 +39,20 @@ Use this file as the central index for project documentation.
   `/patient-stories` share images fixed (WebP → PNG/JPEG), divergent Dentist
   schemas reconciled, and the mobile action-bar spacer matched to the bar.
 - `release-2026-08-12-sitewide-copy-cleanup.md`
-  Sitewide copy/SEO trust cleanup on PR #6: removed “Wong dentist” stuffing and
-  CareCredit drift, fixed experience/implant/safety FAQ accuracy, doctor-name
-  and Person schema formatting, softened service openers, request-not-book CTAs,
-  and light UX polish (404s, team bios, testimonials, ZOOM!, holiday hours).
+  Sitewide copy/SEO trust cleanup on PR #6 (merged to main/prod): removed
+  “Wong dentist” stuffing and CareCredit drift, fixed experience/implant/safety
+  FAQ accuracy, doctor-name and Person schema formatting, softened service
+  openers, request-not-book CTAs, and light UX polish. Follow-up residuals
+  (WebSite alternateName, thank-you meta, FAQ FSA/HSA, LASTMOD bumps) noted in
+  the same release doc; standing rules in `seo-growth-plan.md` Editorial
+  guardrails.
 
 ## SEO documentation
 
 - `seo-technical-architecture.md`
   Technical SEO architecture, crawl surfaces, metadata rules, and release checks.
 - `seo-growth-plan.md`  
-  Operational SEO growth plan and cadence.
+  Operational SEO growth plan, cadence, and enduring Editorial guardrails.
 - `seo-keyword-map.md`  
   URL-level keyword mapping and anti-cannibalization guide.
 - `seo-implementation-backlog.md`

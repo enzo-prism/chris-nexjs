@@ -11,17 +11,20 @@ Operational SEO plan for sustained local lead growth while preserving technical 
   - `/thank-you`
   - `/analytics`
   - `/ga-test`
-  - `/dentist-atherton`
   - `/dentist-los-altos`
-  - `/dentist-menlo-park`
-  - `/dentist-mountain-view`
-  - `/dentist-portola-valley`
-  - `/dentist-stanford`
-  - `/dentist-woodside`
+  - `/dentist-los-altos-hills`
+  - `/dentist-sunnyvale`
+  - `/dentist-cupertino`
+  - `/dentist-redwood-city`
+  - `/dentist-atherton`
+  - `/dentist-redwood-shores`
 - Metadata source of truth: `shared/seo.ts`
 
-The seven retired city URLs permanently redirect to `/locations`. They are not
-canonical pages and must not reappear in metadata definitions or the sitemap.
+Seven retired city URLs permanently redirect to `/locations` and must not
+reappear as indexable metadata or sitemap entries: Los Altos, Los Altos Hills,
+Sunnyvale, Cupertino, Redwood City, Redwood Shores, and Atherton. Menlo Park,
+Stanford, and Mountain View remain **indexable** nearby-city pages — they are
+not part of that retired set.
 
 ## 90-day growth targets
 
@@ -105,34 +108,74 @@ SEO_AUDIT_BASE_URL=https://<preview-domain>.vercel.app pnpm run test:seo:all
 
 ## Editorial guardrails
 
-Doctor naming:
+Standing rules for authored copy, metadata, and schema. Prefer this section as
+the enduring source of truth; release notes capture what changed on a given date.
+
+### Doctor naming
+
 - `Dr. Christopher B. Wong`
 - `Christopher B. Wong, DDS`
+- Never use `Dr.` and `DDS` on one line.
+- Person schema: `name: "Christopher B. Wong"` with `honorificPrefix` /
+  `honorificSuffix`. Do not duplicate `Dr.` in the `name` string.
 
-Never use `Dr.` and `DDS` on one line.
+### Schema alternateName (Person and WebSite)
 
-Person schema:
-- Use `name: "Christopher B. Wong"` with `honorificPrefix` / `honorificSuffix`.
-- Do not put SEO keyword phrases like “Wong dentist in Palo Alto” into Person
-  `alternateName`.
+- Do not put SEO keyword phrases into **any** schema `alternateName` —
+  Person **and** WebSite.
+- Bad examples: “Wong dentist in Palo Alto”, “Dr. Christopher Wong Palo Alto
+  Dentist”. Prefer office name or real alternate doctor names only.
 
-Body copy and CTAs:
-- No keyword-stuffed openers such as “Looking for a … dentist in Palo Alto?” in
-  patient-facing body copy. Keywords belong in metadata and planning docs;
-  body copy must read naturally.
+### Body copy and anti-stuffing
+
+- No keyword-stuffed body openers such as “Looking for a … dentist in Palo
+  Alto?” Keywords belong in metadata and planning docs; body copy must read
+  naturally.
 - Prefer “preventive” spelling.
-- Keep schedule/appointment CTAs as request language when forms do not book
-  instantly (`/schedule` is an appointment request, not instant booking).
+- Avoid office “state-of-the-art” clichés and unverifiable Top/#1 claims in
+  authored meta or UI.
+- The `/wong-dentist` → `/about` redirect may exist as branded SEO routing;
+  never use that phrase as stuffed body copy on About or service pages.
 
-Payments:
-- Payment copy must match accepted methods: Visa, MasterCard, FSA/HSA, and the
-  in-house dental plan.
+### Request-not-book language
+
+Forms submit a visit/appointment **request**, not instant booking. Keep
+request language across:
+
+- `/schedule` (page copy and meta)
+- `AppointmentSection`
+- `ScheduleRequestFunnel`
+- `/thank-you` meta (must not claim “Appointment Scheduled”)
+- blog CTAs that point to `/schedule`
+
+### Tenure and experience
+
+- Practice framing: since 2018 / graduated 2018.
+- Do not claim decades of Dr. Wong’s personal clinical experience.
+
+### Implants
+
+- Surgical partners for placement; in-office restoration when that is the
+  clinical model. Do not imply every implant step happens solely in-house.
+
+### Terminology
+
+- **in-house** = the dental plan product.
+- **in-office** = where care happens (location of treatment).
+
+### Payments
+
+- Accepted methods in copy: Visa, MasterCard, FSA/HSA, and the in-house dental
+  plan.
+- Keep `Insurance.tsx` and the payment FAQ in `client/src/lib/data.ts` in
+  lockstep.
 - Do not list CareCredit, Amex, or Discover unless those methods are
   reintroduced as accepted payment options.
 
-Clinical consistency:
-- Implant messaging must stay consistent with surgical partners for placement
-  plus in-office restoration when that is the clinical model.
+### Sitemap freshness after copy changes
+
+- After substantive copy changes, update `LASTMOD_OVERRIDES` in `shared/seo.ts`
+  for the touched routes so sitemap freshness stays honest.
 
 ## Ownership
 

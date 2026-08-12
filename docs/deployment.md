@@ -294,3 +294,7 @@ Allowed doctor naming:
 - `Christopher B. Wong, DDS`
 
 Do not combine `Dr.` and `DDS` on one line.
+
+Also keep payments, Person/WebSite `alternateName`, request-not-book CTAs, and
+implant partner wording aligned with practice reality. Standing rules:
+`docs/seo-growth-plan.md` Editorial guardrails.

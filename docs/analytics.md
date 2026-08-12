@@ -36,7 +36,7 @@ Canonical high-intent events:
 
 - `phone_call_click`
 - `email_click`
-- `book_appointment_click`
+- `book_appointment_click` (CTA click label for schedule/appointment affordances — not a booking confirmation)
 - `outbound_click`
 - `schedule_start`
 - `schedule_submit_failure`

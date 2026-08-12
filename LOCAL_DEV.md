@@ -208,3 +208,9 @@ IMAGE_AUDIT_BASE_URL=http://localhost:5000 pnpm run test:images
 - Gallery media issues:
   - run `pnpm run test:gallery`
   - verify media URLs in `client/src/data/galleryMedia.ts`
+
+## Content edits
+
+For patient-facing copy, payments, schema names, and schedule CTA language,
+follow `docs/seo-growth-plan.md` Editorial guardrails. After substantive copy
+changes, bump `LASTMOD_OVERRIDES` in `shared/seo.ts` for touched routes.

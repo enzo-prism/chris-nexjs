@@ -19,7 +19,7 @@ Primary keyword mapping for canonical indexable URLs. This is the anti-cannibali
 | `/office-tour` | trust | palo alto dental office tour | virtual dentist office tour palo alto, dental office video walkthrough |
 | `/changelog` | trust | christopher b wong dds website updates | dental website changelog, practice site updates |
 | `/contact` | trust | contact palo alto dentist | dentist phone number palo alto, dentist address |
-| `/schedule` | trust | schedule dentist appointment palo alto | book dental visit palo alto, new patient appointment |
+| `/schedule` | trust | schedule dentist appointment palo alto | request dental visit palo alto, new patient appointment request |
 | `/invisalign` | service | invisalign palo alto | clear aligners palo alto, invisalign dentist near me |
 | `/invisalign/resources` | service | invisalign resources palo alto | invisalign timeline, invisalign cost guide |
 | `/emergency-dental` | service | emergency dentist palo alto | same day dentist palo alto, urgent dental care |
@@ -50,11 +50,17 @@ Primary keyword mapping for canonical indexable URLs. This is the anti-cannibali
   - do not use `Dr. ... DDS` in the same line
 - Body-copy anti-stuffing:
   - Primary keywords belong in metadata, titles, and this planning map — not as
-    unnatural phrases in patient-facing body copy.
-  - The `/wong-dentist` redirect may exist as branded SEO routing, but that
-    phrase must not appear as stuffed body text on About or service pages.
-  - When describing CTAs, `/schedule` intent is an appointment *request*, not
-    instant booking.
+    unnatural phrases in patient-facing body copy (no “Looking for a …
+    dentist…?” openers).
+  - The `/wong-dentist` → `/about` redirect may exist as branded SEO routing,
+    but that phrase must never appear as stuffed body text on About or service
+    pages.
+  - Do not put SEO phrases into schema `alternateName` for Person **or**
+    WebSite (use real alternate doctor names / office name only).
+  - Request-not-book: `/schedule`, schedule CTAs, funnel copy, thank-you meta,
+    and blog CTAs to `/schedule` describe a visit/appointment *request*, not
+    instant booking. Avoid “book online” / “appointment scheduled” framing
+    unless the product actually books instantly.
 
 ## Consolidated location policy
 

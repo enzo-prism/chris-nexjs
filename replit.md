@@ -53,4 +53,6 @@ Allowed doctor naming:
 Never combine `Dr.` and `DDS` on one line.
 
 Payment copy must match accepted methods (Visa, MasterCard, FSA/HSA, in-house
-plan). Avoid SEO keyword stuffing in body copy and Person `alternateName`.
+plan). Avoid SEO keyword stuffing in body copy and Person/WebSite
+`alternateName`. For content edits, follow `docs/seo-growth-plan.md` Editorial
+guardrails (request-not-book language, implants, LASTMOD, thank-you meta).

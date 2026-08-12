@@ -30,7 +30,9 @@ Read in this order unless the task is very narrow:
 
 Then load topic-specific docs only as needed:
 
-- SEO: `docs/seo-technical-architecture.md`, `docs/seo-growth-plan.md`, `docs/seo-keyword-map.md`
+- SEO: `docs/seo-technical-architecture.md`, `docs/seo-growth-plan.md`
+  (especially **Editorial guardrails**), `docs/seo-keyword-map.md`
+- Aug 12 copy cleanup: `docs/release-2026-08-12-sitewide-copy-cleanup.md`
 - Gallery/media: `docs/gallery.md`
 - Reviews data: `docs/reviews-data.md`
 - Changelog flow: `docs/changelog.md`
@@ -47,10 +49,17 @@ Then load topic-specific docs only as needed:
   - `Christopher B. Wong, DDS`
 - Never combine `Dr.` and `DDS` on the same line.
 - Payment copy must match accepted methods (Visa, MasterCard, FSA/HSA, in-house
-  dental plan). Do not reintroduce CareCredit/Amex/Discover in UI copy unless
-  those methods are actually accepted again.
-- Do not SEO-stuff patient-facing body copy or Person `alternateName` with
-  phrases like “Wong dentist in Palo Alto” or “Looking for a … dentist…?”.
+  dental plan). Keep `Insurance.tsx` and the payment FAQ in `data.ts` in
+  lockstep. Do not reintroduce CareCredit/Amex/Discover unless product changes.
+- Do not SEO-stuff patient-facing body copy. Do not put keyword phrases into
+  Person **or** WebSite `alternateName`.
+- Request-not-book language on `/schedule`, `AppointmentSection`,
+  `ScheduleRequestFunnel`, thank-you meta, and blog CTAs to `/schedule`.
+- Implant copy: surgical partners + in-office restoration; in-house = plan,
+  in-office = where care happens.
+- `/wong-dentist` may redirect to `/about`; never as stuffed body copy.
+- After substantive copy changes, bump `LASTMOD_OVERRIDES` in `shared/seo.ts`
+  for touched routes. Full standing rules: `docs/seo-growth-plan.md`.
 
 ## Safe default workflow
 

@@ -126,6 +126,17 @@ For non-default hosts:
 SEO_AUDIT_BASE_URL=https://www.chriswongdds.com pnpm run test:seo:all
 ```
 
+## Editorial / release checklist (copy and schema)
+
+When shipping substantive copy or metadata changes:
+
+- Update `LASTMOD_OVERRIDES` in `shared/seo.ts` for each touched route.
+- Person schema `name` is `Christopher B. Wong` (honorifics separate) — do not
+  duplicate `Dr.` in the name string.
+- No keyword-stuffed `alternateName` on Person **or** WebSite.
+- `/thank-you` meta must not claim a scheduled appointment (request received
+  only). Full standing rules: `docs/seo-growth-plan.md` Editorial guardrails.
+
 ## Release checklist (SEO-specific)
 
 1. `pnpm run test:routes`

@@ -174,6 +174,12 @@ Doctor name format must be one of:
 
 Never combine `Dr.` and `DDS` in the same line.
 
+Expand beyond naming when editing patient-facing or schema copy: payments
+(Visa, MasterCard, FSA/HSA, in-house plan; Insurance + FAQ lockstep), no
+keyword-stuffed Person/WebSite `alternateName`, request-not-book schedule
+language, and implant surgical-partner messaging. Full list:
+`docs/seo-growth-plan.md` Editorial guardrails.
+
 ## Operational sync requirement
 
 Keep route and canonical configuration aligned across:

@@ -1,8 +1,8 @@
 # Sitewide Copy Cleanup — August 12, 2026
 
 Editorial and SEO-trust pass on branch `cursor/sitewide-copy-fixes-3222`
-([PR #6](https://github.com/enzo-prism/chris-nexjs/pull/6)). Merged to `main`
-for production on the primary Vercel project (`chris-wong-dds` /
+([PR #6](https://github.com/enzo-prism/chris-nexjs/pull/6)). **Merged to
+`main` / production** on the primary Vercel project (`chris-wong-dds` /
 `www.chriswongdds.com`). The work followed an About-page typo audit
 (Wong→one) and widened into a full-site cleanup: remove remaining SEO stuffing,
 fix factual drift, align payment and implant messaging with practice reality,
@@ -24,8 +24,9 @@ and keep the calm patient-facing voice.
 - CareCredit was already dropped from accepted methods earlier, but Insurance
   and payment UI copy had drifted back. CareCredit mentions were removed from
   those surfaces.
-- Payment language now matches accepted methods: Visa, MasterCard, FSA/HSA, and
-  the in-house dental plan.
+- Payment language targets accepted methods: Visa, MasterCard, FSA/HSA, and the
+  in-house dental plan. A follow-up brought the `data.ts` payment FAQ into
+  FSA/HSA lockstep with `Insurance.tsx` (see residuals below).
 
 ## Clinical accuracy
 
@@ -48,14 +49,31 @@ and keep the calm patient-facing voice.
 
 ## UX polish
 
-- Patient-friendly 404 messaging.
+- Patient-friendly 404 body copy (H1 remains the standard “404 Page Not Found”).
 - Team bio polish and featured/home testimonial curation.
 - ZOOM! nav label corrected; holiday hours spacing fixed.
 - Light location-page lead differentiation without inventing thin city content.
 
+## Follow-up residuals (docs audit branch)
+
+Docs-vs-code audit follow-ups on `cursor/docs-copy-audit-followup-3222`:
+
+- WebSite schema `alternateName` no longer uses the keyword-stuffed
+  “Dr. Christopher Wong Palo Alto Dentist”; it uses the office name.
+- `/thank-you` meta no longer says “Appointment Scheduled”; title/description
+  use request-received language.
+- Payment FAQ in `data.ts` includes FSA/HSA (lockstep with Insurance UI).
+- `LASTMOD_OVERRIDES` bumped for `/about`, `/schedule`, `/insurance`,
+  `/dental-implants`, `/thank-you`, `/`, and `/services` to `2026-08-12`.
+- Invisalign “years of experience” softened; `ScheduleRequestFunnel` “booking”
+  → “visit requests”.
+
+Standing editorial rules live in `docs/seo-growth-plan.md` (Editorial
+guardrails).
+
 ## Verification
 
-The following passed on this branch before documentation:
+Core gates used on the copy-cleanup branch:
 
 ```bash
 pnpm run check
@@ -64,7 +82,15 @@ pnpm run test:routes
 pnpm run test:seo
 ```
 
+For future operators, prefer the fuller SEO suite after substantive copy or
+metadata changes:
+
+```bash
+pnpm run test:seo:all
+```
+
 ## Tracking
 
-- Branch: `cursor/sitewide-copy-fixes-3222`
+- Primary ship branch: `cursor/sitewide-copy-fixes-3222`
 - Pull request: [#6 — fix: sitewide copy cleanup for trust and accuracy](https://github.com/enzo-prism/chris-nexjs/pull/6)
+- Docs/audit follow-up: `cursor/docs-copy-audit-followup-3222`
