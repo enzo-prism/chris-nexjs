@@ -61,11 +61,11 @@ const homeSpotlightTestimonials: readonly InsertTestimonial[] = [
     text: "High skill level, modern tools, helpful guidance and a friendly demeanor. An excellent experience for cleanings and fillings. Strong recommend.",
   },
   {
-    name: "Amy Hamachi",
+    name: "Anne Starr",
     rating: 5,
     location: "Google Review",
     image: "",
-    text: "Dr. Wong was very pleasant and seemed willing to listen to any questions that I had. He was easy to talk to and had a reasonable plan of care of my teeth. I would recommend him.",
+    text: "Dr. Hamamoto did great passing her practice to Dr. Wong! He is great! Helen and Angelisa are the best dental hygienists!",
   },
   {
     name: "Sarah Chase",

@@ -17,7 +17,6 @@ export const doctorInfo = {
   name: "Dr. Christopher B. Wong",
   title: "DDS",
   alternateNames: [
-    "Dr Christopher Wong",
     "Dr. Christopher Wong",
     "Christopher B. Wong, DDS",
     "Dr. Wong",
