@@ -137,6 +137,11 @@ export const patientResources = {
       name: "New Patient Registration",
       type: "PDF",
       url: "https://drive.google.com/file/d/13T6fZKNgGt9xbs3yD22I07r4frlUBy6j/view",
+    },
+    {
+      name: "Medical History Update",
+      type: "PDF",
+      url: "https://drive.google.com/file/d/1Qoq1pk7pq-D666U4PsS5UyJaZyOuZtL3/view",
     }
   ],
   prepareForVisit: [
