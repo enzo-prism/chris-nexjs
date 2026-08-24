@@ -85,6 +85,14 @@ export const officeInfo = {
       validFrom: "2026-07-03",
       validThrough: "2026-07-03",
     },
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: "Thursday",
+      opens: "08:00",
+      closes: "13:00",
+      validFrom: "2026-08-27",
+      validThrough: "2026-08-27",
+    },
   ],
   phone: "(650) 326-6319",
   email: "chrisbwongdds@gmail.com",
@@ -136,7 +144,7 @@ export type HolidayHoursEntry = {
  */
 export const holidayHours = {
   active: true,
-  id: "office-hours-2026-06-19-2026-07-03-holiday-limited-hours",
+  id: "office-hours-2026-08-27-limited-hours",
   footerNote:
     "Regular weekly hours apply outside these temporary schedule changes.",
   cta: {
@@ -178,6 +186,13 @@ export const holidayHours = {
       hours: "Closed",
       status: "closed",
       badge: "July Fourth holiday",
+    },
+    {
+      date: "2026-08-27",
+      day: "Thu, Aug 27",
+      hours: "8:00 AM - 1:00 PM",
+      status: "varies",
+      badge: "Limited hours",
     },
   ],
 } as const;
@@ -259,7 +274,7 @@ export function resolveHolidayHours(
     ? `limited office hours ${
         limited.length >= 2
           ? `${limited[0].day} through ${limited[limited.length - 1].day}`
-          : limited[0].day
+          : `${limited[0].day} (${limited[0].hours})`
       }`
     : "";
   const closedPhrase = hasClosed
