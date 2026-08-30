@@ -1,8 +1,9 @@
-# 2026-08-30 Site Overhaul Release Candidate
+# 2026-08-30 Site Overhaul Release
 
-Status: pre-release validation complete; production deployment is not yet
-recorded. Nothing in this document is evidence of a completed production
-deployment until the release, SHA, and production-readback sections are checked.
+Status: released and verified in production on 2026-08-30. The application
+release is commit `206082d666e6d642280cb355286b696a2ad95bf7`, deployed as
+Vercel deployment `dpl_9whzeQWLXJaJ5aMsTnVJuqyJ4Ynn`. GitHub CI run
+`33341956835` completed successfully for the same commit.
 
 ## Candidate scope
 
@@ -59,7 +60,7 @@ Local validation snapshot (2026-08-30):
   route bundle budgets passed.
 - Mobile browser suite: 34/34 passed.
 - Runtime SEO: 34/34 indexable pages passed title and description checks;
-  34 visited, zero indexable orphans; structured data passed on 66 pages.
+  34 visited, zero indexable orphans; 66 JSON-LD payloads parsed and passed.
 - Runtime images: 66 routes and 92 unique image URLs passed, including non-empty
   optimized image-byte verification.
 - Three-run local Lighthouse regression matrix: six critical routes passed;
@@ -79,35 +80,65 @@ Local validation snapshot (2026-08-30):
 
 ## Release and SHA verification
 
-- [ ] Fetch `origin/main` and confirm the release contains current main without
+- [x] Fetch `origin/main` and confirm the release contains current main without
   a force push.
-- [ ] Push the reviewed release commit to `main`.
-- [ ] Confirm `git rev-parse HEAD` equals `git rev-parse origin/main`.
-- [ ] Confirm the Git-triggered deployment belongs to Vercel project
+- [x] Push the reviewed release commit to `main`.
+- [x] Confirm `git rev-parse HEAD` equals `git rev-parse origin/main`.
+- [x] Confirm the Git-triggered deployment belongs to Vercel project
   `chris-wong-dds`, targets production, is `Ready`, and references the release
   commit SHA.
-- [ ] If a manual deploy is necessary, confirm the tree is clean, run
+- [x] A manual deploy was not necessary. The verified Git-triggered deployment
+  completed successfully.
+- [x] If a manual deploy is necessary, confirm the tree is clean, run
   `vercel link --yes --scope enzo-design-prisms-projects --project chris-wong-dds`,
   inspect `.vercel/project.json`, and only then run `vercel --prod --yes`.
+  This procedure was validated but not used for this release.
 
 ## Required production readback
 
-- [ ] `https://www.chriswongdds.com` returns `200`; the apex host permanently
+- [x] `https://www.chriswongdds.com` returns `200`; the apex host permanently
   redirects to the same path on `www`.
-- [ ] `vercel inspect https://www.chriswongdds.com` reports the intended Ready
+- [x] `vercel inspect https://www.chriswongdds.com` reports the intended Ready
   production deployment.
-- [ ] `/`, `/services`, `/invisalign`, `/gallery`, `/schedule`, `/contact`,
+- [x] `/`, `/services`, `/invisalign`, `/gallery`, `/schedule`, `/contact`,
   `/blog`, and a seeded blog article render correctly in a real browser.
-- [ ] Mobile navigation, phone/email links, appointment CTAs, gallery playback,
+- [x] Mobile navigation, phone/email links, appointment CTAs, gallery playback,
   keyboard focus, and form validation work. Do not submit fake live leads.
-- [ ] Raw HTML contains one title, description, canonical, and robots directive;
+- [x] Raw HTML contains one title, description, canonical, and robots directive;
   JSON-LD is valid and does not contain expired temporary-hours data.
-- [ ] `robots.txt` and all sitemap indexes respond correctly, use the canonical
+- [x] `robots.txt` and all sitemap indexes respond correctly, use the canonical
   host, and omit retired routes.
-- [ ] `SEO_AUDIT_BASE_URL=https://www.chriswongdds.com pnpm run test:seo:all`
-- [ ] `IMAGE_AUDIT_BASE_URL=https://www.chriswongdds.com pnpm run test:images`
-- [ ] `LIGHTHOUSE_BASE_URL=https://www.chriswongdds.com LIGHTHOUSE_RUNS=3 pnpm run perf:lighthouse`
-- [ ] Read-only APIs (`/api/services`, `/api/blog-posts`, `/api/testimonials`,
+- [x] `SEO_AUDIT_BASE_URL=https://www.chriswongdds.com pnpm run test:seo:all`
+- [x] `IMAGE_AUDIT_BASE_URL=https://www.chriswongdds.com pnpm run test:images`
+- [x] `LIGHTHOUSE_BASE_URL=https://www.chriswongdds.com LIGHTHOUSE_RUNS=3 pnpm run perf:lighthouse`
+- [x] Read-only APIs (`/api/services`, `/api/blog-posts`, `/api/testimonials`,
   `/rss.xml`) return expected production responses.
-- [ ] Record final commit SHA, Vercel deployment ID, production timestamp, test
+- [x] Record final commit SHA, Vercel deployment ID, production timestamp, test
   results, and measured Lighthouse values before marking this release complete.
+
+## Final production record
+
+- Verified at: 2026-08-30 16:46 PDT (`2026-08-30T23:46:40Z`)
+- Application release commit: `206082d666e6d642280cb355286b696a2ad95bf7`
+- Production deployment: `dpl_9whzeQWLXJaJ5aMsTnVJuqyJ4Ynn` (`Ready`)
+- GitHub CI: run `33341956835` (`success`)
+- Production dependency audit: zero known vulnerabilities
+- Production SEO crawl: 34/34 metadata checks, zero indexable orphans, 66
+  validated JSON-LD payloads
+- Production image crawl: 66 routes and 92 unique image URLs passed
+- Production performance smoke: nine key routes passed
+
+Three-run synthetic Lighthouse results against the public domain:
+
+| Route | Performance | LCP | CLS | TBT |
+| --- | ---: | ---: | ---: | ---: |
+| `/` | 0.95 | 2,397 ms | 0.000 | 0 ms |
+| `/services` | 0.95 | 2,334 ms | 0.000 | 0 ms |
+| `/invisalign` | 0.95 | 2,360 ms | 0.000 | 0 ms |
+| `/dentist-menlo-park` | 0.94 | 2,461 ms | 0.000 | 0 ms |
+| `/gallery` | 0.95 | 2,330 ms | 0.000 | 0 ms |
+| `/schedule` | 0.96 | 2,317 ms | 0.000 | 0 ms |
+
+These are repeatable lab measurements, not field Core Web Vitals. The report was
+finalized after production readback; its docs-only commit does not change the
+verified application runtime.
