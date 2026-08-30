@@ -74,6 +74,9 @@ const optionalText = (maxLength: number) =>
     .optional()
     .or(z.literal(""));
 
+const optionalSchedulePhone = z.string().trim().optional().or(z.literal(""));
+const optionalScheduleEmail = z.string().trim().optional().or(z.literal(""));
+
 const legacyPreferredTimeLabels: Record<string, (typeof preferredTimeOptions)[number]> = {
   "Afternoon (2pm-5pm)": "Afternoon (2pm-close)",
 };
@@ -100,19 +103,20 @@ export const normalizeSchedulePhone = (value: string): string | null => {
 export const isValidSchedulePhone = (value: string): boolean =>
   normalizeSchedulePhone(value) !== null;
 
+const isValidOptionalEmail = (value: string | undefined): boolean => {
+  if (!value || value.trim().length === 0) {
+    return true;
+  }
+
+  return z.string().email().safeParse(value.trim()).success;
+};
+
 export const scheduleRequestV2Schema = z
   .object({
     firstName: z.string().trim().min(1).max(40),
     lastName: z.string().trim().min(1).max(40),
-    phone: z
-      .string()
-      .trim()
-      .min(1, "Phone number is required.")
-      .refine(
-        (value) => isValidSchedulePhone(value),
-        "Phone number must include 10 digits (or 11 digits starting with 1).",
-      ),
-    email: z.string().trim().email(),
+    phone: optionalSchedulePhone,
+    email: optionalScheduleEmail,
     appointmentType: z.enum(appointmentTypeOptions),
     isEmergency: z.boolean().default(false),
     schedulingMode: z.enum(schedulingModeOptions),
@@ -131,6 +135,41 @@ export const scheduleRequestV2Schema = z
     utmParams: z.record(z.string()).optional(),
   })
   .superRefine((value, ctx) => {
+    const phoneProvided = Boolean(value.phone?.trim());
+    const emailProvided = Boolean(value.email?.trim());
+
+    if (phoneProvided && !isValidSchedulePhone(value.phone ?? "")) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Phone number must include 10 digits (or 11 digits starting with 1).",
+        path: ["phone"],
+      });
+    }
+
+    if (!isValidOptionalEmail(value.email)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Please enter a valid email.",
+        path: ["email"],
+      });
+    }
+
+    if (value.contactPreference === "phone" && !phoneProvided) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Phone number is required if you want a call back.",
+        path: ["phone"],
+      });
+    }
+
+    if (value.contactPreference === "email" && !emailProvided) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Email is required if you want an email reply.",
+        path: ["email"],
+      });
+    }
+
     if (value.schedulingMode !== "choose_preferences") {
       return;
     }

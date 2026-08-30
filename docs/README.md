@@ -15,8 +15,8 @@ Use this file as the central index for project documentation.
   Analytics ownership map for GA4, consent mode, and Vercel Web Analytics.
 - `deployment.md`  
   Vercel deployment runbook.
-  Includes production topology (`chris-wong-dds` public domain + mirror projects),
-  SHA/deployment sync checks, and release verification commands.
+  Includes the verified `chris-wong-dds` production target, explicit local-link
+  safety, SHA/deployment sync checks, and release verification commands.
 - `testing.md`  
   Test matrix and release command sets.
 - `api-contracts.md`
@@ -46,6 +46,10 @@ Use this file as the central index for project documentation.
   (WebSite alternateName, thank-you meta, FAQ FSA/HSA, LASTMOD bumps) noted in
   the same release doc; standing rules in `seo-growth-plan.md` Editorial
   guardrails.
+- `release-2026-08-30-site-overhaul.md`
+  Release-candidate scope and the exact pre-release and post-production
+  readback checklist for the design, UX, performance, SEO, dependency, and
+  documentation overhaul.
 
 ## SEO documentation
 

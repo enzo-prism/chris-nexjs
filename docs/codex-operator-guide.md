@@ -44,6 +44,8 @@ Then load topic-specific docs only as needed:
 - Prefer `pnpm` for all package and script execution.
 - Dev usually runs on `http://localhost:5000` because `.env.example` sets `PORT=5000`.
 - Production test scripts usually assume `http://localhost:3000` unless `PRODUCTION_TEST_PORT` or `PRODUCTION_TEST_BASE_URL` is set.
+- Automated form/API tests must mock outbound vendors. Never send synthetic or
+  fake contact, newsletter, or appointment submissions to production.
 - Allowed doctor naming is:
   - `Dr. Christopher B. Wong`
   - `Christopher B. Wong, DDS`
@@ -80,6 +82,7 @@ Then add task-specific checks:
 - Gallery/media work: `pnpm run test:gallery` and `pnpm run test:images`
 - design-system/shared UI work: `pnpm run test:design-system`
 - release candidate: `pnpm run test:production`
+- production dependency safety: `pnpm audit --prod --audit-level=high`
 
 ### For production releases
 
@@ -101,6 +104,9 @@ Use manual local production deploys only when both are true:
 
 - the workspace is clean
 - you intentionally want a CLI-driven production deploy
+
+This checkout does not include a tracked `.vercel/project.json`. Explicitly
+link and inspect `chris-wong-dds` before any manual CLI deploy.
 
 ## Important gotcha: do not overlap route type generation and builds
 
@@ -133,11 +139,6 @@ Public production source of truth:
 - Domains:
   - `https://www.chriswongdds.com`
   - `https://chriswongdds.com`
-
-Mirrors also exist:
-
-- `chris-nextjs`
-- `chriswongdds`
 
 Repository of record:
 
@@ -255,13 +256,15 @@ pnpm run test:routes
 
 ```bash
 pnpm run test:production
+pnpm audit --prod --audit-level=high
+node scripts/mobile-ux-source.test.mjs
+pnpm exec tsx scripts/contact-form-ux.test.ts
+pnpm exec tsx scripts/og-meta-check.ts
+pnpm run test:gallery
+pnpm run test:reviews
 ```
 
-Add extras only if touched:
-
-- `pnpm run test:gallery`
-- `pnpm run test:reviews`
-- perf suite
+Add the full multi-run perf suite for performance-sensitive changes.
 
 ## When the workspace is dirty
 
@@ -272,6 +275,8 @@ Before shipping:
 - inspect `git status --short`
 - avoid bundling unrelated files into the release
 - prefer Git-based production deploys over local `vercel --prod --yes`
+- if a manual deploy is authorized, explicitly link and inspect
+  `chris-wong-dds`; do not trust a previous session's local Vercel link
 
 If a file is dirty and unrelated, leave it alone unless the task explicitly requires it.
 

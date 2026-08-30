@@ -34,6 +34,7 @@ const Testimonials = ({ initialTestimonials }: TestimonialsProps) => {
   } = useQuery<Testimonial[]>({
     queryKey: ["/api/testimonials"],
     initialData: initialTestimonials,
+    enabled: typeof window !== "undefined" && !initialTestimonials,
   });
   const [visibleCount, setVisibleCount] = useState(REVIEWS_PAGE_SIZE);
   const reviews = testimonials ?? [];

@@ -2,6 +2,8 @@ import { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { getStorage } from "../../../../server/storage/repository";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ slug: string }> },

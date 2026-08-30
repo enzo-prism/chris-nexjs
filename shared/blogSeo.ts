@@ -1,4 +1,4 @@
-import { buildExcerpt } from "./seo";
+import { stripMarkdownToPlainText } from "./blog";
 
 type BlogSeoOverride = {
   pageTitle?: string;
@@ -12,6 +12,11 @@ type BlogSeoInput = {
 };
 
 const BLOG_SEO_OVERRIDES: Record<string, BlogSeoOverride> = {
+  "emergency-dental-care-palo-alto": {
+    pageTitle: "What Counts as a Dental Emergency? A Palo Alto Guide",
+    description:
+      "Learn which symptoms need urgent dental care, what to do for pain, swelling, broken teeth, or a knocked-out tooth, and when Palo Alto patients should call.",
+  },
   "custom-sports-mouthguard-palo-alto": {
     description:
       "Learn when kids need a custom sports mouthguard, how it compares with store-bought options, and why Palo Alto families may want one before spring sports.",
@@ -42,7 +47,7 @@ const BLOG_SEO_OVERRIDES: Record<string, BlogSeoOverride> = {
   },
   "crown-fell-off-palo-alto": {
     description:
-      "If your dental crown feels loose or falls off, quick steps can protect the tooth until you are seen. Learn what to do, what to avoid, and when to call Chris Wong DDS in Palo Alto.",
+      "If your dental crown feels loose or falls off, quick steps can protect the tooth until you are seen. Learn what to do, what to avoid, and when to call the Palo Alto office.",
   },
   "lost-retainer-palo-alto": {
     description:
@@ -54,6 +59,66 @@ const BLOG_SEO_OVERRIDES: Record<string, BlogSeoOverride> = {
   },
 };
 
+const BRAND_SUFFIX = " | Dr. Wong";
+const BRANDED_TITLE_LIMIT = 65;
+const DESCRIPTION_TARGET_LENGTH = 160;
+const DESCRIPTION_MIN_LENGTH = 100;
+
+function getNaturalPageTitle(editorialTitle: string): string {
+  const titleWithBrand = `${editorialTitle}${BRAND_SUFFIX}`;
+  if (titleWithBrand.length <= BRANDED_TITLE_LIMIT) return titleWithBrand;
+
+  // Many editorial headlines use a complete question followed by a longer
+  // explanatory deck. The question is a deliberate, human-written boundary,
+  // so it can serve as a concise page title without cutting a phrase midway.
+  const questionEnd = editorialTitle.indexOf("?");
+  if (questionEnd >= 34) {
+    const questionTitle = editorialTitle.slice(0, questionEnd + 1).trim();
+    const brandedQuestionTitle = `${questionTitle}${BRAND_SUFFIX}`;
+    return brandedQuestionTitle.length <= BRANDED_TITLE_LIMIT
+      ? brandedQuestionTitle
+      : questionTitle;
+  }
+
+  return editorialTitle;
+}
+
+function getNaturalLeadDescription(content: string): string {
+  const leadParagraph = content
+    .split(/\r?\n\s*\r?\n/)
+    .map((paragraph) => stripMarkdownToPlainText(paragraph))
+    .find((paragraph) => paragraph.length >= 40);
+  const normalized = leadParagraph ?? stripMarkdownToPlainText(content);
+
+  if (!normalized) return "";
+  if (normalized.length <= DESCRIPTION_TARGET_LENGTH) return normalized;
+
+  const sentences = normalized.match(/[^.!?]+[.!?]+(?:[\"'’”)}\]]+)?/g) ?? [];
+  let description = "";
+
+  for (const rawSentence of sentences) {
+    const sentence = rawSentence.trim();
+    if (!sentence) continue;
+
+    const candidate = description ? `${description} ${sentence}` : sentence;
+    if (
+      description &&
+      candidate.length > DESCRIPTION_TARGET_LENGTH &&
+      description.length >= DESCRIPTION_MIN_LENGTH
+    ) {
+      break;
+    }
+
+    // Keep the first sentence whole even when it is longer than the display
+    // target. Search engines may choose their own snippet, but our source
+    // description should never end in a mechanically cut word or thought.
+    description = candidate;
+    if (description.length >= DESCRIPTION_MIN_LENGTH) break;
+  }
+
+  return description || normalized;
+}
+
 export function getBlogSeoMetadata(post?: BlogSeoInput | null): {
   title: string;
   description: string;
@@ -61,20 +126,10 @@ export function getBlogSeoMetadata(post?: BlogSeoInput | null): {
   if (!post) return null;
 
   const override = BLOG_SEO_OVERRIDES[post.slug];
-  const brandSuffix = " | Dr. Wong";
-  const maxTitleLength = 60;
   const editorialTitle = override?.pageTitle ?? post.title;
-  const titleWithBrand = `${editorialTitle}${brandSuffix}`;
-  const title =
-    titleWithBrand.length <= maxTitleLength
-      ? titleWithBrand
-      : editorialTitle
-          .slice(0, maxTitleLength)
-          .replace(/\s+\S*$/, "")
-          .trim();
 
   return {
-    title,
-    description: override?.description ?? buildExcerpt(post.content),
+    title: getNaturalPageTitle(editorialTitle),
+    description: override?.description ?? getNaturalLeadDescription(post.content),
   };
 }

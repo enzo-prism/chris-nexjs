@@ -8,8 +8,8 @@ import { defineConfig, devices } from "@playwright/test";
  * spec navigates with `page.goto` and then waits for the relevant element to
  * become visible (hydration) before asserting.
  *
- * We drive the system Google Chrome via `channel: "chrome"` so we do not need
- * to download Playwright's full bundled browser set. The iPhone device
+ * Local runs drive the system Google Chrome; CI installs Playwright Chromium
+ * for a deterministic browser binary. The iPhone device
  * descriptor defaults to WebKit, so we explicitly override
  * `defaultBrowserType` to `chromium` and drop the WebKit-only user agent that
  * would otherwise be ignored by Chrome.
@@ -42,7 +42,7 @@ export default defineConfig({
         // The iPhone descriptor sets defaultBrowserType to "webkit"; force
         // chromium so the `channel: "chrome"` launch is honored.
         defaultBrowserType: "chromium",
-        channel: "chrome",
+        channel: process.env.CI ? undefined : "chrome",
         // The WebKit Safari UA from the descriptor is meaningless under
         // Chrome; let Chrome supply its own UA while we keep the mobile
         // viewport / touch / device-scale-factor that matter for the tests.

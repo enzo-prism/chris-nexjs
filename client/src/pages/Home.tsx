@@ -1,550 +1,196 @@
-"use client";
-
-import { useEffect, useRef, useState } from "react";
-import dynamic from "next/dynamic";
 import Image from "next/image";
-import HeroSection from "@/components/sections/HeroSection";
-import StructuredData from "@/components/seo/StructuredData";
-import ButtonLink from "@/components/common/ButtonLink";
-import AnimatedFlowDivider from "@/components/common/animated/AnimatedFlowDivider";
+import Link from "next/link";
 import {
   ArrowRight,
-  CheckCircle,
-  ChevronLeft,
-  ChevronRight,
+  CalendarDays,
+  CheckCircle2,
+  MapPin,
   Phone,
-  Quote,
 } from "lucide-react";
-import Link from "next/link";
-import type { InsertTestimonial, Service } from "@shared/schema";
+
+import ButtonLink from "@/components/common/ButtonLink";
+import FAQSection from "@/components/common/FAQSection";
+import OfficeHoursSummary from "@/components/common/OfficeHoursSummary";
+import ServiceCard from "@/components/common/ServiceCard";
+import StructuredData from "@/components/seo/StructuredData";
+import AboutDoctorSection from "@/components/sections/AboutDoctorSection";
+import FeaturesSection from "@/components/sections/FeaturesSection";
+import HeroSection from "@/components/sections/HeroSection";
+import PatientProofSection from "@/components/sections/PatientProofSection";
 import { officeInfo } from "@/lib/data";
-import { useHolidayHours } from "@/hooks/useHolidayHours";
-import { isNoAdditionalCommentPlaceholder } from "@/lib/testimonialText";
 import {
   buildFAQSchema,
   type FAQEntry,
 } from "@/lib/structuredData";
+import type { Service } from "@shared/schema";
 
-const FeaturesSection = dynamic(
-  () => import("@/components/sections/FeaturesSection"),
-  { ssr: true, loading: () => null },
-);
-const AboutDoctorSection = dynamic(
-  () => import("@/components/sections/AboutDoctorSection"),
-  { ssr: true, loading: () => null },
-);
-const FAQSection = dynamic(
-  () => import("@/components/common/FAQSection"),
-  { ssr: true, loading: () => null },
-);
-const ServiceCard = dynamic(
-  () => import("@/components/common/ServiceCard"),
-  { ssr: true, loading: () => null },
-);
 type HomeProps = {
   readonly initialServices?: Service[];
 };
 
-const homeSpotlightTestimonials: readonly InsertTestimonial[] = [
+const homeFaqs: FAQEntry[] = [
   {
-    name: "Marypat Power",
-    rating: 5,
-    location: "Google Review",
-    image: "",
-    text: "Dr Kris and Dr Wong are both so personable, professional, and gentle. I highly recommend them!",
+    question: "Where is your Palo Alto dental office located?",
+    answer: `Our office is located at ${officeInfo.address.line1}, ${officeInfo.address.line2}. Use the directions link on this page or call our team if you’d like parking tips before your visit.`,
   },
   {
-    name: "Steve Collins",
-    rating: 5,
-    location: "Google Review",
-    image: "",
-    text: "High skill level, modern tools, helpful guidance and a friendly demeanor. An excellent experience for cleanings and fillings. Strong recommend.",
+    question: "Are you accepting new patients?",
+    answer:
+      "Yes—new patients are welcome. We’ll start with a thorough exam and a clear conversation about your goals, concerns, and the next best steps.",
   },
   {
-    name: "Anne Starr",
-    rating: 5,
-    location: "Google Review",
-    image: "",
-    text: "Dr. Hamamoto did great passing her practice to Dr. Wong! He is great! Helen and Angelisa are the best dental hygienists!",
+    question: "What services do you offer?",
+    answer:
+      "We offer preventive checkups and cleanings, cosmetic dentistry, Invisalign, restorative care, and emergency dental visits. Explore our services page for details and common next steps.",
   },
   {
-    name: "Sarah Chase",
-    rating: 5,
-    location: "Google Review",
-    image: "",
-    text: "Excellent care, I never worry about if I'm getting the best care or suggestions. I am always confident that the right amount of solutions are recommended. All the newest proven tech and services.",
+    question: "Do you accept dental insurance?",
+    answer:
+      "We work with most major PPO dental insurance plans as an out-of-network provider. Share your plan information and our team will help verify benefits and walk through expected costs before you commit to treatment.",
   },
   {
-    name: "Michael Austin",
-    rating: 5,
-    location: "Google Review",
-    image: "",
-    text: "Been getting my dental care at this office for nearly 30 years, and both my parents did so before me. Kind and caring, gentle and good, and reasonably priced!",
+    question: "What if I have a dental emergency?",
+    answer:
+      "If you have significant pain, swelling, or a broken tooth, call our office as soon as possible. We’ll help you understand what to do next and schedule urgent care when available.",
+  },
+  {
+    question: "How do I schedule an appointment?",
+    answer:
+      "You can request an appointment online or call our office. We’ll confirm a time and help you prepare for your first visit.",
   },
 ];
 
+const visitPlanningSteps = [
+  {
+    icon: CalendarDays,
+    title: "Tell Us What You Need",
+    description:
+      "Choose the type of visit you want, from a new-patient exam to urgent care.",
+  },
+  {
+    icon: Phone,
+    title: "Pick Your Best Contact Method",
+    description:
+      "Choose phone or email so the team knows the best way to respond.",
+  },
+  {
+    icon: CheckCircle2,
+    title: "We Confirm the Exact Time",
+    description:
+      "Our team follows up to confirm the exact date and time.",
+  },
+] as const;
+
 const Home = ({ initialServices = [] }: HomeProps) => {
-  const testimonialsToShow = homeSpotlightTestimonials;
-  const holiday = useHolidayHours();
-  const [activeTestimonial, setActiveTestimonial] = useState(0);
-  const testimonialCount = testimonialsToShow.length;
-  const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
-
-  const getWrappedIndex = (index: number) => {
-    if (testimonialCount === 0) return 0;
-    return (index + testimonialCount) % testimonialCount;
-  };
-
-  const goToPreviousTestimonial = () => {
-    if (testimonialCount === 0) return;
-    setActiveTestimonial((current) => getWrappedIndex(current - 1));
-  };
-
-  const goToNextTestimonial = () => {
-    if (testimonialCount === 0) return;
-    setActiveTestimonial((current) => getWrappedIndex(current + 1));
-  };
-
-  const handleTestimonialPointerDown = (event: any) => {
-    if (event.pointerType === "mouse" && event.button !== 0) return;
-    swipeStartRef.current = { x: event.clientX, y: event.clientY };
-  };
-
-  const handleTestimonialPointerUp = (event: any) => {
-    if (!swipeStartRef.current) return;
-
-    const deltaX = event.clientX - swipeStartRef.current.x;
-    const deltaY = event.clientY - swipeStartRef.current.y;
-    swipeStartRef.current = null;
-
-    if (Math.abs(deltaY) > Math.abs(deltaX)) return;
-    const swipeThreshold = 45;
-    if (Math.abs(deltaX) < swipeThreshold) return;
-
-    if (deltaX < 0) {
-      goToNextTestimonial();
-      return;
-    }
-
-    goToPreviousTestimonial();
-  };
-
-  const resetSwipeStart = () => {
-    swipeStartRef.current = null;
-  };
-
-  const handleTestimonialKeyDown = (event: any) => {
-    if (event.key === "ArrowLeft") {
-      event.preventDefault();
-      goToPreviousTestimonial();
-    }
-    if (event.key === "ArrowRight") {
-      event.preventDefault();
-      goToNextTestimonial();
-    }
-  };
-
-  useEffect(() => {
-    if (!testimonialCount) return;
-    if (activeTestimonial > testimonialCount - 1) {
-      setActiveTestimonial(0);
-    }
-  }, [activeTestimonial, testimonialCount]);
-
-  const trackWidthPercent = testimonialCount * 100;
-  const slideWidthPercent = testimonialCount > 0 ? 100 / testimonialCount : 100;
-  const trackTranslatePercent =
-    testimonialCount > 0 ? (activeTestimonial * 100) / testimonialCount : 0;
-
-  const homeFaqs: FAQEntry[] = [
-    {
-      question: "Where is your Palo Alto dental office located?",
-      answer: `Our office is located at ${officeInfo.address.line1}, ${officeInfo.address.line2}. Use the directions link on this page or call our team if you’d like parking tips before your visit.`,
-    },
-    {
-      question: "Are you accepting new patients?",
-      answer:
-        "Yes—new patients are welcome. We’ll start with a thorough exam and a clear conversation about your goals, concerns, and the next best steps.",
-    },
-    {
-      question: "What services do you offer?",
-      answer:
-        "We offer preventive checkups and cleanings, cosmetic dentistry, Invisalign, restorative care, and emergency dental visits. Explore our services page for details and common next steps.",
-    },
-    {
-      question: "Do you accept dental insurance?",
-      answer:
-        "We work with most major PPO dental insurance plans as an out-of-network provider. Share your plan information and our team will help verify benefits and walk through expected costs before you commit to treatment.",
-    },
-    {
-      question: "What if I have a dental emergency?",
-      answer:
-        "If you have significant pain, swelling, or a broken tooth, call our office as soon as possible. We’ll help you understand what to do next and schedule urgent care when available.",
-    },
-    {
-      question: "How do I schedule an appointment?",
-      answer:
-        "You can request an appointment online or call our office. We’ll confirm a time and help you prepare for your first visit.",
-    },
-  ];
-
-  const schemaNodes = [];
   const faqSchema = buildFAQSchema(homeFaqs, "/");
-  if (faqSchema) {
-    schemaNodes.push(faqSchema);
-  }
 
   return (
     <>
-      <StructuredData data={schemaNodes} />
+      <StructuredData data={faqSchema ? [faqSchema] : []} />
       <HeroSection />
 
-      <div className="bg-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <AnimatedFlowDivider
-            idPrefix="home-hero-testimonials-divider"
-            className="mx-auto h-16 max-w-4xl text-sky-500/55"
-          />
-        </div>
-      </div>
-
-      {/* Patient Testimonials Spotlight */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#F4F8FC] via-white to-[#F8FBFF] py-16 md:py-24">
+      <section
+        id="services"
+        aria-labelledby="home-services-title"
+        className="relative overflow-hidden bg-white py-16 md:py-24"
+      >
         <div
-          className="pointer-events-none absolute left-[18%] top-16 h-72 w-72 rounded-full bg-[#DBEAFE]/60 blur-3xl"
+          className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-sky-50/80 to-transparent"
           aria-hidden="true"
         />
-        <div
-          className="pointer-events-none absolute right-[12%] top-24 h-64 w-64 rounded-full bg-[#FDE68A]/30 blur-3xl"
-          aria-hidden="true"
-        />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative text-center mb-12 md:mb-16">
-            <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-[#CBD5E1] bg-white/90 px-4 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#334155]">
-              <Quote className="h-3.5 w-3.5 text-primary" />
-              Testimonials
-            </div>
-            <h2 className="mt-4 text-3xl md:text-5xl font-bold font-heading text-[#1F2933]">
-              What Our Patients Say
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto mb-10 max-w-3xl text-center md:mb-14">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
+              Care That Fits Your Life
+            </p>
+            <h2
+              id="home-services-title"
+              className="mt-3 text-balance font-heading text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl md:text-5xl"
+            >
+              Start With the Care You Need
             </h2>
-            <p className="mt-4 text-base md:text-xl text-slate-600 max-w-2xl mx-auto">
-              Real stories from families who trust us with their smiles.
+            <p className="mx-auto mt-5 max-w-2xl text-pretty text-base leading-7 text-slate-600 md:text-lg">
+              From routine prevention to restoring comfort and confidence, Dr.
+              Wong will explain what he sees and help you choose a practical
+              next step.
             </p>
           </div>
 
-          {/* Desktop carousel (lg+) — rich photo + side quote + preview cards */}
-          {testimonialCount > 0 && (
-            <div
-              className="relative mx-auto hidden max-w-6xl lg:block"
-              onKeyDown={handleTestimonialKeyDown}
-              tabIndex={0}
-              role="region"
-              aria-label="Patient testimonials carousel"
-            >
-              <button
-                type="button"
-                aria-label="Previous testimonial"
-                className="absolute left-0 top-1/2 z-30 hidden h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-md transition-colors hover:border-slate-300 hover:text-slate-900 lg:inline-flex"
-                onClick={goToPreviousTestimonial}
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <button
-                type="button"
-                aria-label="Next testimonial"
-                className="absolute right-0 top-1/2 z-30 hidden h-12 w-12 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-white shadow-md transition-colors hover:bg-primary/90 lg:inline-flex"
-                onClick={goToNextTestimonial}
-              >
-                <ChevronRight className="h-5 w-5" />
-              </button>
-
-              <div
-                className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_30px_60px_-38px_rgba(15,23,42,0.48)] touch-pan-y"
-                onPointerDown={handleTestimonialPointerDown}
-                onPointerUp={handleTestimonialPointerUp}
-                onPointerCancel={resetSwipeStart}
-                onPointerLeave={resetSwipeStart}
-              >
-                <div
-                  className="flex transition-transform duration-500 ease-out will-change-transform"
-                  style={{
-                    width: `${trackWidthPercent}%`,
-                    transform: `translateX(-${trackTranslatePercent}%)`,
-                  }}
-                >
-                  {testimonialsToShow.map((testimonial, index) => (
-                    <article
-                      key={`slide-${testimonial.name}-${index}`}
-                      className="shrink-0 px-5 pb-10 pt-6 sm:px-8 md:px-12 md:pb-12 md:pt-10"
-                      style={{ width: `${slideWidthPercent}%` }}
-                    >
-                      <div
-                        className={
-                          testimonial.image
-                            ? "grid items-center gap-7 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-10"
-                            : ""
-                        }
-                      >
-                        {testimonial.image && (
-                          <div className="relative mx-auto w-full max-w-sm overflow-hidden rounded-[1.5rem] border border-slate-200 bg-slate-100 shadow-lg sm:max-w-md lg:max-w-none">
-                            <div className="relative aspect-[4/5] min-h-[320px] sm:min-h-[440px] lg:min-h-[520px]">
-                              <Image
-                                src={testimonial.image}
-                                alt={`${testimonial.name} smiling with the dental team after an appointment`}
-                                fill
-                                className="object-cover object-center"
-                                sizes="(max-width: 640px) 90vw, (max-width: 1024px) 480px, 440px"
-                              />
-                            </div>
-                          </div>
-                        )}
-
-                        <div>
-                          <div
-                            className={`flex items-center gap-3 ${
-                              testimonial.image ? "justify-start" : "justify-center"
-                            }`}
-                          >
-                            <div className="rounded-2xl border border-slate-200 bg-white p-2.5 text-primary">
-                              <Quote className="h-5 w-5" />
-                            </div>
-                            <div className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-amber-600">
-                              {Array.from({ length: 5 }).map((_, starIndex) => (
-                                <span
-                                  key={`active-star-${testimonial.name}-${starIndex}`}
-                                  className="text-base leading-none"
-                                >
-                                  {starIndex < testimonial.rating ? "★" : "☆"}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-
-                          {!isNoAdditionalCommentPlaceholder(testimonial.text) && (
-                            <p
-                              className={`mt-8 max-w-3xl text-2xl font-light italic leading-relaxed text-slate-700 md:text-[2rem] md:leading-[1.45] ${
-                                testimonial.image ? "text-left" : "mx-auto text-center"
-                              }`}
-                            >
-                              &ldquo;{testimonial.text}&rdquo;
-                            </p>
-                          )}
-
-                          <div
-                            className={`mt-8 h-px w-20 bg-slate-300 ${
-                              testimonial.image ? "" : "mx-auto"
-                            }`}
-                          />
-                          <div
-                            className={`mt-6 ${
-                              testimonial.image ? "text-left" : "text-center"
-                            }`}
-                          >
-                            <p className="text-2xl font-semibold text-slate-900">
-                              {testimonial.name}
-                            </p>
-                            <p className="mt-1 text-sm font-medium uppercase tracking-[0.12em] text-slate-500">
-                              {testimonial.location || "Google Review"}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-5 grid gap-4 lg:grid-cols-2">
-                {[-1, 1].map((offset) => {
-                  const cardIndex = getWrappedIndex(activeTestimonial + offset);
-                  const card = testimonialsToShow[cardIndex];
-                  return (
-                    <button
-                      type="button"
-                      key={`preview-${card.name}-${offset}`}
-                      className="rounded-2xl border border-slate-200/90 bg-white/80 px-5 py-4 text-left shadow-sm transition-colors hover:bg-white"
-                      onClick={() => setActiveTestimonial(cardIndex)}
-                    >
-                      <p className="text-sm font-semibold text-slate-900">{card.name}</p>
-                      <p className="mt-2 line-clamp-2 text-sm text-slate-600">
-                        {isNoAdditionalCommentPlaceholder(card.text)
-                          ? "Rated on Google"
-                          : card.text}
-                      </p>
-                    </button>
-                  );
-                })}
-              </div>
-
-            </div>
-          )}
-
-          {/* Mobile testimonial card (below lg) — one card sized to the active
-              review (no equal-height empty space), swipeable, dots for nav. */}
-          {testimonialCount > 0 &&
-            (() => {
-              const mobileIndex = Math.min(
-                activeTestimonial,
-                testimonialCount - 1,
-              );
-              const t = testimonialsToShow[mobileIndex];
-              return (
-                <div className="mx-auto max-w-xl lg:hidden">
-                  <div
-                    className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_24px_50px_-34px_rgba(15,23,42,0.45)] touch-pan-y"
-                    onPointerDown={handleTestimonialPointerDown}
-                    onPointerUp={handleTestimonialPointerUp}
-                    onPointerCancel={resetSwipeStart}
-                    onPointerLeave={resetSwipeStart}
-                    role="region"
-                    aria-roledescription="carousel"
-                    aria-label="Patient testimonials"
-                    aria-live="polite"
-                  >
-                    <div
-                      key={mobileIndex}
-                      className="animate-in fade-in-0 duration-500"
-                    >
-                      {t.image && (
-                        <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100">
-                          <Image
-                            src={t.image}
-                            alt={`${t.name} smiling with the dental team after an appointment`}
-                            fill
-                            className="object-cover object-center"
-                            sizes="(max-width: 1024px) 100vw, 576px"
-                          />
-                        </div>
-                      )}
-                      <div className="flex flex-col items-center px-6 py-8 text-center">
-                        <div className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-base leading-none text-amber-500">
-                          {Array.from({ length: 5 }).map((_, starIndex) => (
-                            <span key={`m-star-${t.name}-${starIndex}`}>
-                              {starIndex < t.rating ? "★" : "☆"}
-                            </span>
-                          ))}
-                        </div>
-                        {!isNoAdditionalCommentPlaceholder(t.text) && (
-                          <p className="mt-5 text-lg font-light italic leading-relaxed text-slate-700">
-                            &ldquo;{t.text}&rdquo;
-                          </p>
-                        )}
-                        <div className="mt-6 h-px w-14 bg-slate-300" />
-                        <p className="mt-4 text-lg font-semibold text-slate-900">
-                          {t.name}
-                        </p>
-                        <p className="mt-1 text-xs font-medium uppercase tracking-[0.12em] text-slate-500">
-                          {t.location || "Google Review"}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })()}
-
-          <div className="mt-8 flex items-center justify-center gap-1">
-            {testimonialsToShow.map((testimonial, index) => (
-              <button
-                key={`carousel-dot-${testimonial.name}-${index}`}
-                type="button"
-                data-testid="testimonial-dot"
-                aria-label={`Go to testimonial ${index + 1}`}
-                aria-current={activeTestimonial === index ? "true" : undefined}
-                onClick={() => setActiveTestimonial(index)}
-                className="group flex h-11 w-11 items-center justify-center"
-              >
-                <span
-                  className={`h-2.5 rounded-full transition-all duration-300 ${
-                    activeTestimonial === index
-                      ? "w-8 bg-primary"
-                      : "w-2.5 bg-slate-300 group-hover:bg-slate-400"
-                  }`}
-                />
-              </button>
+          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {initialServices.slice(0, 3).map((service) => (
+              <ServiceCard key={service.id} service={service} />
             ))}
           </div>
 
-          <div className="mt-12 flex justify-center">
+          <div className="mt-10 flex flex-col items-center justify-center gap-4 text-center sm:flex-row md:mt-12">
             <ButtonLink
-              href="/testimonials"
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-medium text-white shadow-sm transition-[transform,box-shadow,background-color] hover:scale-105 hover:bg-primary/90 hover:shadow-md"
+              href="/services"
+              variant="outline"
+              size="lg"
+              className="min-h-12 rounded-full px-7 text-base font-semibold"
             >
-              Read more patient stories
+              View all dental services
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </ButtonLink>
+            <p className="text-sm text-slate-600">
+              Looking for clear aligners?{" "}
+              <Link href="/invisalign" className="ui-link-premium">
+                Explore Invisalign in Palo Alto
+              </Link>
+              .
+            </p>
           </div>
         </div>
       </section>
 
-      {/* Local relevance section */}
-      <section id="palo-alto-dentist" className="bg-white py-12 md:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-            <div className="lg:col-span-7 space-y-5">
-              <h2 className="text-3xl md:text-4xl font-bold font-heading text-[#1F2933]">
-                Dentist in Palo Alto, CA
+      <AboutDoctorSection />
+      <FeaturesSection />
+
+      <section
+        id="palo-alto-dentist"
+        aria-labelledby="visit-office-title"
+        className="bg-white py-16 md:py-24"
+      >
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)] lg:gap-16">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
+                A Local Palo Alto Practice
+              </p>
+              <h2
+                id="visit-office-title"
+                className="mt-3 text-balance font-heading text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl md:text-5xl"
+              >
+                Thoughtful Dentistry, Close to Home
               </h2>
-              <p className="text-lg text-slate-700 leading-relaxed">
-                Our team provides modern, conservative dentistry focused on
-                long‑term comfort and oral health. We welcome patients from
-                Palo Alto, Stanford, Menlo Park, and nearby Peninsula
-                neighborhoods.
+              <p className="mt-6 text-pretty text-lg leading-8 text-slate-700">
+                At our Cambridge Avenue office, the team provides modern,
+                conservative dentistry for children, teens, and adults. Patients
+                visit us from Palo Alto, Stanford, Menlo Park, Mountain View,
+                and nearby Peninsula communities.
               </p>
-              <p className="text-lg text-slate-700 leading-relaxed">
-                From checkups and cleanings to Invisalign, cosmetic veneers, and
-                restorative care, we’ll explain what we see and help you choose
-                a plan that fits your goals and schedule.
-              </p>
-              <p className="text-lg text-slate-700 leading-relaxed">
-                Explore focused treatments including{" "}
+              <p className="mt-5 text-pretty text-base leading-7 text-slate-600 md:text-lg">
+                Whether you are due for a checkup or want to discuss{" "}
                 <Link href="/restorative-dentistry" className="ui-link-premium">
                   restorative dentistry
-                </Link>{" "}
-                and{" "}
+                </Link>
+                ,{" "}
                 <Link href="/pediatric-dentistry" className="ui-link-premium">
-                  pediatric dentistry
-                </Link>{" "}
-                for children, teens, and adults.
+                  children&apos;s dentistry
+                </Link>
+                , or cosmetic goals, you can expect a clear conversation before
+                treatment begins.
               </p>
-              <p className="text-lg text-slate-700 leading-relaxed">
-                Our Palo Alto dental office is located at {officeInfo.address.line1},{" "}
-                {officeInfo.address.city}, {officeInfo.address.region} {officeInfo.address.postalCode}.
-              </p>
-              <p className="text-sm text-slate-600">
-                Nearby communities:{" "}
-                <Link
-                  href="/dentist-menlo-park"
-                  className="ui-link-premium"
-                >
-                  Menlo Park families
-                </Link>
-                ,{" "}
-                <Link
-                  href="/dentist-stanford"
-                  className="ui-link-premium"
-                >
-                  Stanford patients
-                </Link>
-                ,{" "}
-                <Link
-                  href="/dentist-mountain-view"
-                  className="ui-link-premium"
-                >
-                  Mountain View families
-                </Link>
-                , and other{" "}
-                <Link href="/locations" className="ui-link-premium">
-                  nearby Peninsula communities
-                </Link>
-                .
-              </p>
-              <div className="mt-4 rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  Service areas
+
+              <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50/80 p-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                  Nearby Communities
                 </p>
-                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-sm text-slate-700">
-                  <span className="font-semibold text-slate-900">Palo Alto</span>
+                <nav
+                  aria-label="Dental office service areas"
+                  className="mt-3 flex flex-wrap gap-x-5 gap-y-3 text-sm"
+                >
+                  <span className="font-semibold text-slate-950">Palo Alto</span>
                   <Link href="/dentist-menlo-park" className="ui-link-premium">
                     Menlo Park
                   </Link>
@@ -555,217 +201,159 @@ const Home = ({ initialServices = [] }: HomeProps) => {
                     Mountain View
                   </Link>
                   <Link href="/locations" className="ui-link-premium">
-                    All nearby communities
+                    View all nearby communities
                   </Link>
-                </div>
+                </nav>
               </div>
-              <div className="flex flex-col sm:flex-row gap-3 pt-1">
+
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <ButtonLink
                   href="/schedule#appointment"
-                  className="ui-btn-primary"
+                  size="lg"
+                  className="min-h-12 rounded-full px-7 text-base font-semibold"
                 >
                   Request an appointment
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </ButtonLink>
-                <ButtonLink
-                  href="/services"
-                  variant="outline"
-                  className="ui-btn-outline"
+                <a
+                  href={`tel:${officeInfo.phoneE164}`}
+                  className="ui-focus-premium inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-5 text-base font-semibold text-slate-700 transition-colors hover:bg-slate-100 hover:text-primary"
                 >
-                  Explore dental services
-                </ButtonLink>
+                  <Phone className="h-4 w-4" aria-hidden="true" />
+                  {officeInfo.phone}
+                </a>
               </div>
             </div>
 
-            <div className="lg:col-span-5">
-              <div className="rounded-2xl border border-slate-100 bg-[#F5F9FC] p-6 shadow-sm space-y-5">
+            <aside className="overflow-hidden rounded-[2rem] border border-slate-200 bg-[#F4F8FC] shadow-[0_28px_70px_-44px_rgba(15,23,42,0.52)]">
+              <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
+                <Image
+                  src="/images/office/quiet-garden-courtyard.webp"
+                  alt="Garden courtyard visible from the Palo Alto dental treatment rooms"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 44vw"
+                  className="object-cover"
+                />
+                <div
+                  className="absolute inset-0 bg-gradient-to-t from-slate-950/55 via-transparent to-transparent"
+                  aria-hidden="true"
+                />
+                <p className="absolute bottom-4 left-5 right-5 text-sm font-medium text-white">
+                  Garden-facing treatment rooms on Cambridge Avenue
+                </p>
+              </div>
+
+              <div className="grid gap-6 p-6 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 xl:p-7">
                 <div>
-                  <h3 className="text-sm font-semibold tracking-wide text-slate-900 uppercase">
-                    Office location
-                  </h3>
-                  <p className="mt-2 text-slate-800 leading-relaxed">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-slate-950">
+                    <MapPin className="h-4 w-4 text-primary" aria-hidden="true" />
+                    Office Location
+                  </div>
+                  <address className="mt-2 text-sm not-italic leading-6 text-slate-700">
                     {officeInfo.address.line1}
                     <br />
                     {officeInfo.address.line2}
-                  </p>
+                  </address>
                   <a
                     href={officeInfo.mapUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-2 inline-flex items-center ui-link-premium"
+                    className="ui-link-premium mt-3 inline-flex min-h-11 items-center"
                   >
                     Get directions
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
                   </a>
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-semibold tracking-wide text-slate-900 uppercase">
-                    Call
-                  </h3>
-                  <a
-                    href={`tel:${officeInfo.phoneE164}`}
-                    className="mt-2 inline-flex items-center text-slate-800 font-semibold hover:text-primary transition-colors"
-                  >
-                    {officeInfo.phone}
-                  </a>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-semibold tracking-wide text-slate-900 uppercase">
-                    Hours
-                  </h3>
-                  <div className="mt-2 text-slate-700 text-sm leading-relaxed">
-                    <div>Mon, Tue, Thu: {officeInfo.hours.monday}</div>
-                    <div>Wed: {officeInfo.hours.wednesday}</div>
-                    <div>Fri: {officeInfo.hours.friday}</div>
-                    <div>Sat-Sun: {officeInfo.hours.saturday}</div>
+                  <div className="flex items-center gap-2 text-sm font-semibold text-slate-950">
+                    <CalendarDays className="h-4 w-4 text-primary" aria-hidden="true" />
+                    Regular Hours
                   </div>
-                  {holiday ? (
-                    <p className="mt-3 text-xs leading-relaxed text-slate-500">
-                      <span className="font-semibold">Temporary update:</span>{" "}
-                      {holiday.shortNotice}
-                    </p>
-                  ) : null}
+                  <OfficeHoursSummary
+                    className="mt-2 text-sm text-slate-700"
+                    noteClassName="text-slate-600"
+                  />
                 </div>
               </div>
-            </div>
+            </aside>
           </div>
         </div>
       </section>
 
-      <FeaturesSection />
-
-      {/* About Section */}
-      <AboutDoctorSection />
-
-      {/* Services Section */}
-      <section
-        id="services"
-        className="bg-gradient-to-b from-white to-gray-50/30 py-16 md:py-20"
-      >
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          {/* Header */}
-          <div className="mb-16 text-center">
-            <h2 className="mb-6 font-heading text-3xl font-bold text-gray-900 md:text-4xl lg:text-5xl">
-              Our Services
-            </h2>
-            <p className="mx-auto max-w-3xl text-lg leading-relaxed text-gray-600 md:text-xl">
-              Comprehensive dental care using the latest techniques and
-              technology to improve your oral health and enhance your smile.{" "}
-              <Link
-                href="/invisalign"
-                className="ui-link-premium"
-              >
-                Invisalign in Palo Alto
-              </Link>{" "}
-              offers a discreet way to straighten teeth with a personalized
-              plan.
-            </p>
-            <div className="mx-auto mt-8 h-1 w-24 rounded-full bg-primary" />
-          </div>
-
-          {/* Services Grid - Responsive: 1 column on mobile, 3 columns on desktop */}
-          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 md:gap-8 lg:grid-cols-3">
-            {initialServices.slice(0, 3).map((service) => (
-              <div key={service.id} className="h-full">
-                <ServiceCard service={service} />
-              </div>
-            ))}
-          </div>
-
-          {/* CTA Button */}
-          <div className="mt-16 text-center">
-            <ButtonLink
-              href="/services"
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 font-medium text-white shadow-sm transition-[transform,box-shadow,background-color] hover:scale-105 hover:bg-primary/90 hover:shadow-md"
-            >
-              <span>View All Services</span>
-              <ArrowRight className="h-5 w-5" aria-hidden="true" />
-            </ButtonLink>
-          </div>
-        </div>
-      </section>
+      <PatientProofSection />
 
       <FAQSection
-        title="Palo Alto dentist FAQs"
+        title="Palo Alto Dentist FAQs"
         subtitle="Quick answers about visiting our office, insurance, and scheduling."
         items={homeFaqs}
-        className="bg-white"
+        className="bg-white py-16 md:py-24"
       />
 
-      {/* Appointment Section */}
-      <section id="appointment" className="bg-[#F5F9FC] py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="overflow-hidden rounded-lg bg-white shadow-xl">
-            <div className="md:flex">
-              <div className="bg-primary p-8 text-white md:w-1/2 md:p-12">
-                <h2 className="mb-4 font-heading text-3xl font-bold">
-                  Request an Appointment
-                </h2>
-                <p className="mb-6">
-                  Send a quick request and our team will follow up to confirm a
-                  visit time that works for you.
+      <section
+        id="appointment"
+        aria-labelledby="appointment-title"
+        className="bg-[#F4F8FC] px-4 py-16 sm:px-6 md:py-24 lg:px-8"
+      >
+        <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[2rem] bg-[#0B1F3A] px-6 py-10 text-white shadow-[0_32px_80px_-46px_rgba(11,31,58,0.8)] sm:px-10 md:py-14 lg:px-14">
+          <div
+            className="pointer-events-none absolute -right-24 -top-32 h-80 w-80 rounded-full bg-sky-400/15 blur-3xl"
+            aria-hidden="true"
+          />
+          <div className="relative">
+            <div className="grid items-center gap-9 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-14">
+              <div className="max-w-3xl">
+                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-sky-200">
+                  Your Next Visit
                 </p>
-                <div className="mb-6">
-                  <div className="mb-3 flex items-center">
-                    <CheckCircle className="mr-3 h-5 w-5" />
-                    <span>We respond within one business day</span>
-                  </div>
-                  <div className="mb-3 flex items-center">
-                    <CheckCircle className="mr-3 h-5 w-5" />
-                    <span>Urgent needs prioritized — call for same-day help</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="mr-3 h-5 w-5" />
-                    <span>Easy rescheduling if needed</span>
-                  </div>
-                </div>
-                <div className="mb-6 rounded-lg bg-blue-900 p-4 bg-opacity-50">
-                  <h3 className="mb-2 font-bold">Office Hours</h3>
-                  <div className="grid grid-cols-2 gap-2 text-sm text-white">
-                    <div>Monday, Tuesday, Thursday</div>
-                    <div>{officeInfo.hours.monday}</div>
-                    <div>Wednesday</div>
-                    <div>{officeInfo.hours.wednesday}</div>
-                    <div>Friday</div>
-                    <div>{officeInfo.hours.friday}</div>
-                    <div>Saturday - Sunday</div>
-                    <div>{officeInfo.hours.saturday}</div>
-                  </div>
-                  {holiday ? (
-                    <p className="mt-3 text-xs leading-relaxed text-blue-100">
-                      <span className="font-semibold">Temporary update:</span>{" "}
-                      {holiday.shortNotice}
-                    </p>
-                  ) : null}
-                </div>
-                <a
-                  href={`tel:${officeInfo.phoneE164}`}
-                  className="flex items-center text-xl font-bold transition-colors hover:text-blue-200"
+                <h2
+                  id="appointment-title"
+                  className="mt-3 text-balance font-heading text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl"
                 >
-                  <Phone className="mr-2 h-6 w-6" aria-hidden="true" />
-                  {officeInfo.phone}
-                </a>
+                  Ready for a More Thoughtful Dental Visit?
+                </h2>
+                <p className="mt-5 max-w-2xl text-pretty text-base leading-7 text-slate-200 md:text-lg">
+                  Send a quick appointment request and tell us what you need. The
+                  team will follow up to confirm the exact date and time.
+                </p>
               </div>
 
-              <div className="p-8 md:w-1/2 md:p-12">
-                <h3 className="mb-4 font-heading text-xl font-bold text-[#333333]">
-                  Tell Us What You Need
-                </h3>
-                <p className="mb-6 text-[#333333]">
-                  Use our focused request form to tell us what you need and how
-                  you would like us to contact you. Most patients finish in
-                  under a minute.
-                </p>
-                <ButtonLink href="/schedule#appointment" className="ui-btn-primary w-full">
-                  Request your appointment
-                  <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+              <div className="flex w-full flex-col gap-3 sm:w-auto sm:min-w-[260px]">
+                <ButtonLink
+                  href="/schedule#appointment"
+                  size="lg"
+                  className="min-h-12 rounded-full bg-white px-7 text-base font-semibold text-[#0B1F3A] shadow-lg transition-[background-color,box-shadow,transform] hover:bg-sky-50"
+                >
+                  Request an appointment
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </ButtonLink>
-                <p className="mt-4 text-sm leading-6 text-slate-600">
-                  This is an appointment request. Our team confirms the exact
-                  date and time within one business day.
-                </p>
+                <a
+                  href={`tel:${officeInfo.phoneE164}`}
+                  className="ui-focus-premium inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/25 px-6 text-base font-semibold text-white transition-[background-color,border-color] hover:border-white/45 hover:bg-white/10"
+                >
+                  <Phone className="h-4 w-4" aria-hidden="true" />
+                  Call {officeInfo.phone}
+                </a>
               </div>
+            </div>
+
+            <div className="mt-10 grid gap-4 border-t border-white/15 pt-8 md:grid-cols-3">
+              {visitPlanningSteps.map((step) => {
+                const Icon = step.icon;
+                return (
+                  <article key={step.title} className="flex items-start gap-4">
+                    <div className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-sky-200">
+                      <Icon className="h-5 w-5" aria-hidden="true" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-white">{step.title}</h3>
+                      <p className="mt-1 text-sm leading-6 text-slate-300">
+                        {step.description}
+                      </p>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           </div>
         </div>

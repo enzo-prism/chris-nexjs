@@ -8,7 +8,8 @@ The app runs on Next.js App Router with API route handlers, centralized SEO meta
 - Marketing pages, location pages, services, and blog content.
 - Interactive lead flows: appointment request, contact form, newsletter.
 - No production chat widget or `/api/chat` endpoint in current launch scope.
-- `/gallery` media showcase with hero video, click-to-play clips, fullscreen lightbox, and no-crop still-image frames.
+- `/gallery` media showcase with click-to-play video, editorial thumbnail crops,
+  and a fullscreen lightbox that preserves each complete frame.
 - `/office-tour` page with real office videos (hosted locally in `public/videos/` with poster stills) and photos, presented as click-to-play.
 - `/changelog` page that merges update history from current and legacy repositories.
 - Homepage visual accents powered by reusable SVG animation components with reduced-motion support.
@@ -41,21 +42,17 @@ The app runs on Next.js App Router with API route handlers, centralized SEO meta
 ## Deployment topology
 
 - Repository of record: `enzo-prism/chris-nexjs` on `main`.
-- Primary public production:
-  - Vercel project: `chris-wong-dds`
-  - Domains: `https://www.chriswongdds.com`, `https://chriswongdds.com`
-- Secondary production mirror:
-  - Vercel project: `chris-nextjs`
-  - Domain: `https://chris-nextjs.vercel.app`
-- Legacy production mirror:
-  - Vercel project: `chriswongdds`
-  - Domain: `https://chriswongdds.vercel.app`
+- Verified Vercel production project: `chris-wong-dds`.
+- Public domains: `https://www.chriswongdds.com` and `https://chriswongdds.com`.
+- The apex domain permanently redirects to the canonical `www` host.
+- This checkout does not include `.vercel/project.json`. A manual CLI deployment
+  must explicitly link and verify `chris-wong-dds` before deploying.
 
 Release default:
 
 - Preferred: commit and push to `main`, then verify the Git-triggered Vercel production deploy for `chris-wong-dds`.
-- Use local `vercel --prod --yes` only when the workspace is clean and a manual CLI deploy is intentional.
-- Use mirror deployments only when explicit cross-project sync is required.
+- Use local `vercel --prod --yes` only when the workspace is clean, the project
+  link has been inspected, and a manual CLI deploy is intentional.
 
 ## Quick start
 
@@ -83,17 +80,23 @@ Port behavior:
 
 ## Environment variables
 
-Core:
-- `DATABASE_URL` (required for Postgres/Neon mode).
+The tracked `.env.example` is the source of truth for local configuration:
 
-Metadata/SEO:
-- `GOOGLE_SITE_VERIFICATION` or `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`.
-- `NEXT_PUBLIC_GA_MEASUREMENT_ID` (defaults to `G-94WRBJY51J` when not set).
+- Local server: `HOST`, `PORT`, `REUSE_PORT_ENABLED`,
+  `ALLOW_LOCAL_PORT_FALLBACK`, `DEV_FALLBACK_PORT`.
+- Storage: optional `DATABASE_URL`; required only for Postgres/Neon persistence
+  and Drizzle commands. The app can use in-memory storage without it.
+- Lead delivery: optional `NEXT_PUBLIC_FORM_ENDPOINT` and
+  `SCHEDULE_FORM_ENDPOINT` overrides. When unset, production delivery uses the
+  configured default Formspree inbox.
+- Optional forwarding: `SCHEDULE_CRM_WEBHOOK_URL` and
+  `SCHEDULE_SLACK_WEBHOOK_URL`.
+- Analytics and ads: `NEXT_PUBLIC_GA_MEASUREMENT_ID`,
+  `NEXT_PUBLIC_GOOGLE_ADS_ID`, and
+  `NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL`.
 
-Lead forms / scheduling:
-- `NEXT_PUBLIC_FORM_ENDPOINT` and `SCHEDULE_FORM_ENDPOINT` for Formspree-backed scheduling.
+Command URL overrides (not required in `.env`):
 
-Script URL overrides:
 - `SEO_AUDIT_BASE_URL` for runtime SEO scripts.
 - `IMAGE_AUDIT_BASE_URL` for image runtime audit.
 - `PERF_BASE_URL` for perf smoke.
@@ -113,6 +116,7 @@ Core:
 - `pnpm run check`
 
 Contract and quality checks:
+- `pnpm audit --prod --audit-level=high`
 - `pnpm run test:api`
 - `pnpm run test:routes`
 - `pnpm run test:design-system`
@@ -163,7 +167,8 @@ Read endpoints:
 - `GET /api/testimonials`
 - `GET /api/search?query=<term>`
 - `GET /rss.xml`
-- `GET /api/rss.xml`
+
+Legacy `/api/rss.xml` permanently redirects to the canonical `/rss.xml` feed.
 
 Write endpoints:
 - `POST /api/contact`
@@ -249,6 +254,7 @@ copy free of SEO keyword stuffing. After substantive copy changes, update
 - SEO keyword map: `docs/seo-keyword-map.md`
 - SEO implementation backlog: `docs/seo-implementation-backlog.md`
 - Aug 12 sitewide copy cleanup: `docs/release-2026-08-12-sitewide-copy-cleanup.md`
+- Aug 30 site overhaul release candidate: `docs/release-2026-08-30-site-overhaul.md`
 - Gallery feature guide: `docs/gallery.md`
 - Review data runbook: `docs/reviews-data.md`
 - Changelog operations guide: `docs/changelog.md`

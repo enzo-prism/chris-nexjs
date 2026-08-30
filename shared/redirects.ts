@@ -28,6 +28,8 @@ const staticLegacyRedirects: Record<string, string> = {
   "/dental-cleaning": "/dental-cleaning-palo-alto",
   "/cavity-fillings": "/cavity-fillings-palo-alto",
   "/crowns": "/crowns-palo-alto",
+  // Consolidate overlapping children's-dentistry intent into one canonical.
+  "/pediatric-dentist-palo-alto": "/pediatric-dentistry",
   // Consolidate near-duplicate city doorway pages into the useful location hub.
   "/dentist-los-altos": "/locations",
   "/dentist-los-altos-hills": "/locations",

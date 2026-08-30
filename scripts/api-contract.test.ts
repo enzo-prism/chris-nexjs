@@ -152,17 +152,42 @@ async function testContactApi() {
 
 async function testNewsletterApi() {
   const firstPayload = { email: "newsletter-tester@example.com" };
-  const first = await postNewsletter(
-    requestWithBody("/api/newsletter", firstPayload),
-  );
-  assert.equal(first.status, 201);
+  const originalFetch = globalThis.fetch;
+  const deliveredTo: string[] = [];
+  globalThis.fetch = async (input) => {
+    const url = typeof input === "string" ? input : input.toString();
+    assert.match(
+      url,
+      /^https:\/\/formspree\.io\/f\//,
+      `unexpected external request during API tests: ${url}`,
+    );
+    deliveredTo.push(url);
+    return new Response(JSON.stringify({ ok: true }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  };
 
-  const second = await postNewsletter(
-    requestWithBody("/api/newsletter", firstPayload),
-  );
-  assert.equal(second.status, 200);
-  const secondPayload = await jsonFromResponse<{ message: string }>(second);
-  assert.equal(secondPayload.message, "Email already subscribed");
+  try {
+    const first = await postNewsletter(
+      requestWithBody("/api/newsletter", firstPayload),
+    );
+    assert.equal(first.status, 201);
+
+    const second = await postNewsletter(
+      requestWithBody("/api/newsletter", firstPayload),
+    );
+    assert.equal(second.status, 200);
+    const secondPayload = await jsonFromResponse<{ message: string }>(second);
+    assert.equal(secondPayload.message, "Email already subscribed");
+    assert.equal(
+      deliveredTo.length,
+      1,
+      "newsletter test should mock one inbox delivery",
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 
   const third = await postNewsletter(requestWithBody("/api/newsletter", {}));
   assert.equal(third.status, 400);

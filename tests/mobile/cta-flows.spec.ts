@@ -124,7 +124,7 @@ test("mobile menu supports touch and keyboard navigation without trapping scroll
 test("footer quick links and legal links are usable on mobile", async ({ page }) => {
   await gotoAndHydrate(page, "/");
 
-  const footer = page.locator("footer");
+  const footer = page.getByRole("contentinfo");
   await footer.scrollIntoViewIfNeeded();
   const quickLinks = footer.getByRole("button", { name: "Quick Links", exact: true });
   await quickLinks.click();
@@ -139,7 +139,7 @@ test("footer quick links and legal links are usable on mobile", async ({ page })
     page.getByRole("heading", { name: /contact dr\. wong's palo alto dental office/i }),
   ).toBeVisible();
 
-  const contactFooter = page.locator("footer");
+  const contactFooter = page.getByRole("contentinfo");
   await contactFooter.scrollIntoViewIfNeeded();
   await clickAndExpectPath(
     page,

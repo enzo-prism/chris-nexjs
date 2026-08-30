@@ -72,8 +72,9 @@ dedupes within one lambda instance — Formspree receives every signup either
 way). Optional
 scheduling CRM and Slack forwarding also runs after inbox delivery and has an
 eight-second timeout per destination; those optional failures are returned as
-forwarding status and do not turn a delivered inbox request into a patient-facing
-failure.
+boolean-only forwarding status and do not turn a delivered inbox request into a
+patient-facing failure. Vendor response bodies and error strings are never
+included in the public response.
 
 Honeypot-triggered contact, newsletter, and scheduling requests return a quiet
 `201` but are not sent to the office, stored, or tracked as conversions. All

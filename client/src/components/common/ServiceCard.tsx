@@ -1,61 +1,47 @@
-
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
-import ButtonLink from "@/components/common/ButtonLink";
-import OptimizedImage from "@/components/seo/OptimizedImage";
 
-import { Service } from "@shared/schema";
+import ButtonLink from "@/components/common/ButtonLink";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { getServiceGradient } from "@/lib/serviceGradients";
+import type { Service } from "@shared/schema";
 
 interface ServiceCardProps {
-  service: Service;
+  readonly service: Service;
 }
 
-const ServiceCard = ({ service }: ServiceCardProps) => {
-  const getDetailPath = (slug: string): string => {
-    switch (slug) {
-      case "invisalign":
-        return "/invisalign";
-      case "emergency-dental":
-        return "/emergency-dental";
-      case "cosmetic-dentistry":
-        return "/dental-veneers";
-      case "dental-implants":
-        return "/dental-implants";
-      case "zoom-whitening":
-        return "/zoom-whitening";
-      case "preventive-dentistry":
-        return "/preventive-dentistry";
-      case "restorative-dentistry":
-        return "/restorative-dentistry";
-      case "pediatric-dentistry":
-        return "/pediatric-dentistry";
-      default:
-        return `/services#${slug}`;
-    }
-  };
+const detailPaths: Readonly<Record<string, string>> = {
+  invisalign: "/invisalign",
+  "emergency-dental": "/emergency-dental",
+  "cosmetic-dentistry": "/dental-veneers",
+  "dental-implants": "/dental-implants",
+  "zoom-whitening": "/zoom-whitening",
+  "preventive-dentistry": "/preventive-dentistry",
+  "restorative-dentistry": "/restorative-dentistry",
+  "pediatric-dentistry": "/pediatric-dentistry",
+};
 
-  const getBookingIntent = (slug: string): string => {
-    switch (slug) {
-      case "invisalign":
-        return "invisalign";
-      case "emergency-dental":
-        return "emergency";
-      case "cosmetic-dentistry":
-        return "cosmetic";
-      case "dental-implants":
-        return "implants";
-      case "zoom-whitening":
-        return "whitening";
-      case "restorative-dentistry":
-        return "restorative";
-      case "pediatric-dentistry":
-        return "pediatric";
-      default:
-        return "preventive";
-    }
-  };
+const bookingIntents: Readonly<Record<string, string>> = {
+  invisalign: "invisalign",
+  "emergency-dental": "emergency",
+  "cosmetic-dentistry": "cosmetic",
+  "dental-implants": "implants",
+  "zoom-whitening": "whitening",
+  "restorative-dentistry": "restorative",
+  "pediatric-dentistry": "pediatric",
+};
+
+const getDetailPath = (slug: string): string =>
+  detailPaths[slug] ?? `/services#${slug}`;
+
+const getBookingIntent = (slug: string): string =>
+  bookingIntents[slug] ?? "preventive";
+
+const ServiceCard = ({ service }: ServiceCardProps) => {
+  const displayTitle =
+    service.slug === "pediatric-dentistry"
+      ? "Children’s Dentistry"
+      : service.title;
 
   return (
     <Card
@@ -64,65 +50,55 @@ const ServiceCard = ({ service }: ServiceCardProps) => {
     >
       {service.image ? (
         <div
-          className={`relative min-h-[180px] w-full overflow-hidden rounded-b-[48px] bg-slate-100 ${getServiceGradient(service.title)}`}
+          className={`relative overflow-hidden bg-slate-100 ${getServiceGradient(service.title)}`}
         >
-          <OptimizedImage
+          <Image
             src={service.image}
             alt=""
             width={720}
             height={480}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="absolute inset-0 h-full w-full"
-            objectPosition="center"
+            className="aspect-[3/2] h-auto w-full object-cover transition-transform duration-300 group-hover:scale-[1.015] motion-reduce:transform-none motion-reduce:transition-none"
           />
           <div
-            className="absolute inset-0 bg-gradient-to-t from-slate-950/35 via-transparent to-transparent"
+            className="absolute inset-0 bg-gradient-to-t from-slate-950/30 via-transparent to-transparent"
             aria-hidden="true"
           />
-          {service.slug === "preventive-dentistry" ? (
-            <Badge className="absolute left-5 top-5 bg-white/95 text-primary shadow-sm">
-              Popular
-            </Badge>
-          ) : null}
         </div>
       ) : (
         <div
-          className={`h-3 w-full ${getServiceGradient(service.title)}`}
+          className={`h-2 w-full ${getServiceGradient(service.title)}`}
           aria-hidden="true"
         />
       )}
 
-      <CardContent className="flex flex-1 flex-col gap-4 p-6 md:p-7">
-        <div>
-          <h3 className="text-xl font-semibold leading-tight text-slate-900 transition-colors group-hover:text-primary">
-            {service.title}
-          </h3>
-          <p className="mt-3 text-sm text-slate-600 md:text-base">
-            {service.description}
-          </p>
-        </div>
+      <CardContent className="flex flex-1 flex-col p-6 md:p-7">
+        <h3 className="text-xl font-semibold leading-snug text-slate-950 transition-colors group-hover:text-primary">
+          {displayTitle}
+        </h3>
+        <p className="mt-3 text-sm leading-6 text-slate-600 md:text-base md:leading-7">
+          {service.description}
+        </p>
       </CardContent>
 
-      <CardFooter className="px-6 pb-6 pt-0 md:px-7 md:pb-7">
-        <div className="grid w-full gap-3">
-          <ButtonLink
-            href={getDetailPath(service.slug)}
-            variant="outline"
-            className="w-full"
-            aria-label={`Learn about ${service.title}`}
-          >
-            View service
-            <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
-          </ButtonLink>
-          <ButtonLink
-            href={`/schedule?intent=${getBookingIntent(service.slug)}&source=service-card#appointment`}
-            className="w-full"
-            aria-label={`Request an appointment for ${service.title}`}
-          >
-            Request an appointment
-            <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
-          </ButtonLink>
-        </div>
+      <CardFooter className="grid gap-3 px-6 pb-6 pt-0 md:px-7 md:pb-7">
+        <ButtonLink
+          href={getDetailPath(service.slug)}
+          variant="outline"
+          className="min-h-11 w-full rounded-xl font-semibold"
+          aria-label={`Learn about ${displayTitle}`}
+        >
+          Explore this service
+          <ArrowRight className="h-4 w-4" aria-hidden="true" />
+        </ButtonLink>
+        <ButtonLink
+          href={`/schedule?intent=${getBookingIntent(service.slug)}&source=service-card#appointment`}
+          className="min-h-11 w-full rounded-xl font-semibold"
+          aria-label={`Request an appointment for ${displayTitle}`}
+        >
+          Request an appointment
+          <ArrowRight className="h-4 w-4" aria-hidden="true" />
+        </ButtonLink>
       </CardFooter>
     </Card>
   );

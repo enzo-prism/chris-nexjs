@@ -1,231 +1,139 @@
-import { ArrowRight, Calendar, CheckCircle, MapPin, Phone } from "lucide-react";
+import Image from "next/image";
+import {
+  ArrowRight,
+  CalendarDays,
+  CheckCircle2,
+  MapPin,
+  Phone,
+  Star,
+} from "lucide-react";
+
 import ButtonLink from "@/components/common/ButtonLink";
-import { motion } from "@/lib/motion-lite";
 import { officeInfo } from "@/lib/data";
-import OptimizedImage from "@/components/seo/OptimizedImage";
-import AnimatedDentalAura from "@/components/common/animated/AnimatedDentalAura";
-import OpenNowStatus from "@/components/common/OpenNowStatus";
 import { GOOGLE_REVIEW_COUNT } from "@shared/reviewStats";
 
 const HERO_IMAGE_SRC = "/images/hero/dr-wong-hero.webp";
 
 const HeroSection = () => {
-  // Features list
-  const features = [
-    {
-      title: "New patients welcome",
-      description: "Comfort-first, unrushed visits"
-    },
-    {
-      title: "PPO benefit support",
-      description: "Out-of-network benefits verified"
-    },
-    {
-      title: "Modern dental technology",
-      description: "Digital imaging and planning"
-    },
-    {
-      title: "Family-friendly practice",
-      description: "Kids, teens, and adults"
-    }
-  ];
-
   return (
     <section
-      className="bg-gradient-to-b from-[#0b1f3a] via-[#123a6b] to-white pb-16 md:pb-20 overflow-hidden relative"
-      style={{
-        marginTop: "calc(var(--header-height, 110px) * -1)",
-        paddingTop: "var(--header-height, 110px)",
-      }}
+      className="relative isolate overflow-hidden bg-[#0B1F3A] pb-16 pt-[var(--header-height,110px)] text-white md:pb-20 lg:pb-24"
+      style={{ marginTop: "calc(var(--header-height, 110px) * -1)" }}
     >
-      {/* Background accents */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,#1e3a8a_0%,transparent_45%),radial-gradient(circle_at_top_right,#1e3a8a_0%,transparent_45%)] opacity-60" />
-        <div className="absolute inset-0 bg-[radial-gradient(2px_2px_at_20%_30%,rgba(147,197,253,0.14),transparent),radial-gradient(2px_2px_at_70%_60%,rgba(147,197,253,0.16),transparent),radial-gradient(1.5px_1.5px_at_40%_80%,rgba(255,255,255,0.15),transparent)]" />
-        <div className="absolute -right-32 -top-48 h-72 w-72 rounded-full bg-gradient-to-br from-[#93c5fd]/20 to-transparent blur-3xl" />
-        <div className="absolute -bottom-48 -left-32 h-80 w-80 rounded-full bg-gradient-to-tr from-[#60a5fa]/15 to-transparent blur-3xl" />
-        <AnimatedDentalAura
-          idPrefix="hero-aura-primary"
-          className="absolute -right-20 top-16 hidden h-64 w-64 text-sky-100/75 lg:block"
-        />
-        <AnimatedDentalAura
-          idPrefix="hero-aura-secondary"
-          className="absolute -left-20 bottom-12 hidden h-52 w-52 text-blue-100/65 md:block lg:hidden"
-        />
+      <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(56,189,248,0.16),transparent_34%),radial-gradient(circle_at_88%_12%,rgba(59,130,246,0.16),transparent_30%)]" />
+        <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#123A6B]/45 to-transparent" />
+        <div className="absolute -right-36 top-16 h-96 w-96 rounded-full border border-sky-300/10" />
+        <div className="absolute -right-20 top-32 h-64 w-64 rounded-full border border-sky-300/10" />
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-6 sm:pt-8 lg:pt-10">
-
-        {/* Hero layout */}
-        <div className="flex flex-col lg:flex-row items-center lg:items-start gap-12 lg:gap-16">
-          {/* Text content - left side */}
-          <motion.div
-            className="w-full lg:w-5/12 lg:sticky lg:top-28"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-          >
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 text-blue-200 px-4 py-2 text-sm font-semibold mb-4 backdrop-blur">
-              <MapPin className="h-4 w-4" aria-hidden="true" />
-              Palo Alto, CA
+      <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 sm:pt-10 lg:px-8 lg:pt-14">
+        <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,0.94fr)_minmax(0,1.06fr)] lg:gap-16 xl:gap-20">
+          <div className="max-w-2xl">
+            <div className="inline-flex min-h-10 items-center gap-2 rounded-full border border-sky-200/20 bg-white/[0.07] px-4 py-2 text-sm font-semibold text-sky-100 backdrop-blur-sm">
+              <MapPin className="h-4 w-4 text-sky-300" aria-hidden="true" />
+              {officeInfo.address.line1}, Palo Alto
             </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-white leading-tight mb-4">
+
+            <h1 className="mt-6 text-balance font-heading text-4xl font-bold leading-[1.08] tracking-[-0.025em] text-white sm:text-5xl lg:text-[3.65rem]">
               Dentist in Palo Alto — Christopher B. Wong, DDS
             </h1>
-            
-            <p className="text-lg text-white/80 leading-relaxed mb-6 max-w-md">
-              Modern, conservative care from Dr. Wong—checkups, cleanings,
-              Invisalign, cosmetic dentistry, and restorations.
+            <p className="mt-6 max-w-xl text-pretty text-lg leading-8 text-slate-200 md:text-xl">
+              Modern, conservative dental care with clear guidance, thoughtful
+              planning, and time to understand your options.
             </p>
 
-            {/* CTA Buttons with updated styling */}
-            <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0 mb-8">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <ButtonLink
                 href="/schedule#appointment"
-                className="h-auto rounded-full bg-primary px-5 py-6 font-medium text-white shadow-sm transition-[background-color,transform] hover:bg-primary/90"
+                size="lg"
+                className="min-h-12 rounded-full bg-white px-7 text-base font-semibold text-[#0B1F3A] shadow-[0_18px_36px_-20px_rgba(255,255,255,0.55)] transition-[background-color,box-shadow,transform] hover:bg-sky-50"
               >
-                <Calendar className="h-4 w-4" aria-hidden="true" />
-                <span>Request an appointment</span>
+                <CalendarDays className="h-4 w-4" aria-hidden="true" />
+                Request an appointment
               </ButtonLink>
               <ButtonLink
                 href="/services"
                 variant="outline"
-                className="h-auto rounded-full border-white/30 bg-white/5 px-5 py-6 font-medium text-white backdrop-blur transition-[color,border-color,background-color] hover:border-blue-200/60 hover:text-blue-200"
+                size="lg"
+                className="min-h-12 rounded-full border-white/30 px-7 text-base font-semibold text-white transition-[background-color,border-color,color] hover:border-white/50 hover:bg-white/10 hover:text-white"
               >
-                <span>Explore services</span>
+                Explore services
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </ButtonLink>
             </div>
 
-            {/* Direct call affordance — callers convert instantly */}
             <a
               href={`tel:${officeInfo.phoneE164}`}
               data-analytics-context="hero-call"
-              className="mb-8 inline-flex items-center gap-2 text-white/90 hover:text-white transition-colors duration-200 text-sm font-medium"
+              className="ui-focus-premium mt-5 inline-flex min-h-11 items-center gap-2 rounded-full px-1 text-sm font-semibold text-slate-200 transition-colors hover:text-white"
             >
-              <Phone className="h-4 w-4 text-blue-200" aria-hidden="true" />
-              <span>
-                Or call us at <span className="underline underline-offset-4">{officeInfo.phone}</span>
-              </span>
+              <Phone className="h-4 w-4 text-sky-300" aria-hidden="true" />
+              Prefer to call? <span className="underline decoration-sky-300/60 underline-offset-4">{officeInfo.phone}</span>
             </a>
 
-            {/* Patient Trust Indicator */}
-            <div className="mb-12">
+            <div className="mt-8 grid max-w-xl gap-3 sm:grid-cols-2">
               <a
                 href={officeInfo.mapUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group inline-flex items-center gap-2 text-white/90 hover:text-white transition-colors duration-200 text-sm font-medium"
+                aria-label={`Read ${GOOGLE_REVIEW_COUNT} five-star Google reviews in a new tab`}
+                className="ui-focus-premium group flex min-h-16 items-center gap-3 rounded-2xl border border-white/12 bg-white/[0.07] px-4 py-3 transition-[background-color,border-color] hover:border-white/25 hover:bg-white/[0.11]"
               >
-                <div className="flex items-center gap-1" aria-hidden="true">
-                  {[...Array(5)].map((_, i) => (
-                    <svg
-                      key={i}
-                      className="w-3.5 h-3.5 text-amber-400 fill-current"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  ))}
-                </div>
-                <span className="group-hover:underline">
-                  Read patient reviews on Google
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-300/15 text-amber-300">
+                  <Star className="h-5 w-5 fill-current" aria-hidden="true" />
                 </span>
-                <span className="ml-2 text-white/70 text-xs sm:text-sm">
-                  {GOOGLE_REVIEW_COUNT} five-star Google reviews
+                <span>
+                  <span className="block text-sm font-semibold text-white">
+                    {GOOGLE_REVIEW_COUNT} five-star reviews
+                  </span>
+                  <span className="mt-0.5 block text-xs text-slate-300">
+                    Read reviews on Google
+                  </span>
                 </span>
-                <ArrowRight
-                  className="h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-100"
-                  aria-hidden="true"
-                />
               </a>
-            </div>
-            
-            {/* Scroll indicator removed */}
-          </motion.div>
 
-          {/* Right side: Image and features */}
-          <motion.div
-            className="w-full lg:w-7/12"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-          >
-            {/* Main image with styling */}
-            <div className="relative rounded-2xl overflow-hidden shadow-lg ring-1 ring-white/10 mb-12">
-              <OptimizedImage
+              <div className="flex min-h-16 items-center gap-3 rounded-2xl border border-white/12 bg-white/[0.07] px-4 py-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-300/15 text-sky-200">
+                  <CheckCircle2 className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <span>
+                  <span className="block text-sm font-semibold text-white">
+                    Welcoming new patients
+                  </span>
+                  <span className="mt-0.5 block text-xs text-slate-300">
+                    Start with a thorough conversation
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative mx-auto w-full max-w-2xl lg:max-w-none">
+            <div
+              className="absolute -inset-3 rounded-[2.2rem] border border-sky-200/10 bg-gradient-to-br from-white/10 to-transparent"
+              aria-hidden="true"
+            />
+            <div className="relative overflow-hidden rounded-[1.8rem] border border-white/15 bg-slate-900 shadow-[0_40px_90px_-42px_rgba(0,0,0,0.78)]">
+              <Image
                 src={HERO_IMAGE_SRC}
-                width={960}
-                height={720}
+                alt="Dr. Christopher B. Wong in his Palo Alto dental office"
+                width={1280}
+                height={960}
                 priority
                 fetchPriority="high"
-                sizes="(max-width: 1024px) 100vw, 56vw"
-                quality={72}
-                alt="Dr. Christopher B. Wong in his Palo Alto dental office"
-                className="w-full h-auto object-cover rounded-2xl aspect-[4/3]"
+                sizes="(max-width: 1024px) 100vw, 52vw"
+                className="aspect-[4/3] h-auto w-full object-cover object-center"
               />
-
-              {/* Status badge */}
-              <div className="absolute bottom-5 left-5 bg-white/95 px-4 py-2 rounded-full shadow-sm text-sm font-medium text-gray-900 flex items-center gap-2">
-                <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
-                <span>Welcoming new patients</span>
-              </div>
-              <div className="absolute top-4 right-4 bg-blue-100/90 text-blue-900 px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm">
-                Palo Alto, CA
-              </div>
+              <div
+                className="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-slate-950/70 via-slate-950/20 to-transparent"
+                aria-hidden="true"
+              />
+              <p className="absolute bottom-5 left-5 right-5 text-sm font-medium text-white sm:bottom-6 sm:left-6">
+                Dr. Christopher B. Wong
+                <span className="ml-2 text-slate-300">DDS</span>
+              </p>
             </div>
-            
-            {/* Features grid */}
-            <div className="space-y-4 rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-lg backdrop-blur">
-              <p className="text-sm font-semibold text-slate-500">Why patients choose us</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {features.map((feature, index) => (
-                  <motion.div
-                    key={index}
-                    className="flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/80 p-4 shadow-sm"
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: 0.3 + (index * 0.1), ease: "easeOut" }}
-                  >
-                    <div className="mt-0.5 bg-primary/10 rounded-full p-1.5 text-primary shrink-0">
-                      <CheckCircle className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <p className="text-slate-900 font-semibold">{feature.title}</p>
-                      <p className="text-sm text-slate-600 mt-1 leading-snug">{feature.description}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Trust strip */}
-        <div className="mt-10 rounded-2xl border border-slate-200 bg-white/95 px-5 py-4 shadow-lg backdrop-blur">
-          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-slate-700">
-            <a
-              href={officeInfo.mapUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group inline-flex items-center gap-2 font-semibold text-slate-900 transition-colors hover:text-primary"
-            >
-              <span className="text-amber-500" aria-hidden="true">
-                ★★★★★
-              </span>
-              <span className="group-hover:underline">
-                {GOOGLE_REVIEW_COUNT} five-star Google reviews
-              </span>
-            </a>
-            <span className="inline-flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-primary" aria-hidden="true" />
-              Welcoming new patients
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-primary" aria-hidden="true" />
-              PPO insurance help
-            </span>
-            <OpenNowStatus className="text-slate-700" />
           </div>
         </div>
       </div>

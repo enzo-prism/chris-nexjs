@@ -53,13 +53,13 @@ const PediatricDentistry = () => {
   const breadcrumbItems = [
     { name: "Home", path: "/" },
     { name: "Services", path: "/services" },
-    { name: "Pediatric Dentistry", path: "/pediatric-dentistry" },
+    { name: "Children's Dentistry", path: "/pediatric-dentistry" },
   ];
 
   const pediatricServiceSchema = buildServiceSchema({
-    name: "Pediatric Dentistry",
+    name: "Children's Dentistry",
     description:
-      "Gentle pediatric dentistry for infants, children, and teens, focused on prevention and long‑term oral health.",
+      "Gentle family dental care for children and teens, focused on prevention and long‑term oral health.",
     slug: "/pediatric-dentistry",
   });
 
@@ -72,9 +72,9 @@ const PediatricDentistry = () => {
 
   const relatedServices: RelatedServiceLink[] = [
     {
-      href: "/pediatric-dentist-palo-alto",
-      anchorText: "Pediatric dentist in Palo Alto",
-      description: "A dedicated page for families looking for kids’ care locally.",
+      href: "/pediatric-dentistry",
+      anchorText: "Children's dentistry in Palo Alto",
+      description: "Gentle preventive dental care for children and teens.",
     },
     {
       href: "/dental-cleaning-palo-alto",
@@ -102,12 +102,12 @@ const PediatricDentistry = () => {
       <section className="bg-gradient-to-b from-[#F5F9FC] to-white py-12 md:py-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-heading text-slate-900">
-            Pediatric Dentistry in Palo Alto
+            Children's Dentistry in Palo Alto
           </h1>
           <p className="text-lg md:text-xl text-slate-700 leading-relaxed max-w-3xl mx-auto">
-            Our pediatric dentistry program helps children build healthy habits and
-            positive dental experiences from the start. Dr. Christopher B. Wong and our
-            team provide gentle, age‑appropriate care for infants, kids, and teens.
+            Our family dental team helps children build healthy habits and positive
+            experiences from the start. Dr. Christopher B. Wong and our team provide
+            gentle, age‑appropriate care for children and teens.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button asChild className="ui-btn-primary">
@@ -127,7 +127,7 @@ const PediatricDentistry = () => {
       <section className="py-12 bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
           <h2 className="text-3xl font-bold font-heading text-slate-900">
-            What to expect at a pediatric visit
+            What to expect at a children's visit
           </h2>
           <p className="text-slate-700 leading-relaxed">
             Visits include a gentle cleaning, a careful cavity and gum check, and
@@ -170,7 +170,7 @@ const PediatricDentistry = () => {
         testimonials={pediatricTestimonials}
       />
 
-      <FAQSection items={pediatricFaqs} title="Pediatric dentistry FAQs" />
+      <FAQSection items={pediatricFaqs} title="Children's dentistry FAQs" />
 
       <RelatedServices
         items={relatedServices}
@@ -181,7 +181,7 @@ const PediatricDentistry = () => {
 
       <RelatedServicePosts
         serviceSlug="pediatric-dentistry"
-        serviceName="Pediatric Dentistry"
+        serviceName="Children's Dentistry"
       />
     </>
   );

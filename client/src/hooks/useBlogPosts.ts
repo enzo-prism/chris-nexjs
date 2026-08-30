@@ -19,6 +19,7 @@ export function useBlogPosts(initialPosts?: BlogPost[]) {
   const query = useQuery<BlogPost[]>({
     queryKey: ["/api/blog-posts"],
     initialData: initialPosts,
+    enabled: typeof window !== "undefined" && !initialPosts,
   });
 
   const posts = query.data ?? [];
@@ -82,5 +83,6 @@ export function useRelatedBlogPosts(serviceSlug: string | undefined) {
         ? `/api/blog-posts?service=${encodeURIComponent(normalizedSlug)}`
         : "/api/blog-posts",
     ],
+    enabled: typeof window !== "undefined",
   });
 }

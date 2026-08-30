@@ -4,42 +4,21 @@ import { gotoAndHydrate } from "./_helpers";
 /**
  * (C) Touch targets are at least 44x44px (Apple HIG / WCAG 2.5.5 minimum).
  *
- * - Testimonial carousel dots on the home page.
+ * - The patient-stories link on the home page.
  * - The three links inside the fixed MobileActionBar.
  * - Footer social links (kept lenient: only checked, not required to be huge).
  */
 
 const MIN = 44;
 
-test("home testimonial dots are >= 44x44px", async ({ page }) => {
+test("home patient-stories link is >= 44px tall", async ({ page }) => {
   await gotoAndHydrate(page, "/");
 
-  const dots = page.locator('[data-testid="testimonial-dot"]');
-  // Carousel dots render only once the testimonials section is present.
-  await expect(dots.first()).toBeVisible({ timeout: 20_000 });
-
-  const count = await dots.count();
-  expect(count, "expected at least one testimonial dot").toBeGreaterThan(0);
-
-  const offenders: string[] = [];
-  for (let i = 0; i < count; i += 1) {
-    const box = await dots.nth(i).boundingBox();
-    if (!box) {
-      offenders.push(`dot #${i + 1}: no bounding box`);
-      continue;
-    }
-    if (box.width < MIN || box.height < MIN) {
-      offenders.push(
-        `dot #${i + 1}: ${Math.round(box.width)}x${Math.round(box.height)}px`,
-      );
-    }
-  }
-
-  expect(
-    offenders,
-    `Testimonial dots smaller than ${MIN}x${MIN}px:\n  ` +
-      offenders.join("\n  "),
-  ).toEqual([]);
+  const link = page.getByRole("link", { name: /read more patient stories/i });
+  await expect(link).toBeVisible({ timeout: 20_000 });
+  const box = await link.boundingBox();
+  expect(box, "patient-stories link has no bounding box").not.toBeNull();
+  expect(box!.height, "patient-stories link is shorter than 44px").toBeGreaterThanOrEqual(MIN);
 });
 
 test("MobileActionBar links are >= 44px tall", async ({ page }) => {
@@ -80,7 +59,7 @@ test("footer social links are tappable (lenient, reports < 44px)", async ({
 }) => {
   await gotoAndHydrate(page, "/");
 
-  const footer = page.locator("footer");
+  const footer = page.getByRole("contentinfo");
   await expect(footer).toBeVisible();
 
   // Footer social row: anchors that carry an aria-label (e.g. Instagram).

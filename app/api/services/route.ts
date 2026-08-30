@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { jsonError } from "../_utils/response";
 import { getStorage } from "../../../server/storage/repository";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const storage = await getStorage();

@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 
 import { generateMetadata } from "../app/[...slug]/page";
 import { getCanonicalRouteData } from "../app/route-utils";
+import { buildOrganizationSchema } from "../client/src/lib/structuredData";
+import { getBlogSeoMetadata } from "../shared/blogSeo";
 import { getLegacyRedirectPath, legacyRedirects } from "../shared/redirects";
 import { seoByPath } from "../shared/seo";
 import { getStorage } from "../server/storage/repository";
@@ -75,6 +77,20 @@ async function testCanonicalRoutesMetadata() {
     const canonicalPath = entry.canonicalPath;
     const redirectPath = getLegacyRedirectPath(canonicalPath);
 
+    assert.ok(
+      !entry.title.includes("…") && !entry.title.includes("..."),
+      `Static title contains generated truncation for ${canonicalPath}`,
+    );
+    assert.ok(
+      !entry.description.includes("…") && !entry.description.includes("..."),
+      `Static description contains generated truncation for ${canonicalPath}`,
+    );
+    assert.match(
+      entry.description,
+      /[.!?][\"'’”)}\]]?$/,
+      `Static description should end with a complete thought for ${canonicalPath}`,
+    );
+
     if (redirectPath) {
       assert.equal(
         getCanonicalRouteData(canonicalPath),
@@ -126,6 +142,11 @@ function testLegacyRedirects() {
       expectedRedirect: "/about",
       expectedCanonical: "/about",
     },
+    {
+      from: "/pediatric-dentist-palo-alto",
+      expectedRedirect: "/pediatric-dentistry",
+      expectedCanonical: "/pediatric-dentistry",
+    },
   ] as const;
 
   for (const testCase of dynamicCases) {
@@ -142,6 +163,75 @@ function testLegacyRedirects() {
       `Canonical mapping mismatch for ${testCase.from}`,
     );
   }
+}
+
+async function testBlogMetadataIntegrity(): Promise<void> {
+  const storage = await getStorage();
+  const posts = await storage.getBlogPosts();
+  const danglingTitleWord = /\b(?:a|an|and|for|in|of|or|the|to|vs|with)$/i;
+
+  for (const post of posts) {
+    const metadata = getBlogSeoMetadata(post);
+    assert.ok(metadata, `Missing blog SEO metadata for ${post.slug}`);
+    assert.ok(metadata.title.length > 0, `Missing blog title for ${post.slug}`);
+    assert.ok(
+      metadata.description.length > 0,
+      `Missing blog description for ${post.slug}`,
+    );
+    assert.ok(
+      !metadata.title.includes("…") && !metadata.title.includes("..."),
+      `Blog title contains generated truncation for ${post.slug}`,
+    );
+    assert.ok(
+      !metadata.description.includes("…") && !metadata.description.includes("..."),
+      `Blog description contains generated truncation for ${post.slug}`,
+    );
+    assert.ok(
+      !danglingTitleWord.test(metadata.title.replace(/ \| Dr\. Wong$/, "")),
+      `Blog title ends in a dangling fragment for ${post.slug}: ${metadata.title}`,
+    );
+    assert.match(
+      metadata.description,
+      /[.!?][\"'’”)}\]]?$/,
+      `Blog description should end with a complete thought for ${post.slug}`,
+    );
+  }
+
+  const emergencyPost = posts.find(
+    (post) => post.slug === "emergency-dental-care-palo-alto",
+  );
+  assert.ok(emergencyPost, "Expected emergency dental guide fixture");
+  assert.equal(
+    emergencyPost.title,
+    "What Counts as a Dental Emergency? A Palo Alto Guide",
+  );
+  assert.ok(
+    !getBlogSeoMetadata(emergencyPost)?.title.startsWith("Emergency Dentist"),
+    "Emergency guide metadata should use informational rather than commercial intent",
+  );
+}
+
+function testOrganizationSchemaIntegrity(): void {
+  const schema = buildOrganizationSchema();
+  const unverifiedFields = [
+    "founder",
+    "priceRange",
+    "currenciesAccepted",
+    "paymentAccepted",
+    "aggregateRating",
+  ] as const;
+
+  for (const field of unverifiedFields) {
+    assert.ok(
+      !(field in schema),
+      `Organization schema should not emit unverified ${field}`,
+    );
+  }
+
+  assert.equal(schema["@type"], "Dentist");
+  assert.ok(schema.name, "Organization schema should retain the practice name");
+  assert.ok(schema.telephone, "Organization schema should retain the office phone");
+  assert.ok(schema.address, "Organization schema should retain the office address");
 }
 
 async function testBlogMetadataForStoredSlug() {
@@ -170,8 +260,10 @@ async function testBlogMetadataForStoredSlug() {
 
 async function main(): Promise<void> {
   testLegacyRedirects();
+  testOrganizationSchemaIntegrity();
   await testCanonicalRoutesMetadata();
   await testBlogMetadataForStoredSlug();
+  await testBlogMetadataIntegrity();
   console.log("Route and metadata contract checks passed.");
 }
 

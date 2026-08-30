@@ -5,9 +5,14 @@ Command reference for contract, UI, SEO, and performance checks.
 ## Fast summary
 
 - Use `pnpm run test:production` for a one-command baseline gate.
+- Run `pnpm audit --prod --audit-level=high` for the production dependency gate.
+- CI also runs the 34-test mobile browser suite plus focused mobile-source,
+  contact-UX, OG metadata, gallery, and review-data guards.
 - Add `test:gallery` and perf checks when affected surfaces change.
 - Run `pnpm run test:gallery` whenever media inventory or gallery behavior changes.
-- For gallery frame/layout updates, perform manual viewport QA (`sm` to `xl`) to confirm still images are fully visible and not cropped.
+- For gallery frame/layout updates, perform manual viewport QA (`sm` to `xl`)
+  to confirm editorial crops keep their subjects legible and the lightbox shows
+  the complete source frame.
 
 ## Script matrix
 
@@ -22,10 +27,19 @@ Command reference for contract, UI, SEO, and performance checks.
 - `pnpm run test:api`
   - Verifies API handlers for status codes and key payload semantics.
   - Includes schedule-request compatibility checks (legacy + v2 payloads).
+  - Mocks all outbound delivery. A contract test must never contact Formspree,
+    CRM, Slack, or another production vendor.
 - `pnpm run test:routes`
   - Verifies canonical metadata, redirects, and dynamic blog route behavior.
 
 ### Feature-specific checks
+
+- `pnpm exec tsx scripts/contact-form-ux.test.ts`
+  - Statically verifies the contact-flow schema, consent, accessible status,
+    and submission-state affordances.
+- `pnpm exec tsx scripts/og-meta-check.ts`
+  - Verifies representative pages and seeded blog content have usable Open
+    Graph metadata and images.
 
 - `pnpm run test:gallery`
   - Validates gallery media contract:
@@ -81,7 +95,7 @@ If local dev is on port `5000`, set `SEO_AUDIT_BASE_URL=http://localhost:5000`.
 - `node scripts/mobile-ux-source.test.mjs`
   - Static source guards: form-field font sizes (≥16px on mobile), 44px touch targets, sticky funnel CTA, contact-form delivery, landing-page H1 sizing, etc.
 - `pnpm run test:mobile`
-  - Playwright suite under `tests/mobile/` (builds + serves the app, runs against an iPhone-class viewport via system Chrome): no horizontal overflow, touch targets, the responsive testimonials split (mobile card vs desktop carousel), the `/office-tour` page, and more.
+  - Playwright suite under `tests/mobile/` (builds + serves the app, runs against an iPhone-class viewport via system Chrome): no horizontal overflow, touch targets, homepage proof content, the `/office-tour` page, and more.
   - Navigate through `gotoAndHydrate` in `tests/mobile/_helpers.ts`. It asserts the response is `200` before anything else, and that assertion is load-bearing: the 404 page renders a `main` element, has one `h1`, and never overflows, so a spec naming a route that does not exist will otherwise pass while testing nothing. `overflow.spec.ts` asserted against `/dentist-palo-alto` — a route the site has never had — for exactly this reason. Whenever you add a route to a spec's list, the guard is what tells you the route is real.
 
 ### Performance checks
@@ -92,6 +106,13 @@ If local dev is on port `5000`, set `SEO_AUDIT_BASE_URL=http://localhost:5000`.
   - Confirms route health before Lighthouse.
 - `pnpm run perf:lighthouse`
   - Executes Lighthouse budget checks.
+
+### Production dependency security
+
+- `pnpm audit --prod --audit-level=high`
+  - Fails when the production dependency graph contains a high or critical
+    advisory.
+  - Runs in CI after the frozen-lockfile install.
 
 ## What `test:production` runs
 
@@ -133,6 +154,10 @@ Extended release gate:
 
 ```bash
 pnpm run test:production
+pnpm audit --prod --audit-level=high
+node scripts/mobile-ux-source.test.mjs
+pnpm exec tsx scripts/contact-form-ux.test.ts
+pnpm exec tsx scripts/og-meta-check.ts
 pnpm run test:gallery
 pnpm run test:reviews
 pnpm run build:perf
@@ -188,8 +213,6 @@ Run these after a production release to ensure GitHub, Vercel, and the public do
 git rev-parse HEAD
 git rev-parse origin/main
 vercel inspect www.chriswongdds.com
-vercel inspect https://chris-nextjs.vercel.app
-vercel inspect https://chriswongdds.vercel.app
 curl -I https://chriswongdds.com
 curl -I https://www.chriswongdds.com
 curl -sL https://www.chriswongdds.com/ \
@@ -204,11 +227,19 @@ curl -sL https://www.chriswongdds.com/ \
 Expected:
 
 - local `HEAD` equals `origin/main`
-- `www.chriswongdds.com`, `chris-nextjs.vercel.app`, and `chriswongdds.vercel.app` deployments are `Ready`
+- the `www.chriswongdds.com` production deployment is `Ready`
 - apex host (`chriswongdds.com`) redirects permanently (`301` or `308`) to `https://www.chriswongdds.com/`
 - canonical host returns `200`
 - GA head-tag count command returns `1`
 - the head bootstrap makes analytics storage follow stored consent, keeps advertising consent fields denied, uses `send_page_view: false`, and configures the expected GA ID
+
+Production lead safety:
+
+- Do not use fake names, addresses, phone numbers, emails, newsletter signups,
+  or appointment requests against the public production site.
+- Use mocked contract tests locally and validation-only browser QA in
+  production. A real live submission requires explicit authorization and a
+  bona fide operational purpose.
 
 Search Console-specific follow-up after SEO releases:
 

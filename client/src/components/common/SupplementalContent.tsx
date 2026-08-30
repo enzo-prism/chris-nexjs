@@ -1,4 +1,4 @@
-import { useLocation } from "wouter";
+import { usePathname } from "next/navigation";
 import Container from "@/components/layout/Container";
 import PageSection from "@/components/layout/PageSection";
 import { supplementalContentByPath } from "@/lib/supplementalContent";
@@ -12,8 +12,8 @@ function normalizePath(value: string): string {
 }
 
 const SupplementalContent = () => {
-  const [location] = useLocation();
-  const path = normalizePath(location);
+  const pathname = usePathname() || "/";
+  const path = normalizePath(pathname);
   const blocks = supplementalContentByPath[path];
 
   if (!blocks || blocks.length === 0) {

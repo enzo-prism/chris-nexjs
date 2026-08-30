@@ -241,7 +241,7 @@ const Contact = () => {
                 { href: "/dentist-mountain-view", label: "Mountain View family dentist" },
                 { href: "/locations", label: "All nearby communities" },
               { href: "/dental-cleaning-palo-alto", label: "Dental cleanings in Palo Alto" },
-              { href: "/pediatric-dentist-palo-alto", label: "Pediatric dentist in Palo Alto" },
+              { href: "/pediatric-dentistry", label: "Pediatric dentist in Palo Alto" },
               { href: "/teeth-whitening-palo-alto", label: "Teeth whitening in Palo Alto" },
               { href: "/emergency-dental", label: "Emergency dentist in Palo Alto" },
             ].map((item) => (

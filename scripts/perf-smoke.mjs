@@ -3,7 +3,17 @@ const BASE_URL = (process.env.PERF_BASE_URL || "http://localhost:3101").replace(
   "",
 );
 
-const ROUTES = ["/", "/services", "/invisalign", "/dentist-menlo-park"];
+const ROUTES = [
+  "/",
+  "/about",
+  "/services",
+  "/invisalign",
+  "/gallery",
+  "/schedule",
+  "/contact",
+  "/dentist-menlo-park",
+  "/blog/emergency-dental-care-palo-alto",
+];
 
 const EXPECTED_POWERED_BY = (process.env.PERF_EXPECTED_POWERED_BY || "").toLowerCase();
 

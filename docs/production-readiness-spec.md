@@ -30,6 +30,8 @@ Must pass:
 - read and write handlers for lead flows are operational
 - write endpoints reject unsupported content types and oversized requests
 - outbound vendors are mocked in automated tests
+- no automated release check sends contact, newsletter, or appointment data to
+  a live vendor
 - no public API exposes contact messages or appointment requests
 
 Gate:
@@ -67,6 +69,8 @@ Must pass:
 
 Gate:
 - `pnpm run test:design-system`
+- `node scripts/mobile-ux-source.test.mjs`
+- `pnpm exec tsx scripts/contact-form-ux.test.ts`
 
 ### 6. Image/runtime media integrity
 
@@ -103,6 +107,14 @@ Gates:
 - `pnpm run perf:smoke`
 - `pnpm run perf:lighthouse`
 
+### 8a. Production dependency security
+
+Must pass:
+- the installed production dependency graph has no high or critical advisories
+
+Gate:
+- `pnpm audit --prod --audit-level=high`
+
 ### 9. Convenience aggregate gate
 
 Current script coverage:
@@ -122,6 +134,8 @@ Must pass:
 - internal analytics/debug pages return `404`
 - patient names, contact details, notes, and insurance details never enter analytics
 - lead delivery has bounded vendor timeouts and never reports false success
+- production smoke tests use validation-only UI checks and never send fake or
+  synthetic form submissions
 
 Gates:
 - `pnpm run test:api`
@@ -133,8 +147,9 @@ Gates:
 Must pass:
 - `main` commit SHA is synced between local and `origin/main`
 - primary production deployment (`chris-wong-dds` / `www.chriswongdds.com`) is Ready
-- any mirror production deployments (`chris-nextjs`, `chriswongdds`) are either intentionally skipped or confirmed on the same SHA
 - canonical host and apex redirect behavior are correct at runtime
+- any manual CLI deploy explicitly links and verifies `chris-wong-dds` because
+  `.vercel/project.json` is not tracked or present in a fresh checkout
 
 Verification commands:
 - `git rev-parse HEAD`
@@ -148,7 +163,12 @@ Verification commands:
 
 ```bash
 pnpm run test:production
+pnpm audit --prod --audit-level=high
+node scripts/mobile-ux-source.test.mjs
+pnpm exec tsx scripts/contact-form-ux.test.ts
+pnpm exec tsx scripts/og-meta-check.ts
 pnpm run test:gallery
+pnpm run test:reviews
 pnpm run build:perf
 NEXT_DIST_DIR=.next-perf pnpm run test:bundle
 ```

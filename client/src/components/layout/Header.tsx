@@ -35,7 +35,7 @@ type NavLink = {
   readonly submenu?: readonly NavChild[];
 };
 
-const DESKTOP_NAV_BREAKPOINT = 1380;
+const DESKTOP_NAV_BREAKPOINT = 1280;
 
 const navLinks: readonly NavLink[] = [
   { href: "/", label: "Home" },
@@ -468,7 +468,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
       {/* Top Bar - Contact & Info */}
       <div
         className={cn(
-          "relative z-[101] w-full overflow-hidden bg-[#0b1f3a] text-white/80 transition-[height,opacity] duration-300",
+          "relative z-[101] hidden w-full overflow-hidden bg-[#0b1f3a] text-white/80 transition-[height,opacity] duration-300 lg:block",
           scrolled
             ? "pointer-events-none h-0 opacity-0"
             : "h-10 border-b border-white/5 opacity-100",
@@ -487,7 +487,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
               />
               <span>{officeInfo.phone}</span>
             </a>
-            <div className="hidden items-center text-white/60 xl:flex">
+            <div className="hidden items-center text-white/60 2xl:flex">
               <Clock className="mr-2 h-3.5 w-3.5" aria-hidden="true" />
               <span>
                 Regular weekly hours: Mon, Tue, Thu {officeInfo.hours.monday} · Wed{" "}
@@ -531,15 +531,15 @@ const Header = ({ variant = "default" }: HeaderProps) => {
           scrolled ? "bg-white py-2 shadow-lg" : "bg-white py-4",
         )}
       >
-        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between gap-3 xl:gap-4">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between gap-3 xl:gap-5">
             {/* Logo */}
             <Link
               href="/"
               aria-label="Christopher B. Wong, DDS home"
               className={cn(
                 "ui-focus-premium group relative z-[102] min-w-0 shrink rounded-xl",
-                "min-[1380px]:max-w-[20rem] 2xl:max-w-none",
+                "xl:max-w-[20rem] 2xl:max-w-none",
               )}
             >
               <div className="flex min-w-0 items-center gap-3">
@@ -562,11 +562,11 @@ const Header = ({ variant = "default" }: HeaderProps) => {
                   )}
                 </div>
                 <div className="flex min-w-0 flex-col">
-                  <span className="truncate font-serif text-sm tracking-wide text-slate-900 transition-colors group-hover:text-primary sm:text-lg lg:text-base min-[1380px]:text-base 2xl:text-lg">
+                  <span className="truncate font-serif text-sm tracking-wide text-slate-900 transition-colors group-hover:text-primary sm:text-lg lg:text-base xl:text-base 2xl:text-lg">
                     Christopher B. Wong, DDS
                   </span>
-                  <span className="hidden truncate text-[9px] uppercase tracking-[0.2em] text-slate-500 transition-colors group-hover:text-slate-600 2xl:block 2xl:text-[10px]">
-                    Cosmetic & Family Dentistry
+                  <span className="hidden truncate text-[9px] uppercase tracking-[0.2em] text-slate-500 transition-colors group-hover:text-slate-600 xl:block xl:text-[9px] 2xl:text-[10px]">
+                    Conservative dental care in Palo Alto
                   </span>
                 </div>
               </div>
@@ -575,7 +575,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
             {/* Desktop Navigation + CTA */}
             <div
               className={cn(
-                "hidden min-w-0 flex-1 items-center justify-end gap-2 min-[1380px]:flex 2xl:gap-4",
+                "hidden min-w-0 flex-1 items-center justify-end gap-2 xl:flex 2xl:gap-4",
               )}
             >
               <nav className="relative z-[102] flex min-w-0 items-center gap-1.5 2xl:gap-3">
@@ -610,7 +610,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
                         {hasSubmenu && (
                           <ChevronDown
                             className={cn(
-                              "h-3 w-3 transition-[transform,color] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
+                              "h-3 w-3 transition-[transform,color] duration-300 ease-out motion-reduce:transition-none",
                               openDesktopSubmenu === link.label
                                 ? "-rotate-180 text-primary"
                                 : cn(
@@ -703,7 +703,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
               }}
               className={cn(
                 "relative z-50 rounded-xl text-slate-900 transition-colors hover:bg-slate-100 hover:text-primary focus-visible:ring-primary focus-visible:ring-offset-2",
-                "min-[1380px]:hidden",
+                "xl:hidden",
               )}
               aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
               aria-expanded={mobileMenuOpen}
@@ -726,7 +726,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
           id="mobile-nav"
           aria-label="Mobile navigation"
           className={cn(
-            "fixed inset-0 z-40 bg-[#0b1f3a] transition-opacity duration-200 min-[1380px]:hidden",
+            "fixed inset-0 z-40 bg-[#0b1f3a] transition-opacity duration-200 xl:hidden",
           )}
           onKeyDown={handleMobileMenuKeyDown}
         >

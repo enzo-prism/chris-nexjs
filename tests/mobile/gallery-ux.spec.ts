@@ -27,7 +27,7 @@ test("gallery controls and viewer work by keyboard", async ({ page }) => {
   await gotoAndHydrate(page, "/gallery");
 
   await expect(
-    page.getByRole("link", { name: /watch the guided office tour/i }),
+    page.getByRole("link", { name: /take the guided office tour/i }),
   ).toBeVisible();
 
   // The tile opener and video control are siblings, never nested controls.

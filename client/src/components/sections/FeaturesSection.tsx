@@ -1,54 +1,97 @@
-import { Heart, Star, Users, type LucideIcon } from "lucide-react";
-import { FeatureIcon } from "@/components/common/FeatureIcon";
+import {
+  Heart,
+  MessageCircle,
+  Search,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
+
+import { FeatureIcon, type FeatureIconTone } from "@/components/common/FeatureIcon";
+
+type PracticeDifference = {
+  readonly icon: LucideIcon;
+  readonly tone: FeatureIconTone;
+  readonly title: string;
+  readonly description: string;
+};
+
+const practiceDifferences: readonly PracticeDifference[] = [
+  {
+    icon: Search,
+    tone: "primary",
+    title: "Prevention Before Intervention",
+    description:
+      "Early detection and conservative planning help preserve healthy tooth structure whenever possible.",
+  },
+  {
+    icon: MessageCircle,
+    tone: "amber",
+    title: "Clear Recommendations",
+    description:
+      "You will understand what Dr. Wong sees, why it matters, and which options make sense before moving forward.",
+  },
+  {
+    icon: Heart,
+    tone: "rose",
+    title: "Comfort at Every Step",
+    description:
+      "Visits are designed around a calm pace, thoughtful communication, and your questions—not a rushed checklist.",
+  },
+  {
+    icon: Users,
+    tone: "emerald",
+    title: "One Practice for the Family",
+    description:
+      "Children, teens, and adults can build healthy routines with a local team that gets to know them over time.",
+  },
+];
 
 const FeaturesSection = () => {
-  const features: { icon: LucideIcon; title: string; description: string }[] = [
-    {
-      icon: Star,
-      title: "Careful, Conservative Care",
-      description: "Treatment plans prioritize preserving healthy tooth structure and explaining options clearly.",
-    },
-    {
-      icon: Heart,
-      title: "Patient-First Experience",
-      description: "Every aspect of your visit is designed with your comfort in mind, from scheduling to treatment.",
-    },
-    {
-      icon: Users,
-      title: "Trusted Local Team",
-      description: "Our team has earned the trust of Palo Alto families through years of consistent, compassionate care.",
-    },
-  ];
-
   return (
-    <section className="py-16 md:py-24 bg-gray-50" id="features">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section heading */}
-        <div className="text-center mb-12 md:mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 text-balance mb-4">
-            Why Choose Dr. Wong
-          </h2>
-          <p className="text-base text-gray-600 max-w-2xl mx-auto">
-            A dental practice focused on clear communication, conservative treatment, and care that families return to.
+    <section
+      id="features"
+      aria-labelledby="practice-differences-title"
+      className="bg-white py-16 md:py-24"
+    >
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:items-end lg:gap-16">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
+              Why Patients Choose Dr. Wong
+            </p>
+            <h2
+              id="practice-differences-title"
+              className="mt-3 text-balance font-heading text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl md:text-5xl"
+            >
+              A Clearer, More Considered Experience
+            </h2>
+          </div>
+          <p className="max-w-2xl text-pretty text-base leading-7 text-slate-600 md:text-lg lg:justify-self-end">
+            Good dental care is not only about the procedure. It is also about
+            knowing what to expect, feeling heard, and leaving with a plan you
+            understand.
           </p>
         </div>
 
-        {/* Features grid with clean, minimal styling */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <div
-              key={index}
-              className="feature-reveal group rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-[box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:shadow md:p-8"
-              style={{ animationDelay: `${index * 0.12}s` }}
+        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:mt-14 lg:grid-cols-4 lg:gap-6">
+          {practiceDifferences.map((feature, index) => (
+            <article
+              key={feature.title}
+              className="rounded-3xl border border-slate-200 bg-slate-50/70 p-6 md:p-7"
             >
-              <FeatureIcon
-                icon={feature.icon}
-                size="lg"
-                className="mb-5 transition-transform duration-300 group-hover:-translate-y-0.5"
-              />
-              <h3 className="text-lg font-medium text-gray-900 mb-3 group-hover:text-primary transition-colors">{feature.title}</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">{feature.description}</p>
-            </div>
+              <div className="flex items-center justify-between gap-4">
+                <FeatureIcon icon={feature.icon} tone={feature.tone} size="lg" />
+                <span className="font-heading text-sm font-semibold tabular-nums text-slate-300" aria-hidden="true">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+              </div>
+              <h3 className="mt-6 text-xl font-semibold leading-snug text-slate-950">
+                {feature.title}
+              </h3>
+              <p className="mt-3 text-sm leading-6 text-slate-600 md:text-base md:leading-7">
+                {feature.description}
+              </p>
+            </article>
           ))}
         </div>
       </div>

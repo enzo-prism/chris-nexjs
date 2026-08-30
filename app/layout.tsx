@@ -23,7 +23,9 @@ const lato = Lato({
   subsets: ["latin"],
   weight: ["400", "700"],
   variable: "--font-heading",
-  display: "swap",
+  // On a slow first visit, keep the size-adjusted fallback instead of
+  // repainting the hero heading late and extending text-based LCP.
+  display: "optional",
 });
 
 const googleSiteVerification =
@@ -98,11 +100,18 @@ ${GOOGLE_ADS_ID ? `  gtag('config', '${GOOGLE_ADS_ID}');` : ""}
     triggerEvents.forEach(function (eventName) {
       window.addEventListener(eventName, loadGtagScript, { once: true, passive: true });
     });
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(loadGtagScript, { timeout: 3000 });
-    } else {
-      setTimeout(loadGtagScript, 2500);
-    }
+    // Keep non-essential analytics outside the Core Web Vitals window when a
+    // visitor has not interacted. Interaction still loads immediately so
+    // conversion events are not lost.
+    window.addEventListener('load', function scheduleDeferredGtag() {
+      setTimeout(function () {
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(loadGtagScript, { timeout: 4000 });
+        } else {
+          loadGtagScript();
+        }
+      }, 4000);
+    }, { once: true });
   })();
 `;
 
@@ -147,14 +156,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${sourceSans.variable} ${lato.variable}`}>
       <head>
-        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="" />
-        <link rel="dns-prefetch" href="//res.cloudinary.com" />
-        <link
-          rel="preconnect"
-          href="https://www.googletagmanager.com"
-          crossOrigin=""
-        />
-        <link rel="dns-prefetch" href="//www.googletagmanager.com" />
         <script dangerouslySetInnerHTML={{ __html: googleTagBootstrap }} />
       </head>
       <body className="antialiased">

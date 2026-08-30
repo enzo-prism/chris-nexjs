@@ -2,6 +2,11 @@
   "version": 2,
   "redirects": [
     {
+      "source": "/api/rss.xml",
+      "destination": "/rss.xml",
+      "permanent": true
+    },
+    {
       "source": "/:path*",
       "has": [
         {

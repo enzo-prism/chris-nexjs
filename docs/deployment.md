@@ -4,17 +4,14 @@ Release procedure for production-safe deployments.
 
 ## Production topology (source of truth)
 
-As of 2026-03-04, this repository is connected to three Vercel production environments that track the same `main` branch commits:
+As of 2026-08-30, one Vercel production project is verified for this repository:
 
-- Primary public production:
-  - Project: `chris-wong-dds`
-  - Domains: `https://www.chriswongdds.com`, `https://chriswongdds.com`
-- Secondary production mirror:
-  - Project: `chris-nextjs`
-  - Domain: `https://chris-nextjs.vercel.app`
-- Legacy production mirror:
-  - Project: `chriswongdds`
-  - Domain: `https://chriswongdds.vercel.app`
+- Project: `chris-wong-dds`
+- Canonical domain: `https://www.chriswongdds.com`
+- Apex redirect: `https://chriswongdds.com`
+
+Do not treat historical project names or unverified `*.vercel.app` aliases as
+release targets.
 
 Repository of record:
 
@@ -28,24 +25,41 @@ Repository of record:
 - Release commit is already on `origin/main`.
 - Required quality gates pass.
 - Required environment variables are configured in Vercel when needed.
+- Automated checks mock outbound form vendors. Never send synthetic, dummy, or
+  fake patient/contact submissions to production as a smoke test.
 
-## Required environment variables
+## Environment variable inventory
 
-Core:
+The tracked `.env.example` is the source of truth. Configure only the values
+needed for the target environment.
+
+Local runtime settings:
+
+- `HOST`
+- `PORT`
+- `REUSE_PORT_ENABLED`
+- `ALLOW_LOCAL_PORT_FALLBACK`
+- `DEV_FALLBACK_PORT`
+
+Storage:
 
 - `DATABASE_URL` (required for Postgres/Neon mode; app can fall back to memory mode without it).
 
-Metadata and SEO:
+Lead delivery:
 
-- `GOOGLE_SITE_VERIFICATION` or `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`.
-- `NEXT_PUBLIC_GA_MEASUREMENT_ID` (defaults to `G-94WRBJY51J` if omitted).
+- `NEXT_PUBLIC_FORM_ENDPOINT` (optional client-side Formspree override)
+- `SCHEDULE_FORM_ENDPOINT` (optional server-side Formspree override)
+- `SCHEDULE_CRM_WEBHOOK_URL` (optional forwarding target)
+- `SCHEDULE_SLACK_WEBHOOK_URL` (optional forwarding target)
 
-Lead forms:
+Analytics and advertising:
 
-- `NEXT_PUBLIC_FORM_ENDPOINT` (client-side Formspree target)
-- `SCHEDULE_FORM_ENDPOINT` (server-side Formspree target)
+- `NEXT_PUBLIC_GA_MEASUREMENT_ID`
+- `NEXT_PUBLIC_GOOGLE_ADS_ID`
+- `NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL`
 
-Optional script variables (for audits):
+Use `.env.example` as the configuration inventory. The following are command
+overrides for audit runs, not required application environment variables:
 
 - `SEO_AUDIT_BASE_URL`
 - `IMAGE_AUDIT_BASE_URL`
@@ -83,6 +97,10 @@ Preferred path: push a reviewed commit to `main` and verify the Git-triggered Ve
 
 1. Run preflight checks locally (or in CI):
    - `pnpm run test:production`
+   - `pnpm audit --prod --audit-level=high`
+   - `node scripts/mobile-ux-source.test.mjs`
+   - `pnpm exec tsx scripts/contact-form-ux.test.ts`
+   - `pnpm exec tsx scripts/og-meta-check.ts`
    - `pnpm run test:gallery` (if gallery media changed)
    - `pnpm run test:reviews` (if review source/import changed)
    - perf suite (`build:perf`, `test:bundle`, `perf:smoke`, `perf:lighthouse`) for performance-sensitive releases
@@ -119,6 +137,10 @@ Expected:
 
 Only use this path when the local workspace is clean and you intentionally want the deploy to come from local CLI state rather than a pushed Git commit.
 
+This repository does not track `.vercel/project.json`, and the current checkout
+may not have one. Therefore every manual release must explicitly link and then
+inspect the project before running a production deploy.
+
 1. Run the same preflight checks listed above.
 2. Link CLI to the primary production project:
 
@@ -126,37 +148,28 @@ Only use this path when the local workspace is clean and you intentionally want 
 vercel link --yes --scope enzo-design-prisms-projects --project chris-wong-dds
 ```
 
-3. Deploy to production:
+3. Inspect `.vercel/project.json` and confirm that its project identifier is for
+   `chris-wong-dds`. Stop if it points anywhere else.
+
+4. Deploy to production:
 
 ```bash
 vercel --prod --yes
 ```
 
-4. Verify deployment and aliases:
+5. Verify deployment and aliases:
 
 ```bash
 vercel inspect www.chriswongdds.com
 ```
 
-5. Verify host behavior:
+6. Verify host behavior:
 
 ```bash
 curl -I https://chriswongdds.com
 curl -I https://www.chriswongdds.com
 curl -sS https://www.chriswongdds.com/robots.txt
 curl -I https://www.chriswongdds.com/about
-```
-
-## Optional mirror sync deploys
-
-If you want all connected production mirrors to receive a fresh deployment immediately (instead of waiting for platform hooks), deploy each project explicitly:
-
-```bash
-vercel link --yes --scope enzo-design-prisms-projects --project chris-nextjs
-vercel --prod --yes
-
-vercel link --yes --scope enzo-design-prisms-projects --project chriswongdds
-vercel --prod --yes
 ```
 
 ## GitHub + Vercel release verification
@@ -169,14 +182,13 @@ printf "local HEAD: " && git rev-parse HEAD
 printf "origin/main: " && git rev-parse origin/main
 gh repo view enzo-prism/chris-nexjs --json nameWithOwner,defaultBranchRef,url
 vercel inspect https://www.chriswongdds.com
-vercel inspect https://chris-nextjs.vercel.app
-vercel inspect https://chriswongdds.vercel.app
 ```
 
 Confirm:
 
 - local `HEAD` equals `origin/main`.
-- all three `vercel inspect` commands show `target production` and `status Ready`.
+- `vercel inspect` shows `target production` and `status Ready` for
+  `www.chriswongdds.com`.
 - deployment timestamps are at/after release execution time for the intended rollout.
 
 ## Runtime smoke checks
@@ -197,13 +209,18 @@ Smoke key APIs:
 - `/api/blog-posts`
 - `/api/testimonials`
 - `/rss.xml`
-- `/api/rss.xml`
-- `/api/schedule-request`
 
-Verify form flows:
+Confirm legacy `/api/rss.xml` permanently redirects to `/rss.xml` rather than
+serving a duplicate feed.
 
-- submit `/contact` form
-- submit `/schedule` appointment request
+Verify lead-flow UI without submitting synthetic data:
+
+- confirm `/contact` and `/schedule` return `200`
+- confirm labels, validation, keyboard focus, and error summaries work
+- confirm the automated API contract suite used mocked outbound delivery
+- do not submit fake contact, newsletter, or appointment payloads to the live
+  domain; a real production submission requires an explicitly authorized,
+  bona fide workflow
 
 Verify analytics tag install:
 
@@ -283,7 +300,9 @@ Keep these files aligned whenever routes or SEO paths change:
 ## Local link policy
 
 - `.vercel/project.json` determines the default target for `vercel` commands run without explicit project relinking.
-- For safest release behavior in this repo, keep local link pointed at primary public production (`chris-wong-dds`) unless intentionally working on mirror-specific deploy tasks.
+- `.vercel/project.json` is not tracked and is absent in a fresh checkout.
+- Before every manual deployment, explicitly link and verify
+  `chris-wong-dds`; never infer the target from a previous session.
 - Before any manual CLI deploy, inspect `git status --short` so unrelated local changes are not accidentally shipped.
 
 ## Editorial compliance note

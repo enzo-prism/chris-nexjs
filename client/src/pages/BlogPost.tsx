@@ -459,7 +459,7 @@ const BlogPost = ({ params, initialPosts }: BlogPostPageProps) => {
             "Family dental care for kids, teens, and adults—nearby in Palo Alto.",
         },
         {
-          href: "/pediatric-dentist-palo-alto",
+          href: "/pediatric-dentistry",
           anchorText: "Pediatric dentist for kids’ visits",
           description: "Gentle, prevention‑focused care for children and teens.",
         },

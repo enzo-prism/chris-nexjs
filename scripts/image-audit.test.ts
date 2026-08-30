@@ -206,9 +206,8 @@ async function verifyImageUrl(url: string): Promise<Failure | null> {
       },
     });
 
-    response.body?.cancel();
-
     if (response.status >= 400) {
+      response.body?.cancel();
       return {
         scope: "runtime",
         target: url,
@@ -217,12 +216,9 @@ async function verifyImageUrl(url: string): Promise<Failure | null> {
     }
 
     const contentType = (response.headers.get("content-type") || "").toLowerCase();
-    const isNextOptimizer = new URL(url).pathname === "/_next/image";
 
-    if (
-      !isNextOptimizer &&
-      contentType.includes("text/html")
-    ) {
+    if (contentType.includes("text/html")) {
+      response.body?.cancel();
       return {
         scope: "runtime",
         target: url,
@@ -231,15 +227,24 @@ async function verifyImageUrl(url: string): Promise<Failure | null> {
     }
 
     if (
-      !isNextOptimizer &&
       contentType &&
       !contentType.startsWith("image/") &&
       !contentType.startsWith("application/octet-stream")
     ) {
+      response.body?.cancel();
       return {
         scope: "runtime",
         target: url,
         reason: `Unexpected content-type for image: ${contentType}`,
+      };
+    }
+
+    const imageBytes = await response.arrayBuffer();
+    if (imageBytes.byteLength === 0) {
+      return {
+        scope: "runtime",
+        target: url,
+        reason: "Image response contained no bytes",
       };
     }
 

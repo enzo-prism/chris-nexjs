@@ -175,16 +175,43 @@ async function testFirstAvailableMode() {
         firstName: "First",
         lastName: "Available",
         phone: "650-555-9898",
-        email: "first.available@example.com",
+        contactPreference: "phone",
+      }),
+    );
+
+    assert.equal(response.status, 201);
+    const formspree = assertFormspreeCall(calls);
+    assert.equal(formspree.body.phone, "6505559898");
+    assert.equal(formspree.body.email, "");
+    assert.equal(formspree.body.preferred_days, "First available");
+    assert.equal(formspree.body.preferred_time_of_day, "First available");
+    assert.equal(formspree.body.scheduling_mode, "first_available");
+    assert.equal("_replyto" in formspree.body, false);
+  });
+}
+
+async function testEmailOnlyMode() {
+  await withMockedFetch(async (calls) => {
+    const response = await postScheduleRequest(
+      requestWithBody({
+        isEmergency: false,
+        appointmentType: "Invisalign Consultation",
+        schedulingMode: "choose_preferences",
+        preferredDays: ["Tuesday"],
+        preferredTime: "Midday (11am-2pm)",
+        firstName: "Email",
+        lastName: "Only",
+        email: "email.only@example.com",
         contactPreference: "email",
       }),
     );
 
     assert.equal(response.status, 201);
     const formspree = assertFormspreeCall(calls);
-    assert.equal(formspree.body.preferred_days, "First available");
-    assert.equal(formspree.body.preferred_time_of_day, "First available");
-    assert.equal(formspree.body.scheduling_mode, "first_available");
+    assert.equal(formspree.body.phone, "");
+    assert.equal(formspree.body.email, "email.only@example.com");
+    assert.equal(formspree.body.contact_preference, "email");
+    assert.equal(formspree.body._replyto, "email.only@example.com");
   });
 }
 
@@ -205,6 +232,40 @@ async function testValidationFailures() {
 
     assert.equal(missingPreferences.status, 400);
     assert.equal(calls.length, 0, "should not call webhook when validation fails");
+  });
+
+  await withMockedFetch(async (calls) => {
+    const missingEmail = await postScheduleRequest(
+      requestWithBody({
+        isEmergency: false,
+        appointmentType: "New Patient Exam & Cleaning",
+        schedulingMode: "first_available",
+        firstName: "Missing",
+        lastName: "Email",
+        phone: "6505553333",
+        contactPreference: "email",
+      }),
+    );
+
+    assert.equal(missingEmail.status, 400);
+    assert.equal(calls.length, 0, "should not call webhook when preferred contact is missing");
+  });
+
+  await withMockedFetch(async (calls) => {
+    const missingPhone = await postScheduleRequest(
+      requestWithBody({
+        isEmergency: false,
+        appointmentType: "New Patient Exam & Cleaning",
+        schedulingMode: "first_available",
+        firstName: "Missing",
+        lastName: "Phone",
+        email: "missing.phone@example.com",
+        contactPreference: "phone",
+      }),
+    );
+
+    assert.equal(missingPhone.status, 400);
+    assert.equal(calls.length, 0, "should not call webhook when preferred contact is missing");
   });
 
   await withMockedFetch(async (calls) => {
@@ -354,15 +415,102 @@ async function testBlankEnvironmentFallsBackToDefaultFormspreeEndpoint() {
   }
 }
 
+async function testOptionalForwardingFailureIsSanitized() {
+  const originalFetch = globalThis.fetch;
+  const originalConsoleError = console.error;
+  const originalScheduleEndpoint = process.env.SCHEDULE_FORM_ENDPOINT;
+  const originalCrmEndpoint = process.env.SCHEDULE_CRM_WEBHOOK_URL;
+  const originalSlackEndpoint = process.env.SCHEDULE_SLACK_WEBHOOK_URL;
+  const calls: RecordedCall[] = [];
+
+  process.env.SCHEDULE_FORM_ENDPOINT = "https://formspree.io/f/mock-endpoint";
+  process.env.SCHEDULE_CRM_WEBHOOK_URL = "https://crm.example.test/hook";
+  process.env.SCHEDULE_SLACK_WEBHOOK_URL = "https://slack.example.test/hook";
+  console.error = () => undefined;
+
+  globalThis.fetch = async (input: URL | RequestInfo, init?: RequestInit) => {
+    const url =
+      typeof input === "string"
+        ? input
+        : input instanceof URL
+          ? input.toString()
+          : input.url;
+    const method = init?.method ?? "GET";
+    const body =
+      typeof init?.body === "string" && init.body.length > 0
+        ? (JSON.parse(init.body) as Record<string, unknown>)
+        : {};
+
+    calls.push({ url, method, body });
+
+    if (url === "https://formspree.io/f/mock-endpoint") {
+      return new Response(JSON.stringify({ ok: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    return new Response("vendor-secret-response-body", { status: 502 });
+  };
+
+  try {
+    const response = await postScheduleRequest(
+      requestWithBody({
+        isEmergency: false,
+        appointmentType: "New Patient Exam & Cleaning",
+        schedulingMode: "first_available",
+        firstName: "Forwarding",
+        lastName: "Failure",
+        email: "forwarding.failure@example.com",
+        contactPreference: "email",
+      }),
+    );
+    const responseBody = (await response.json()) as {
+      forwarding: Record<string, { enabled: boolean; sent: boolean }>;
+    };
+
+    assert.equal(response.status, 201);
+    assert.equal(calls.length, 3, "expected primary inbox plus two optional forwards");
+    assert.deepEqual(responseBody.forwarding, {
+      crm: { enabled: true, sent: false },
+      slack: { enabled: true, sent: false },
+    });
+    assert.equal(
+      JSON.stringify(responseBody).includes("vendor-secret-response-body"),
+      false,
+      "public response must not expose an optional vendor response body",
+    );
+    assert.equal(
+      JSON.stringify(responseBody).includes("error"),
+      false,
+      "public forwarding status must expose booleans only",
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+    console.error = originalConsoleError;
+
+    const restoreEnvironment = (name: string, value: string | undefined) => {
+      if (value === undefined) delete process.env[name];
+      else process.env[name] = value;
+    };
+
+    restoreEnvironment("SCHEDULE_FORM_ENDPOINT", originalScheduleEndpoint);
+    restoreEnvironment("SCHEDULE_CRM_WEBHOOK_URL", originalCrmEndpoint);
+    restoreEnvironment("SCHEDULE_SLACK_WEBHOOK_URL", originalSlackEndpoint);
+  }
+}
+
 (async function run() {
   await testLegacyPayloadCompatibility();
   await testV2PayloadCompatibility();
   await testLegacyTextContactPreferenceFallback();
   await testLegacyAfternoonPreferenceCompatibility();
   await testFirstAvailableMode();
+  await testEmailOnlyMode();
   await testValidationFailures();
   await testDefaultFormspreeFallback();
   await testBlankEnvironmentFallsBackToDefaultFormspreeEndpoint();
+  await testOptionalForwardingFailureIsSanitized();
 
   console.log("Schedule request contract checks passed.");
 })().catch((error: unknown) => {

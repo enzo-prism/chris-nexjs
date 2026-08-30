@@ -293,8 +293,8 @@ const DentistStanford = () => {
                 <p className="leading-relaxed text-slate-700">
                   For Stanford families living nearby, we provide a calm, prevention-focused environment for every age.
                   If your child needs a gentle start, explore{" "}
-                  <Link href="/pediatric-dentist-palo-alto" className="ui-link-premium">
-                    pediatric dentistry
+                  <Link href="/pediatric-dentistry" className="ui-link-premium">
+                    children’s dentistry
                   </Link>{" "}
                   in Palo Alto.
                 </p>

@@ -9,21 +9,6 @@ export type SupplementalBlock = {
 const officeAddress = `${officeInfo.address.line1}, ${officeInfo.address.line2}`;
 
 export const supplementalContentByPath: Record<string, SupplementalBlock[]> = {
-  "/": [
-    {
-      heading: "A clear, local approach to dental care in Palo Alto",
-      paragraphs: [
-        "Patients come to our Palo Alto office for more than a quick cleaning. We take time to understand goals, review health history, and explain what we see so you can make confident decisions.",
-        "Whether you need routine preventive care, Invisalign, or help with a broken tooth, we focus on conservative solutions and long-term comfort. Our team welcomes patients from Palo Alto, Menlo Park, Stanford, and nearby neighborhoods.",
-      ],
-      bullets: [
-        "Preventive exams and cleanings with risk-based intervals",
-        "Cosmetic options like whitening, veneers, and Invisalign",
-        "Restorative care for cracks, cavities, and worn teeth",
-        "Same-day priority slots for urgent dental concerns when available",
-      ],
-    },
-  ],
   "/about": [
     {
       heading: "Meet Dr. Christopher B. Wong and the team",
@@ -96,9 +81,9 @@ export const supplementalContentByPath: Record<string, SupplementalBlock[]> = {
       ],
     },
   ],
-  "/pediatric-dentist-palo-alto": [
+  "/pediatric-dentistry": [
     {
-      heading: "Gentle pediatric dentistry in Palo Alto",
+      heading: "Gentle children's dentistry in Palo Alto",
       paragraphs: [
         "Kids do best when visits are calm and predictable. We use age-appropriate language, short explanations, and positive reinforcement to build trust.",
         "Parents receive practical guidance on brushing, diet, and cavity prevention so routines at home feel manageable.",

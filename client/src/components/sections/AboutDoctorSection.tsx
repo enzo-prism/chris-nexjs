@@ -1,79 +1,100 @@
-import React from 'react';
-import { CheckCircle } from 'lucide-react';
-import ButtonLink from '@/components/common/ButtonLink';
-import { Link } from 'wouter';
-import { drWongImages } from '@/lib/imageUrls';
-import OptimizedImage from '@/components/seo/OptimizedImage';
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
 
-const AboutDoctorSection: React.FC = () => {
+import ButtonLink from "@/components/common/ButtonLink";
+import { doctorInfo } from "@/lib/data";
+
+const AboutDoctorSection = () => {
   return (
-    <section id="about-doctor" className="py-16 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-            About Dr. Christopher B. Wong
-          </h2>
-          <div className="w-24 h-1 bg-primary mx-auto"></div>
-        </div>
-        
-        <div className="md:flex items-center">
-          <div className="md:w-1/3 mb-8 md:mb-0">
-            <OptimizedImage
-              src={drWongImages.drWongPortrait1}
-              alt="Dr. Christopher B. Wong portrait"
-              className="w-full max-w-sm aspect-[4/5] object-cover rounded-lg shadow-xl mx-auto"
+    <section
+      id="about-doctor"
+      aria-labelledby="about-doctor-title"
+      className="bg-[#F4F8FC] py-16 md:py-24"
+    >
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid items-center gap-10 lg:grid-cols-[minmax(320px,0.82fr)_minmax(0,1.18fr)] lg:gap-16 xl:gap-20">
+          <div className="relative mx-auto w-full max-w-xl lg:max-w-none">
+            <div
+              className="absolute -bottom-5 -left-5 h-32 w-32 rounded-[2rem] bg-amber-200/45"
+              aria-hidden="true"
             />
-            <div className="text-center mt-4">
-              <h3 className="font-bold text-lg">Dr. Christopher B. Wong</h3>
-              <p className="text-primary font-medium">Lead Dentist</p>
+            <div
+              className="absolute -right-5 -top-5 h-40 w-40 rounded-full border border-sky-300/35"
+              aria-hidden="true"
+            />
+            <div className="relative overflow-hidden rounded-[2rem] border border-white bg-white p-2 shadow-[0_30px_80px_-48px_rgba(15,23,42,0.6)]">
+              <Image
+                src="/images/about/dr-wong-portrait.webp"
+                alt="Portrait of Dr. Christopher B. Wong"
+                width={880}
+                height={1100}
+                sizes="(max-width: 1024px) 100vw, 40vw"
+                className="aspect-[4/5] h-auto w-full rounded-[1.55rem] object-cover"
+              />
+            </div>
+            <div className="relative -mt-10 ml-5 mr-5 rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-lg sm:ml-8 sm:mr-8">
+              <p className="font-heading text-lg font-bold text-slate-950">
+                {doctorInfo.name}, {doctorInfo.title}
+              </p>
+              <p className="mt-1 text-sm font-medium text-primary">
+                Conservative dentistry · Practicing {doctorInfo.experience.toLowerCase()}
+              </p>
             </div>
           </div>
-          <div className="md:w-2/3 md:pl-12">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">Conservative Dental Care You Can Trust</h3>
-            <p className="text-gray-700 mb-4">
-              Dr. Christopher B. Wong was born and raised in Sacramento and earned his bachelor's degree in Biology from UC Davis. 
-              He graduated from the prestigious University of the Pacific Arthur A. Dugoni School of Dentistry in San Francisco in 2018.
-              He is passionate about delivering high-quality care using conservative dentistry to help patients achieve healthy, 
-              functional, and brilliant smiles.
+
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
+              Meet Your Dentist
             </p>
-            <p className="text-gray-700 mb-6">
-              Dr. Wong practices ethical and non-invasive dentistry with special interests in{" "}
+            <h2
+              id="about-doctor-title"
+              className="mt-3 text-balance font-heading text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl md:text-5xl"
+            >
+              Conservative Care Starts With Listening
+            </h2>
+            <p className="mt-6 text-pretty text-lg leading-8 text-slate-700">
+              Dr. Wong graduated from the University of the Pacific Arthur A.
+              Dugoni School of Dentistry in 2018. His approach focuses on
+              prevention, early detection, and preserving natural tooth
+              structure whenever possible.
+            </p>
+            <p className="mt-5 text-pretty text-base leading-7 text-slate-600 md:text-lg">
+              He focuses on{" "}
               <Link href="/invisalign" className="ui-link-premium">
-                Invisalign in Palo Alto
+                Invisalign
               </Link>
               ,{" "}
               <Link href="/dental-implants" className="ui-link-premium">
-                dental implants
+                dental implant restoration
               </Link>
-              , and restorative care. He focuses on prevention and early detection, helping patients retain their natural tooth
-              structure while maintaining long-term oral health.
+              , and restorative care, with an emphasis on explaining the why
+              behind every recommendation.
             </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-start">
-                <CheckCircle className="h-5 w-5 text-primary mt-1 mr-2" />
-                <span>University of the Pacific School of Dentistry</span>
-              </div>
-              <div className="flex items-start">
-                <CheckCircle className="h-5 w-5 text-primary mt-1 mr-2" />
-                <span>American Dental Association</span>
-              </div>
-              <div className="flex items-start">
-                <CheckCircle className="h-5 w-5 text-primary mt-1 mr-2" />
-                <span>California Dental Association</span>
-              </div>
-              <div className="flex items-start">
-                <CheckCircle className="h-5 w-5 text-primary mt-1 mr-2" />
-                <span>Santa Clara County Dental Society</span>
-              </div>
-            </div>
-            
+
+            <ul className="mt-8 grid gap-3 sm:grid-cols-2">
+              {doctorInfo.credentials.map((credential) => (
+                <li
+                  key={credential}
+                  className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white/85 px-4 py-3 text-sm leading-6 text-slate-700"
+                >
+                  <CheckCircle2
+                    className="mt-0.5 h-4 w-4 shrink-0 text-primary"
+                    aria-hidden="true"
+                  />
+                  <span>{credential}</span>
+                </li>
+              ))}
+            </ul>
+
             <div className="mt-8">
               <ButtonLink
                 href="/about"
-                className="ui-btn-primary rounded-md px-6 py-3 font-semibold"
+                size="lg"
+                className="min-h-12 rounded-full px-7 text-base font-semibold"
               >
                 Meet Dr. Christopher Wong
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </ButtonLink>
             </div>
           </div>

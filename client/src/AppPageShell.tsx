@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { HelmetProvider } from "@/lib/helmet";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Router as WouterRouter } from "wouter";
-import { useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import SupplementalContent from "@/components/common/SupplementalContent";
@@ -49,21 +48,6 @@ type AppPageShellProps = {
   readonly children?: ReactNode;
 };
 
-function WouterPathSync() {
-  const pathname = usePathname() || "/";
-  const [location, navigate] = useLocation();
-
-  useEffect(() => {
-    const wouterPathname = location.split(/[?#]/, 1)[0] || "/";
-    if (pathname !== wouterPathname) {
-      const target = `${pathname}${window.location.search}${window.location.hash}`;
-      navigate(target, { replace: true });
-    }
-  }, [pathname, location, navigate]);
-
-  return null;
-}
-
 function ScrollToTop() {
   const pathname = usePathname() || "/";
 
@@ -99,7 +83,6 @@ export function AppPageShell({
 
   const shellContent = (
     <WouterRouter ssrPath={ssrPath}>
-      <WouterPathSync />
       <ScrollToTop />
       <GoogleAnalytics />
       <HotjarTracking />

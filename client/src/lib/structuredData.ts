@@ -78,10 +78,6 @@ export const schemaId = (path: string, fragment: string) => {
 
 export const buildOrganizationSchema = (options?: {
   services?: Pick<Service, "title" | "description" | "slug">[];
-  aggregateRating?: {
-    ratingValue: number;
-    reviewCount: number;
-  };
 }) => {
   const baseUrl = getBaseUrl();
   const services = options?.services ?? [];
@@ -97,9 +93,6 @@ export const buildOrganizationSchema = (options?: {
     email: officeInfo.email,
     image: absoluteUrl("/images/og/dr_wong_polaroids.jpg"),
     logo: absoluteUrl("/favicon/apple-touch-icon.png"),
-    priceRange: "$$",
-    currenciesAccepted: "USD",
-    paymentAccepted: "Cash, Credit Card, Insurance",
     areaServed: DEFAULT_AREA_SERVED.map((city) => ({
       "@type": "City",
       name: city,
@@ -127,9 +120,6 @@ export const buildOrganizationSchema = (options?: {
     hasMap: officeInfo.mapUrl,
     medicalSpecialty: "https://schema.org/Dentistry",
     isAcceptingNewPatients: true,
-    founder: {
-      "@id": schemaId("/", "person-dr-wong"),
-    },
     knowsAbout: [
       "Preventive dentistry",
       "Restorative dentistry",
@@ -182,16 +172,6 @@ export const buildOrganizationSchema = (options?: {
           },
         };
       }),
-    };
-  }
-
-  if (options?.aggregateRating) {
-    schema.aggregateRating = {
-      "@type": "AggregateRating",
-      ratingValue: options.aggregateRating.ratingValue.toFixed(1),
-      reviewCount: options.aggregateRating.reviewCount,
-      bestRating: 5,
-      worstRating: 1,
     };
   }
 

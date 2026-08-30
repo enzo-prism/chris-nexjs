@@ -77,9 +77,9 @@ export function normalizePathname(pathname: string): string {
 
 const seoByPathSource: Record<string, SeoDefinitionInput> = {
   "/": {
-    title: "Dentist in Palo Alto, CA | Christopher B. Wong, DDS",
+    title: "Palo Alto Family Dentist | Christopher B. Wong, DDS",
     description:
-      "Accepting new patients in Palo Alto for preventive, cosmetic and restorative dentistry, Invisalign, implants and urgent dental care. Request a visit.",
+      "Preventive, cosmetic and restorative dentistry in Palo Alto, including Invisalign, implants and urgent visits. New patients can request an appointment today.",
     canonicalPath: "/",
     ogImage: "/images/og/reception-area.jpg",
   },
@@ -112,9 +112,9 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     ogImage: "/images/og/courtyard-operatory.jpg",
   },
   "/pediatric-dentistry": {
-    title: "Pediatric Dentistry in Palo Alto | Christopher B. Wong, DDS",
+    title: "Children’s Dental Care Palo Alto | Christopher B. Wong, DDS",
     description:
-      "Pediatric dentistry in Palo Alto with gentle exams, cleanings, and sealants for infants, kids, and teens in a calm family setting.",
+      "Gentle dental care for children and teens in Palo Alto, with preventive exams, cleanings, and sealants in a calm family setting.",
     canonicalPath: "/pediatric-dentistry",
     ogImage: "/images/og/reception-desk.jpg",
   },
@@ -180,7 +180,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
   "/office-tour": {
     title: "Office Tour | Palo Alto Dentist | Christopher B. Wong, DDS",
     description:
-      "Take a virtual tour of Dr. Christopher Wong's Palo Alto dental office: a calming garden courtyard, a relaxing reception lounge, modern treatment rooms, and the team that cares for you.",
+      "Tour the Palo Alto dental office of Christopher B. Wong, DDS, including the garden courtyard, reception lounge, treatment rooms, and welcoming care team.",
     canonicalPath: "/office-tour",
     ogImage: "/images/og/atrium-courtyard.jpg",
     seoCluster: "trust",
@@ -201,7 +201,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
   "/invisalign": {
     title: "Invisalign in Palo Alto, CA | Christopher B. Wong, DDS",
     description:
-      "Invisalign dentist in Palo Alto offering clear aligners with digital scans, personalized plans, and easy checkups for teens and adults. Schedule a consult today.",
+      "Invisalign clear aligners in Palo Alto with digital scans, personalized treatment plans and convenient checkups for teens and adults. Request a consultation.",
     canonicalPath: "/invisalign",
     ogImage: "/images/og/invisalign-treatment.jpg",
   },
@@ -262,17 +262,10 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     canonicalPath: "/crowns-palo-alto",
     ogImage: "/images/og/operatory-room.jpg",
   },
-  "/pediatric-dentist-palo-alto": {
-    title: "Pediatric Dentist in Palo Alto | Christopher B. Wong, DDS",
-    description:
-      "Find a pediatric dentist in Palo Alto for kids and teens—preventive visits, sealants, and patient coaching in a welcoming office.",
-    canonicalPath: "/pediatric-dentist-palo-alto",
-    ogImage: "/images/og/reception-area.jpg",
-  },
   "/dentist-menlo-park": {
     title: "Menlo Park Family Dentist | Christopher B. Wong, DDS",
     description:
-      "Family dentist near Menlo Park for kids, teens, adults, and seniors. Preventive checkups, cleanings, fillings, Invisalign, and emergency care—visit our nearby Palo Alto office.",
+      "Family dentist near Menlo Park for children and adults, with checkups, cleanings, fillings, Invisalign and urgent care at our nearby Palo Alto office.",
     canonicalPath: "/dentist-menlo-park",
     ogImage: "/images/og/dentist-menlo-park.jpg",
   },
@@ -456,28 +449,29 @@ const CHANGEFREQ_OVERRIDES: Partial<
 
 // Keep these honest: update when the page's rendered content actually
 // changes (scripts/seo-freshness-audit.ts fails the SEO gate when these
-// drift past the per-cluster staleness threshold). Last real change:
-// August 27, 2026 limited-hours notice rendered on hours surfaces.
+// drift past the per-cluster staleness threshold).
 const LASTMOD_OVERRIDES: Partial<Record<string, string>> = {
-  "/": "2026-08-24",
-  "/services": "2026-08-12",
-  "/schedule": "2026-08-24",
-  "/contact": "2026-08-24",
+  "/": "2026-08-30",
+  "/services": "2026-08-30",
+  "/schedule": "2026-08-30",
+  "/contact": "2026-08-30",
   "/insurance": "2026-08-12",
-  "/about": "2026-08-12",
+  "/about": "2026-08-30",
+  "/gallery": "2026-08-30",
+  "/pediatric-dentistry": "2026-08-30",
   "/dental-implants": "2026-08-12",
   "/thank-you": "2026-08-12",
-  "/dentist-menlo-park": "2026-08-24",
-  "/dentist-stanford": "2026-08-24",
-  "/dentist-mountain-view": "2026-08-24",
-  "/dentist-los-altos": "2026-08-24",
-  "/dentist-los-altos-hills": "2026-08-24",
-  "/dentist-sunnyvale": "2026-08-24",
-  "/dentist-cupertino": "2026-08-24",
-  "/dentist-redwood-city": "2026-08-24",
-  "/dentist-atherton": "2026-08-24",
-  "/dentist-redwood-shores": "2026-08-24",
-  "/locations": "2026-07-15",
+  "/dentist-menlo-park": "2026-08-30",
+  "/dentist-stanford": "2026-08-30",
+  "/dentist-mountain-view": "2026-08-30",
+  "/dentist-los-altos": "2026-08-30",
+  "/dentist-los-altos-hills": "2026-08-30",
+  "/dentist-sunnyvale": "2026-08-30",
+  "/dentist-cupertino": "2026-08-30",
+  "/dentist-redwood-city": "2026-08-30",
+  "/dentist-atherton": "2026-08-30",
+  "/dentist-redwood-shores": "2026-08-30",
+  "/locations": "2026-08-30",
 };
 
 function resolveIndexable(entry: SeoDefinitionInput): boolean {

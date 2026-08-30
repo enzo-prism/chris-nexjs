@@ -339,7 +339,7 @@ export class MemStorage implements IStorage {
         featured: false
       },
       {
-        title: "Pediatric Dentistry",
+        title: "Children's Dentistry",
         description: "Child-friendly dental care in a comfortable environment to establish good oral health habits early.",
         image: "/images/services/pediatric-dentistry.jpg",
         slug: "pediatric-dentistry",
@@ -376,10 +376,10 @@ export class MemStorage implements IStorage {
   private initializeBlogPosts() {
     const blogPostsList: InsertBlogPost[] = [
       {
-        title: "Emergency Dentist in Palo Alto: What to Do Now",
-        content: `Dental emergencies never happen at a convenient time. If you need an emergency dentist in Palo Alto, issues like a cracked tooth during lunch, a sudden toothache that keeps you up at night, or a knocked-out tooth after a weekend bike ride all require fast, reliable care.
+        title: "What Counts as a Dental Emergency? A Palo Alto Guide",
+        content: `Dental problems rarely happen at a convenient time. Some situations need prompt attention, while others can safely wait for a regular appointment.
 
-If you are in Palo Alto, Stanford, Menlo Park, or surrounding areas, Dr. Christopher B. Wong offers prompt, compassionate emergency dental treatment to relieve pain and protect your long-term oral health. This guide walks through common dental emergencies, what to do immediately, and when to call our office.
+This guide explains common warning signs, practical steps to take before you are seen, and when to contact a dental office. If you are in Palo Alto, Stanford, Menlo Park, or a nearby community, the team at Christopher B. Wong, DDS can help you understand the next step.
 
 What Counts as a Dental Emergency?
 
@@ -447,7 +447,7 @@ If you are in pain:
 
 - Avoid aspirin directly on the gums because it can burn the tissue.
 
-Why Choose Dr. Christopher B. Wong for Emergency Dental Care?
+How Our Office Responds to Urgent Dental Problems
 
 - Fast, same-day emergency appointments whenever possible
 
@@ -461,11 +461,11 @@ Why Choose Dr. Christopher B. Wong for Emergency Dental Care?
 
 Our goal is simple: restore your comfort, protect your health, and get you back to normal quickly.
 
-Emergency Dentistry That Fits Your Life
+Getting Timely Care in Palo Alto
 
 Life moves fast in the Bay Area. Dental issues should not slow you down. Whether you are a student, working professional, or parent on the go, we provide timely, effective care when you need it most.
 
-When to Call Us Immediately
+When to Contact a Dental Office
 
 You should call our office right away if you experience:
 
@@ -481,7 +481,7 @@ You should call our office right away if you experience:
 
 If you are unsure whether it is an emergency, call us and our team can guide you.
 
-Schedule an Emergency Dental Appointment
+Request Help With an Urgent Dental Problem
 
 If you are dealing with a dental emergency in Palo Alto, do not wait. Prompt treatment can make all the difference in saving a tooth, preventing infections, and relieving pain.
 

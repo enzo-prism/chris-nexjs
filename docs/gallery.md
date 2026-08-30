@@ -4,13 +4,15 @@ Operational guide for `/gallery`.
 
 ## Purpose
 
-The gallery is a media-first showcase page designed to present office visuals without clipping critical image content.
+The gallery is a media-first showcase page designed to scan quickly while
+keeping the complete source frame available in the lightbox.
 
 Current interaction model:
-- Hero video autoplay muted with unmute toggle.
+- Hero and in-grid videos request no video bytes until the visitor presses play.
 - In-grid videos are click-to-play, muted loop.
-- Hover metadata overlays are visible on tiles.
-- Fullscreen lightbox supports keyboard and swipe navigation.
+- Tiles use concise accessible names; the fullscreen lightbox exposes the title
+  and description to assistive technology and supports keyboard and swipe
+  navigation.
 
 ## Source files
 
@@ -20,18 +22,18 @@ Current interaction model:
 - Lightbox component: `client/src/components/gallery/GalleryLightbox.tsx`
 - Contract test: `scripts/gallery-media.test.ts`
 
-## Rendering architecture (no-crop mode)
+## Rendering architecture
 
-The grid now uses a mixed sizing strategy to avoid image cut-off:
+The grid uses intentional editorial frames for a stable, scannable layout:
 
 - Still images (`kind: "image"`)
-  - Render as intrinsic-ratio media (`img` with `h-auto w-full`)
-  - Use `object-contain` semantics to preserve the entire frame
-  - Do not force `aspect-*` classes for stills
+  - Use responsive `next/image` delivery with explicit `sizes`
+  - Use `4:3` or `4:5` tile frames with `object-cover`
+  - Show the complete uncropped image with `object-contain` in the lightbox
 - Videos (`kind: "video"`)
-  - Continue to use frame classes for rhythm (`aspect-video` for wide clips)
-  - Use `object-contain` so preview posters and video frames are not cropped
-  - Preserve click-to-play muted behavior
+  - Use stable poster frames before interaction
+  - Keep the MP4 source out of the DOM until explicit play
+  - Show the complete video with `object-contain` in the lightbox
 
 ## Media data contract
 
@@ -45,11 +47,12 @@ The grid now uses a mixed sizing strategy to avoid image cut-off:
 - `description`
 - `category` (`Our Space`, `Patient Care`, `Technology`, `Our Team`)
 - `layout` (`videoWide`, `photoStandard`, `photoTall`)
-- `interaction` (`heroAutoplayMuted`, `tapToPlayLoopMuted`, `staticImage`)
+- `interaction` (`tapToPlayLoopMuted` or `staticImage`)
 
 Notes:
 - `title` and `description` are required metadata fields.
-- Category/title/description overlays are rendered on tile hover.
+- Tile controls expose the title to assistive technology; the lightbox exposes
+  the title and description through its accessible dialog semantics.
 
 ## Current still-image pack (Cloudinary)
 
@@ -76,14 +79,14 @@ As of 2026-03-04, still-image tiles use this explicit set:
    - `photoStandard` for most stills
    - `photoTall` for portrait emphasis
 6. Assign interaction:
-   - hero media: `heroAutoplayMuted`
+   - hero and in-grid videos: `tapToPlayLoopMuted`
    - in-grid videos: `tapToPlayLoopMuted`
    - images: `staticImage`
 7. Keep video posters distinct from still-image tile sources to avoid visible duplicates.
 
 ## QA checklist
 
-- Hero video starts muted and can be toggled mute/unmute.
+- Hero video does not load until clicked, then starts muted and can be unmuted.
 - In-grid videos stay paused until clicked.
 - In-grid videos pause when out of viewport.
 - Lightbox opens from any tile.
@@ -91,7 +94,8 @@ As of 2026-03-04, still-image tiles use this explicit set:
   - `Esc` closes
   - left/right arrows navigate
   - swipe works on touch devices
-- Still images are fully visible at all breakpoints (`sm`, `md`, `lg`, `xl`) with no crop-off of key content.
+- Editorial tile crops remain visually appropriate at `sm`, `md`, `lg`, and
+  `xl`; the lightbox preserves every complete source frame.
 - No duplicated poster/still visual surfaces in the same gallery state.
 
 ## Automated checks

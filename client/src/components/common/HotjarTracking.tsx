@@ -49,21 +49,31 @@ const HotjarTracking = () => {
       document.head.appendChild(script);
     };
 
-    const triggerEvents = ["pointerdown", "keydown", "touchstart"];
-    triggerEvents.forEach((event) =>
-      window.addEventListener(event, loadHotjar, { once: true, passive: true }),
-    );
-
     let idleTimer: ReturnType<typeof setTimeout> | undefined;
-    if ("requestIdleCallback" in window) {
-      window.requestIdleCallback(loadHotjar, { timeout: 3000 });
+    let idleCallbackId: number | undefined;
+
+    const scheduleHotjar = () => {
+      idleTimer = setTimeout(() => {
+        if ("requestIdleCallback" in window) {
+          idleCallbackId = window.requestIdleCallback(loadHotjar, { timeout: 8000 });
+        } else {
+          loadHotjar();
+        }
+      }, 8000);
+    };
+
+    if (document.readyState === "complete") {
+      scheduleHotjar();
     } else {
-      idleTimer = setTimeout(loadHotjar, 2500);
+      window.addEventListener("load", scheduleHotjar, { once: true });
     }
 
     return () => {
-      triggerEvents.forEach((event) => window.removeEventListener(event, loadHotjar));
+      window.removeEventListener("load", scheduleHotjar);
       if (idleTimer) clearTimeout(idleTimer);
+      if (idleCallbackId !== undefined && "cancelIdleCallback" in window) {
+        window.cancelIdleCallback(idleCallbackId);
+      }
     };
   }, [pathname]);
 

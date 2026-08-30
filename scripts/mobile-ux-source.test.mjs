@@ -102,11 +102,12 @@ assert(
   /icon:\s*"h-11 w-11"/.test(button),
 );
 
-// 9. Carousel dots have a >=44px hit area.
-const home = read("client/src/pages/Home.tsx");
+// 9. Static patient proof keeps its only section-level control tappable.
+const patientProof = read("client/src/components/sections/PatientProofSection.tsx");
 assert(
-  "Home.tsx: carousel dots have h-11 w-11 hit area",
-  /data-testid="testimonial-dot"[\s\S]{0,260}h-11 w-11/.test(home),
+  "PatientProofSection: patient-stories link has a >=44px hit area",
+  /href="\/testimonials"[\s\S]{0,260}min-h-11/.test(patientProof),
+  "the patient-stories link should keep min-h-11",
 );
 
 // 10. Footer social links have a >=44px hit area.

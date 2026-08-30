@@ -73,7 +73,7 @@ const DentistRedwoodCity = () => {
 
   const relatedServices: RelatedServiceLink[] = [
     {
-      href: "/pediatric-dentist-palo-alto",
+      href: "/pediatric-dentistry",
       anchorText: "Pediatric dentist near Redwood City",
       description: "Gentle care for kids and teens in a calm environment.",
     },
@@ -229,10 +229,10 @@ const DentistRedwoodCity = () => {
             <p className="text-slate-700 leading-relaxed">
               If your child needs a gentle start, our{" "}
               <Link
-                href="/pediatric-dentist-palo-alto"
+                href="/pediatric-dentistry"
                 className="ui-link-premium"
               >
-                pediatric dentist team
+                children’s dental care
               </Link>{" "}
               emphasizes comfort and confidence. For adults, we prioritize early detection and treatment that protects
               healthy tooth structure.
@@ -249,8 +249,8 @@ const DentistRedwoodCity = () => {
                 <p className="text-slate-700 leading-relaxed">
                   Gentle visits focused on prevention, cavity risk reduction, and healthy routines.
                   Explore{" "}
-                  <Link href="/pediatric-dentist-palo-alto" className="ui-link-premium">
-                    pediatric dentistry
+                  <Link href="/pediatric-dentistry" className="ui-link-premium">
+                    children’s dentistry
                   </Link>{" "}
                   for Redwood City families.
                 </p>

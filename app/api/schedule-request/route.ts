@@ -21,11 +21,11 @@ import { validateJsonRequest } from "../../../server/requestPolicy";
 type ForwardingResult = {
   enabled: boolean;
   sent: boolean;
-  error?: string;
 };
 
-type ScheduleDispatchPayload = Omit<ScheduleRequestV2, "phone"> & {
-  phone: string;
+type ScheduleDispatchPayload = Omit<ScheduleRequestV2, "phone" | "email"> & {
+  phone?: string;
+  email?: string;
   sourceUrl: string;
   utm: Record<string, string>;
   timestamp: string;
@@ -158,8 +158,8 @@ const buildInboxMessage = (data: ScheduleDispatchPayload) => {
   return [
     "New Appointment Request",
     `Name: ${data.firstName} ${data.lastName}`,
-    `Email: ${data.email}`,
-    `Phone: ${data.phone}`,
+    `Email: ${data.email ?? "Not provided"}`,
+    `Phone: ${data.phone ?? "Not provided"}`,
     `Appointment type: ${data.appointmentType}`,
     `Urgent: ${data.isEmergency ? "Yes" : "No"}`,
     `Scheduling mode: ${data.schedulingMode}`,
@@ -186,10 +186,7 @@ const postJsonWebhook = async (url: string, payload: unknown): Promise<void> => 
   });
 
   if (!response.ok) {
-    const details = await response.text().catch(() => "No response body");
-    throw new Error(
-      `Webhook request failed with ${response.status}: ${details.slice(0, 400)}`,
-    );
+    throw new Error(`Webhook request failed with ${response.status}.`);
   }
 };
 
@@ -208,8 +205,8 @@ const postToFormspree = async (
   const formPayload = {
     first_name: payload.firstName,
     last_name: payload.lastName,
-    email: payload.email,
-    phone: payload.phone,
+    email: payload.email ?? "",
+    phone: payload.phone ?? "",
     appointment_type: payload.appointmentType,
     urgent: payload.isEmergency ? "Yes" : "No",
     preferred_days: preferredDays,
@@ -232,7 +229,7 @@ const postToFormspree = async (
     referrer: payload.sourceUrl,
     environment: process.env.VERCEL_ENV ?? process.env.NODE_ENV ?? "production",
     [FORMSPREE_OPS_QA_FIELD]: "false",
-    _replyto: payload.email,
+    ...(payload.email ? { _replyto: payload.email } : {}),
     _subject: `Appointment Request: ${payload.appointmentType}`,
     message: buildInboxMessage(payload),
   };
@@ -277,8 +274,10 @@ export async function POST(request: NextRequest) {
     }
 
     const parsedBody = normalizeIncomingScheduleRequest(body);
-    const normalizedPhone = normalizeSchedulePhone(parsedBody.phone);
-    if (!normalizedPhone) {
+    const normalizedPhone = parsedBody.phone
+      ? normalizeSchedulePhone(parsedBody.phone)
+      : null;
+    if (parsedBody.phone && !normalizedPhone) {
       return NextResponse.json(
         { message: "Phone number must include 10 digits (or 11 digits starting with 1)." },
         { status: 400 },
@@ -293,7 +292,8 @@ export async function POST(request: NextRequest) {
 
     const payload: ScheduleDispatchPayload = {
       ...parsedBody,
-      phone: normalizedPhone,
+      phone: normalizedPhone ?? undefined,
+      email: sanitizeOptionalText(parsedBody.email)?.toLowerCase(),
       insuranceProvider: sanitizeOptionalText(parsedBody.insuranceProvider),
       message: sanitizeOptionalText(parsedBody.message),
       source: sanitizeOptionalText(parsedBody.source),
@@ -347,10 +347,7 @@ export async function POST(request: NextRequest) {
         crmResult.sent = true;
       } catch (error) {
         crmResult.sent = false;
-        crmResult.error =
-          error instanceof Error
-            ? error.message
-            : "Unknown CRM forwarding error.";
+        console.error("Optional CRM forwarding failed.", error);
       }
     }
 
@@ -364,10 +361,7 @@ export async function POST(request: NextRequest) {
         slackResult.sent = true;
       } catch (error) {
         slackResult.sent = false;
-        slackResult.error =
-          error instanceof Error
-            ? error.message
-            : "Unknown Slack forwarding error.";
+        console.error("Optional Slack forwarding failed.", error);
       }
     }
 

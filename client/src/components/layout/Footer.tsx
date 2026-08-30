@@ -49,7 +49,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
     { href: "/dental-veneers", label: "Cosmetic Dentistry" },
     { href: "/teeth-whitening-palo-alto", label: "Teeth Whitening" },
     { href: "/restorative-dentistry", label: "Restorative Dentistry" },
-    { href: "/pediatric-dentistry", label: "Pediatric Dentistry" },
+    { href: "/pediatric-dentistry", label: "Children's Dentistry" },
     { href: "/dental-implants", label: "Dental Implants" },
     { href: "/emergency-dental", label: "Emergency Dentist" },
   ];

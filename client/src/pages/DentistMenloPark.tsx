@@ -73,7 +73,7 @@ const DentistMenloPark = () => {
 
   const relatedServices: RelatedServiceLink[] = [
     {
-      href: "/pediatric-dentist-palo-alto",
+      href: "/pediatric-dentistry",
       anchorText: "Pediatric dentist for Menlo Park families",
       description: "Gentle kids’ dentistry in a calm, family-friendly environment.",
     },
@@ -243,10 +243,10 @@ const DentistMenloPark = () => {
             <p className="text-slate-700 leading-relaxed">
               If your child needs a gentle start, our{" "}
               <Link
-                href="/pediatric-dentist-palo-alto"
+                href="/pediatric-dentistry"
                 className="ui-link-premium"
               >
-                pediatric dentist team
+                children’s dental care
               </Link>{" "}
               focuses on prevention, confidence, and age‑appropriate coaching. For adults, our goal is conservative care
               that protects healthy tooth structure and keeps future treatment simpler.
@@ -263,8 +263,8 @@ const DentistMenloPark = () => {
                 <p className="text-slate-700 leading-relaxed">
                   Gentle visits focused on prevention, cavity risk reduction, and building comfort early.
                   Explore{" "}
-                  <Link href="/pediatric-dentist-palo-alto" className="ui-link-premium">
-                    pediatric dentistry
+                  <Link href="/pediatric-dentistry" className="ui-link-premium">
+                    children’s dentistry
                   </Link>{" "}
                   for Menlo Park families.
                 </p>

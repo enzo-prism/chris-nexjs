@@ -7,7 +7,7 @@ const baseUrl = (
   process.env.LIGHTHOUSE_BASE_URL || "https://www.chriswongdds.com"
 ).replace(/\/+$/, "");
 
-const runsPerRoute = Number.parseInt(process.env.LIGHTHOUSE_RUNS || "2", 10);
+const runsPerRoute = Number.parseInt(process.env.LIGHTHOUSE_RUNS || "3", 10);
 const skipPrecheck = process.env.LIGHTHOUSE_SKIP_PRECHECK === "1";
 
 const budgets = [
@@ -17,7 +17,7 @@ const budgets = [
       process.env.LIGHTHOUSE_HOME_MIN_PERF || "0.8",
     ),
     maxLcpMs: Number.parseFloat(
-      process.env.LIGHTHOUSE_HOME_MAX_LCP_MS || "5200",
+      process.env.LIGHTHOUSE_HOME_MAX_LCP_MS || "3200",
     ),
     maxCls: Number.parseFloat(process.env.LIGHTHOUSE_HOME_MAX_CLS || "0.1"),
     maxTbtMs: Number.parseFloat(
@@ -45,7 +45,7 @@ const budgets = [
       process.env.LIGHTHOUSE_INVISALIGN_MIN_PERF || "0.75",
     ),
     maxLcpMs: Number.parseFloat(
-      process.env.LIGHTHOUSE_INVISALIGN_MAX_LCP_MS || "8200",
+      process.env.LIGHTHOUSE_INVISALIGN_MAX_LCP_MS || "5000",
     ),
     maxCls: Number.parseFloat(
       process.env.LIGHTHOUSE_INVISALIGN_MAX_CLS || "0.1",
@@ -67,6 +67,36 @@ const budgets = [
     ),
     maxTbtMs: Number.parseFloat(
       process.env.LIGHTHOUSE_DENTIST_MENLO_PARK_MAX_TBT_MS || "250",
+    ),
+  },
+  {
+    path: "/gallery",
+    minPerformance: Number.parseFloat(
+      process.env.LIGHTHOUSE_GALLERY_MIN_PERF || "0.8",
+    ),
+    maxLcpMs: Number.parseFloat(
+      process.env.LIGHTHOUSE_GALLERY_MAX_LCP_MS || "4000",
+    ),
+    maxCls: Number.parseFloat(
+      process.env.LIGHTHOUSE_GALLERY_MAX_CLS || "0.1",
+    ),
+    maxTbtMs: Number.parseFloat(
+      process.env.LIGHTHOUSE_GALLERY_MAX_TBT_MS || "350",
+    ),
+  },
+  {
+    path: "/schedule",
+    minPerformance: Number.parseFloat(
+      process.env.LIGHTHOUSE_SCHEDULE_MIN_PERF || "0.8",
+    ),
+    maxLcpMs: Number.parseFloat(
+      process.env.LIGHTHOUSE_SCHEDULE_MAX_LCP_MS || "4000",
+    ),
+    maxCls: Number.parseFloat(
+      process.env.LIGHTHOUSE_SCHEDULE_MAX_CLS || "0.1",
+    ),
+    maxTbtMs: Number.parseFloat(
+      process.env.LIGHTHOUSE_SCHEDULE_MAX_TBT_MS || "350",
     ),
   },
 ];

@@ -54,6 +54,14 @@ import { cn } from "@/lib/utils";
 
 const EMERGENCY_APPOINTMENT_TYPE = "Emergency Visit";
 
+const isValidOptionalEmail = (value: string | undefined): boolean => {
+  if (!value || value.trim().length === 0) {
+    return true;
+  }
+
+  return z.string().email().safeParse(value.trim()).success;
+};
+
 const scheduleFormBaseSchema = z.object({
     isEmergency: z.boolean(),
     appointmentType: z
@@ -83,25 +91,49 @@ const scheduleFormBaseSchema = z.object({
       ),
     firstName: z.string().trim().min(1, "First name is required.").max(40),
     lastName: z.string().trim().min(1, "Last name is required.").max(40),
-    phone: z
-      .string()
-      .trim()
-      .min(1, "Phone number is required.")
-      .refine(
-        (value) => isValidSchedulePhone(value),
-        "Phone number must include 10 digits (or 11 digits starting with 1).",
-      ),
-    email: z
-      .string()
-      .trim()
-      .min(1, "Email is required.")
-      .email("Please enter a valid email."),
+    phone: z.string().trim().optional().or(z.literal("")),
+    email: z.string().trim().optional().or(z.literal("")),
     contactPreference: z.enum(contactPreferenceOptions),
     insuranceProvider: z.string().trim().max(80).optional().or(z.literal("")),
     message: z.string().trim().max(300).optional().or(z.literal("")),
   });
 
 const scheduleFormSchema = scheduleFormBaseSchema.superRefine((value, ctx) => {
+    const phoneProvided = Boolean(value.phone?.trim());
+    const emailProvided = Boolean(value.email?.trim());
+
+    if (phoneProvided && !isValidSchedulePhone(value.phone ?? "")) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Phone number must include 10 digits (or 11 digits starting with 1).",
+        path: ["phone"],
+      });
+    }
+
+    if (!isValidOptionalEmail(value.email)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Please enter a valid email.",
+        path: ["email"],
+      });
+    }
+
+    if (value.contactPreference === "phone" && !phoneProvided) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Phone number is required if you want a call back.",
+        path: ["phone"],
+      });
+    }
+
+    if (value.contactPreference === "email" && !emailProvided) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Email is required if you want an email reply.",
+        path: ["email"],
+      });
+    }
+
     if (value.schedulingMode !== "choose_preferences") {
       return;
     }
@@ -682,19 +714,21 @@ const PreferenceStep = ({ control, presentation }: StepProps) => {
 };
 
 type ContactStepProps = StepProps & {
+  contactPreference: ScheduleFormValues["contactPreference"];
   remainingNotesCharacters: number;
 };
 
 const ContactStep = ({
   control,
+  contactPreference,
   presentation,
   remainingNotesCharacters,
 }: ContactStepProps) => {
   return (
     <div className={cn(presentation === "funnel" ? "space-y-6" : "space-y-6")}>
       <p className="rounded-xl bg-primary/[0.05] px-4 py-3 text-sm leading-6 text-slate-600">
-        Name, phone, email, and a contact choice are required. We ask for both
-        phone and email so we can reach you if your preferred method is unavailable.
+        Choose the best way to reach you. Your preferred method is required,
+        and the second option is only there if you want to add a backup.
       </p>
       <div
         className={cn(
@@ -767,7 +801,7 @@ const ContactStep = ({
               <FormControl>
                 <Input
                   type="tel"
-                  required
+                  required={contactPreference === "phone"}
                   inputMode="tel"
                   enterKeyHint="next"
                   autoComplete="tel"
@@ -795,12 +829,13 @@ const ContactStep = ({
               <FormControl>
                 <Input
                   type="email"
-                  required
+                  required={contactPreference === "email"}
                   inputMode="email"
                   enterKeyHint="done"
                   autoComplete="email"
                   autoCapitalize="none"
                   autoCorrect="off"
+                  spellCheck={false}
                   placeholder="jane.doe@example.com"
                   className={
                     presentation === "funnel" ? getFunnelInputClasses() : "h-11"
@@ -867,6 +902,11 @@ const ContactStep = ({
                 })}
               </RadioGroup>
             </FormControl>
+            <p className="text-xs leading-5 text-slate-500" aria-live="polite">
+              {contactPreference === "phone"
+                ? "Add an email only if you want a backup contact method."
+                : "Add a phone number only if you want a backup contact method."}
+            </p>
             <FormMessage />
           </FormItem>
         )}
@@ -1214,7 +1254,8 @@ const AppointmentForm = ({
 
   const onSubmit = async (rawData: ScheduleFormValues) => {
     const sourceUrl = window.location.href;
-    const normalizedPhone = rawData.phone.trim();
+    const normalizedPhone = rawData.phone?.trim() ?? "";
+    const normalizedEmail = rawData.email?.trim().toLowerCase() ?? "";
 
     // Mirror-schema check before we touch the network. `safeParse` (not
     // `parse`) so a drift between the form schema and the wire schema surfaces
@@ -1234,8 +1275,8 @@ const AppointmentForm = ({
           : undefined,
       firstName: rawData.firstName.trim(),
       lastName: rawData.lastName.trim(),
-      phone: normalizedPhone,
-      email: rawData.email.trim().toLowerCase(),
+      phone: normalizedPhone || undefined,
+      email: normalizedEmail || undefined,
       contactPreference: rawData.contactPreference,
       insuranceProvider: rawData.insuranceProvider?.trim() || undefined,
       message: rawData.message?.trim() || undefined,
@@ -1343,8 +1384,8 @@ const AppointmentForm = ({
         method: rawData.contactPreference,
         destination:
           rawData.contactPreference === "phone"
-            ? rawData.phone
-            : rawData.email.trim().toLowerCase(),
+            ? normalizedPhone
+            : normalizedEmail,
       });
       setStatus("success");
       setStep(1);
@@ -1546,6 +1587,7 @@ const AppointmentForm = ({
         {currentStep.name === "contact_details" ? (
           <ContactStep
             control={control}
+            contactPreference={formValues.contactPreference}
             presentation={presentation}
             remainingNotesCharacters={remainingNotesCharacters}
           />

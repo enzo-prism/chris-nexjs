@@ -105,3 +105,35 @@ test("schedule funnel text fields are >= 16px to prevent iOS zoom", async ({
   await advanceFunnelToContactStep(page);
   await assertNoUndersizedFields(page, "/schedule");
 });
+
+test("schedule funnel accepts email-only contact details when email is preferred", async ({
+  page,
+}) => {
+  await page.route("**/api/schedule-request", async (route) => {
+    await route.fulfill({
+      status: 201,
+      contentType: "application/json",
+      body: JSON.stringify({ success: true }),
+    });
+  });
+
+  await gotoAndHydrate(page, "/schedule");
+  await advanceFunnelToContactStep(page);
+
+  await page.getByLabel("First name").fill("Jamie");
+  await page.getByLabel("Last name").fill("Example");
+  await page
+    .getByRole("radiogroup", { name: /preferred contact method/i })
+    .locator("label")
+    .filter({ hasText: /^Email/i })
+    .click();
+  await page
+    .getByRole("textbox", { name: "Email", exact: true })
+    .fill("jamie@example.com");
+  await page.getByRole("button", { name: "Send Appointment Request", exact: true }).click();
+
+  await expect(
+    page.getByRole("heading", { name: "We'll confirm your appointment shortly." }),
+  ).toBeVisible();
+  await expect(page.getByText(/by email at/i)).toContainText("jamie@example.com");
+});

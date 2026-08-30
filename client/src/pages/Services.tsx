@@ -82,6 +82,7 @@ const Services = ({ initialServices }: ServicesProps) => {
   const { data: services, isLoading } = useQuery<Service[]>({
     queryKey: ["/api/services"],
     initialData: initialServices,
+    enabled: typeof window !== "undefined" && !initialServices,
   });
 
   const servicesSchemas = [
@@ -127,9 +128,9 @@ const Services = ({ initialServices }: ServicesProps) => {
       description: "Custom protection for cracked or heavily restored teeth.",
     },
     {
-      href: "/pediatric-dentist-palo-alto",
-      title: "Pediatric dentist in Palo Alto",
-      description: "Gentle care for kids and teens in a family-friendly setting.",
+      href: "/pediatric-dentistry",
+      title: "Children's dentistry in Palo Alto",
+      description: "Gentle preventive care for children and teens in a family setting.",
     },
     {
       href: "/restorative-dentistry",
