@@ -2,6 +2,16 @@ import { expect, test, type Page } from "@playwright/test";
 import { gotoAndHydrate } from "./_helpers";
 
 async function mockMediaPlayback(page: Page): Promise<void> {
+  // Keep keyboard behavior deterministic in CI. The gallery's production clips
+  // remain remote, but this interaction test should not fail because a media
+  // CDN request races the mocked play event or emits a transient error.
+  await page.route(/res\.cloudinary\.com\/.*\.mp4(?:\?.*)?$/, async (route) => {
+    await route.fulfill({
+      path: `${process.cwd()}/public/videos/office-frontdesk.mp4`,
+      contentType: "video/mp4",
+    });
+  });
+
   await page.addInitScript(() => {
     HTMLMediaElement.prototype.play = function play(): Promise<void> {
       Object.defineProperty(this, "paused", {
