@@ -68,7 +68,7 @@ Local validation snapshot (2026-08-30):
   and 1920 px widths with one H1, complete landmarks, and zero broken images;
   the dedicated mobile suite separately enforced horizontal overflow and
   interaction behavior.
-- Protected Vercel preview: deployment `dpl_8bDJ7TY5sV2GMqZxN9kDeUT4qoDP`
+- Protected Vercel preview: deployment `dpl_G8L7WqPjd8cZrdZJ4abReDNdAtvd`
   reached `Ready` in project `chris-wong-dds`; key pages, read-only APIs, RSS,
   redirects, robots, sitemap, canonicals, and raw HTML checks passed through
   authenticated deployment readback.
