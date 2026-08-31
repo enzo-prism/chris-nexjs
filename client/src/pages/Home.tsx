@@ -10,6 +10,7 @@ import {
 
 import ButtonLink from "@/components/common/ButtonLink";
 import FAQSection from "@/components/common/FAQSection";
+import HomeServiceVisual from "@/components/common/HomeServiceVisual";
 import OfficeHoursSummary from "@/components/common/OfficeHoursSummary";
 import ServiceCard from "@/components/common/ServiceCard";
 import StructuredData from "@/components/seo/StructuredData";
@@ -118,7 +119,11 @@ const Home = ({ initialServices = [] }: HomeProps) => {
 
           <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {initialServices.slice(0, 3).map((service) => (
-              <ServiceCard key={service.id} service={service} />
+              <ServiceCard
+                key={service.id}
+                service={service}
+                visual={<HomeServiceVisual service={service} />}
+              />
             ))}
           </div>
 

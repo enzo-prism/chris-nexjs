@@ -199,6 +199,42 @@ assert(
   offenders.length ? `offending files: ${offenders.join(", ")}` : "",
 );
 
+// 17. The mobile navigation is exposed as a modal surface and its scrollable
+// panel clears the iOS home indicator. Runtime focus entry/return is covered by
+// the Playwright navigation spec.
+const header = read("client/src/components/layout/Header.tsx");
+assert(
+  "Header: mobile navigation has modal dialog semantics",
+  /id="mobile-nav"[\s\S]{0,360}(?=[\s\S]*?role="dialog")(?=[\s\S]*?aria-modal="true")/.test(
+    header,
+  ),
+  "#mobile-nav must declare role='dialog' and aria-modal='true'",
+);
+assert(
+  "Header: mobile navigation panel has safe-area bottom padding",
+  /mobileMenuOpen[\s\S]{0,7000}(?:pb-\[calc\(env\(safe-area-inset-bottom\)|paddingBottom:\s*["'`]calc\(env\(safe-area-inset-bottom\))/.test(
+    header,
+  ),
+  "the open mobile-navigation surface must include env(safe-area-inset-bottom) in its bottom padding",
+);
+
+// 18. Homepage service cards deliberately use icon artwork, while the complete
+// Services catalog keeps ServiceCard's default image treatment.
+const home = read("client/src/pages/Home.tsx");
+const services = read("client/src/pages/Services.tsx");
+assert(
+  "Home: featured ServiceCards use the icon visual",
+  home.includes('import HomeServiceVisual from "@/components/common/HomeServiceVisual"') &&
+    /visual=\{<HomeServiceVisual service=\{service\} \/>\}/.test(home),
+  "homepage ServiceCard calls must provide HomeServiceVisual",
+);
+assert(
+  "Services: catalog ServiceCards keep the default image visual",
+  /<ServiceCard\b(?=[^>]*\bservice=\{service\})[^>]*\/>/.test(services) &&
+    !/<ServiceCard[^>]*visual=/.test(services),
+  "the Services catalog must not opt into the homepage-only icon visual",
+);
+
 // ---- report ----
 for (const c of checks) {
   console.log(`${c.ok ? "PASS" : "FAIL"}  ${c.name}${c.ok || !c.detail ? "" : `\n        ↳ ${c.detail}`}`);

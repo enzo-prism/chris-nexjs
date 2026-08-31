@@ -26,6 +26,27 @@ Vercel deployment `dpl_9whzeQWLXJaJ5aMsTnVJuqyJ4Ynn`. GitHub CI run
   (`chris-wong-dds`), the absent/untracked local Vercel link, safe form QA, and
   exact production readback requirements.
 
+## Mobile navigation and homepage visual follow-up
+
+The same-day design follow-up keeps the established navy, white, sky, and slate
+system while tightening the two most visible mobile surfaces:
+
+- the mobile menu is now a full-screen modal with its own compact practice
+  header, icon-led navigation rows, quieter active states, grouped utility
+  actions, contained keyboard focus, and iOS safe-area padding
+- Services and Locations continue to disclose their existing child links;
+  route-change, resize, body-scroll-lock, focus restoration, and Escape behavior
+  remain intact
+- the three homepage service cards no longer render the synthetic preventive,
+  cosmetic, and restorative lifestyle images; they use purpose-matched Lucide
+  icons and concise care labels instead
+- the full `/services` catalog keeps its existing image presentation, and the
+  verified-real Dr. Wong hero/about portraits plus office courtyard photography
+  remain unchanged on the homepage
+- static and browser regression coverage now protects modal semantics, focus
+  containment, safe-area padding, homepage zero-image service cards, and the
+  separate `/services` default image behavior
+
 ## Required pre-release evidence
 
 - [x] `git status --short` contains only intentional release files.

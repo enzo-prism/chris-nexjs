@@ -222,6 +222,21 @@ Verify lead-flow UI without submitting synthetic data:
   domain; a real production submission requires an explicitly authorized,
   bona fide workflow
 
+Verify the mobile navigation and homepage service presentation after UI releases:
+
+- at 320 × 568 and 390 × 844, open the navigation and confirm the menu remains
+  scrollable with its appointment, call, and directions actions reachable
+- confirm the menu is exposed as a modal dialog, initial focus moves inside it,
+  `Tab`/`Shift+Tab` remain contained, `Escape` closes it, and focus returns to
+  the menu button
+- expand Services and Locations, confirm active-page states remain clear, and
+  verify the bottom content clears the iOS safe area
+- confirm the homepage `#services` cards contain purpose-matched icons and no
+  service lifestyle images, while the full `/services` catalog keeps its image
+  treatment
+- confirm the verified-real Dr. Wong hero/about portraits and office courtyard
+  photo still render on the homepage
+
 Verify analytics tag install:
 
 ```bash

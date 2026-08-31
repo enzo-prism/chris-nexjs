@@ -11,12 +11,16 @@ import { usePathname } from "next/navigation";
 import {
   Menu,
   X,
+  House,
+  UserRound,
+  Stethoscope,
   Phone,
   MapPin,
   ChevronDown,
   Clock,
   ArrowRight,
   Instagram,
+  type LucideIcon,
 } from "lucide-react";
 import { officeInfo } from "@/lib/data";
 import ButtonLink from "@/components/common/ButtonLink";
@@ -32,17 +36,19 @@ type NavChild = {
 type NavLink = {
   readonly href: string;
   readonly label: string;
+  readonly icon: LucideIcon;
   readonly submenu?: readonly NavChild[];
 };
 
 const DESKTOP_NAV_BREAKPOINT = 1280;
 
 const navLinks: readonly NavLink[] = [
-  { href: "/", label: "Home" },
-  { href: "/about", label: "About" },
+  { href: "/", label: "Home", icon: House },
+  { href: "/about", label: "About", icon: UserRound },
   {
     href: "/services",
     label: "Services",
+    icon: Stethoscope,
     submenu: [
       { href: "/invisalign", label: "Invisalign" },
       { href: "/dental-veneers", label: "Cosmetic Dentistry (Veneers)" },
@@ -56,6 +62,7 @@ const navLinks: readonly NavLink[] = [
   {
     href: "/locations",
     label: "Locations",
+    icon: MapPin,
     submenu: [
       { href: "/dentist-menlo-park", label: "Menlo Park" },
       { href: "/dentist-stanford", label: "Stanford" },
@@ -63,8 +70,8 @@ const navLinks: readonly NavLink[] = [
       { href: "/locations", label: "All Locations" },
     ],
   },
-  { href: "/testimonials", label: "Testimonials" },
-  { href: "/contact", label: "Contact" },
+  { href: "/testimonials", label: "Testimonials", icon: UserRound },
+  { href: "/contact", label: "Contact", icon: Phone },
 ] as const;
 
 const slugifyLabel = (label: string): string =>
@@ -381,9 +388,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
         'a[href], button:not([disabled])',
       ) ?? [],
     );
-    const focusables = [mobileMenuButtonRef.current, ...menuFocusables].filter(
-      (element): element is HTMLElement => Boolean(element),
-    );
+    const focusables = menuFocusables;
     if (focusables.length === 0) return;
 
     const first = focusables[0];
@@ -693,21 +698,14 @@ const Header = ({ variant = "default" }: HeaderProps) => {
               variant="ghost"
               size="icon"
               onClick={toggleMobileMenu}
-              onKeyDown={(event) => {
-                if (!mobileMenuOpen || event.key !== "Tab" || !event.shiftKey) return;
-                event.preventDefault();
-                const focusables = mobileMenuRef.current?.querySelectorAll<HTMLElement>(
-                  'a[href], button:not([disabled])',
-                );
-                focusables?.[focusables.length - 1]?.focus();
-              }}
               className={cn(
-                "relative z-50 rounded-xl text-slate-900 transition-colors hover:bg-slate-100 hover:text-primary focus-visible:ring-primary focus-visible:ring-offset-2",
+                "relative z-50 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 shadow-sm transition-[background-color,border-color,color,box-shadow] hover:border-slate-300 hover:bg-white hover:text-primary focus-visible:ring-primary focus-visible:ring-offset-2",
                 "xl:hidden",
               )}
               aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-nav"
+              aria-haspopup="dialog"
             >
               {mobileMenuOpen ? (
                 <X className="h-6 w-6" aria-hidden="true" />
@@ -725,9 +723,9 @@ const Header = ({ variant = "default" }: HeaderProps) => {
           ref={mobileMenuRef}
           id="mobile-nav"
           aria-label="Mobile navigation"
-          className={cn(
-            "fixed inset-0 z-40 bg-[#0b1f3a] transition-opacity duration-200 xl:hidden",
-          )}
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-[110] overflow-hidden bg-[#0b1f3a] text-white xl:hidden"
           onKeyDown={handleMobileMenuKeyDown}
         >
           <div
@@ -735,131 +733,217 @@ const Header = ({ variant = "default" }: HeaderProps) => {
             aria-hidden="true"
           />
 
-          <div
-            className="flex h-full flex-col overflow-y-auto px-6 pb-8"
-            style={{ paddingTop: "var(--header-height)" }}
-          >
-            <nav className="flex-1 space-y-1">
-              {navLinks.map((link) => {
-                const active = isActive(link.href) || isParentActive(link.submenu);
-                const hasSubmenu = Boolean(link.submenu?.length);
-                const submenuId = `mobile-submenu-${slugifyLabel(link.label)}`;
-
-                return (
-                  <div key={link.label}>
-                    {!hasSubmenu ? (
-                      <Link
-                        href={link.href}
-                        onClick={closeMenus}
-                        data-mobile-nav-focus={link.href === "/" ? "true" : undefined}
-                        className={cn(
-                          "ui-focus-premium group flex items-center justify-between rounded-xl border-b border-white/5 px-3 py-4 font-serif text-xl font-medium transition-[color,background-color,border-color,box-shadow] sm:text-2xl",
-                          active
-                            ? "border-blue-200/35 bg-white/10 text-blue-200 shadow-[inset_0_0_0_1px_rgba(147,197,253,0.3)]"
-                            : "text-white/80 hover:bg-white/5 hover:text-white",
-                        )}
-                        aria-current={isActive(link.href) ? "page" : undefined}
-                      >
-                        <span className="transition-transform group-active:scale-95">
-                          {link.label}
-                        </span>
-                        <ArrowRight
-                          className={cn(
-                            "h-5 w-5 -translate-x-2 opacity-0 transition-[opacity,transform]",
-                            active
-                              ? "translate-x-0 opacity-100"
-                              : "group-active:translate-x-0 group-active:opacity-100",
-                          )}
-                          aria-hidden="true"
+          <div className="relative z-10 flex h-full flex-col">
+            <div className="shrink-0 border-b border-slate-200 bg-white px-4 py-3 text-slate-950 shadow-sm sm:px-6">
+              <div className="mx-auto flex max-w-lg items-center justify-between gap-3">
+                <Link
+                  href="/"
+                  onClick={closeMenus}
+                  className="ui-focus-premium group min-w-0 rounded-xl"
+                  aria-label="Christopher B. Wong, DDS home"
+                >
+                  <span className="flex min-w-0 items-center gap-3">
+                    <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white ring-1 ring-slate-200">
+                      {!logoLoadFailed ? (
+                        <img
+                          src="/favicon.png"
+                          alt=""
+                          width={40}
+                          height={40}
+                          className="h-full w-full object-contain p-1"
+                          onError={() => setLogoLoadFailed(true)}
                         />
-                      </Link>
-                    ) : (
-                      <div className="border-b border-white/5">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          onClick={() => toggleSubmenu(link.label)}
-                          className={cn(
-                            "ui-focus-premium group flex h-auto w-full items-center justify-between rounded-xl bg-transparent px-3 py-4 font-serif text-xl font-medium transition-[color,background-color,border-color] sm:text-2xl",
-                            active
-                              ? "bg-white/10 text-blue-200 shadow-[inset_0_0_0_1px_rgba(147,197,253,0.3)]"
-                              : "text-white/80 hover:bg-white/5 hover:text-white",
-                          )}
-                          aria-expanded={expandedMenus.includes(link.label)}
-                          aria-controls={submenuId}
-                        >
-                          <span className="transition-transform group-active:scale-95">
-                            {link.label}
-                          </span>
-                          <ChevronDown
-                            className={cn(
-                              "h-5 w-5 transition-transform duration-300",
-                              expandedMenus.includes(link.label)
-                                ? "rotate-180 text-blue-200"
-                                : "text-white/50",
-                            )}
-                            aria-hidden="true"
-                          />
-                        </Button>
+                      ) : (
+                        <span className="font-serif text-sm font-semibold tracking-wide text-primary">
+                          CW
+                        </span>
+                      )}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate font-serif text-sm tracking-wide sm:text-base">
+                        Christopher B. Wong, DDS
+                      </span>
+                      <span className="mt-0.5 block truncate text-[9px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                        Palo Alto Dentistry
+                      </span>
+                    </span>
+                  </span>
+                </Link>
 
-                        {expandedMenus.includes(link.label) && (
-                          <div id={submenuId} className="overflow-hidden">
-                            <div className="mb-2 ml-1 space-y-1 border-l-2 border-blue-200/30 pb-4 pl-4">
-                              {link.submenu?.map((subLink) => (
-                                <Link
-                                  key={subLink.href}
-                                  href={subLink.href}
-                                  onClick={closeMenus}
-                                  className={cn(
-                                    "ui-focus-premium block rounded-lg px-3 py-3 text-base font-medium transition-[color,background-color,border-color,box-shadow] active:bg-white/5 sm:text-lg",
-                                    isActive(subLink.href)
-                                      ? "bg-white/12 text-blue-200 shadow-[inset_0_0_0_1px_rgba(147,197,253,0.3)]"
-                                      : "text-white/70 hover:bg-white/5 hover:text-white",
-                                  )}
-                                  aria-current={isActive(subLink.href) ? "page" : undefined}
-                                >
-                                  {subLink.label}
-                                </Link>
-                              ))}
-                            </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={closeMobileMenuAndRestoreFocus}
+                  className="ui-focus-premium shrink-0 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 shadow-sm hover:bg-white hover:text-primary"
+                  aria-label="Close navigation menu"
+                >
+                  <X className="h-5 w-5" aria-hidden="true" />
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] sm:px-6">
+              <div className="mx-auto flex min-h-full max-w-lg flex-col py-5 sm:py-7">
+                <div className="mb-4 px-1">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-sky-200/85">
+                    Practice Menu
+                  </p>
+                  <p className="mt-1 text-sm leading-6 text-slate-300">
+                    Find care, patient stories, and ways to reach the office.
+                  </p>
+                </div>
+
+                <nav className="overflow-hidden rounded-[1.65rem] border border-white/10 bg-white/[0.055] p-2 shadow-[0_28px_70px_-44px_rgba(0,0,0,0.75)]">
+                  {navLinks.map((link) => {
+                    const active = isActive(link.href) || isParentActive(link.submenu);
+                    const hasSubmenu = Boolean(link.submenu?.length);
+                    const submenuId = `mobile-submenu-${slugifyLabel(link.label)}`;
+                    const Icon = link.icon;
+
+                    return (
+                      <div key={link.label}>
+                        {!hasSubmenu ? (
+                          <Link
+                            href={link.href}
+                            onClick={closeMenus}
+                            data-mobile-nav-focus={link.href === "/" ? "true" : undefined}
+                            className={cn(
+                              "ui-focus-premium group relative flex min-h-14 items-center gap-3 rounded-2xl px-3.5 py-3 text-base font-semibold transition-[color,background-color,box-shadow] sm:text-lg",
+                              active
+                                ? "bg-sky-300/[0.13] text-white shadow-[inset_0_0_0_1px_rgba(125,211,252,0.22)]"
+                                : "text-slate-200 hover:bg-white/[0.065] hover:text-white",
+                            )}
+                            aria-current={isActive(link.href) ? "page" : undefined}
+                          >
+                            <span
+                              className={cn(
+                                "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ring-1 ring-inset transition-colors",
+                                active
+                                  ? "bg-sky-300/15 text-sky-200 ring-sky-200/20"
+                                  : "bg-white/[0.055] text-slate-400 ring-white/10 group-hover:text-sky-200",
+                              )}
+                            >
+                              <Icon className="h-[18px] w-[18px]" aria-hidden="true" />
+                            </span>
+                            <span className="min-w-0 flex-1 transition-transform group-active:scale-[0.99]">
+                              {link.label}
+                            </span>
+                            <ArrowRight
+                              className={cn(
+                                "h-4 w-4 shrink-0 transition-[opacity,transform,color]",
+                                active
+                                  ? "translate-x-0 text-sky-200 opacity-100"
+                                  : "-translate-x-1 text-slate-500 opacity-0 group-hover:translate-x-0 group-hover:text-sky-200 group-hover:opacity-100",
+                              )}
+                              aria-hidden="true"
+                            />
+                          </Link>
+                        ) : (
+                          <div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              onClick={() => toggleSubmenu(link.label)}
+                              className={cn(
+                                "ui-focus-premium group flex h-auto min-h-14 w-full items-center gap-3 rounded-2xl bg-transparent px-3.5 py-3 text-base font-semibold transition-[color,background-color,box-shadow] sm:text-lg",
+                                active
+                                  ? "bg-sky-300/[0.13] text-white shadow-[inset_0_0_0_1px_rgba(125,211,252,0.22)]"
+                                  : "text-slate-200 hover:bg-white/[0.065] hover:text-white",
+                              )}
+                              aria-expanded={expandedMenus.includes(link.label)}
+                              aria-controls={submenuId}
+                            >
+                              <span
+                                className={cn(
+                                  "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ring-1 ring-inset transition-colors",
+                                  active
+                                    ? "bg-sky-300/15 text-sky-200 ring-sky-200/20"
+                                    : "bg-white/[0.055] text-slate-400 ring-white/10 group-hover:text-sky-200",
+                                )}
+                              >
+                                <Icon className="h-[18px] w-[18px]" aria-hidden="true" />
+                              </span>
+                              <span className="min-w-0 flex-1 text-left transition-transform group-active:scale-[0.99]">
+                                {link.label}
+                              </span>
+                              <ChevronDown
+                                className={cn(
+                                  "h-4 w-4 shrink-0 transition-[transform,color] duration-300 motion-reduce:transition-none",
+                                  expandedMenus.includes(link.label)
+                                    ? "rotate-180 text-sky-200"
+                                    : "text-slate-500",
+                                )}
+                                aria-hidden="true"
+                              />
+                            </Button>
+
+                            {expandedMenus.includes(link.label) && (
+                              <div
+                                id={submenuId}
+                                className="overflow-hidden duration-200 ease-out animate-in fade-in-0 slide-in-from-top-1 motion-reduce:animate-none"
+                              >
+                                <div className="mb-2 ml-[2.05rem] space-y-1 border-l border-sky-200/20 pb-2 pl-4 pr-1 pt-1">
+                                  {link.submenu?.map((subLink) => (
+                                    <Link
+                                      key={subLink.href}
+                                      href={subLink.href}
+                                      onClick={closeMenus}
+                                      className={cn(
+                                        "ui-focus-premium block min-h-11 rounded-xl px-3 py-2.5 text-sm font-medium leading-6 transition-[color,background-color,box-shadow] active:bg-white/5 sm:text-base",
+                                        isActive(subLink.href)
+                                          ? "bg-sky-300/[0.13] text-sky-100 shadow-[inset_0_0_0_1px_rgba(125,211,252,0.2)]"
+                                          : "text-slate-300 hover:bg-white/[0.055] hover:text-white",
+                                      )}
+                                      aria-current={isActive(subLink.href) ? "page" : undefined}
+                                    >
+                                      {subLink.label}
+                                    </Link>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
-                    )}
+                    );
+                  })}
+                </nav>
+
+                <div className="mt-5 rounded-[1.65rem] border border-white/10 bg-white/[0.045] p-3 shadow-[0_24px_60px_-46px_rgba(0,0,0,0.75)]">
+                  <ButtonLink
+                    href="/schedule#appointment"
+                    aria-label="Request an appointment"
+                    onClick={closeMenus}
+                    className="ui-btn-primary min-h-12 w-full rounded-2xl text-base font-bold"
+                  >
+                    Request Appointment
+                  </ButtonLink>
+
+                  <div className="mt-3 grid grid-cols-2 gap-3">
+                    <a
+                      href={`tel:${officeInfo.phoneE164}`}
+                      aria-label={`Call Dr. Wong's office at ${officeInfo.phone}`}
+                      className="ui-focus-premium flex min-h-20 items-center justify-center gap-2.5 rounded-2xl border border-white/10 bg-white/[0.055] px-3 py-3 text-white transition-[background-color,border-color] hover:border-sky-200/30 hover:bg-white/10 active:bg-white/10"
+                    >
+                      <Phone className="h-5 w-5 shrink-0 text-sky-200" aria-hidden="true" />
+                      <span className="text-sm font-semibold">Call Office</span>
+                    </a>
+                    <a
+                      href={officeInfo.mapUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Get directions to Dr. Wong's office (opens in a new tab)"
+                      className="ui-focus-premium flex min-h-20 items-center justify-center gap-2.5 rounded-2xl border border-white/10 bg-white/[0.055] px-3 py-3 text-white transition-[background-color,border-color] hover:border-sky-200/30 hover:bg-white/10 active:bg-white/10"
+                    >
+                      <MapPin className="h-5 w-5 shrink-0 text-sky-200" aria-hidden="true" />
+                      <span className="text-sm font-semibold">Directions</span>
+                    </a>
                   </div>
-                );
-              })}
-            </nav>
-
-            <div className="mt-8 space-y-4">
-              <ButtonLink
-                href="/schedule#appointment"
-                aria-label="Request an appointment"
-                onClick={closeMenus}
-                className="ui-btn-primary h-14 w-full rounded-xl text-lg font-bold"
-              >
-                Request Appointment
-              </ButtonLink>
-
-              <div className="grid grid-cols-2 gap-4 pt-2">
-                <a
-                  href={`tel:${officeInfo.phoneE164}`}
-                  aria-label={`Call Dr. Wong's office at ${officeInfo.phone}`}
-                  className="ui-focus-premium flex flex-col items-center justify-center rounded-xl border border-white/5 bg-white/5 p-4 text-white transition-[background-color,border-color] hover:border-blue-200/40 hover:bg-white/10 active:bg-white/10"
-                >
-                  <Phone className="mb-2 h-6 w-6 text-blue-200" aria-hidden="true" />
-                  <span className="text-sm font-medium">Call Office</span>
-                </a>
-                <a
-                  href={officeInfo.mapUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Get directions to Dr. Wong's office (opens in a new tab)"
-                  className="ui-focus-premium flex flex-col items-center justify-center rounded-xl border border-white/5 bg-white/5 p-4 text-white transition-[background-color,border-color] hover:border-blue-200/40 hover:bg-white/10 active:bg-white/10"
-                >
-                  <MapPin className="mb-2 h-6 w-6 text-blue-200" aria-hidden="true" />
-                  <span className="text-sm font-medium">Directions</span>
-                </a>
+                  <p className="px-2 pb-1 pt-3 text-center text-xs text-slate-400">
+                    {officeInfo.address.line1}, {officeInfo.address.city}
+                  </p>
+                </div>
               </div>
             </div>
           </div>

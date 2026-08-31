@@ -13,6 +13,12 @@ The app runs on Next.js App Router with API route handlers, centralized SEO meta
 - `/office-tour` page with real office videos (hosted locally in `public/videos/` with poster stills) and photos, presented as click-to-play.
 - `/changelog` page that merges update history from current and legacy repositories.
 - Homepage visual accents powered by reusable SVG animation components with reduced-motion support.
+- Homepage service summaries use purpose-matched Lucide icon cards instead of
+  synthetic lifestyle imagery; verified real photos of Dr. Wong and the office
+  remain the primary trust visuals.
+- Mobile navigation uses a full-screen modal menu with compact icon-led rows,
+  grouped appointment/contact actions, focus containment, and iOS safe-area
+  spacing.
 
 ## Architecture at a glance
 

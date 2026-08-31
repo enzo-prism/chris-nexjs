@@ -18,8 +18,9 @@ test("mobile navigation exposes the current page and restores focus on close", a
   await expect(menuButton).toHaveAccessibleName("Close navigation menu");
   await expect(page.locator("body")).toHaveCSS("overflow", "hidden");
 
-  const mobileNav = page.locator("#mobile-nav");
+  const mobileNav = page.getByRole("dialog", { name: "Mobile navigation" });
   await expect(mobileNav).toBeVisible();
+  await expect(mobileNav).toHaveAttribute("aria-modal", "true");
   await expect(mobileNav.getByRole("button", { name: "Services" })).toHaveAttribute(
     "aria-expanded",
     "true",
@@ -28,7 +29,20 @@ test("mobile navigation exposes the current page and restores focus on close", a
     "aria-current",
     "page",
   );
-  await expect(mobileNav.getByRole("link", { name: "Home", exact: true })).toBeFocused();
+  const homeLink = mobileNav.getByRole("link", { name: "Home", exact: true });
+  const firstLink = mobileNav.getByRole("link", {
+    name: "Christopher B. Wong, DDS home",
+  });
+  const lastLink = mobileNav.getByRole("link", {
+    name: /Get directions.+opens in a new tab/,
+  });
+  await expect(homeLink).toBeFocused();
+
+  await lastLink.focus();
+  await page.keyboard.press("Tab");
+  await expect(firstLink).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await expect(lastLink).toBeFocused();
 
   await page.keyboard.press("Escape");
   await expect(mobileNav).toHaveCount(0);
@@ -54,6 +68,15 @@ test("global appointment actions use one clear label and accessible contact name
   await expect(
     actionBar.getByRole("link", { name: /Get directions.+opens in a new tab/ }),
   ).toHaveAttribute("target", "_blank");
+});
+
+test("homepage service cards use icon artwork instead of stock imagery", async ({ page }) => {
+  await gotoAndHydrate(page, "/");
+
+  const services = page.locator("#services");
+  await expect(services).toBeVisible();
+  await expect(services.getByRole("link", { name: /Learn about/ })).toHaveCount(3);
+  await expect(services.locator("img")).toHaveCount(0);
 });
 
 test("mobile footer marks the current page and keeps contact actions tappable", async ({
