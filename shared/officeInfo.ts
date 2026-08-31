@@ -93,6 +93,14 @@ export const officeInfo = {
       validFrom: "2026-08-27",
       validThrough: "2026-08-27",
     },
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: "Friday",
+      opens: "00:00",
+      closes: "00:00",
+      validFrom: "2026-09-04",
+      validThrough: "2026-09-04",
+    },
   ],
   phone: "(650) 326-6319",
   email: "chrisbwongdds@gmail.com",
@@ -144,7 +152,7 @@ export type HolidayHoursEntry = {
  */
 export const holidayHours = {
   active: true,
-  id: "office-hours-2026-08-27-limited-hours",
+  id: "office-hours-2026-09-04-closed",
   footerNote:
     "Regular weekly hours apply outside these temporary schedule changes.",
   cta: {
@@ -193,6 +201,12 @@ export const holidayHours = {
       hours: "8:00 AM - 1:00 PM",
       status: "varies",
       badge: "Limited hours",
+    },
+    {
+      date: "2026-09-04",
+      day: "Fri, Sep 4",
+      hours: "Closed",
+      status: "closed",
     },
   ],
 } as const;

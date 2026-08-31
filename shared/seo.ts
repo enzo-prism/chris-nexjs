@@ -449,28 +449,29 @@ const CHANGEFREQ_OVERRIDES: Partial<
 
 // Keep these honest: update when the page's rendered content actually
 // changes (scripts/seo-freshness-audit.ts fails the SEO gate when these
-// drift past the per-cluster staleness threshold).
+// drift past the per-cluster staleness threshold). Last real change:
+// September 4, 2026 office-closed notice rendered on hours surfaces.
 const LASTMOD_OVERRIDES: Partial<Record<string, string>> = {
-  "/": "2026-08-30",
+  "/": "2026-08-31",
   "/services": "2026-08-30",
-  "/schedule": "2026-08-30",
-  "/contact": "2026-08-30",
+  "/schedule": "2026-08-31",
+  "/contact": "2026-08-31",
   "/insurance": "2026-08-12",
   "/about": "2026-08-30",
   "/gallery": "2026-08-30",
   "/pediatric-dentistry": "2026-08-30",
   "/dental-implants": "2026-08-12",
   "/thank-you": "2026-08-12",
-  "/dentist-menlo-park": "2026-08-30",
-  "/dentist-stanford": "2026-08-30",
-  "/dentist-mountain-view": "2026-08-30",
-  "/dentist-los-altos": "2026-08-30",
-  "/dentist-los-altos-hills": "2026-08-30",
-  "/dentist-sunnyvale": "2026-08-30",
-  "/dentist-cupertino": "2026-08-30",
-  "/dentist-redwood-city": "2026-08-30",
-  "/dentist-atherton": "2026-08-30",
-  "/dentist-redwood-shores": "2026-08-30",
+  "/dentist-menlo-park": "2026-08-31",
+  "/dentist-stanford": "2026-08-31",
+  "/dentist-mountain-view": "2026-08-31",
+  "/dentist-los-altos": "2026-08-31",
+  "/dentist-los-altos-hills": "2026-08-31",
+  "/dentist-sunnyvale": "2026-08-31",
+  "/dentist-cupertino": "2026-08-31",
+  "/dentist-redwood-city": "2026-08-31",
+  "/dentist-atherton": "2026-08-31",
+  "/dentist-redwood-shores": "2026-08-31",
   "/locations": "2026-08-30",
 };
 
