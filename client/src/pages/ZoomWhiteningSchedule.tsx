@@ -73,6 +73,8 @@ const specialClosureMessages: Readonly<Record<string, string>> = {
     "Office is closed Friday, June 19, 2026 for Juneteenth. Please choose another date.",
   "2026-07-03":
     "Office is closed Friday, July 3, 2026 for the July Fourth holiday. Please choose another date.",
+  "2026-09-04":
+    "Office is closed Friday, September 4, 2026. Please choose another date.",
 };
 
 const getSpecialClosureMessage = (value: string): string =>
