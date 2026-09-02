@@ -450,7 +450,7 @@ const CHANGEFREQ_OVERRIDES: Partial<
 // Keep these honest: update when the page's rendered content actually
 // changes (scripts/seo-freshness-audit.ts fails the SEO gate when these
 // drift past the per-cluster staleness threshold). Last real change:
-// September 4, 2026 office-closed notice rendered on hours surfaces.
+// September 2, 2026 Medical History Update form on /patient-resources.
 const LASTMOD_OVERRIDES: Partial<Record<string, string>> = {
   "/": "2026-08-31",
   "/services": "2026-08-30",
@@ -473,6 +473,7 @@ const LASTMOD_OVERRIDES: Partial<Record<string, string>> = {
   "/dentist-atherton": "2026-08-31",
   "/dentist-redwood-shores": "2026-08-31",
   "/locations": "2026-08-30",
+  "/patient-resources": "2026-09-02",
 };
 
 function resolveIndexable(entry: SeoDefinitionInput): boolean {
