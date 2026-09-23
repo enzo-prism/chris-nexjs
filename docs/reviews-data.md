@@ -14,17 +14,19 @@ Operational guide for importing, auditing, and publishing review content used on
 
 `shared/testimonialsData.ts` merges the Yelp seed (`yelpReviewSeedData`, listed first so it surfaces on page 1 of `/testimonials`) with the generated Google seed (`googleReviewSeedData`) and publishes only 5-star entries. The Google export remains the source of truth for the Google pipeline (count/audit); Yelp reviews are maintained by hand.
 
-## Current data profile (2026-06-23 published snapshot)
+## Current data profile (2026-09-23 published snapshot)
 
-- Raw imported Google review export count: `320`
-- Published Google 5-star reviews (`GOOGLE_REVIEW_COUNT`): `309`
+- Raw imported Google review export count: `393`
+- Published Google 5-star reviews (`GOOGLE_REVIEW_COUNT`): `382`
 - Hand-curated Yelp reviews: `10`
-- Total published testimonial count on the website (`PUBLISHED_REVIEW_COUNT`): `319`
+- Total published testimonial count on the website (`PUBLISHED_REVIEW_COUNT`): `392`
 - Published testimonial rating policy:
-  - `5-star`: `319` (309 Google + 10 Yelp)
+  - `5-star`: `392` (382 Google + 10 Yelp)
   - non-5-star reviews are retained in the raw import history but excluded from public testimonial rendering
 - 5-star reviews with no text in source still use the normalized placeholder sentence internally for transport consistency.
   - UI rendering suppresses that placeholder sentence and shows rating + reviewer metadata only.
+- Most recent backfill: 2026-09-23 added the 33 reviews (all 5-star, 3 rating-only)
+  received Aug 5 – Sep 23, 2026.
 
 ## Website rendering behavior
 
@@ -33,7 +35,7 @@ Operational guide for importing, auditing, and publishing review content used on
   - if storage returns fewer rows than the published 5-star seed count, it serves the full published seed set.
 - Client pages consume testimonials via API to avoid shipping the entire review seed bundle to the browser.
 - Self-serving `Review` and `aggregateRating` JSON-LD are intentionally not emitted. Visible reviews remain source-labelled conversion content.
-- Review counts split by visible surface: Google-branded surfaces use `GOOGLE_REVIEW_COUNT` (309), while the `/testimonials` total uses `PUBLISHED_REVIEW_COUNT` (319). Never use the raw import total. A build-time guard in `shared/testimonialsData.ts` throws if the published count drifts from `PUBLISHED_REVIEW_COUNT`, so bump it when adding reviews.
+- Review counts split by visible surface: Google-branded surfaces use `GOOGLE_REVIEW_COUNT` (382), while the `/testimonials` total uses `PUBLISHED_REVIEW_COUNT` (392). Never use the raw import total. A build-time guard in `shared/testimonialsData.ts` throws if the published count drifts from `PUBLISHED_REVIEW_COUNT`, so bump it when adding reviews.
 - Homepage spotlight carousel (`client/src/pages/Home.tsx`) uses:
   - width-aware slide-track translation (`translateX(active * 100 / count)`) to keep arrow navigation aligned with single-card increments
   - pointer swipe detection (45px horizontal threshold, vertical-swipe rejection) for mobile and trackpad/mouse drags
@@ -41,7 +43,19 @@ Operational guide for importing, auditing, and publishing review content used on
 
 ## Refresh workflow
 
-1. Replace `attached_assets/google-reviews-export-320.txt` with the latest export text.
+New reviews usually arrive as Google Business Profile notification emails
+(`businessprofile-noreply@google.com`, subjects "<Name> left a review for
+Christopher B. Wong, DDS" and "Christopher B. Wong, DDS, you got N new
+reviews"). Digest emails list reviewers who never get a single-review email,
+so read every digest. The emails show Google's own truncation; keep it.
+
+1. Update `attached_assets/google-reviews-export-320.txt` (the filename is
+   historical). Either replace it with a full export, or prepend new blocks
+   newest-first in the existing format: continue the `Review #` numbering,
+   bump the header count, use the Pacific-time notification date, and write
+   `[No text]` for rating-only reviews and `<excerpt>... [truncated]` for cut-off
+   text. Then bump `expectedCount` in `scripts/import-google-reviews.ts` and
+   both counts in `shared/reviewStats.ts`.
 2. Regenerate `shared/googleReviewsData.ts`:
 
 ```bash

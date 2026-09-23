@@ -110,7 +110,7 @@ function main() {
     );
   }
 
-  const expectedCount = 360;
+  const expectedCount = 393;
   if (reviews.length !== expectedCount) {
     console.warn(
       `Warning: parsed ${reviews.length} reviews (expected ${expectedCount}). Proceeding with parsed count.`,
