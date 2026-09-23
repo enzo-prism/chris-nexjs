@@ -11,6 +11,7 @@ Operational guide for importing, auditing, and publishing review content used on
 - Published review counts: `shared/reviewStats.ts` (`GOOGLE_REVIEW_COUNT` and `PUBLISHED_REVIEW_COUNT`)
 - Public testimonial seed source: `shared/testimonialsData.ts`
 - Client-featured subset: `client/src/data/featuredTestimonials.ts`
+- Homepage quotes: `client/src/data/homeProof.ts` (verbatim-checked by `pnpm run test:reviews`)
 
 `shared/testimonialsData.ts` merges the Yelp seed (`yelpReviewSeedData`, listed first so it surfaces on page 1 of `/testimonials`) with the generated Google seed (`googleReviewSeedData`) and publishes only 5-star entries. The Google export remains the source of truth for the Google pipeline (count/audit); Yelp reviews are maintained by hand.
 
@@ -36,10 +37,14 @@ Operational guide for importing, auditing, and publishing review content used on
 - Client pages consume testimonials via API to avoid shipping the entire review seed bundle to the browser.
 - Self-serving `Review` and `aggregateRating` JSON-LD are intentionally not emitted. Visible reviews remain source-labelled conversion content.
 - Review counts split by visible surface: Google-branded surfaces use `GOOGLE_REVIEW_COUNT` (382), while the `/testimonials` total uses `PUBLISHED_REVIEW_COUNT` (392). Never use the raw import total. A build-time guard in `shared/testimonialsData.ts` throws if the published count drifts from `PUBLISHED_REVIEW_COUNT`, so bump it when adding reviews.
-- Homepage spotlight carousel (`client/src/pages/Home.tsx`) uses:
-  - width-aware slide-track translation (`translateX(active * 100 / count)`) to keep arrow navigation aligned with single-card increments
-  - pointer swipe detection (45px horizontal threshold, vertical-swipe rejection) for mobile and trackpad/mouse drags
-  - no-comment review suppression via `isNoAdditionalCommentPlaceholder(...)`
+- The homepage no longer has a review carousel. `PatientProofSection` shows three
+  static quotes from `client/src/data/homeProof.ts`. `pnpm run test:reviews`
+  (`scripts/homepage-proof.test.ts`) requires each to be a verbatim excerpt of a
+  5-star review by the named reviewer in `shared/googleReviewsData.ts`, so
+  update both together if a review is ever removed.
+- `client/src/data/featuredTestimonials.ts` is a curated Google-only subset that
+  seeds `client/src/lib/testimonials.ts` collections (e.g. the `/schedule`
+  funnel testimonials).
 
 ## Refresh workflow
 

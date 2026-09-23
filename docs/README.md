@@ -81,7 +81,9 @@ Use this file as the central index for project documentation.
 - `svg-animation-system.md`
   Custom SVG components, motion hooks, reduced-motion behavior, and placement map.
 - `reviews-data.md`
-  Google reviews import pipeline, data quality profile, and integrity checks.
+  Google reviews import pipeline, data quality profile, integrity checks, and
+  the Business Profile notification-email refresh method (last backfill
+  2026-09-23: +33 reviews, 382 Google / 392 total published).
 - `changelog.md`  
   `/changelog` generation flow using GitHub CLI.
 

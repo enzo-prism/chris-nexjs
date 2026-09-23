@@ -13,9 +13,20 @@ The app runs on Next.js App Router with API route handlers, centralized SEO meta
 - `/office-tour` page with real office videos (hosted locally in `public/videos/` with poster stills) and photos, presented as click-to-play.
 - `/changelog` page that merges update history from current and legacy repositories.
 - Homepage visual accents powered by reusable SVG animation components with reduced-motion support.
-- Homepage service summaries use purpose-matched Lucide icon cards instead of
-  synthetic lifestyle imagery; verified real photos of Dr. Wong and the office
-  remain the primary trust visuals.
+- Homepage (2026-09 conversion redesign): positioning hero with a self-hosted
+  "Meet Dr. Wong" intro video, a current-patient strip, eight single-action
+  care-path links, bio-sourced doctor/team facts, an insurance-and-cost section,
+  and review quotes verified verbatim against the Google export. Verified real
+  photos of Dr. Wong and the office remain the primary trust visuals; no
+  synthetic lifestyle imagery.
+- `/schedule` request funnel starts in the first phone screen and shows the
+  insurance field with out-of-network guidance.
+- Lead-source attribution: appointment and contact leads carry a coarse channel
+  (e.g. tagged Google Business Profile, organic, direct) into the office inbox
+  and analytics. See `docs/analytics.md`.
+- Reviews: 382 published 5-star Google reviews plus 10 hand-curated Yelp reviews
+  (392 total on `/testimonials`), refreshed from Business Profile review
+  notifications. See `docs/reviews-data.md`.
 - Mobile navigation uses a full-screen modal menu with compact icon-led rows,
   grouped appointment/contact actions, focus containment, and iOS safe-area
   spacing.
