@@ -14,6 +14,26 @@ export type ChangelogEntry = {
 export const changelogEntries: readonly ChangelogEntry[] = [
   {
     "date": "2026-09-23",
+    "commitDate": "2026-09-23T18:06:20.000Z",
+    "type": "update",
+    "title": "Regenerate changelog for September review backfill",
+    "summary": "Regenerate changelog for September review backfill.",
+    "sha": "7a211918",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/7a2119182570d253f762f00672ed936228894e4e",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-09-23",
+    "commitDate": "2026-09-23T18:06:16.000Z",
+    "type": "fix",
+    "title": "Add 33 new Google reviews from Aug 5 - Sep 23, 2026",
+    "summary": "Add 33 new Google reviews from Aug 5 - Sep 23, 2026.",
+    "sha": "89fa213d",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/89fa213d5b607cd98216a3c0267d768fa5b893c8",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-09-23",
     "commitDate": "2026-09-23T16:02:08.000Z",
     "type": "update",
     "title": "Record September conversion redesign production release",
