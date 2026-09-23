@@ -14,6 +14,16 @@ export type ChangelogEntry = {
 export const changelogEntries: readonly ChangelogEntry[] = [
   {
     "date": "2026-09-23",
+    "commitDate": "2026-09-23T16:02:08.000Z",
+    "type": "update",
+    "title": "Record September conversion redesign production release",
+    "summary": "Record September conversion redesign production release.",
+    "sha": "595e1dde",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/595e1dde22527913ffeb8ddce982ccfd7d2db690",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-09-23",
     "commitDate": "2026-09-23T15:40:23.000Z",
     "type": "feature",
     "title": "Conversion redesign for homepage, schedule funnel, and lead attribution",
