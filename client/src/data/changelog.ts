@@ -13,6 +13,286 @@ export type ChangelogEntry = {
 
 export const changelogEntries: readonly ChangelogEntry[] = [
   {
+    "date": "2026-09-23",
+    "commitDate": "2026-09-23T15:40:23.000Z",
+    "type": "feature",
+    "title": "Conversion redesign for homepage, schedule funnel, and lead attribution",
+    "summary": "Conversion redesign for homepage, schedule funnel, and lead attribution.",
+    "sha": "a9381d74",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/a9381d74f419193dccb658c9388d6141e03b312a",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-09-02",
+    "commitDate": "2026-09-02T10:01:04.000Z",
+    "type": "feature",
+    "title": "Add Medical History Update PDF to patient forms",
+    "summary": "Add Medical History Update PDF to patient forms.",
+    "sha": "c1622e42",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/c1622e428fe036a55856236fe9f6818b1cd7f498",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-08-31",
+    "commitDate": "2026-08-31T21:35:50.000Z",
+    "type": "fix",
+    "title": "Post Friday September 4 office closure",
+    "summary": "Post Friday September 4 office closure.",
+    "sha": "2ef76e78",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/2ef76e78bcd0caff57329ef9f5951ebcd77da235",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-08-31",
+    "commitDate": "2026-08-31T20:59:07.000Z",
+    "type": "fix",
+    "title": "Post Friday September 4 office closure",
+    "summary": "Post Friday September 4 office closure.",
+    "sha": "48c82714",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/48c827144e3b8b442140f166a657e67ec95d399a",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-08-31",
+    "commitDate": "2026-08-31T06:16:11.000Z",
+    "type": "feature",
+    "title": "Refine mobile navigation and homepage services",
+    "summary": "Refine mobile navigation and homepage services.",
+    "sha": "b5903814",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/b59038147963ff40a596fd4b9f151c7c6c74484b",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-08-30",
+    "commitDate": "2026-08-30T23:54:34.000Z",
+    "type": "update",
+    "title": "Isolate gallery media playback in CI",
+    "summary": "Isolate gallery media playback in CI.",
+    "sha": "1c49e54c",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/1c49e54c4b1be95c1e05c0df972a58be901b7873",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-08-30",
+    "commitDate": "2026-08-30T23:47:29.000Z",
+    "type": "update",
+    "title": "Record production site overhaul release",
+    "summary": "Record production site overhaul release.",
+    "sha": "f00d81a0",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/f00d81a07f6dfc572a408bcf7db1a63673d9f4a7",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-08-30",
+    "commitDate": "2026-08-30T23:29:41.000Z",
+    "type": "update",
+    "title": "Sync generated AI index for homepage SEO",
+    "summary": "Sync generated AI index for homepage SEO.",
+    "sha": "206082d6",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/206082d666e6d642280cb355286b696a2ad95bf7",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-08-30",
+    "commitDate": "2026-08-30T23:16:19.000Z",
+    "type": "update",
+    "title": "Overhaul site UX performance and SEO",
+    "summary": "Overhaul site UX performance and SEO.",
+    "sha": "b6e3bc61",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/b6e3bc61a7d29d9ae33362556835669ac8b4757c",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-08-24",
+    "commitDate": "2026-08-24T20:34:29.000Z",
+    "type": "fix",
+    "title": "Post Thursday August 27 limited office hours",
+    "summary": "Post Thursday August 27 limited office hours.",
+    "sha": "699aee22",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/699aee227154089766561bf1da479c3f77749e35",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-08-16",
+    "commitDate": "2026-08-16T19:34:49.000Z",
+    "type": "update",
+    "title": "Add Cursor Cloud Agent environment with install and dev server.",
+    "summary": "Add Cursor Cloud Agent environment with install and dev server..",
+    "sha": "71f4c365",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/71f4c365779c5a115d5d7c303b26916ed51e265a",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-08-12",
+    "commitDate": "2026-08-12T00:50:28.000Z",
+    "type": "update",
+    "title": "Include Patient Resources in payment lockstep guardrail",
+    "summary": "Include Patient Resources in payment lockstep guardrail.",
+    "sha": "b3dd770e",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/b3dd770e38a185c3981ea070b7b44653334f5ed2",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-08-12",
+    "commitDate": "2026-08-12T00:50:17.000Z",
+    "type": "fix",
+    "title": "Keep Patient Resources payment FAQ in FSA/HSA lockstep",
+    "summary": "Keep Patient Resources payment FAQ in FSA/HSA lockstep.",
+    "sha": "d43727ad",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/d43727ad0224d7b97deffb527b66f46402bc768e",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-08-12",
+    "commitDate": "2026-08-12T00:49:31.000Z",
+    "type": "update",
+    "title": "Sync project docs with Aug 12 copy audit",
+    "summary": "Sync project docs with Aug 12 copy audit.",
+    "sha": "47ab5cd2",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/47ab5cd26ca601145463051b60b5b05d44077a6f",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-08-12",
+    "commitDate": "2026-08-12T00:49:31.000Z",
+    "type": "fix",
+    "title": "Residual schema, thank-you, and copy audit follow-ups",
+    "summary": "Residual schema, thank-you, and copy audit follow-ups.",
+    "sha": "a7e46f6c",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/a7e46f6cc31299bfd0b3ce7c1be249864f83e848",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-08-12",
+    "commitDate": "2026-08-12T00:42:11.000Z",
+    "type": "update",
+    "title": "Note schedule meta request language in release notes",
+    "summary": "Note schedule meta request language in release notes.",
+    "sha": "9feefea2",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/9feefea2039157d137af716ba132b4e898051a4a",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-08-12",
+    "commitDate": "2026-08-12T00:41:54.000Z",
+    "type": "update",
+    "title": "Finalize copy cleanup release notes for main",
+    "summary": "Finalize copy cleanup release notes for main.",
+    "sha": "39ee681a",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/39ee681a94afc1fdfd006459ea224cac8c2f0ac6",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-08-12",
+    "commitDate": "2026-08-12T00:41:26.000Z",
+    "type": "update",
+    "title": "Record August 12 sitewide copy cleanup",
+    "summary": "Record August 12 sitewide copy cleanup.",
+    "sha": "f7908b97",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/f7908b9753092cb57f9217a2810cb740a13737af",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-08-12",
+    "commitDate": "2026-08-12T00:26:50.000Z",
+    "type": "fix",
+    "title": "Clean alternate names and homepage spotlight quotes",
+    "summary": "Clean alternate names and homepage spotlight quotes.",
+    "sha": "f0644794",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/f06447943f67558f0172139e1568710019f094bf",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-08-12",
+    "commitDate": "2026-08-12T00:24:53.000Z",
+    "type": "fix",
+    "title": "Soften sitewide marketing copy and align implant wording",
+    "summary": "Soften sitewide marketing copy and align implant wording.",
+    "sha": "8362df26",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/8362df26f573d269a06338604de2f12672b2b8a8",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-08-12",
+    "commitDate": "2026-08-12T00:23:46.000Z",
+    "type": "fix",
+    "title": "Polish sitewide copy for testimonials, CTAs, and local pages",
+    "summary": "Polish sitewide copy for testimonials, CTAs, and local pages.",
+    "sha": "554bbb30",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/554bbb308823b3e1e9d4d7cc9e3dbe6a7580666a",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-08-12",
+    "commitDate": "2026-08-12T00:23:32.000Z",
+    "type": "fix",
+    "title": "Soften SEO stuffing and align payment/doctor copy",
+    "summary": "Soften SEO stuffing and align payment/doctor copy.",
+    "sha": "20a73363",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/20a73363197aa20764d1d3c6b4377bcde42cf97b",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-08-12",
+    "commitDate": "2026-08-12T00:23:28.000Z",
+    "type": "fix",
+    "title": "Apply sitewide copy polish for About, team, and FAQs",
+    "summary": "Apply sitewide copy polish for About, team, and FAQs.",
+    "sha": "1eb46ad8",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/1eb46ad8b20210cc27bb779b66fb26cd919543d4",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-08-11",
+    "commitDate": "2026-08-11T23:51:13.000Z",
+    "type": "fix",
+    "title": "Correct Wong/one typo on about page",
+    "summary": "Correct Wong/one typo on about page.",
+    "sha": "291ae670",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/291ae670508652a5653f7702eaddec6bab891262",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-08-05",
+    "commitDate": "2026-08-05T21:37:43.000Z",
+    "type": "fix",
+    "title": "Synchronize recent Google reviews",
+    "summary": "Synchronize recent Google reviews.",
+    "sha": "57f17697",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/57f17697ad5a00b9cf8f41a3e39f0495e931352c",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-08-05",
+    "commitDate": "2026-08-05T19:37:06.000Z",
+    "type": "update",
+    "title": "Backfill all Google reviews from the past ~2.5 months",
+    "summary": "Backfill all Google reviews from the past ~2.5 months.",
+    "sha": "debe9824",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/debe9824853e9975b7b93d708b7d0dc60d357751",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-08-05",
+    "commitDate": "2026-08-05T19:28:20.000Z",
+    "type": "update",
+    "title": "Add Robert Rodriguez's new 5-star Google review",
+    "summary": "Add Robert Rodriguez's new 5-star Google review.",
+    "sha": "300cae4a",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/300cae4aeffea8351bf7359236ddafedb35a6d5e",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-07-28",
+    "commitDate": "2026-07-28T04:02:20.000Z",
+    "type": "update",
+    "title": "Document the July 27 bug-fix sweep and regenerate the changelog",
+    "summary": "Document the July 27 bug-fix sweep and regenerate the changelog.",
+    "sha": "0cb82f57",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/0cb82f57761cd5d38aeb09a14576991edcd1a0b7",
+    "source": "Current Website"
+  },
+  {
     "date": "2026-07-28",
     "commitDate": "2026-07-28T03:47:02.000Z",
     "type": "fix",

@@ -1,6 +1,6 @@
 # 2026-09-22 Conversion Redesign Release
 
-Status: implemented and verified locally. Production readback is recorded at
+Status: released and verified in production on 2026-09-23. Production readback is recorded at
 the end of this file.
 
 ## Why
@@ -144,3 +144,40 @@ objection, and measurement that can separate Google Business Profile traffic.
   the untracked `.next` and `.next-perf` to
   `/Volumes/PortableSSD/caches/agent-runtime/chris-nexjs-build/`. Both paths
   are gitignored. Remove the symlinks if the SSD is not mounted.
+
+## Final production record
+
+- Released: 2026-09-23 08:40 PDT. Application commit `a9381d7`, pushed to
+  `main` (no force push); the Git-triggered deployment `dpl_z19L5wjyK2iMKcvUWveRHVLnDUzh`
+  in project `chris-wong-dds` is `Ready` and serves `www.chriswongdds.com`
+  (the apex host 308s to `www`).
+- GitHub CI run `35883280422`: `test` and `perf` jobs succeeded. The first
+  attempt failed only `tests/mobile/gallery-ux.spec.ts:35` (the gallery
+  preview play→pause focus step, on a page this release does not touch). It
+  passed locally and on rerun, so treat it as flaky. The suite runs with
+  `retries: 0`.
+- Live readback: `/`, `/schedule`, `/invisalign`, `/services`, `/contact`,
+  `/gallery`, `/insurance`, `/llms.txt` return `200`. The homepage HTML has
+  one H1 ("Unhurried, conservative dentistry in Palo Alto"), the new meta
+  description, the cost and care-path sections, and the `__cwEntry`
+  bootstrap. The live `llms.txt` no longer lists the expired Sep 4 closure.
+  No test leads were submitted.
+- `SEO_AUDIT_BASE_URL=https://www.chriswongdds.com pnpm run test:seo:all`:
+  34/34 metadata, 0 orphans, 66 JSON-LD payloads.
+- `IMAGE_AUDIT_BASE_URL=https://www.chriswongdds.com pnpm run test:images`:
+  passed.
+- Three-run Lighthouse against the public domain:
+
+| Route | Performance | LCP | CLS | TBT |
+| --- | ---: | ---: | ---: | ---: |
+| `/` | 1.00 | 1,416 ms | 0.000 | 0 ms |
+| `/services` | 1.00 | 1,431 ms | 0.036 | 0 ms |
+| `/invisalign` | 1.00 | 364 ms | 0.036 | 0 ms |
+| `/dentist-menlo-park` | 1.00 | 712 ms | 0.036 | 0 ms |
+| `/gallery` | 1.00 | 1,262 ms | 0.036 | 0 ms |
+| `/schedule` | 1.00 | 1,038 ms | 0.046 | 0 ms |
+
+Homepage LCP improved from 2,397 ms (2026-08-30). CLS of 0.036 on the other
+routes is within the 0.10 budget, but it is above the 0.000 recorded on
+2026-08-30 for routes this release did not change. Worth a look in a
+follow-up.
