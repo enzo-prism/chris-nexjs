@@ -3,7 +3,6 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import {
-  ArrowLeft,
   ArrowUpRight,
   CheckCircle2,
   MapPin,
@@ -44,7 +43,7 @@ const ScheduleRequestFunnel = () => {
       // `overflow-x-clip` (not `overflow-hidden`) clips the decorative blurs
       // without making this section the sticky containing block — otherwise the
       // funnel's `sticky bottom-0` submit CTA can't pin to the viewport.
-      className="relative overflow-x-clip bg-[linear-gradient(180deg,#f6fafc_0%,#ffffff_38%,#f9fbff_100%)] py-10 sm:py-14 lg:py-20"
+      className="relative overflow-x-clip bg-[linear-gradient(180deg,#f6fafc_0%,#ffffff_38%,#f9fbff_100%)] pb-10 pt-6 sm:py-14 lg:py-20"
     >
       <div
         aria-hidden="true"
@@ -56,63 +55,52 @@ const ScheduleRequestFunnel = () => {
       />
 
       <div className="relative mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-        <Link
-          href="/"
-          className="ui-focus-premium inline-flex items-center gap-1.5 rounded-full text-sm font-medium text-slate-500 transition-colors hover:text-primary"
-        >
-          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          Back to home
-        </Link>
-
-        <div className="mt-6 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.32em] text-primary/75">
-            Appointment Request
-          </p>
-          <h1 className="mt-4 font-heading text-4xl font-bold tracking-tight text-slate-950 sm:text-5xl">
+        <div className="text-center">
+          <h1 className="font-heading text-3xl font-bold tracking-tight text-slate-950 sm:text-5xl">
             Request Your Appointment
           </h1>
-          <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-slate-600 sm:text-lg">
-            Tell us what you need and when you&apos;re available. We&apos;ll contact you
-            within one business day to confirm a date and time.
+          <p className="mx-auto mt-3 max-w-xl text-pretty text-base leading-7 text-slate-600 sm:mt-4 sm:text-lg">
+            About a minute to fill out. We&apos;ll call or email within one
+            business day to confirm a time.
           </p>
-          <p className="mx-auto mt-2 max-w-xl text-sm font-medium text-slate-500">
-            This sends a request—it does not book an appointment instantly.
-          </p>
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs font-medium text-slate-600">
-            {["No account needed", "About one minute", "No medical records requested"].map(
-              (item) => (
-                <span key={item} className="inline-flex items-center gap-1.5">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" aria-hidden="true" />
-                  {item}
-                </span>
-              ),
-            )}
-          </div>
+          <ul
+            aria-label="What to expect"
+            className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-xs font-medium text-slate-600 sm:text-sm"
+          >
+            {[
+              "New patients welcome",
+              "PPO benefits checked first",
+              "No account needed",
+            ].map((item) => (
+              <li key={item} className="inline-flex items-center gap-1.5">
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" aria-hidden="true" />
+                {item}
+              </li>
+            ))}
+          </ul>
         </div>
 
-        <a
-          href={`tel:${officeInfo.phoneE164}`}
-          aria-label={`Dental emergency? Call ${officeInfo.phone}`}
-          className="ui-focus-premium group mt-6 flex flex-col items-stretch justify-between gap-3 rounded-2xl border border-rose-200 bg-rose-50/70 px-4 py-3 transition-colors hover:border-rose-300 hover:bg-rose-50 sm:flex-row sm:items-center"
+        <p
+          data-analytics-context="schedule-emergency"
+          className="mt-4 flex flex-wrap items-center justify-center gap-x-1.5 text-center text-sm leading-6 text-rose-800"
         >
-          <span className="flex items-center gap-2.5 text-sm leading-5 text-rose-800">
-            <PhoneCall className="h-4 w-4 shrink-0 text-rose-600" aria-hidden="true" />
-            <span>
-              <span className="font-semibold">In pain or a dental emergency?</span>{" "}
-              Calling is the fastest way to be seen.
-            </span>
-          </span>
-          <span className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-rose-600 px-3.5 py-2 text-sm font-semibold text-white transition-transform group-hover:-translate-y-0.5">
-            Call now <span className="hidden lg:inline">· {officeInfo.phone}</span>
-          </span>
-        </a>
+          <PhoneCall className="h-4 w-4 shrink-0 text-rose-600" aria-hidden="true" />
+          <span className="font-semibold">In pain?</span> Calling is fastest:
+          <a
+            href={`tel:${officeInfo.phoneE164}`}
+            aria-label={`Dental emergency? Call ${officeInfo.phone}`}
+            className="ui-focus-premium inline-flex min-h-11 items-center rounded-full px-1 font-semibold text-rose-700 underline decoration-rose-300 underline-offset-4 hover:text-rose-800"
+          >
+            {officeInfo.phone}
+          </a>
+        </p>
         {holiday ? (
-          <p className="mt-3 text-center text-xs leading-5 text-slate-500">
+          <p className="mt-1 text-center text-xs leading-5 text-slate-500">
             {holiday.shortNotice}
           </p>
         ) : null}
 
-        <div className="mt-6 rounded-[28px] border border-slate-200/80 bg-white px-5 py-6 shadow-[0_30px_90px_-60px_rgba(15,23,42,0.5)] sm:px-8 sm:py-8">
+        <div className="mt-4 rounded-[28px] border border-slate-200/80 bg-white px-5 py-6 shadow-[0_30px_90px_-60px_rgba(15,23,42,0.5)] sm:px-8 sm:py-8">
           <AppointmentForm presentation="funnel" />
         </div>
 
@@ -156,7 +144,8 @@ const ScheduleRequestFunnel = () => {
                     Insurance &amp; payment
                   </p>
                   <p className="mt-1 text-sm leading-6 text-slate-600">
-                    Review PPO coverage guidance and payment options before your visit.
+                    We&apos;re out-of-network with PPO plans, and most still pay a
+                    share. See how coverage and payment work here.
                   </p>
                 </div>
                 <ArrowUpRight className="h-5 w-5 text-primary transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />

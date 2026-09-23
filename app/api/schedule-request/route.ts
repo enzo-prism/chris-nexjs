@@ -15,6 +15,7 @@ import {
   scheduleRequestV2Schema,
   type ScheduleRequestV2,
 } from "@shared/scheduleRequest";
+import { describeLeadAttribution } from "@shared/attribution";
 import { trackVercelServerEvent } from "../../../server/vercelAnalytics";
 import { validateJsonRequest } from "../../../server/requestPolicy";
 
@@ -169,6 +170,7 @@ const buildInboxMessage = (data: ScheduleDispatchPayload) => {
     `Insurance provider: ${data.insuranceProvider ?? "Not provided"}`,
     `Source URL: ${data.sourceUrl ?? "Unknown"}`,
     `Source: ${data.source ?? "Not provided"}`,
+    `Lead channel: ${describeLeadAttribution(data.attribution)}`,
     `UTM: ${JSON.stringify(data.utm || {})}`,
     `Submitted: ${data.timestamp}`,
     `Notes: ${data.message || "None"}`,
@@ -222,6 +224,9 @@ const postToFormspree = async (
     utm_campaign: payload.utm.utm_campaign,
     utm_term: payload.utm.utm_term,
     utm_content: payload.utm.utm_content,
+    lead_channel: payload.attribution?.channel ?? "unknown",
+    landing_page: payload.attribution?.landingPath ?? "",
+    referrer_host: payload.attribution?.referrerHost ?? "",
     additional_notes: payload.message ?? "",
     site: FORMSPREE_OPS_SITE,
     form_key: FORMSPREE_OPS_SCHEDULE_FORM_KEY,
@@ -321,6 +326,7 @@ export async function POST(request: NextRequest) {
         scheduling_mode: payload.schedulingMode,
         urgent_flag: payload.isEmergency,
         lead_type: "appointment_request",
+        lead_channel: payload.attribution?.channel ?? "unknown",
         page_path: getAnalyticsPathFromUrl(sourceUrl) ?? "/schedule",
         source: payload.source ?? "schedule_page_form",
       },

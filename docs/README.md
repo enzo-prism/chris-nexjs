@@ -50,6 +50,12 @@ Use this file as the central index for project documentation.
   Release-candidate scope and the exact pre-release and post-production
   readback checklist for the design, UX, performance, SEO, dependency, and
   documentation overhaul.
+- `release-2026-09-22-conversion-redesign.md`
+  Data-driven conversion pass: compact `/schedule` first screen, visible
+  insurance field, homepage rewrite (care paths, doctor/team facts, cost
+  clarity, verified review quotes, intro video), `/invisalign` trim, and
+  end-to-end lead-source attribution. Lists the owner actions still needed
+  (plan pricing, GBP tagged links, call tracking, Ads ID, Search Console).
 
 ## SEO documentation
 

@@ -70,13 +70,23 @@ test("global appointment actions use one clear label and accessible contact name
   ).toHaveAttribute("target", "_blank");
 });
 
-test("homepage service cards use icon artwork instead of stock imagery", async ({ page }) => {
+test("homepage care paths are single tappable links without stock imagery", async ({ page }) => {
   await gotoAndHydrate(page, "/");
 
   const services = page.locator("#services");
   await expect(services).toBeVisible();
-  await expect(services.getByRole("link", { name: /Learn about/ })).toHaveCount(3);
+  const carePaths = services.locator("ul > li > a");
+  await expect(carePaths).toHaveCount(8);
   await expect(services.locator("img")).toHaveCount(0);
+
+  for (const box of await carePaths.evaluateAll((links) =>
+    links.map((link) => link.getBoundingClientRect().height),
+  )) {
+    expect(box, "care-path link is shorter than 44px").toBeGreaterThanOrEqual(44);
+  }
+
+  await services.getByRole("link", { name: /tooth pain or emergency/i }).click();
+  await expect(page).toHaveURL(/\/emergency-dental$/);
 });
 
 test("mobile footer marks the current page and keeps contact actions tappable", async ({

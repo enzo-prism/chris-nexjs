@@ -4,18 +4,19 @@ import {
   ArrowRight,
   CalendarDays,
   CheckCircle2,
+  ClipboardList,
+  Clock,
   MapPin,
   Phone,
 } from "lucide-react";
 
 import ButtonLink from "@/components/common/ButtonLink";
 import FAQSection from "@/components/common/FAQSection";
-import HomeServiceVisual from "@/components/common/HomeServiceVisual";
 import OfficeHoursSummary from "@/components/common/OfficeHoursSummary";
-import ServiceCard from "@/components/common/ServiceCard";
 import StructuredData from "@/components/seo/StructuredData";
-import AboutDoctorSection from "@/components/sections/AboutDoctorSection";
-import FeaturesSection from "@/components/sections/FeaturesSection";
+import CarePathsSection from "@/components/sections/CarePathsSection";
+import CostClaritySection from "@/components/sections/CostClaritySection";
+import DoctorTeamSection from "@/components/sections/DoctorTeamSection";
 import HeroSection from "@/components/sections/HeroSection";
 import PatientProofSection from "@/components/sections/PatientProofSection";
 import { officeInfo } from "@/lib/data";
@@ -23,26 +24,12 @@ import {
   buildFAQSchema,
   type FAQEntry,
 } from "@/lib/structuredData";
-import type { Service } from "@shared/schema";
-
-type HomeProps = {
-  readonly initialServices?: Service[];
-};
 
 const homeFaqs: FAQEntry[] = [
-  {
-    question: "Where is your Palo Alto dental office located?",
-    answer: `Our office is located at ${officeInfo.address.line1}, ${officeInfo.address.line2}. Use the directions link on this page or call our team if you’d like parking tips before your visit.`,
-  },
   {
     question: "Are you accepting new patients?",
     answer:
       "Yes—new patients are welcome. We’ll start with a thorough exam and a clear conversation about your goals, concerns, and the next best steps.",
-  },
-  {
-    question: "What services do you offer?",
-    answer:
-      "We offer preventive checkups and cleanings, cosmetic dentistry, Invisalign, restorative care, and emergency dental visits. Explore our services page for details and common next steps.",
   },
   {
     question: "Do you accept dental insurance?",
@@ -64,25 +51,25 @@ const homeFaqs: FAQEntry[] = [
 const visitPlanningSteps = [
   {
     icon: CalendarDays,
-    title: "Tell Us What You Need",
+    title: "Tell us what you need",
     description:
-      "Choose the type of visit you want, from a new-patient exam to urgent care.",
+      "Pick a visit type, from a new-patient exam to urgent care. It takes about a minute.",
   },
   {
     icon: Phone,
-    title: "Pick Your Best Contact Method",
+    title: "Add your insurance, if any",
     description:
-      "Choose phone or email so the team knows the best way to respond.",
+      "We check your PPO benefits so you know your portion before treatment.",
   },
   {
     icon: CheckCircle2,
-    title: "We Confirm the Exact Time",
+    title: "We confirm a time",
     description:
-      "Our team follows up to confirm the exact date and time.",
+      "The team calls or emails within one business day to confirm your visit.",
   },
 ] as const;
 
-const Home = ({ initialServices = [] }: HomeProps) => {
+const Home = () => {
   const faqSchema = buildFAQSchema(homeFaqs, "/");
 
   return (
@@ -90,66 +77,41 @@ const Home = ({ initialServices = [] }: HomeProps) => {
       <StructuredData data={faqSchema ? [faqSchema] : []} />
       <HeroSection />
 
-      <section
-        id="services"
-        aria-labelledby="home-services-title"
-        className="relative overflow-hidden bg-white py-16 md:py-24"
+      <nav
+        aria-label="For current patients"
+        className="border-b border-slate-200 bg-slate-50"
       >
-        <div
-          className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-sky-50/80 to-transparent"
-          aria-hidden="true"
-        />
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto mb-10 max-w-3xl text-center md:mb-14">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
-              Care That Fits Your Life
-            </p>
-            <h2
-              id="home-services-title"
-              className="mt-3 text-balance font-heading text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl md:text-5xl"
-            >
-              Start With the Care You Need
-            </h2>
-            <p className="mx-auto mt-5 max-w-2xl text-pretty text-base leading-7 text-slate-600 md:text-lg">
-              From routine prevention to restoring comfort and confidence, Dr.
-              Wong will explain what he sees and help you choose a practical
-              next step.
-            </p>
-          </div>
-
-          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {initialServices.slice(0, 3).map((service) => (
-              <ServiceCard
-                key={service.id}
-                service={service}
-                visual={<HomeServiceVisual service={service} />}
-              />
-            ))}
-          </div>
-
-          <div className="mt-10 flex flex-col items-center justify-center gap-4 text-center sm:flex-row md:mt-12">
-            <ButtonLink
-              href="/services"
-              variant="outline"
-              size="lg"
-              className="min-h-12 rounded-full px-7 text-base font-semibold"
-            >
-              View all dental services
-              <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </ButtonLink>
-            <p className="text-sm text-slate-600">
-              Looking for clear aligners?{" "}
-              <Link href="/invisalign" className="ui-link-premium">
-                Explore Invisalign in Palo Alto
-              </Link>
-              .
-            </p>
-          </div>
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-1 px-4 py-2 text-sm sm:px-6 lg:px-8">
+          <span className="font-semibold text-slate-700">Already a patient?</span>
+          <Link
+            href="/patient-resources"
+            className="ui-link-premium inline-flex min-h-11 items-center gap-1.5"
+          >
+            <ClipboardList className="h-4 w-4" aria-hidden="true" />
+            Patient forms
+          </Link>
+          <Link
+            href="/contact"
+            className="ui-link-premium inline-flex min-h-11 items-center gap-1.5"
+          >
+            <Clock className="h-4 w-4" aria-hidden="true" />
+            Hours &amp; closures
+          </Link>
+          <a
+            href={`tel:${officeInfo.phoneE164}`}
+            data-analytics-context="current-patient-bar"
+            className="ui-link-premium inline-flex min-h-11 items-center gap-1.5"
+          >
+            <Phone className="h-4 w-4" aria-hidden="true" />
+            {officeInfo.phone}
+          </a>
         </div>
-      </section>
+      </nav>
 
-      <AboutDoctorSection />
-      <FeaturesSection />
+      <CarePathsSection />
+      <DoctorTeamSection />
+      <CostClaritySection />
+      <PatientProofSection />
 
       <section
         id="palo-alto-dentist"
@@ -160,13 +122,13 @@ const Home = ({ initialServices = [] }: HomeProps) => {
           <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)] lg:gap-16">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
-                A Local Palo Alto Practice
+                Visiting the office
               </p>
               <h2
                 id="visit-office-title"
                 className="mt-3 text-balance font-heading text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl md:text-5xl"
               >
-                Thoughtful Dentistry, Close to Home
+                In Palo Alto’s California Avenue district
               </h2>
               <p className="mt-6 text-pretty text-lg leading-8 text-slate-700">
                 At our Cambridge Avenue office, the team provides modern,
@@ -174,19 +136,6 @@ const Home = ({ initialServices = [] }: HomeProps) => {
                 visit us from Palo Alto, Stanford, Menlo Park, Mountain View,
                 and nearby Peninsula communities.
               </p>
-              <p className="mt-5 text-pretty text-base leading-7 text-slate-600 md:text-lg">
-                Whether you are due for a checkup or want to discuss{" "}
-                <Link href="/restorative-dentistry" className="ui-link-premium">
-                  restorative dentistry
-                </Link>
-                ,{" "}
-                <Link href="/pediatric-dentistry" className="ui-link-premium">
-                  children&apos;s dentistry
-                </Link>
-                , or cosmetic goals, you can expect a clear conversation before
-                treatment begins.
-              </p>
-
               <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50/80 p-5">
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
                   Nearby Communities
@@ -209,24 +158,6 @@ const Home = ({ initialServices = [] }: HomeProps) => {
                     View all nearby communities
                   </Link>
                 </nav>
-              </div>
-
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <ButtonLink
-                  href="/schedule#appointment"
-                  size="lg"
-                  className="min-h-12 rounded-full px-7 text-base font-semibold"
-                >
-                  Request an appointment
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </ButtonLink>
-                <a
-                  href={`tel:${officeInfo.phoneE164}`}
-                  className="ui-focus-premium inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-5 text-base font-semibold text-slate-700 transition-colors hover:bg-slate-100 hover:text-primary"
-                >
-                  <Phone className="h-4 w-4" aria-hidden="true" />
-                  {officeInfo.phone}
-                </a>
               </div>
             </div>
 
@@ -286,8 +217,6 @@ const Home = ({ initialServices = [] }: HomeProps) => {
         </div>
       </section>
 
-      <PatientProofSection />
-
       <FAQSection
         title="Palo Alto Dentist FAQs"
         subtitle="Quick answers about visiting our office, insurance, and scheduling."
@@ -315,11 +244,12 @@ const Home = ({ initialServices = [] }: HomeProps) => {
                   id="appointment-title"
                   className="mt-3 text-balance font-heading text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl"
                 >
-                  Ready for a More Thoughtful Dental Visit?
+                  Ready when you are
                 </h2>
                 <p className="mt-5 max-w-2xl text-pretty text-base leading-7 text-slate-200 md:text-lg">
-                  Send a quick appointment request and tell us what you need. The
-                  team will follow up to confirm the exact date and time.
+                  Request a visit online in about a minute, or call and talk to
+                  the front desk. Either way, you&apos;ll know your next step
+                  before you hang up or close the page.
                 </p>
               </div>
 

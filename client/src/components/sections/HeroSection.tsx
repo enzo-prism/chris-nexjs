@@ -1,14 +1,16 @@
 import Image from "next/image";
+import Link from "next/link";
 import {
   ArrowRight,
   CalendarDays,
-  CheckCircle2,
   MapPin,
   Phone,
+  ShieldCheck,
   Star,
 } from "lucide-react";
 
 import ButtonLink from "@/components/common/ButtonLink";
+import IntroVideoButton from "@/components/common/IntroVideoButton";
 import { officeInfo } from "@/lib/data";
 import { GOOGLE_REVIEW_COUNT } from "@shared/reviewStats";
 
@@ -33,14 +35,17 @@ const HeroSection = () => {
             <div className="inline-flex min-h-10 items-center gap-2 rounded-full border border-sky-200/20 bg-white/[0.07] px-4 py-2 text-sm font-semibold text-sky-100 backdrop-blur-sm">
               <MapPin className="h-4 w-4 text-sky-300" aria-hidden="true" />
               {officeInfo.address.line1}, Palo Alto
+              <span className="hidden text-sky-200/50 sm:inline" aria-hidden="true">·</span>
+              <span className="hidden font-medium text-sky-100/90 sm:inline">New patients welcome</span>
             </div>
 
             <h1 className="mt-6 text-balance font-heading text-4xl font-bold leading-[1.08] tracking-[-0.025em] text-white sm:text-5xl lg:text-[3.65rem]">
-              Dentist in Palo Alto — Christopher B. Wong, DDS
+              Unhurried, conservative dentistry in Palo Alto
             </h1>
             <p className="mt-6 max-w-xl text-pretty text-lg leading-8 text-slate-200 md:text-xl">
-              Modern, conservative dental care with clear guidance, thoughtful
-              planning, and time to understand your options.
+              Christopher B. Wong, DDS, and an experienced hygiene team take the
+              time to explain what they see, protect healthy tooth structure, and
+              walk you through costs before any treatment.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -93,19 +98,22 @@ const HeroSection = () => {
                 </span>
               </a>
 
-              <div className="flex min-h-16 items-center gap-3 rounded-2xl border border-white/12 bg-white/[0.07] px-4 py-3">
+              <Link
+                href="/insurance"
+                className="ui-focus-premium group flex min-h-16 items-center gap-3 rounded-2xl border border-white/12 bg-white/[0.07] px-4 py-3 transition-[background-color,border-color] hover:border-white/25 hover:bg-white/[0.11]"
+              >
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-300/15 text-sky-200">
-                  <CheckCircle2 className="h-5 w-5" aria-hidden="true" />
+                  <ShieldCheck className="h-5 w-5" aria-hidden="true" />
                 </span>
                 <span>
                   <span className="block text-sm font-semibold text-white">
-                    Welcoming new patients
+                    PPO insurance welcome
                   </span>
                   <span className="mt-0.5 block text-xs text-slate-300">
-                    Start with a thorough conversation
+                    Out-of-network · benefits checked first
                   </span>
                 </span>
-              </div>
+              </Link>
             </div>
           </div>
 
@@ -129,10 +137,9 @@ const HeroSection = () => {
                 className="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-slate-950/70 via-slate-950/20 to-transparent"
                 aria-hidden="true"
               />
-              <p className="absolute bottom-5 left-5 right-5 text-sm font-medium text-white sm:bottom-6 sm:left-6">
-                Dr. Christopher B. Wong
-                <span className="ml-2 text-slate-300">DDS</span>
-              </p>
+              <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6">
+                <IntroVideoButton context="home-hero" />
+              </div>
             </div>
           </div>
         </div>

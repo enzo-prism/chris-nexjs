@@ -9,6 +9,11 @@ import {
   isHoneypotTripped,
 } from "@shared/formspree";
 import { insertContactMessageSchema } from "@shared/schema";
+import {
+  describeLeadAttribution,
+  type LeadAttribution,
+} from "@shared/attribution";
+import { leadAttributionSchema } from "@shared/attributionSchema";
 import { getStorage } from "../../../server/storage/repository";
 import { trackVercelServerEvent } from "../../../server/vercelAnalytics";
 import { validateJsonRequest } from "../../../server/requestPolicy";
@@ -38,7 +43,11 @@ const CONTACT_SUBJECT_LABELS: Record<string, string> = {
 const postContactToFormspree = async (
   formspreeEndpoint: string,
   data: ContactPayload,
-  context: { referer: string | null; pagePath: string },
+  context: {
+    referer: string | null;
+    pagePath: string;
+    attribution?: LeadAttribution;
+  },
 ) => {
   const subjectLabel = CONTACT_SUBJECT_LABELS[data.subject] ?? data.subject;
 
@@ -52,6 +61,8 @@ const postContactToFormspree = async (
     form_key: "contact_form",
     page_path: context.pagePath,
     referrer: context.referer ?? "",
+    lead_channel: context.attribution?.channel ?? "unknown",
+    lead_source_detail: describeLeadAttribution(context.attribution),
     environment: process.env.VERCEL_ENV ?? process.env.NODE_ENV ?? "production",
     [FORMSPREE_OPS_QA_FIELD]: "false",
     _replyto: data.email,
@@ -101,12 +112,21 @@ export async function POST(request: NextRequest) {
 
     const referer = request.headers.get("referer");
     const pagePath = getAnalyticsPathFromUrl(referer) ?? "/contact";
+    // Attribution is optional context: a malformed value is dropped rather
+    // than rejecting the patient's message.
+    const parsedAttribution = leadAttributionSchema.safeParse(
+      (body as Record<string, unknown>).attribution,
+    );
+    const attribution = parsedAttribution.success
+      ? parsedAttribution.data
+      : undefined;
 
     // Forward to the office inbox first; if this throws we surface a real
     // error instead of a false "Message sent!" confirmation.
     await postContactToFormspree(getPublicFormspreeEndpoint(), data, {
       referer,
       pagePath,
+      attribution,
     });
 
     // Best-effort persistence — never block lead delivery on DB availability.
@@ -121,6 +141,7 @@ export async function POST(request: NextRequest) {
     await trackVercelServerEvent(request, ANALYTICS_EVENTS.contactFormSubmit, {
       form_name: "contact_form",
       lead_type: "contact_request",
+      lead_channel: attribution?.channel ?? "unknown",
       page_path: pagePath,
     });
 

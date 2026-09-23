@@ -236,15 +236,15 @@ export function sanitizeAnalyticsEventProperties(
 }
 
 const VERCEL_EVENT_PROPERTY_PRIORITY: Record<string, readonly string[]> = {
-  [ANALYTICS_EVENTS.phoneCallClick]: ["page_path", "page_category"],
+  [ANALYTICS_EVENTS.phoneCallClick]: ["page_path", "lead_channel", "page_category"],
   [ANALYTICS_EVENTS.emailClick]: ["page_path", "page_category"],
   [ANALYTICS_EVENTS.bookAppointmentClick]: ["page_path", "cta_context"],
   [ANALYTICS_EVENTS.outboundClick]: ["page_path", "destination_host"],
   [ANALYTICS_EVENTS.scheduleStart]: ["page_path", "scheduling_mode"],
   [ANALYTICS_EVENTS.scheduleSubmitFailure]: ["page_path", "reason"],
-  [ANALYTICS_EVENTS.contactFormSubmit]: ["page_path", "lead_type"],
+  [ANALYTICS_EVENTS.contactFormSubmit]: ["lead_channel", "page_path", "lead_type"],
   [ANALYTICS_EVENTS.newsletterSignup]: ["page_path", "lead_type"],
-  [ANALYTICS_EVENTS.appointmentRequestSubmit]: ["page_path", "appointment_type"],
+  [ANALYTICS_EVENTS.appointmentRequestSubmit]: ["lead_channel", "appointment_type", "page_path"],
 };
 
 const DEFAULT_VERCEL_PROPERTY_PRIORITY = [

@@ -11,10 +11,10 @@ import { gotoAndHydrate } from "./_helpers";
 
 const MIN = 44;
 
-test("home patient-stories link is >= 44px tall", async ({ page }) => {
+test("home reviews link is >= 44px tall", async ({ page }) => {
   await gotoAndHydrate(page, "/");
 
-  const link = page.getByRole("link", { name: /read more patient stories/i });
+  const link = page.getByRole("link", { name: /read more reviews/i });
   await expect(link).toBeVisible({ timeout: 20_000 });
   const box = await link.boundingBox();
   expect(box, "patient-stories link has no bounding box").not.toBeNull();

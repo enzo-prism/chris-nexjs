@@ -23,6 +23,7 @@ import {
   trackGAEvent,
   trackLeadConversion,
 } from "@/lib/analytics";
+import { getLeadAttribution } from "@/lib/attribution";
 import { officeInfo } from "@/lib/data";
 import { HONEYPOT_FIELD } from "@shared/formspree";
 import { Button } from "@/components/ui/button";
@@ -374,79 +375,97 @@ const OptionalDetailsFields = ({
   remainingNotesCharacters,
   collapsible = false,
 }: OptionalDetailsFieldsProps) => {
-  const fieldContent = (
-    <div className={cn(presentation === "funnel" ? "space-y-5" : "space-y-6")}>
-      <FormField
-        control={control}
-        name="insuranceProvider"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>
-              Dental insurance provider <span className="font-normal text-slate-500">(optional)</span>
-            </FormLabel>
-            <FormControl>
-              <Input
-                inputMode="text"
-                autoComplete="organization"
-                placeholder="Delta Dental, MetLife, Aetna..."
-                maxLength={80}
-                className={
-                  presentation === "funnel" ? getFunnelInputClasses() : "h-11"
-                }
-                {...field}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+  const insuranceField = (
+    <FormField
+      control={control}
+      name="insuranceProvider"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>
+            Dental insurance provider <span className="font-normal text-slate-500">(optional)</span>
+          </FormLabel>
+          <FormControl>
+            <Input
+              inputMode="text"
+              autoComplete="organization"
+              placeholder="Delta Dental, MetLife, Aetna..."
+              maxLength={80}
+              className={
+                presentation === "funnel" ? getFunnelInputClasses() : "h-11"
+              }
+              {...field}
+            />
+          </FormControl>
+          <p className="mt-1 flex items-start gap-1.5 text-xs leading-5 text-slate-500">
+            <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
+            <span>
+              We&apos;re out-of-network with PPO plans, and many still pay a share.
+              Add your plan and we&apos;ll check your benefits and explain your
+              portion before any treatment.
+            </span>
+          </p>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
 
-      <FormField
-        control={control}
-        name="message"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>
-              Scheduling note <span className="font-normal text-slate-500">(optional)</span>
-            </FormLabel>
-            <FormControl>
-              <Textarea
-                placeholder="Share timing needs or a question for our scheduling team."
-                maxLength={300}
-                rows={presentation === "funnel" ? 4 : 4}
-                className={
-                  presentation === "funnel" ? getFunnelTextareaClasses() : undefined
-                }
-                {...field}
-                value={field.value ?? ""}
-              />
-            </FormControl>
-            <p className="mt-1 text-xs leading-5 text-slate-500">
-              Please don&apos;t include medical history or other sensitive health
-              details. Call us if you need to discuss care. {remainingNotesCharacters} characters left.
-            </p>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    </div>
+  const notesField = (
+    <FormField
+      control={control}
+      name="message"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>
+            Scheduling note <span className="font-normal text-slate-500">(optional)</span>
+          </FormLabel>
+          <FormControl>
+            <Textarea
+              placeholder="Share timing needs or a question for our scheduling team."
+              maxLength={300}
+              rows={4}
+              className={
+                presentation === "funnel" ? getFunnelTextareaClasses() : undefined
+              }
+              {...field}
+              value={field.value ?? ""}
+            />
+          </FormControl>
+          <p className="mt-1 text-xs leading-5 text-slate-500">
+            Please don&apos;t include medical history or other sensitive health
+            details. Call us if you need to discuss care. {remainingNotesCharacters} characters left.
+          </p>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 
   if (!collapsible) {
-    return fieldContent;
+    return (
+      <div className={cn(presentation === "funnel" ? "space-y-5" : "space-y-6")}>
+        {insuranceField}
+        {notesField}
+      </div>
+    );
   }
 
+  // Insurance stays visible: out-of-network cost is the most common question
+  // before a first visit, and the plan name lets the team verify benefits.
   return (
-    <details className="group rounded-2xl border border-dashed border-slate-300 bg-slate-50/70 open:bg-white">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 [&::-webkit-details-marker]:hidden">
-        <span className="text-sm font-semibold text-slate-900">
-          Add insurance or a scheduling note{" "}
-          <span className="font-normal text-slate-500">(optional)</span>
-        </span>
-        <ChevronRight className="h-4 w-4 shrink-0 text-slate-400 transition-transform group-open:rotate-90" aria-hidden="true" />
-      </summary>
-      <div className="border-t border-slate-200 px-5 py-5">{fieldContent}</div>
-    </details>
+    <div className="space-y-5">
+      {insuranceField}
+      <details className="group rounded-2xl border border-dashed border-slate-300 bg-slate-50/70 open:bg-white">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 px-5 py-3 [&::-webkit-details-marker]:hidden">
+          <span className="text-sm font-semibold text-slate-900">
+            Add a scheduling note{" "}
+            <span className="font-normal text-slate-500">(optional)</span>
+          </span>
+          <ChevronRight className="h-4 w-4 shrink-0 text-slate-400 transition-transform group-open:rotate-90" aria-hidden="true" />
+        </summary>
+        <div className="border-t border-slate-200 px-5 py-5">{notesField}</div>
+      </details>
+    </div>
   );
 };
 
@@ -1254,6 +1273,8 @@ const AppointmentForm = ({
 
   const onSubmit = async (rawData: ScheduleFormValues) => {
     const sourceUrl = window.location.href;
+    const leadAttribution = getLeadAttribution();
+    const currentUtm = extractUtmParams(sourceUrl);
     const normalizedPhone = rawData.phone?.trim() ?? "";
     const normalizedEmail = rawData.email?.trim().toLowerCase() ?? "";
 
@@ -1282,7 +1303,14 @@ const AppointmentForm = ({
       message: rawData.message?.trim() || undefined,
       source: "schedule_page_form_v2",
       sourceUrl,
-      utmParams: extractUtmParams(sourceUrl),
+      // Tags on this URL win; otherwise fall back to the tags from the visit
+      // that brought the patient to the site (e.g. a Google Business Profile
+      // link that landed on the homepage).
+      utmParams:
+        Object.keys(currentUtm).length > 0
+          ? currentUtm
+          : leadAttribution?.utm ?? {},
+      attribution: leadAttribution?.attribution,
     });
 
     if (!parsedPayload.success) {
@@ -1346,6 +1374,7 @@ const AppointmentForm = ({
         scheduling_mode: rawData.schedulingMode,
         urgent_flag: rawData.isEmergency ? "true" : "false",
         contact_preference: rawData.contactPreference,
+        lead_channel: leadAttribution?.attribution.channel ?? "unknown",
         ...pageContext,
       });
 
@@ -1455,6 +1484,28 @@ const AppointmentForm = ({
           )}{" "}
           to confirm an available time. Your visit is not booked until we confirm it.
         </p>
+        <div className="mx-auto mt-6 max-w-xl rounded-2xl border border-slate-200 bg-white px-5 py-4 text-left">
+          <p className="text-sm font-semibold text-slate-900">While you wait</p>
+          <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-600">
+            <li className="flex items-start gap-2">
+              <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" />
+              <span>
+                New patient? You can fill out the{" "}
+                <a href="/patient-resources" className="ui-link-premium">
+                  patient forms
+                </a>{" "}
+                ahead of time.
+              </span>
+            </li>
+            <li className="flex items-start gap-2">
+              <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" />
+              <span>
+                Have your dental insurance card handy. We&apos;ll check your PPO
+                benefits and explain your portion before treatment.
+              </span>
+            </li>
+          </ul>
+        </div>
         <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <a
             href={`tel:${officeInfo.phoneE164}`}

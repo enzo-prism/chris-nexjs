@@ -15,7 +15,7 @@
     "start:perf": "NEXT_DIST_DIR=.next-perf next start -p ${PORT:-3101}",
     "start:legacy": "NODE_ENV=production tsx server/index.ts",
     "check": "next typegen && tsx scripts/check-business-info.ts && tsc",
-    "test:api": "tsx scripts/api-contract.test.ts && tsx scripts/schedule-request-contract.test.ts",
+    "test:api": "tsx scripts/api-contract.test.ts && tsx scripts/schedule-request-contract.test.ts && tsx scripts/attribution.test.ts",
     "test:seo": "tsx scripts/seo-regression.ts",
     "test:seo:onpage": "tsx scripts/seo-onpage-audit.ts",
     "test:seo:links": "tsx scripts/seo-links-audit.ts",
@@ -38,7 +38,7 @@
     "check:lighthouse-budget": "node scripts/lighthouse-budget.mjs",
     "reviews:import": "tsx scripts/import-google-reviews.ts",
     "reviews:audit": "node scripts/reviews-audit.mjs",
-    "test:reviews": "node scripts/reviews-audit.mjs --assert",
+    "test:reviews": "node scripts/reviews-audit.mjs --assert && tsx scripts/homepage-proof.test.ts",
     "test:mobile": "playwright test",
     "db:push": "drizzle-kit push"
   },

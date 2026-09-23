@@ -26,7 +26,7 @@ test("homepage primary CTAs reach the scheduling funnel and services hub", async
 
   const hero = page
     .getByRole("heading", {
-      name: /dentist in palo alto.*christopher b\. wong/i,
+      name: /conservative dentistry in palo alto/i,
     })
     .locator("xpath=ancestor::section[1]");
 
@@ -46,7 +46,7 @@ test("homepage primary CTAs reach the scheduling funnel and services hub", async
     page,
     page
       .getByRole("heading", {
-        name: /dentist in palo alto.*christopher b\. wong/i,
+        name: /conservative dentistry in palo alto/i,
       })
       .locator("xpath=ancestor::section[1]")
       .getByRole("link", { name: "Explore services", exact: true }),

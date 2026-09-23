@@ -8,9 +8,9 @@ test("mobile shows three readable patient stories", async ({ page }) => {
 
   const section = page.locator(PATIENT_PROOF);
   await expect(section).toBeVisible();
-  await expect(section.getByRole("heading", { name: /care people feel good about returning to/i })).toBeVisible();
+  await expect(section.getByRole("heading", { name: /families have trusted this office for decades/i })).toBeVisible();
   await expect(section.locator("article")).toHaveCount(3);
-  await expect(section.getByRole("link", { name: /read more patient stories/i })).toBeVisible();
+  await expect(section.getByRole("link", { name: /read more reviews/i })).toBeVisible();
 
   const quote = section.locator("blockquote").first();
   await expect(quote).toBeVisible();

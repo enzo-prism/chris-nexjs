@@ -17,6 +17,75 @@ Operational guide for GA4, Vercel Web Analytics, and custom lead-funnel events.
 - Analytics payloads must not include emails, phone numbers, names, message text, notes, full URLs, or nested objects.
 - Hotjar does not initialize on `/contact`, `/schedule`, `/thank-you`, or `/zoom-whitening/schedule`; contact and appointment forms also use `data-hj-suppress`.
 
+## Lead-source attribution
+
+Every appointment request and contact message now tells the office where the
+patient came from. As of 2026-09-22 the Vercel project has **no environment
+variables** (no Ads ID), and before this change a Google Business Profile (GBP)
+visitor who landed on `/` and then opened `/schedule` arrived with no UTM tags,
+so the inbox could not separate GBP, organic search, and direct traffic.
+
+How it works:
+
+- `app/layout.tsx`'s inline bootstrap stores the true entry URL and referrer in
+  `window.__cwEntry` on first paint, before any client-side navigation.
+- `client/src/lib/attribution.ts` (called from `GoogleAnalytics.tsx` once per
+  page load) classifies that entry with `deriveLeadChannel` from
+  `shared/attribution.ts` and keeps it in `localStorage`
+  (`cw_lead_attribution_v1`, 30-day TTL). A tagged or referred visit replaces
+  the stored touch; a plain direct visit never erases a known source. Capture
+  is skipped when the visitor has opted out of analytics.
+- The schedule funnel and contact form send an optional
+  `attribution: { channel, landingPath, referrerHost }` object (validated by
+  `shared/attributionSchema.ts`; a malformed value is dropped, never
+  rejected). Stored `utm_*` tags fill `utmParams` when `/schedule` itself has
+  none.
+- The office inbox email gains a `Lead channel:` line plus `lead_channel`,
+  `landing_page`, and `referrer_host` Formspree fields.
+- GA4 `generate_lead` / lead events and phone-link clicks carry `lead_channel`.
+  Vercel custom events prioritize `lead_channel` for
+  `appointment_request_submit` and `contact_form_submit`, and add it as the
+  second property on `phone_call_click`, falling back to the previous
+  properties when the channel is absent.
+
+Channels: `google_business_profile`, `google_ads`, `google_organic`,
+`other_search`, `ai_assistant`, `social`, `yelp`, `email` (includes
+Demandforce), `campaign`, `referral`, `direct`. Stored data is limited to the
+channel, landing path, referring host, and `utm_*` values. No identifiers.
+
+### Google Business Profile links (owner action required)
+
+Google search, Maps, and the GBP all arrive as a bare `google.com` referrer.
+The site can only separate GBP traffic if the profile's links carry tags. In
+Google Business Profile, set:
+
+- Website: `https://www.chriswongdds.com/?utm_source=google&utm_medium=organic&utm_campaign=gbp_website`
+- Appointment link: `https://www.chriswongdds.com/schedule?utm_source=google&utm_medium=organic&utm_campaign=gbp_appointment#appointment`
+
+Any `utm_source`, `utm_medium`, or `utm_campaign` value containing a
+standalone `gbp` token is classified as `google_business_profile`.
+
+### Reading the numbers
+
+Without GA4 access, the Vercel CLI answers most questions:
+
+```bash
+vercel link --yes --scope enzo-design-prisms-projects --project chris-wong-dds
+vercel metrics vercel.analytics_event.count --prod --since 2026-09-22T00:00:00Z \
+  --group-by event_name --json
+vercel metrics vercel.analytics_pageview.count --prod --since 30d \
+  --group-by referrer_hostname --json
+```
+
+Do not compare `schedule_start` counts from before 2026-07-15 with later
+weeks: the event fired at mount-time until then (roughly 60–95 a week) and
+drops to single digits once it fires only on real input.
+
+Baseline for 2026-06-23 → 2026-09-22 (90 days): about 1,450 visitors,
+14 `appointment_request_submit`, 39 `phone_call_click`, 1
+`contact_form_submit`. Google-referred page views landed 65% on `/` and 12% on
+`/about` (branded searches). Service pages drew almost no Google traffic.
+
 ## Google Ads conversions
 
 - The Ads tag is env-driven and inert until configured: set `NEXT_PUBLIC_GOOGLE_ADS_ID`

@@ -1,3 +1,4 @@
+import { leadAttributionSchema } from "./attributionSchema";
 import { z } from "zod";
 
 export const appointmentTypeOptions = [
@@ -133,6 +134,7 @@ export const scheduleRequestV2Schema = z
     source: z.string().trim().max(80).optional(),
     sourceUrl: z.string().trim().url().optional(),
     utmParams: z.record(z.string()).optional(),
+    attribution: leadAttributionSchema.optional(),
   })
   .superRefine((value, ctx) => {
     const phoneProvided = Boolean(value.phone?.trim());

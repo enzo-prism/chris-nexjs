@@ -79,7 +79,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
   "/": {
     title: "Palo Alto Family Dentist | Christopher B. Wong, DDS",
     description:
-      "Preventive, cosmetic and restorative dentistry in Palo Alto, including Invisalign, implants and urgent visits. New patients can request an appointment today.",
+      "Unhurried, conservative dentistry in Palo Alto: checkups, Invisalign, implant restoration and urgent visits. PPO benefits checked first. New patients welcome.",
     canonicalPath: "/",
     ogImage: "/images/og/reception-area.jpg",
   },
@@ -452,9 +452,10 @@ const CHANGEFREQ_OVERRIDES: Partial<
 // drift past the per-cluster staleness threshold). Last real change:
 // September 2, 2026 Medical History Update form on /patient-resources.
 const LASTMOD_OVERRIDES: Partial<Record<string, string>> = {
-  "/": "2026-08-31",
+  "/": "2026-09-22",
   "/services": "2026-08-30",
-  "/schedule": "2026-08-31",
+  "/schedule": "2026-09-22",
+  "/invisalign": "2026-09-22",
   "/contact": "2026-08-31",
   "/insurance": "2026-08-12",
   "/about": "2026-08-30",

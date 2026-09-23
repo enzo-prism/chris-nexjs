@@ -38,6 +38,9 @@ const GA_MEASUREMENT_ID =
 const GOOGLE_ADS_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID?.trim() || "";
 
 const googleTagBootstrap = `
+  // Remember the entry URL and referrer before any client-side navigation so
+  // lead attribution (client/src/lib/attribution.ts) sees the real landing page.
+  window.__cwEntry = window.__cwEntry || { href: location.href, referrer: document.referrer };
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   window.gtag = window.gtag || gtag;

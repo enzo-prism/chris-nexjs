@@ -117,7 +117,8 @@ async function testContactApi() {
   };
   const originalFetch = globalThis.fetch;
   const deliveredTo: string[] = [];
-  globalThis.fetch = async (input) => {
+  const deliveredBodies: Array<Record<string, unknown>> = [];
+  globalThis.fetch = async (input, init) => {
     const url = typeof input === "string" ? input : input.toString();
     assert.match(
       url,
@@ -125,6 +126,7 @@ async function testContactApi() {
       `unexpected external request during API tests: ${url}`,
     );
     deliveredTo.push(url);
+    deliveredBodies.push(JSON.parse(String(init?.body ?? "{}")));
     return new Response(JSON.stringify({ ok: true }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
@@ -133,10 +135,24 @@ async function testContactApi() {
 
   try {
     const createResponse = await postContact(
-      requestWithBody("/api/contact", payload),
+      requestWithBody("/api/contact", {
+        ...payload,
+        attribution: { channel: "yelp", landingPath: "/contact" },
+      }),
     );
     assert.equal(createResponse.status, 201);
     assert.equal(deliveredTo.length, 1, "contact test should mock one inbox delivery");
+    assert.equal(deliveredBodies[0].lead_channel, "yelp");
+
+    // A malformed attribution value never blocks the patient's message.
+    const malformedAttribution = await postContact(
+      requestWithBody("/api/contact", {
+        ...payload,
+        attribution: { channel: "not-a-channel" },
+      }),
+    );
+    assert.equal(malformedAttribution.status, 201);
+    assert.equal(deliveredBodies[1].lead_channel, "unknown");
   } finally {
     globalThis.fetch = originalFetch;
   }

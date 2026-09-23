@@ -221,6 +221,11 @@ If one changes, verify the others still agree.
 - client UI: `client/src/components/forms/*`
 - API routes: `app/api/*`
 - storage and contracts: `server/`, `shared/`
+- lead-source attribution: `shared/attribution.ts` (channels, zod-free for
+  the browser), `shared/attributionSchema.ts` (server validation),
+  `client/src/lib/attribution.ts` (capture + read), wired through
+  `GoogleAnalytics.tsx`, `AppointmentForm.tsx`, `ContactForm.tsx`, and both
+  lead API routes; see `docs/analytics.md`
 
 ### Gallery
 
@@ -233,6 +238,8 @@ If one changes, verify the others still agree.
 - raw source in `attached_assets/`
 - import/audit scripts in `scripts/`
 - follow `docs/reviews-data.md`
+- homepage quotes: `client/src/data/homeProof.ts`, verified verbatim by
+  `scripts/homepage-proof.test.ts` (part of `pnpm test:reviews`)
 
 ## Recommended task checklists
 

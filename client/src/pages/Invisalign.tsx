@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { CheckCircle, ArrowRight, Shield, Clock, Star, Users, Smile, MapPin, Phone } from "lucide-react";
+import { CheckCircle, ArrowRight, Clock, Star, Users, MapPin, Phone } from "lucide-react";
 import OfficeHoursSummary from "@/components/common/OfficeHoursSummary";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -112,29 +112,6 @@ const invisalignFaqs: FAQEntry[] = [
 ];
 
 const Invisalign = () => {
-  const invisalignBenefits = [
-    {
-      title: "Virtually Invisible",
-      description: "Clear aligners are nearly invisible, so you can smile confidently during treatment",
-      icon: <Smile className="h-8 w-8 text-primary" />
-    },
-    {
-      title: "Removable Convenience",
-      description: "Remove aligners for eating, drinking, brushing, and special occasions",
-      icon: <Shield className="h-8 w-8 text-primary" />
-    },
-    {
-      title: "Comfortable Fit",
-      description: "Smooth plastic aligners are more comfortable than traditional metal braces",
-      icon: <Star className="h-8 w-8 text-primary" />
-    },
-    {
-      title: "Predictable Results",
-      description: "Advanced 3D technology allows you to see your treatment plan and expected results",
-      icon: <Clock className="h-8 w-8 text-primary" />
-    }
-  ];
-
   const treatmentProcess = [
     {
       step: "1",
@@ -446,6 +423,29 @@ const Invisalign = () => {
         </div>
       </section>
 
+      <nav
+        aria-label="On this page"
+        className="border-y border-slate-200 bg-white"
+      >
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-5 gap-y-1 px-4 py-2 text-sm sm:px-6 lg:px-8">
+          <span className="font-semibold text-slate-700">Jump to:</span>
+          {[
+            { href: "#invisalign-cost", label: "Cost & insurance" },
+            { href: "#invisalign-candidacy", label: "Is it right for me?" },
+            { href: "#invisalign-process", label: "How treatment works" },
+            { href: "#invisalign-faq", label: "FAQ" },
+          ].map((item) => (
+            <a
+              key={item.href}
+              href={item.href}
+              className="ui-link-premium inline-flex min-h-11 items-center"
+            >
+              {item.label}
+            </a>
+          ))}
+        </div>
+      </nav>
+
       {/* Why Dr. Wong for Invisalign */}
       <section className="py-14 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -596,50 +596,6 @@ const Invisalign = () => {
         </div>
       </section>
 
-      {/* Benefits of Invisalign */}
-      <section className="py-16 bg-[#F5F9FC]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold font-heading text-[#333333] mb-6">
-              Why Choose Invisalign?
-            </h2>
-            <p className="text-[#333333] max-w-3xl mx-auto">
-              Invisalign offers advantages over traditional braces for many teens and adults, especially if you
-              want a discreet option that’s easier to clean around and fits a busy Palo Alto routine.
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {invisalignBenefits.map((benefit, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="bg-white rounded-lg shadow-lg p-6 text-center"
-              >
-                <div className="flex justify-center mb-4">
-                  {benefit.icon}
-                </div>
-                <h3 className="text-xl font-bold font-heading text-[#333333] mb-3">
-                  {benefit.title}
-                </h3>
-                <p className="text-[#333333]">
-                  {benefit.description}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Patient Confidence */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -667,7 +623,7 @@ const Invisalign = () => {
       </section>
 
       {/* Treatment Process */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white" id="invisalign-process">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -810,57 +766,6 @@ const Invisalign = () => {
         </div>
       </section>
 
-      {/* Dr. Wong's Approach */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-            >
-	              <OptimizedImage
-	                src="/images/dr-wong-polaroids.webp"
-	                alt="Dr. Christopher Wong in his dental practice - professional polaroid photos"
-	                className="w-full h-56 sm:h-72 md:h-96 object-cover rounded-lg shadow-lg"
-	              />
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-            >
-              <h2 className="text-3xl font-bold font-heading text-[#333333] mb-6">
-                Dr. Wong's Personalized Approach
-              </h2>
-              <p className="text-[#333333] mb-6">
-                Dr. Christopher B. Wong pairs careful clinical judgment with current Invisalign technology
-                to create personalized treatment plans. His careful attention to detail ensures optimal
-                results while maintaining your comfort throughout the process.
-              </p>
-              <div className="space-y-4">
-                <div className="flex items-start">
-                  <Shield className="h-6 w-6 text-primary mt-1 mr-4" />
-                  <div>
-                    <h4 className="font-semibold text-[#333333] mb-1">Comprehensive Evaluation</h4>
-                    <p className="text-[#333333]">Thorough assessment to ensure Invisalign is the right choice for your needs.</p>
-                  </div>
-                </div>
-                <div className="flex items-start">
-                  <Clock className="h-6 w-6 text-primary mt-1 mr-4" />
-                  <div>
-                    <h4 className="font-semibold text-[#333333] mb-1">Regular Monitoring</h4>
-                    <p className="text-[#333333]">Scheduled check-ups to ensure your treatment is progressing as planned.</p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
       {/* Caring for Your Aligners */}
       <section className="py-16 bg-[#F5F9FC]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -976,12 +881,14 @@ const Invisalign = () => {
         </div>
       </section>
 
-      <FAQSection
-        title="Invisalign FAQs"
-        subtitle="Clear answers to common questions about clear aligner treatment."
-        items={invisalignFaqs}
-        className="bg-[#F5F9FC]"
-      />
+      <div id="invisalign-faq">
+        <FAQSection
+          title="Invisalign FAQs"
+          subtitle="Clear answers to common questions about clear aligner treatment."
+          items={invisalignFaqs}
+          className="bg-[#F5F9FC]"
+        />
+      </div>
 
       <section className="py-12 bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">

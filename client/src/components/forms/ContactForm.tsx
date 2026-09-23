@@ -21,6 +21,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { trackLeadConversion } from "@/lib/analytics";
+import { getLeadAttribution } from "@/lib/attribution";
 import { officeInfo } from "@/lib/data";
 import { ANALYTICS_EVENTS, getAnalyticsPageContext } from "@shared/analytics";
 import { HONEYPOT_FIELD } from "@shared/formspree";
@@ -66,12 +67,17 @@ const ContactForm = () => {
   });
 
   const contactMutation = useMutation({
-    mutationFn: (data: InsertContactMessage) => apiRequest("POST", "/api/contact", data),
+    mutationFn: (data: InsertContactMessage) =>
+      apiRequest("POST", "/api/contact", {
+        ...data,
+        attribution: getLeadAttribution()?.attribution,
+      }),
     onSuccess: () => {
       trackLeadConversion(ANALYTICS_EVENTS.contactFormSubmit, {
         form_name: "contact_form",
         lead_type: "contact_request",
         lead_source: "contact_form",
+        lead_channel: getLeadAttribution()?.attribution.channel ?? "unknown",
         ...getAnalyticsPageContext(
           typeof window !== "undefined" ? window.location.pathname : "/contact",
         ),

@@ -14,6 +14,7 @@ import {
   isAnalyticsRuntimeEnabled,
   trackAnalyticsEvent,
 } from "@/lib/analytics";
+import { captureLeadAttribution, getLeadAttribution } from "@/lib/attribution";
 
 const GA_MEASUREMENT_ID =
   process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() || "G-94WRBJY51J";
@@ -87,6 +88,7 @@ const GoogleAnalytics = () => {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    captureLeadAttribution();
 
     let attempts = 0;
     let timer: ReturnType<typeof setTimeout> | null = null;
@@ -188,7 +190,10 @@ const GoogleAnalytics = () => {
       };
 
       if (rawHref.startsWith("tel:")) {
-        trackAnalyticsEvent(ANALYTICS_EVENTS.phoneCallClick, clickContext);
+        trackAnalyticsEvent(ANALYTICS_EVENTS.phoneCallClick, {
+          ...clickContext,
+          lead_channel: getLeadAttribution()?.attribution.channel ?? "unknown",
+        });
         return;
       }
 

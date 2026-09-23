@@ -218,21 +218,42 @@ assert(
   "the open mobile-navigation surface must include env(safe-area-inset-bottom) in its bottom padding",
 );
 
-// 18. Homepage service cards deliberately use icon artwork, while the complete
-// Services catalog keeps ServiceCard's default image treatment.
+// 18. The homepage routes visitors by reason for visit with compact, single-
+// action care-path links (no synthetic lifestyle images, no stacked double
+// buttons), while the complete Services catalog keeps ServiceCard's default
+// image treatment.
 const home = read("client/src/pages/Home.tsx");
 const services = read("client/src/pages/Services.tsx");
+const carePaths = read("client/src/components/sections/CarePathsSection.tsx");
 assert(
-  "Home: featured ServiceCards use the icon visual",
-  home.includes('import HomeServiceVisual from "@/components/common/HomeServiceVisual"') &&
-    /visual=\{<HomeServiceVisual service=\{service\} \/>\}/.test(home),
-  "homepage ServiceCard calls must provide HomeServiceVisual",
+  "Home: services entry point is the compact CarePathsSection",
+  home.includes('import CarePathsSection from "@/components/sections/CarePathsSection"') &&
+    home.includes("<CarePathsSection />") &&
+    !home.includes("<ServiceCard"),
+  "the homepage must use CarePathsSection instead of stacked ServiceCards",
+);
+assert(
+  "CarePathsSection: each care path is one link with a >=44px hit area and no images",
+  carePaths.includes("min-h-[4.5rem]") && !/<Image\b|<img\b/.test(carePaths),
+  "care-path links must stay single-action, image-free, and at least 44px tall",
 );
 assert(
   "Services: catalog ServiceCards keep the default image visual",
   /<ServiceCard\b(?=[^>]*\bservice=\{service\})[^>]*\/>/.test(services) &&
     !/<ServiceCard[^>]*visual=/.test(services),
-  "the Services catalog must not opt into the homepage-only icon visual",
+  "the Services catalog must not opt into an icon visual",
+);
+
+// 19. On phones the appointment form must start near the top of /schedule:
+// no back link or oversized emergency banner stacked above it.
+const funnelTop = funnelSection.slice(0, funnelSection.indexOf("<AppointmentForm"));
+assert(
+  "Schedule: nothing heavy is stacked above the appointment form",
+  !funnelTop.includes("Back to home") &&
+    !funnelTop.includes("bg-rose-600") &&
+    funnelTop.includes("text-3xl font-bold") &&
+    funnelTop.includes("pt-6"),
+  "keep the /schedule header compact so step 1 of the form is visible on a phone",
 );
 
 // ---- report ----

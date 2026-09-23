@@ -27,6 +27,11 @@ Command reference for contract, UI, SEO, and performance checks.
 - `pnpm run test:api`
   - Verifies API handlers for status codes and key payload semantics.
   - Includes schedule-request compatibility checks (legacy + v2 payloads).
+  - Includes `scripts/attribution.test.ts`: lead-channel derivation (Google
+    Business Profile tags, Ads click IDs, referrer hosts), the optional
+    `attribution` wire field, and Vercel event property priority. The
+    schedule and contact contract tests assert the channel reaches the office
+    inbox payload and that a malformed value never blocks a lead.
   - Mocks all outbound delivery. A contract test must never contact Formspree,
     CRM, Slack, or another production vendor.
 - `pnpm run test:routes`
@@ -59,6 +64,9 @@ Command reference for contract, UI, SEO, and performance checks.
     - rating distribution matches source
     - no-text placeholder conversion counts match source
     - minimum count floor (`>=300`) is maintained
+  - Also runs `scripts/homepage-proof.test.ts`: every homepage review quote in
+    `client/src/data/homeProof.ts` must be a verbatim excerpt of a 5-star
+    Google review by the named reviewer.
 
 ### SEO checks
 
@@ -96,6 +104,14 @@ If local dev is on port `5000`, set `SEO_AUDIT_BASE_URL=http://localhost:5000`.
   - Static source guards: form-field font sizes (≥16px on mobile), 44px touch targets, sticky funnel CTA, contact-form delivery, landing-page H1 sizing, etc.
 - `pnpm run test:mobile`
   - Playwright suite under `tests/mobile/` (builds + serves the app, runs against an iPhone-class viewport via system Chrome): no horizontal overflow, touch targets, homepage proof content, the `/office-tour` page, and more.
+  - `conversion.spec.ts` guards the conversion path: step 1 of the `/schedule`
+    form must start inside the first iPhone 13 screen, the insurance field is
+    visible on the contact step, a `utm_campaign=gbp_*` landing keeps its
+    source through a client-side hop to `/schedule` into the request payload,
+    a later direct visit never erases a known source, the homepage intro video
+    plays the self-hosted clip, and the cost section keeps accepted-payment
+    copy. Every submission is intercepted with `page.route`; no real lead is
+    sent.
   - Navigate through `gotoAndHydrate` in `tests/mobile/_helpers.ts`. It asserts the response is `200` before anything else, and that assertion is load-bearing: the 404 page renders a `main` element, has one `h1`, and never overflows, so a spec naming a route that does not exist will otherwise pass while testing nothing. `overflow.spec.ts` asserted against `/dentist-palo-alto` — a route the site has never had — for exactly this reason. Whenever you add a route to a spec's list, the guard is what tells you the route is real.
 
 ### Performance checks

@@ -107,11 +107,23 @@ async function testV2PayloadCompatibility() {
         message: "Need urgent support",
         source: "schedule_page_form_v2",
         sourceUrl: "https://www.chriswongdds.com/schedule?utm_source=v2",
+        attribution: {
+          channel: "google_business_profile",
+          landingPath: "/",
+          referrerHost: "www.google.com",
+        },
       }),
     );
 
     assert.equal(response.status, 201);
     const formspree = assertFormspreeCall(calls);
+    assert.equal(formspree.body.lead_channel, "google_business_profile");
+    assert.equal(formspree.body.landing_page, "/");
+    assert.equal(formspree.body.referrer_host, "www.google.com");
+    assert.match(
+      String(formspree.body.message),
+      /Lead channel: Google Business Profile · landed on \/ · via www\.google\.com/,
+    );
     assert.equal(formspree.body.phone, "6505551111");
     assert.equal(formspree.body.scheduling_mode, "choose_preferences");
     assert.equal(formspree.body.contact_preference, "email");
