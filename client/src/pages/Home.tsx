@@ -19,6 +19,7 @@ import CostClaritySection from "@/components/sections/CostClaritySection";
 import DoctorTeamSection from "@/components/sections/DoctorTeamSection";
 import HeroSection from "@/components/sections/HeroSection";
 import PatientProofSection from "@/components/sections/PatientProofSection";
+import { NightBandSky, TreatTipsSection } from "@/components/seasonal/HomeSeasonal";
 import { officeInfo } from "@/lib/data";
 import {
   buildFAQSchema,
@@ -112,6 +113,7 @@ const Home = () => {
       <DoctorTeamSection />
       <CostClaritySection />
       <PatientProofSection />
+      <TreatTipsSection />
 
       <section
         id="palo-alto-dentist"
@@ -234,6 +236,7 @@ const Home = () => {
             className="pointer-events-none absolute -right-24 -top-32 h-80 w-80 rounded-full bg-sky-400/15 blur-3xl"
             aria-hidden="true"
           />
+          <NightBandSky />
           <div className="relative">
             <div className="grid items-center gap-9 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-14">
               <div className="max-w-3xl">

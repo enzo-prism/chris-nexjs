@@ -23,3 +23,13 @@ Use Conventional Commits (`feat: ...`, `fix: ...`, `docs: ...`) with concise sub
 
 ## Local Preview Tips
 `LOCAL_DEV.md` documents local setup, port behavior, runtime SEO audit usage, and troubleshooting. Use it as the source of truth for localhost setup.
+
+## Seasonal layer (October)
+A small, optional Halloween layer that switches itself on October 1–31 (America/Los_Angeles) and off on November 1 with no redeploy. It is delight on top of the design system, never a re-theme.
+- **Switch:** `shared/seasonal.ts` builds an inline `<head>` script (`SeasonScript`, rendered in `app/layout.tsx`) that sets `<html data-cw-season="halloween">` before first paint and swaps the favicon to `public/seasonal/<id>/icon.svg`. It also re-applies the attribute if React resets `<html>` after a hydration error (several routes throw React #418 today). `?season=halloween` previews in any month (rest of the tab session), `?season=off` opts a browser out, `?season=auto` resets.
+- **Art:** every piece is hidden by default (`.cw-season-only`) and keyed off that attribute in the "Seasonal layer" block of `app/globals.css`. Art is static SVG in `public/seasonal/<id>/`, used as CSS backgrounds so it only downloads in season. `.cw-season-only` is unlayered and beats Tailwind's `hidden`, so put breakpoint visibility on an inner wrapper.
+- **Where:** homepage hero (greeting chip, "Palo Alto" underline, harvest moon, once-per-session bats, desktop ghost-tooth), a homepage treat-tips band, the "Ready when you are" band (crescent and stars), the default footer greeting (pure CSS `::before`), and the 404 page. `/schedule` (conversion chrome), `/emergency-dental`, `/thank-you`, legal pages, CTAs, phone links, forms, the header, and the mobile action bar stay undecorated (the footer opts out with `data-cw-quiet`).
+- **Budgets:** shared chrome must stay JS-free. Footer.tsx must not import `components/seasonal` or `@shared/seasonal`; client pieces (`SeasonalClient.tsx`) are homepage/404 only. `pnpm test:seasonal` guards this, the calendar boundaries, and the undecorated surfaces.
+- **Motion:** transform/opacity/clip only, no layout shift, every one-off animation ends within 5s, skipped for reduced motion (and bats/twinkles for Save-Data).
+- **Treat tips copy:** keep it general, ADA-aligned home-care guidance. Never present it as Dr. Wong's personal advice or make outcome claims.
+- **Next year:** add a new `SeasonalTheme` (new `id` and dates) and a new versioned `public/seasonal/<id>/` folder, then update the CSS `url()`s. To retire it, set `activeSeason = null`, which ships no head script.

@@ -64,6 +64,7 @@ async function main() {
   runPnpmScript("test:api");
   runPnpmScript("test:routes");
   runPnpmScript("test:design-system");
+  runPnpmScript("test:seasonal");
 
   // Ensure a fresh production build exists for `next start`.
   runPnpmScript("build");

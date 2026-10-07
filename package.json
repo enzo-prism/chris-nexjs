@@ -24,6 +24,7 @@
     "test:seo:all": "pnpm run test:seo && pnpm run test:seo:onpage && pnpm run test:seo:links && pnpm run test:seo:schema && pnpm run test:seo:freshness",
     "test:routes": "tsx scripts/route-contract.test.ts",
     "test:design-system": "tsx scripts/design-system.test.ts",
+    "test:seasonal": "tsx --test scripts/seasonal.test.ts",
     "test:images": "tsx scripts/image-audit.test.ts",
     "test:gallery": "tsx scripts/gallery-media.test.ts",
     "test:bundle": "node scripts/bundle-budget.test.mjs",

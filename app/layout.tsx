@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Lato, Source_Sans_3 } from "next/font/google";
 import { getSeoForPath } from "@/lib/seo";
 import VercelAnalytics from "@/components/common/VercelAnalytics";
+import { SeasonScript } from "@/components/seasonal/SeasonScript";
 import {
   ANALYTICS_CONSENT_EVENT,
   ANALYTICS_CONSENT_STORAGE_KEY,
@@ -160,6 +161,7 @@ export default function RootLayout({
     <html lang="en" className={`${sourceSans.variable} ${lato.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: googleTagBootstrap }} />
+        <SeasonScript />
       </head>
       <body className="antialiased">
         {children}

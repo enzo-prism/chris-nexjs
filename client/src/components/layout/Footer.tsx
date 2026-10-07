@@ -156,7 +156,16 @@ const Footer = ({ variant = "default" }: FooterProps) => {
   }
 
   return (
-    <footer className="bg-primary bg-opacity-95 text-white">
+    // `cw-season-footer` draws the October greeting in CSS (app/globals.css,
+    // AGENTS.md "Seasonal layer (October)"); urgent-care, legal, and
+    // post-conversion pages opt out via data-cw-quiet.
+    <footer
+      className="cw-season-footer bg-primary bg-opacity-95 text-white"
+      data-cw-quiet={
+        /^\/(emergency-dental|thank-you|privacy-policy|hipaa|terms|accessibility)\/?$/.test(pathname) ||
+        undefined
+      }
+    >
       <div className="hidden py-12 md:block">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10">

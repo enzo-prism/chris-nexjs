@@ -13,6 +13,14 @@ import ButtonLink from "@/components/common/ButtonLink";
 import IntroVideoButton from "@/components/common/IntroVideoButton";
 import { officeInfo } from "@/lib/data";
 import { GOOGLE_REVIEW_COUNT } from "@shared/reviewStats";
+import {
+  HarvestMoon,
+  HeroGhost,
+  SeasonalGreeting,
+  SeasonalUnderline,
+  harvestMoonBox,
+} from "@/components/seasonal/HomeSeasonal";
+import { HarvestBats } from "@/components/seasonal/SeasonalClient";
 
 const HERO_IMAGE_SRC = "/images/hero/dr-wong-hero.webp";
 
@@ -32,6 +40,7 @@ const HeroSection = () => {
       <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 sm:pt-10 lg:px-8 lg:pt-14">
         <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,0.94fr)_minmax(0,1.06fr)] lg:gap-16 xl:gap-20">
           <div className="max-w-2xl">
+            <SeasonalGreeting />
             <div className="inline-flex min-h-10 items-center gap-2 rounded-full border border-sky-200/20 bg-white/[0.07] px-4 py-2 text-sm font-semibold text-sky-100 backdrop-blur-sm">
               <MapPin className="h-4 w-4 text-sky-300" aria-hidden="true" />
               {officeInfo.address.line1}, Palo Alto
@@ -40,7 +49,11 @@ const HeroSection = () => {
             </div>
 
             <h1 className="mt-6 text-balance font-heading text-4xl font-bold leading-[1.08] tracking-[-0.025em] text-white sm:text-5xl lg:text-[3.65rem]">
-              Unhurried, conservative dentistry in Palo Alto
+              Unhurried, conservative dentistry in{" "}
+              <span className="relative inline-block whitespace-nowrap">
+                Palo Alto
+                <SeasonalUnderline />
+              </span>
             </h1>
             <p className="mt-6 max-w-xl text-pretty text-lg leading-8 text-slate-200 md:text-xl">
               Christopher B. Wong, DDS, and an experienced hygiene team take the
@@ -118,6 +131,8 @@ const HeroSection = () => {
           </div>
 
           <div className="relative mx-auto w-full max-w-2xl lg:max-w-none">
+            <HarvestMoon />
+            <HeroGhost />
             <div
               className="absolute -inset-3 rounded-[2.2rem] border border-sky-200/10 bg-gradient-to-br from-white/10 to-transparent"
               aria-hidden="true"
@@ -141,6 +156,7 @@ const HeroSection = () => {
                 <IntroVideoButton context="home-hero" />
               </div>
             </div>
+            <HarvestBats className={harvestMoonBox} />
           </div>
         </div>
       </div>

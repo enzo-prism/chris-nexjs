@@ -634,3 +634,314 @@
 svg.lucide {
   stroke-width: 1.5;
 }
+
+/* ==========================================================================
+   Seasonal layer (October). See AGENTS.md "Seasonal layer (October)".
+   Everything here is keyed off <html data-cw-season>, which the inline head
+   script in shared/seasonal.ts sets before first paint, so none of it
+   renders out of season. Decorative art only: no layout shift, transform /
+   opacity animation only, every one-off animation finishes within 5s
+   (WCAG 2.2.2). Kept outside @layer so the purge never drops it, and the
+   reduced-motion block at the end turns motion off entirely.
+   ========================================================================== */
+:root {
+  /* Reserved for seasonal art, never for UI, text, or CTAs. */
+  --cw-harvest-amber: #eea23f;
+  --cw-harvest-amber-deep: #cf7a24;
+  --cw-harvest-carve: #3a1d0a;
+  --cw-harvest-stem: #5e7444;
+  --cw-harvest-moon: #fbe6b3;
+  --cw-night: #0b1f3a;
+  --cw-ghost-line: hsl(212 72% 43%);
+  --cw-season-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Seasonal art is CSS background SVGs: they only download while the season
+   is on (backgrounds of display:none boxes are never fetched). */
+.cw-art {
+  display: inline-block;
+  height: auto;
+  aspect-ratio: 1;
+  background: center / contain no-repeat;
+}
+.cw-art-ghost {
+  aspect-ratio: 64 / 72;
+  background-image: url("/seasonal/halloween-2026/ghost-tooth.svg");
+}
+.cw-art-pumpkin {
+  aspect-ratio: 48 / 44;
+  background-image: url("/seasonal/halloween-2026/pumpkin.svg");
+}
+.cw-art-moon {
+  background-image: url("/seasonal/halloween-2026/moon.svg");
+}
+.cw-art-crescent {
+  background-image: url("/seasonal/halloween-2026/crescent.svg");
+}
+.cw-art-star {
+  background-image: url("/seasonal/halloween-2026/star.svg");
+}
+
+.cw-season-only {
+  display: none;
+}
+html[data-cw-season] .cw-season-only {
+  display: block;
+}
+
+/* Hero: a harvest moon rising behind the photo's top-right corner. */
+.cw-moon {
+  filter: drop-shadow(0 0 26px rgba(241, 200, 111, 0.5));
+}
+html[data-cw-season] .cw-moon {
+  animation: cw-moon-rise 1.8s 0.2s var(--cw-season-ease) both;
+}
+@keyframes cw-moon-rise {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* "Palo Alto" gets a candlelight underline that draws itself in. */
+.cw-underline {
+  background: url("/seasonal/halloween-2026/underline.svg") 0 0 / 100% 100% no-repeat;
+}
+html[data-cw-season] .cw-underline {
+  animation: cw-draw 1.3s 0.5s cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+@keyframes cw-draw {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* A ghost-tooth slides out from behind the hero photo and bobs (4.6s). */
+.cw-ghost-peek {
+  transform: rotate(-5deg);
+}
+html[data-cw-season] .cw-ghost-peek {
+  animation: cw-ghost-peek 4s 0.6s var(--cw-season-ease) both;
+}
+@keyframes cw-ghost-peek {
+  0% {
+    opacity: 0;
+    transform: translateX(2.75rem) rotate(10deg);
+  }
+  25% {
+    opacity: 1;
+    transform: translateX(0) rotate(-6deg);
+  }
+  45% {
+    transform: translate(0, -6px) rotate(-2deg);
+  }
+  65% {
+    transform: translate(0, 2px) rotate(-7deg);
+  }
+  85% {
+    transform: translate(0, -4px) rotate(-3deg);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(-5deg);
+  }
+}
+
+/* Bats lifting off the moon, once per session, under 5s. The hero sky is
+   navy, so the bats are near-black with a moonlit rim to stay legible. */
+.cw-bat {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
+  width: var(--size);
+  color: #02060d;
+  opacity: 0;
+  filter: drop-shadow(0 0 1.5px rgba(251, 230, 179, 0.85));
+  animation: var(--flight) var(--duration) var(--delay) cubic-bezier(0.37, 0, 0.3, 1) both;
+}
+.cw-bat svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform-origin: 50% 40%;
+  animation: cw-bat-flap 0.24s ease-in-out 16 alternate;
+}
+@keyframes cw-bat-flap {
+  to {
+    transform: scaleY(0.62);
+  }
+}
+@keyframes cw-bat-flight-a {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.45);
+  }
+  12% {
+    opacity: 0.95;
+  }
+  55% {
+    transform: translate(-6rem, -3rem) scale(0.8);
+  }
+  85% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-15rem, -5rem) scale(1);
+  }
+}
+@keyframes cw-bat-flight-b {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.45);
+  }
+  12% {
+    opacity: 0.92;
+  }
+  50% {
+    transform: translate(-2rem, -4.5rem) scale(0.75);
+  }
+  85% {
+    opacity: 0.92;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-8rem, -8rem) scale(0.95);
+  }
+}
+@keyframes cw-bat-flight-c {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.45);
+  }
+  12% {
+    opacity: 0.9;
+  }
+  55% {
+    transform: translate(2rem, -2.5rem) scale(0.7);
+  }
+  85% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-2rem, -7rem) scale(0.85);
+  }
+}
+
+/* "Ready when you are" band: a crescent moon and stars that twinkle when the
+   band scrolls into view (4 x 0.9s + up to 1.1s delay, ending fully lit). */
+.cw-crescent {
+  filter: drop-shadow(0 0 14px rgba(251, 230, 179, 0.45));
+}
+.cw-star {
+  position: absolute;
+  opacity: 0.8;
+}
+.cw-sky[data-play] .cw-star {
+  animation: cw-twinkle 0.9s ease-in-out 4 alternate;
+}
+@keyframes cw-twinkle {
+  to {
+    opacity: 0.2;
+    transform: scale(0.65);
+  }
+}
+
+/* Footer greeting (every default-chrome page): drawn entirely in CSS so the
+   shared footer chunk gains no JS. Three tooth-grin pumpkins sit in the
+   left padding; the text is generated content. */
+html[data-cw-season] .cw-season-footer:not([data-cw-quiet])::before {
+  --cw-gutter: max(1rem, calc((100% - 72rem) / 2 + 1rem));
+  content: "Happy Halloween from Dr. Wong and the team. Enjoy the treats, and don\2019t skip the floss.";
+  display: block;
+  padding: 1.6rem var(--cw-gutter) 1.4rem calc(var(--cw-gutter) + 7.25rem);
+  border-bottom: 1px solid rgb(255 255 255 / 0.15);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: rgb(255 255 255 / 0.85);
+  background-image:
+    url("/seasonal/halloween-2026/pumpkin.svg"),
+    url("/seasonal/halloween-2026/pumpkin.svg"),
+    url("/seasonal/halloween-2026/pumpkin.svg");
+  background-repeat: no-repeat;
+  background-size: 2rem auto, 2.6rem auto, 1.7rem auto;
+  background-position:
+    var(--cw-gutter) calc(100% - 1.2rem),
+    calc(var(--cw-gutter) + 2.25rem) calc(100% - 1.2rem),
+    calc(var(--cw-gutter) + 4.95rem) calc(100% - 1.2rem);
+  min-height: 4.6rem;
+}
+@media (min-width: 640px) {
+  html[data-cw-season] .cw-season-footer:not([data-cw-quiet])::before {
+    --cw-gutter: max(1.5rem, calc((100% - 72rem) / 2 + 1.5rem));
+  }
+}
+@media (min-width: 1024px) {
+  html[data-cw-season] .cw-season-footer:not([data-cw-quiet])::before {
+    --cw-gutter: max(2rem, calc((100% - 72rem) / 2 + 2rem));
+  }
+}
+
+/* Treat-tips pumpkins hop once when the patch scrolls into view, and wobble
+   on hover. */
+.cw-pumpkin {
+  transform-origin: 50% 100%;
+  transition: transform 0.3s var(--cw-season-ease);
+}
+.cw-patch[data-play] .cw-pumpkin {
+  animation: cw-hop 0.6s var(--cw-season-ease) 2 alternate;
+}
+@media (hover: hover) {
+  .cw-pumpkin:hover {
+    transform: rotate(-8deg) scale(1.06);
+  }
+}
+@keyframes cw-hop {
+  to {
+    transform: translateY(-7px) rotate(-4deg);
+  }
+}
+
+/* 404: a ghost-tooth floating in front of a harvest moon (4.8s total). */
+.cw-porthole {
+  background:
+    radial-gradient(circle at 70% 28%, var(--cw-harvest-moon) 0 17%, rgba(251, 230, 179, 0.22) 18% 26%, transparent 27%),
+    linear-gradient(180deg, #1a3b66, var(--cw-night));
+}
+.cw-ghost-float {
+  animation: cw-ghost-float 2.4s ease-in-out 0.3s 2 alternate both;
+}
+@keyframes cw-ghost-float {
+  from {
+    transform: translateY(4px) rotate(-3deg);
+  }
+  to {
+    transform: translateY(-8px) rotate(3deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-cw-season] .cw-moon,
+  html[data-cw-season] .cw-ghost-peek,
+  .cw-sky[data-play] .cw-star,
+  .cw-patch[data-play] .cw-pumpkin,
+  .cw-ghost-float {
+    animation: none !important;
+  }
+  html[data-cw-season] .cw-underline {
+    animation: none !important;
+    clip-path: none;
+  }
+  .cw-pumpkin:hover {
+    transform: none;
+  }
+}
