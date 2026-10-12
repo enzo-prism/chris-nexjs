@@ -1,8 +1,8 @@
 # Dentist section and intro thumbnail, 2026-10-12
 
 Status: released and verified in production on 2026-10-12. Content commit:
-`a36ccb8`; initial production release: `4a07d14`. The generated changelog and
-this evidence record follow in a documentation commit on `main`.
+`a36ccb8`; initial production release: `4a07d14`. Documentation and the
+generated changelog were also deployed in `8be6250`.
 
 ## Source review
 
@@ -54,7 +54,7 @@ the portrait area to empty ceiling space.
 - About modal and VideoObject both use the new poster.
 - Independent review found no blockers in copy, framing, or Radix focus handling.
 - Final screenshots: `outputs/dentist-section-20261012/after-1440.png` and
-  `after-390.png`. Local production preview remains at
+  `after-390.png`. Local production mode was verified at
   `http://localhost:3210/#about-doctor`.
 
 The aggregate `pnpm run test:production` release gate also passes after the
@@ -118,3 +118,31 @@ release verification.
   `production-*-verification.json` files. No production forms were submitted.
 
 Live readback timestamp: `2026-10-12T21:09:14.525Z`.
+
+### Documentation deployment readback
+
+Commit `8be625009052b14a8ea4f717b38099d9d0ec59c1` deployed as
+`dpl_HLX8Vk22mKcsdn5hFBYqDdaJbaNw` in the same production project. At
+`2026-10-12T21:14:05.706Z`, the canonical domain resolved to that **READY**
+deployment. Homepage, About, and changelog returned `200`; the new changelog
+entries were present, and the poster still matched the committed asset hash.
+
+### CI follow-through
+
+The first two CI runs passed 40 of 41 mobile browser tests and failed the same
+existing gallery keyboard-preview assertion at `gallery-ux.spec.ts:81`. Both
+dentist-video tests passed. The gallery failure also occurred during the
+September release and is documented in its release record.
+
+The gallery test focuses a below-fold control and starts playback while smooth
+scrolling can still be in progress. The gallery's visibility observer can pause
+that offscreen preview before the expected Pause control appears. This is the
+likely timing race, inferred from the test and component lifecycle. The
+follow-up makes the test scroll the preview into view before keyboard
+activation, preserving the playback and focus assertions. Gallery application
+behavior and the suite's zero-retry policy are unchanged.
+
+The repaired gallery/office-tour spec passes five repeated runs (10/10 cases).
+The full local mobile suite passes 41/41 after the repair, and `pnpm run check`
+also passes. The first release's performance CI job passed. The main CI link
+above remains the source of truth for the final test and performance results.

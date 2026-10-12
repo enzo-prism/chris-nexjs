@@ -74,7 +74,12 @@ test("gallery controls and viewer work by keyboard", async ({ page }) => {
   const previewControl = page.getByRole("button", {
     name: /play light-filled spaces preview/i,
   });
+  // Playback pauses outside the viewport; settle scrolling before activating
+  // the preview so its initial observer callback cannot interrupt playback.
+  await previewControl.scrollIntoViewIfNeeded();
+  await expect(previewControl).toBeInViewport({ ratio: 1 });
   await previewControl.focus();
+  await expect(previewControl).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(
     page.getByRole("button", { name: /pause light-filled spaces preview/i }),
