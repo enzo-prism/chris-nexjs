@@ -13,6 +13,66 @@ export type ChangelogEntry = {
 
 export const changelogEntries: readonly ChangelogEntry[] = [
   {
+    "date": "2026-10-12",
+    "commitDate": "2026-10-12T21:07:08.000Z",
+    "type": "update",
+    "title": "Document dentist section and intro video release",
+    "summary": "Document dentist section and intro video release.",
+    "sha": "4a07d140",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/4a07d1401beee08ec42bad620e40fe50b7b97c03",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-10-12",
+    "commitDate": "2026-10-12T21:07:08.000Z",
+    "type": "fix",
+    "title": "Patch dependencies blocking the production release audit",
+    "summary": "Patch dependencies blocking the production release audit.",
+    "sha": "a447099e",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/a447099e3e3f894bbcf6f03e93579dacc1e076c3",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-10-12",
+    "commitDate": "2026-10-12T20:54:41.000Z",
+    "type": "fix",
+    "title": "Clarify dentist introduction and use a natural smiling thumbnail",
+    "summary": "Clarify dentist introduction and use a natural smiling thumbnail.",
+    "sha": "a36ccb81",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/a36ccb8128a78b7e4b26bab2cbde2d74e6479c7d",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-10-07",
+    "commitDate": "2026-10-07T19:14:38.000Z",
+    "type": "feature",
+    "title": "Add an October seasonal layer with harvest moon, bats, and a ghost-tooth",
+    "summary": "Add an October seasonal layer with harvest moon, bats, and a ghost-tooth.",
+    "sha": "307e19a9",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/307e19a976a6a2a63c9f25703fd4a99b1f41d763",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-09-23",
+    "commitDate": "2026-09-23T18:26:21.000Z",
+    "type": "update",
+    "title": "Regenerate changelog",
+    "summary": "Regenerate changelog.",
+    "sha": "054eae3c",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/054eae3c6023304cf49acf8cefef3b51e9cb6413",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-09-23",
+    "commitDate": "2026-09-23T18:26:18.000Z",
+    "type": "update",
+    "title": "Sync README and review runbook with redesign and September backfill",
+    "summary": "Sync README and review runbook with redesign and September backfill.",
+    "sha": "d4bd079b",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/d4bd079b71b15b13e465b8b8a8072bf5a95f50b6",
+    "source": "Current Website"
+  },
+  {
     "date": "2026-09-23",
     "commitDate": "2026-09-23T18:06:20.000Z",
     "type": "update",

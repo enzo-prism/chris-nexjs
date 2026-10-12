@@ -1,8 +1,8 @@
 # Dentist section and intro thumbnail, 2026-10-12
 
-Status: approved for `main` and production on 2026-10-12; release checks are
-in progress. Content commit: `a36ccb8`. Push and production evidence will be
-recorded below after verification.
+Status: released and verified in production on 2026-10-12. Content commit:
+`a36ccb8`; initial production release: `4a07d14`. The generated changelog and
+this evidence record follow in a documentation commit on `main`.
 
 ## Source review
 
@@ -61,7 +61,8 @@ The aggregate `pnpm run test:production` release gate also passes after the
 dependency patches, including bundle budgets and seasonal guards. The patched
 production audit passes with zero high/critical and four moderate findings.
 Mobile source guards (29/29), contact-flow UX, and OG metadata guards pass.
-GitHub CI and production readback will be recorded after the approved push.
+Production readback is recorded below. Current GitHub test/performance results
+are available from the linked main-branch CI workflow.
 
 ## Release preflight dependency patches
 
@@ -81,3 +82,39 @@ binaries/transitive dependencies. Four existing moderate advisories in `qs`
 and Next.js remain outside this section release; the production audit gate
 fails on high or critical severity. Final audit results are recorded with the
 release verification.
+
+## Production release evidence
+
+- GitHub repository: `enzo-prism/chris-nexjs`, release branch `main`.
+- Content commit: `a36ccb8`; dependency patches: `a447099`; initial release:
+  `4a07d1401beee08ec42bad620e40fe50b7b97c03`. Local/remote SHA parity was verified.
+- Vercel project: `chris-wong-dds`
+  (`prj_GZsqvnpwTizkAtHD1Ujj4dg7KT7V`), scope `enzo-design-prisms-projects`.
+- Production deployment: `dpl_7iK2d14oowXZygLC6u6LF7Wjqgkw`, status **READY**, associated with
+  the exact initial release SHA and GitHub `main`.
+- Deployment URL: https://chris-wong-67d88ejz1-enzo-design-prisms-projects.vercel.app
+- Canonical https://www.chriswongdds.com and `/about` return `200`. Apex
+  https://chriswongdds.com/ returns `308` to the canonical host.
+- Read-only smoke checks pass for homepage, About, services, Invisalign, gallery,
+  blog, changelog, contact, schedule, three public APIs, RSS, and robots.txt.
+- Live poster is exactly 55,344 bytes; SHA-256:
+  `49fa6b4b556f4335d0ee1aa27c5d757f6056ecb10e05172d6614588db6cb7658`. It matches the committed asset.
+- Live browser checks at 390/768/1024/1440 px: two people cards, correct image,
+  no overflow, native video playback, correct homepage/About posters, focus
+  restored on closing the intro, and zero page errors. About VideoObject also
+  uses the new thumbnail.
+- Live sitemap homepage/About dates are `2026-10-12`; live `test:seo:all` passes
+  (34 metadata pages, zero orphan routes, 66 structured-data pages, no stale dates).
+- Live `test:images` passes (66 routes, 92 unique URLs).
+- Post-deploy Vercel error-log scan for this deployment: zero records. External
+  log drains/alerting were not inspected for this section release.
+- GitHub CI runs both test and performance jobs on each `main` push.
+  [Current main CI results](https://github.com/enzo-prism/chris-nexjs/actions/workflows/ci.yml?query=branch%3Amain)
+  provide the current result without copying a changing job status into this record.
+- Public changelog was regenerated from GitHub with `pnpm run changelog:generate`
+  (582 entries), including the dentist section, dependency patches, and docs.
+- Live screenshots and HTTP/browser evidence are in
+  `outputs/dentist-section-20261012/live-1440.png`, `live-390.png`, and the
+  `production-*-verification.json` files. No production forms were submitted.
+
+Live readback timestamp: `2026-10-12T21:09:14.525Z`.
