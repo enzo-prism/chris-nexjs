@@ -108,7 +108,7 @@ const About = () => {
           description:
             "Dr. Christopher B. Wong introduces himself and his conservative, comfort-first approach to dentistry in Palo Alto.",
           src: interviewVideoUrl,
-          poster: "/images/about/meet-dr-wong-poster.webp",
+          poster: "/images/about/meet-dr-wong-smile.webp",
           uploadDate: "2026-06-23",
         },
       ],
@@ -584,7 +584,7 @@ const About = () => {
         isOpen={isVideoModalOpen}
         onClose={() => setIsVideoModalOpen(false)}
         videoUrl={interviewVideoUrl}
-        poster="/images/about/meet-dr-wong-poster.webp"
+        poster="/images/about/meet-dr-wong-smile.webp"
       />
     </>
   );

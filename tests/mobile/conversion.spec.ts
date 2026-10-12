@@ -121,12 +121,14 @@ test("a later direct visit does not erase a known source", async ({ page }) => {
 test("the homepage intro video plays the self-hosted Meet Dr. Wong clip", async ({ page }) => {
   await gotoAndHydrate(page, "/");
 
-  await page.getByRole("button", { name: /watch dr\. wong.s 1-minute intro/i }).click();
+  const playButton = page.getByRole("button", { name: /watch dr\. wong.s 1-minute intro/i });
+  await playButton.click();
   const dialog = page.getByRole("dialog");
   await expect(dialog).toBeVisible();
   await expect(dialog.locator("video")).toHaveAttribute("src", "/videos/meet-dr-wong.mp4");
   await dialog.getByRole("button", { name: "Close video" }).click();
   await expect(dialog).toBeHidden();
+  await expect(playButton).toBeFocused();
 });
 
 test("homepage explains insurance and cost before the reviews", async ({ page }) => {

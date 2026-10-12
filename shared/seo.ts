@@ -449,16 +449,15 @@ const CHANGEFREQ_OVERRIDES: Partial<
 
 // Keep these honest: update when the page's rendered content actually
 // changes (scripts/seo-freshness-audit.ts fails the SEO gate when these
-// drift past the per-cluster staleness threshold). Last real change:
-// September 2, 2026 Medical History Update form on /patient-resources.
+// drift past the per-cluster staleness threshold).
 const LASTMOD_OVERRIDES: Partial<Record<string, string>> = {
-  "/": "2026-09-22",
+  "/": "2026-10-12",
   "/services": "2026-08-30",
   "/schedule": "2026-09-22",
   "/invisalign": "2026-09-22",
   "/contact": "2026-08-31",
   "/insurance": "2026-08-12",
-  "/about": "2026-08-30",
+  "/about": "2026-10-12",
   "/gallery": "2026-08-30",
   "/pediatric-dentistry": "2026-08-30",
   "/dental-implants": "2026-08-12",

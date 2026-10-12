@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Play } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ const VideoModal = dynamic(() => import("@/components/common/VideoModal"), {
 });
 
 export const MEET_DR_WONG_VIDEO_URL = "/videos/meet-dr-wong.mp4";
-export const MEET_DR_WONG_POSTER_URL = "/images/about/meet-dr-wong-poster.webp";
+export const MEET_DR_WONG_POSTER_URL = "/images/about/meet-dr-wong-smile.webp";
 
 type IntroVideoButtonProps = {
   readonly label?: string;
@@ -29,10 +29,12 @@ const IntroVideoButton = ({
   className,
 }: IntroVideoButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   return (
     <>
       <Button
+        ref={buttonRef}
         type="button"
         variant="ghost"
         onClick={() => {
@@ -55,6 +57,10 @@ const IntroVideoButton = ({
           onClose={() => setIsOpen(false)}
           videoUrl={MEET_DR_WONG_VIDEO_URL}
           poster={MEET_DR_WONG_POSTER_URL}
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            buttonRef.current?.focus();
+          }}
         />
       ) : null}
     </>

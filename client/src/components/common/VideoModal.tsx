@@ -1,6 +1,6 @@
 import React from "react";
 import { X } from "lucide-react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
 interface VideoModalProps {
@@ -8,6 +8,7 @@ interface VideoModalProps {
   onClose: () => void;
   videoUrl: string;
   poster?: string;
+  onCloseAutoFocus?: (event: Event) => void;
 }
 
 const VideoModal: React.FC<VideoModalProps> = ({
@@ -15,6 +16,7 @@ const VideoModal: React.FC<VideoModalProps> = ({
   onClose,
   videoUrl,
   poster,
+  onCloseAutoFocus,
 }) => {
   // Convert YouTube URL to embed URL
   const getEmbedUrl = (url: string) => {
@@ -32,7 +34,12 @@ const VideoModal: React.FC<VideoModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-4xl p-0 bg-transparent border-none shadow-none">
+      <DialogContent
+        className="sm:max-w-4xl p-0 bg-transparent border-none shadow-none"
+        aria-describedby={undefined}
+        onCloseAutoFocus={onCloseAutoFocus}
+      >
+        <DialogTitle className="sr-only">Video player</DialogTitle>
         <div className="relative w-full aspect-video rounded-lg overflow-hidden">
           <Button
             type="button"
