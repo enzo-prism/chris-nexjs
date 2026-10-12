@@ -237,6 +237,17 @@ Verify the mobile navigation and homepage service presentation after UI releases
 - confirm the verified-real Dr. Wong hero/about portraits and office courtyard
   photo still render on the homepage
 
+For dentist-section or intro-video releases:
+
+- check `#about-doctor` at phone and desktop widths: two people cards, the
+  separate education credential, and the smiling portrait on desktop
+- confirm `/images/about/meet-dr-wong-smile.webp` returns `200` and matches
+  the committed asset's size and SHA-256
+- open the homepage intro, confirm the self-hosted video plays with the
+  current poster, and close it to verify focus returns to the play button
+- confirm the About modal and VideoObject thumbnail use the same poster
+- check homepage/About sitemap modification dates and run live SEO/image audits
+
 Verify analytics tag install:
 
 ```bash

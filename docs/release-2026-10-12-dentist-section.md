@@ -1,7 +1,8 @@
 # Dentist section and intro thumbnail, 2026-10-12
 
-Status: local release candidate on `improve/dentist-section-20261012`. No push,
-merge, or production deployment has been performed.
+Status: approved for `main` and production on 2026-10-12; release checks are
+in progress. Content commit: `a36ccb8`. Push and production evidence will be
+recorded below after verification.
 
 ## Source review
 
@@ -56,5 +57,27 @@ the portrait area to empty ceiling space.
   `after-390.png`. Local production preview remains at
   `http://localhost:3210/#about-doctor`.
 
-These are local checks. GitHub CI and a production deployment have not run for
-this change.
+The aggregate `pnpm run test:production` release gate also passes after the
+dependency patches, including bundle budgets and seasonal guards. The patched
+production audit passes with zero high/critical and four moderate findings.
+Mobile source guards (29/29), contact-flow UX, and OG metadata guards pass.
+GitHub CI and production readback will be recorded after the approved push.
+
+## Release preflight dependency patches
+
+The required production audit caught five high/critical advisories in the
+existing dependency set. This release applies the compatible patched versions:
+
+| Dependency | Patched version | Maintainer advisory |
+| --- | --- | --- |
+| compression | 1.8.2 | [GHSA-vc2v-76pw-4v95](https://github.com/advisories/GHSA-vc2v-76pw-4v95) |
+| sharp | 0.35.5 | [GHSA-wq5f-xc86-pv6w](https://github.com/advisories/GHSA-wq5f-xc86-pv6w) |
+| gel → shell-quote | 1.11.0 | [GHSA-pqg4-j6r4-53mv](https://github.com/advisories/GHSA-pqg4-j6r4-53mv) |
+| express → proxy-addr | 2.0.8 | [GHSA-jqcg-44mw-7w3h](https://github.com/advisories/GHSA-jqcg-44mw-7w3h) |
+| postcss → source-map-js | 1.2.2 | [GHSA-68fv-2mgg-jv7q](https://github.com/advisories/GHSA-68fv-2mgg-jv7q) |
+
+The lockfile changes are confined to these packages and their related native
+binaries/transitive dependencies. Four existing moderate advisories in `qs`
+and Next.js remain outside this section release; the production audit gate
+fails on high or critical severity. Final audit results are recorded with the
+release verification.

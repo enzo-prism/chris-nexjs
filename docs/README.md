@@ -57,6 +57,10 @@ Use this file as the central index for project documentation.
   end-to-end lead-source attribution. Lists the owner actions still needed
   (plan pricing, GBP tagged links, call tracking, Ads ID, Search Console).
 
+- `release-2026-10-12-dentist-section.md`
+  Clearer homepage doctor/team hierarchy, the original intro video's smiling
+  poster frame, modal keyboard accessibility, and local/production release evidence.
+
 ## SEO documentation
 
 - `seo-technical-architecture.md`

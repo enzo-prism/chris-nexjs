@@ -19,6 +19,11 @@ The app runs on Next.js App Router with API route handlers, centralized SEO meta
   and review quotes verified verbatim against the Google export. Verified real
   photos of Dr. Wong and the office remain the primary trust visuals; no
   synthetic lifestyle imagery.
+- Homepage dentist section (2026-10-12): approach-first copy, a separate
+  education credential, and two people-focused team cards. The intro video
+  uses a genuine smiling frame at 53.5 seconds, cropped from the original
+  clip; its dialog has a screen-reader title and returns keyboard focus to
+  the play button. See `docs/release-2026-10-12-dentist-section.md`.
 - `/schedule` request funnel starts in the first phone screen and shows the
   insurance field with out-of-network guidance.
 - Lead-source attribution: appointment and contact leads carry a coarse channel
@@ -272,6 +277,7 @@ copy free of SEO keyword stuffing. After substantive copy changes, update
 - SEO implementation backlog: `docs/seo-implementation-backlog.md`
 - Aug 12 sitewide copy cleanup: `docs/release-2026-08-12-sitewide-copy-cleanup.md`
 - Aug 30 site overhaul release candidate: `docs/release-2026-08-30-site-overhaul.md`
+- Oct 12 dentist section and smiling thumbnail: `docs/release-2026-10-12-dentist-section.md`
 - Gallery feature guide: `docs/gallery.md`
 - Review data runbook: `docs/reviews-data.md`
 - Changelog operations guide: `docs/changelog.md`
