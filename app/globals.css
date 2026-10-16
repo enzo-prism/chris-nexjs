@@ -4,61 +4,63 @@
 
 @layer base {
   :root {
-    --background: 210 40% 99%;
-    --foreground: 218 31% 17%;
+    --background: 40 60% 98%;
+    --foreground: 156 27% 11%;
     --card: 0 0% 100%;
-    --card-foreground: 218 31% 17%;
+    --card-foreground: 156 27% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 218 31% 17%;
-    --primary: 212 72% 43%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 211 37% 95%;
-    --secondary-foreground: 218 31% 17%;
-    --muted: 211 31% 95%;
-    --muted-foreground: 215 16% 46%;
-    --accent: 205 82% 95%;
-    --accent-foreground: 218 31% 17%;
+    --popover-foreground: 156 27% 11%;
+    --primary: 161 53% 18%;
+    --primary-foreground: 40 60% 98%;
+    --secondary: 40 40% 90%;
+    --secondary-foreground: 156 27% 11%;
+    --muted: 40 46% 95%;
+    --muted-foreground: 150 7% 39%;
+    --accent: 146 26% 95%;
+    --accent-foreground: 156 27% 11%;
     --destructive: 0 74% 45%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214 28% 89%;
-    --input: 214 28% 89%;
-    --ring: 212 72% 43%;
-    --radius: 0.75rem;
-    --chart-1: 212 72% 43%;
+    --border: 39 32% 86%;
+    --input: 39 25% 80%;
+    --ring: 158 41% 31%;
+    --radius: 0.9rem;
+    --chart-1: 161 53% 18%;
     --chart-2: 189 74% 41%;
     --chart-3: 154 62% 35%;
     --chart-4: 34 86% 52%;
     --chart-5: 277 61% 52%;
     --sidebar-background: 210 40% 98%;
     --sidebar-foreground: 218 31% 17%;
-    --sidebar-primary: 212 72% 43%;
+    --sidebar-primary: 161 53% 18%;
     --sidebar-primary-foreground: 210 40% 98%;
     --sidebar-accent: 211 31% 95%;
     --sidebar-accent-foreground: 218 31% 17%;
     --sidebar-border: 214 28% 89%;
-    --sidebar-ring: 212 72% 43%;
+    --sidebar-ring: 158 41% 31%;
     --fx-fast: 140ms;
     --fx-base: 200ms;
     --fx-ease: cubic-bezier(0.22, 1, 0.36, 1);
     --ui-surface-rest: 0 0% 100%;
-    --ui-surface-hover: 210 60% 99%;
-    --ui-surface-selected: 210 100% 97%;
-    --ui-border-rest: 214 28% 88%;
-    --ui-border-hover: 212 67% 76%;
-    --ui-border-selected: 212 72% 56%;
-    --ui-shadow-rest: 0 8px 22px -18px rgba(15, 23, 42, 0.38);
-    --ui-shadow-hover: 0 20px 38px -24px rgba(15, 23, 42, 0.44);
-    --ui-shadow-pressed: 0 10px 20px -18px rgba(15, 23, 42, 0.32);
-    --ui-shadow-button: 0 12px 24px -16px rgba(24, 83, 145, 0.5);
+    --ui-surface-hover: 40 60% 99%;
+    --ui-surface-selected: 146 30% 95%;
+    --ui-border-rest: 39 30% 86%;
+    --ui-border-hover: 152 26% 66%;
+    --ui-border-selected: 158 41% 36%;
+    --ui-shadow-rest: 0 10px 26px -20px rgba(11, 42, 33, 0.38);
+    --ui-shadow-hover: 0 24px 48px -28px rgba(11, 42, 33, 0.45);
+    --ui-shadow-pressed: 0 10px 20px -18px rgba(11, 42, 33, 0.32);
+    --ui-shadow-button: 0 14px 28px -18px rgba(11, 42, 33, 0.55);
     --ui-focus-shadow:
       0 0 0 2px hsl(var(--background)),
       0 0 0 4px hsl(var(--ring) / 0.34);
   }
 
   html {
-    --header-height: 110px;
+    /* The header is sticky (in flow); this only offsets anchor jumps:
+       64px phone bar; from lg only the 76px main bar stays pinned. */
+    --header-height: 64px;
     scroll-behavior: smooth;
-    -webkit-tap-highlight-color: rgba(15, 23, 42, 0.08);
+    -webkit-tap-highlight-color: rgba(11, 42, 33, 0.08);
   }
 
   * {
@@ -101,8 +103,14 @@
     touch-action: manipulation;
   }
 
+  @media (min-width: 1024px) {
+    html {
+      --header-height: 76px;
+    }
+  }
+
   main [id] {
-    scroll-margin-top: calc(var(--header-height, 110px) + 1rem);
+    scroll-margin-top: calc(var(--header-height, 64px) + 1rem);
   }
 }
 
@@ -195,7 +203,7 @@
   .ui-link-premium-dark:focus-visible {
     outline: none;
     box-shadow:
-      0 0 0 2px rgba(11, 31, 58, 0.8),
+      0 0 0 2px rgba(6, 26, 20, 0.8),
       0 0 0 4px rgba(255, 255, 255, 0.45);
   }
 
@@ -299,12 +307,12 @@
 
   .ui-btn-primary:hover {
     filter: brightness(0.97) saturate(1.03);
-    box-shadow: 0 16px 28px -18px rgba(24, 83, 145, 0.58);
+    box-shadow: 0 18px 32px -18px rgba(11, 42, 33, 0.6);
   }
 
   .ui-btn-primary:active {
     transform: translateY(0.5px);
-    box-shadow: 0 10px 20px -18px rgba(24, 83, 145, 0.52);
+    box-shadow: 0 10px 20px -18px rgba(11, 42, 33, 0.52);
   }
 
   .ui-btn-primary:focus-visible {
@@ -620,6 +628,424 @@
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
+  }
+}
+
+/* ==========================================================================
+   "Rooted" design system (2026-10 redesign). See docs/design-system.md.
+   Palo Alto's namesake redwood + the practice's redwood-tooth mark + the
+   "Full Circle" film: cream paper, deep evergreen, luminous mint, gold.
+   ========================================================================== */
+@layer components {
+  /* ---- Buttons ---------------------------------------------------------- */
+  .btn {
+    @apply inline-flex min-h-12 select-none items-center justify-center gap-2 whitespace-nowrap rounded-full px-6 text-[15px] font-semibold leading-none tracking-[0.005em];
+    transition:
+      background-color var(--fx-fast) var(--fx-ease),
+      border-color var(--fx-fast) var(--fx-ease),
+      color var(--fx-fast) var(--fx-ease),
+      box-shadow var(--fx-base) var(--fx-ease),
+      transform var(--fx-base) var(--fx-ease);
+  }
+  .btn svg {
+    @apply h-[1.1em] w-[1.1em] shrink-0;
+  }
+  .btn:focus-visible {
+    outline: none;
+    box-shadow: var(--ui-focus-shadow);
+  }
+  .btn:active {
+    transform: translateY(1px) scale(0.99);
+  }
+  .btn-lg {
+    @apply min-h-14 px-7 text-base;
+  }
+  .btn-sm {
+    @apply min-h-11 px-4 text-sm;
+  }
+  .btn-block {
+    @apply w-full;
+  }
+  .btn-primary {
+    @apply bg-evergreen-800 text-cream-50;
+    box-shadow: 0 14px 30px -18px rgba(6, 26, 20, 0.7);
+  }
+  .btn-primary:hover {
+    @apply bg-evergreen-700;
+    box-shadow: 0 18px 36px -18px rgba(6, 26, 20, 0.75);
+    transform: translateY(-1px);
+  }
+  .btn-gold {
+    @apply bg-gold-400 text-evergreen-950;
+    box-shadow: 0 16px 36px -18px rgba(224, 182, 94, 0.75);
+  }
+  .btn-gold:hover {
+    @apply bg-gold-300;
+    transform: translateY(-1px);
+  }
+  .btn-outline {
+    @apply border border-evergreen-800/25 bg-white/60 text-evergreen-900;
+  }
+  .btn-outline:hover {
+    @apply border-evergreen-700/45 bg-white;
+  }
+  .btn-outline-light {
+    @apply border border-cream-100/30 bg-white/[0.04] text-cream-50;
+  }
+  .btn-outline-light:hover {
+    @apply border-cream-100/55 bg-white/10;
+  }
+  .btn-ghost {
+    @apply text-evergreen-800;
+  }
+  .btn-ghost:hover {
+    @apply bg-evergreen-50;
+  }
+
+  /* ---- Type ------------------------------------------------------------- */
+  .eyebrow {
+    @apply inline-flex items-center gap-2.5 text-[0.8125rem] font-semibold uppercase tracking-[0.16em] text-evergreen-600;
+  }
+  .eyebrow::before {
+    content: "";
+    @apply inline-block h-2 w-2 shrink-0 rounded-full;
+    background: radial-gradient(circle, #e0b65e 0 35%, transparent 36%),
+      radial-gradient(circle, transparent 0 55%, currentColor 56% 70%, transparent 71%);
+  }
+  .eyebrow-light {
+    @apply text-mint-300;
+  }
+  .h-display {
+    @apply font-heading font-medium text-ink;
+    letter-spacing: -0.022em;
+    line-height: 1.04;
+    font-optical-sizing: auto;
+  }
+  .h-section {
+    @apply font-heading text-[2.05rem] font-medium leading-[1.08] text-ink sm:text-[2.6rem] lg:text-[3.1rem];
+    letter-spacing: -0.02em;
+  }
+  .h-card {
+    @apply font-heading text-[1.4rem] font-medium leading-tight text-ink;
+    letter-spacing: -0.01em;
+  }
+  .h-display em,
+  .h-section em,
+  .h-card em {
+    @apply font-normal italic text-gold-600;
+  }
+  .on-dark .h-display,
+  .on-dark .h-section,
+  .on-dark .h-card {
+    @apply text-cream-50;
+  }
+  .on-dark .h-display em,
+  .on-dark .h-section em,
+  .on-dark .h-card em {
+    @apply text-gold-300;
+  }
+  .lead {
+    @apply text-pretty text-lg leading-8 text-ink-soft sm:text-xl sm:leading-9;
+  }
+  .on-dark .lead {
+    @apply text-evergreen-100;
+  }
+  .prose-rooted {
+    @apply text-pretty text-base leading-7 text-ink-soft sm:text-[1.0625rem] sm:leading-8;
+  }
+  .prose-rooted a,
+  .link-rooted {
+    @apply font-semibold text-evergreen-700 underline decoration-gold-500/60 decoration-[1.5px] underline-offset-[0.2em];
+    transition:
+      color var(--fx-fast) var(--fx-ease),
+      text-decoration-color var(--fx-fast) var(--fx-ease);
+  }
+  .prose-rooted a:hover,
+  .link-rooted:hover {
+    @apply text-evergreen-900 decoration-gold-500;
+  }
+
+  /* ---- Surfaces --------------------------------------------------------- */
+  .card {
+    @apply rounded-[1.75rem] border border-cream-300/70 bg-white shadow-soft;
+  }
+  .card-lift {
+    transition:
+      transform var(--fx-base) var(--fx-ease),
+      box-shadow var(--fx-base) var(--fx-ease),
+      border-color var(--fx-base) var(--fx-ease);
+  }
+  .card-lift:hover {
+    @apply border-evergreen-200 shadow-lift;
+    transform: translateY(-3px);
+  }
+  .card-lift:focus-within {
+    box-shadow: var(--ui-focus-shadow), 0 32px 80px -36px rgba(11, 42, 33, 0.45);
+  }
+  .surface-cream {
+    @apply bg-cream-100;
+  }
+  .surface-evergreen {
+    @apply bg-evergreen-900 text-cream-100;
+    background-image:
+      radial-gradient(60rem 30rem at 85% -10%, rgba(63, 191, 152, 0.16), transparent 60%),
+      radial-gradient(40rem 26rem at -10% 110%, rgba(224, 182, 94, 0.1), transparent 60%);
+  }
+  .paper {
+    background-color: #f8f4ec;
+    background-image:
+      radial-gradient(48rem 26rem at 100% 0%, rgba(176, 209, 193, 0.35), transparent 60%),
+      radial-gradient(40rem 24rem at 0% 100%, rgba(243, 224, 176, 0.35), transparent 60%);
+  }
+  .hairline {
+    @apply border-cream-300/80;
+  }
+
+  /* ---- Chips / pills ------------------------------------------------------ */
+  .pill {
+    @apply inline-flex min-h-9 items-center gap-2 rounded-full border border-cream-300 bg-white/80 px-3.5 text-sm font-medium text-ink-soft;
+  }
+  .on-dark .pill {
+    @apply border-white/15 bg-white/[0.06] text-cream-100;
+  }
+
+  /* ---- Marquee (review ribbon) ------------------------------------------ */
+  .marquee {
+    @apply relative overflow-hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+  }
+  .marquee-track {
+    /* Items carry their own right padding (no flex gap) so the cloned half
+       is exactly 50% of the track and the loop never jumps. */
+    @apply flex w-max;
+    animation: rooted-marquee var(--marquee-duration, 90s) linear infinite;
+  }
+  .marquee:hover .marquee-track,
+  .marquee:focus-within .marquee-track,
+  .marquee[data-paused="true"] .marquee-track {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes rooted-marquee {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes rooted-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes rooted-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes rooted-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes rooted-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes rooted-ring {
+  from {
+    opacity: 0.55;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+}
+
+@keyframes rooted-sway {
+  0%,
+  100% {
+    transform: rotate(-1.2deg);
+  }
+  50% {
+    transform: rotate(1.2deg);
+  }
+}
+
+/* One-shot entrance for above-the-fold hero copy (never the LCP image). */
+.rise-in {
+  animation: rooted-rise 0.9s var(--fx-ease) both;
+}
+.rise-in-1 {
+  animation-delay: 0.08s;
+}
+.rise-in-2 {
+  animation-delay: 0.16s;
+}
+.rise-in-3 {
+  animation-delay: 0.24s;
+}
+.rise-in-4 {
+  animation-delay: 0.32s;
+}
+
+/* SVG line art that draws itself (pathLength="1" on each path). */
+.draw-path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: rooted-draw 2.2s var(--fx-ease) forwards;
+}
+.glow-node {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: rooted-pulse 3.6s ease-in-out infinite;
+}
+.ring-ripple {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: rooted-ring 4.8s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+}
+
+/* Scroll-driven reveals: progressive enhancement only. Browsers without
+   view timelines (or visitors who prefer reduced motion) simply see the
+   content — nothing is ever hidden waiting for JavaScript. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      animation: rooted-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 5% cover 30%;
+    }
+    .reveal-fade {
+      animation: rooted-fade linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 30%;
+    }
+    .reveal-draw path,
+    .reveal-draw line,
+    .reveal-draw circle,
+    .reveal-draw polyline {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      animation: rooted-draw linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 45%;
+    }
+    .reveal-stagger > * {
+      animation: rooted-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 5% cover 25%;
+    }
+    .reveal-stagger > *:nth-child(3n + 2) {
+      animation-range: entry 10% cover 30%;
+    }
+    .reveal-stagger > *:nth-child(3n + 3) {
+      animation-range: entry 15% cover 35%;
+    }
+  }
+}
+
+/* Icons that draw on hover/focus of their card (pathLength="1"). */
+.icon-draw path,
+.icon-draw circle,
+.icon-draw line,
+.icon-draw rect,
+.icon-draw polyline,
+.icon-draw ellipse {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .group:hover .icon-draw path,
+  .group:hover .icon-draw circle,
+  .group:hover .icon-draw line,
+  .group:hover .icon-draw rect,
+  .group:hover .icon-draw polyline,
+  .group:hover .icon-draw ellipse,
+  .group:focus-visible .icon-draw path,
+  .group:focus-visible .icon-draw circle,
+  .group:focus-visible .icon-draw line,
+  .group:focus-visible .icon-draw rect,
+  .group:focus-visible .icon-draw polyline,
+  .group:focus-visible .icon-draw ellipse {
+    animation: rooted-icon-redraw 0.9s var(--fx-ease) both;
+  }
+}
+@keyframes rooted-icon-redraw {
+  0% {
+    stroke-dashoffset: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Native <details> FAQ: smooth marker rotation, zero JS. */
+.faq-item summary {
+  list-style: none;
+}
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+.faq-item[open] .faq-plus {
+  transform: rotate(45deg);
+}
+.faq-plus {
+  transition: transform var(--fx-base) var(--fx-ease);
+}
+
+/* Horizontal scroll-snap rails (team, reviews) — no JS needed. */
+.snap-rail {
+  @apply flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain pb-4;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(22, 72, 56, 0.35) transparent;
+  scroll-padding-inline: 1rem;
+}
+.snap-rail > * {
+  @apply shrink-0 snap-start;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee {
+    -webkit-mask-image: none;
+    mask-image: none;
+    overflow-x: auto;
+  }
+  .marquee-track {
+    animation: none !important;
+  }
+  .marquee-track [data-marquee-clone] {
+    display: none;
+  }
+  .rise-in,
+  .glow-node,
+  .ring-ripple {
+    animation: none !important;
+  }
+  .draw-path {
+    animation: none !important;
+    stroke-dashoffset: 0;
   }
 }
 

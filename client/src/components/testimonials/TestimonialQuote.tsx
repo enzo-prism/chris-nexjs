@@ -1,7 +1,7 @@
-import { Quote, Star } from "lucide-react";
 import type { InsertTestimonial } from "@shared/schema";
 import { cn } from "@/lib/utils";
 import { isNoAdditionalCommentPlaceholder } from "@/lib/testimonialText";
+import { StarRow } from "@/components/ds/Reviews";
 
 interface TestimonialQuoteProps {
   testimonial: InsertTestimonial;
@@ -9,40 +9,47 @@ interface TestimonialQuoteProps {
   hideStars?: boolean;
 }
 
+const initials = (name: string) =>
+  name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+
 const TestimonialQuote = ({ testimonial, className, hideStars = false }: TestimonialQuoteProps) => {
-  const { name, text, rating } = testimonial;
-  const hasVisibleText =
-    text.trim().length > 0 && !isNoAdditionalCommentPlaceholder(text);
+  const { name, text, location } = testimonial;
+  const hasVisibleText = text.trim().length > 0 && !isNoAdditionalCommentPlaceholder(text);
+  const source = location?.toLowerCase().includes("yelp") ? "Yelp review" : "Google review";
 
   return (
-    <div
+    <figure
       className={cn(
-        "relative flex h-full flex-col rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-md sm:p-8",
+        "cw-cobweb relative flex h-full flex-col rounded-[1.5rem] border border-cream-300/80 bg-white p-6 shadow-soft sm:p-7",
         className,
       )}
     >
-      <Quote className="h-8 w-8 text-primary/40" />
-      {hasVisibleText && (
-        <p className="mt-4 text-sm leading-relaxed text-slate-700 sm:text-base">
-          "{text}"
-        </p>
+      {!hideStars ? <StarRow label="Five stars" /> : null}
+      {hasVisibleText ? (
+        <blockquote className="mt-3 flex-1 text-pretty text-base leading-7 text-ink">
+          <p>“{text}”</p>
+        </blockquote>
+      ) : (
+        <p className="mt-3 flex-1 text-sm italic text-ink-muted">Left a five-star rating.</p>
       )}
-      <div className="mt-6 flex flex-col gap-2 text-sm sm:text-base">
-        {!hideStars && (
-          <div className="flex text-blue-500">
-            {Array.from({ length: 5 }).map((_, index) => (
-              <Star
-                key={`${name}-star-${index}`}
-                className="h-4 w-4"
-                fill={index < rating ? "currentColor" : "none"}
-                strokeWidth={1.5}
-              />
-            ))}
-          </div>
-        )}
-        <span className="font-semibold text-slate-900">{name}</span>
-      </div>
-    </div>
+      <figcaption className="mt-5 flex items-center gap-3">
+        <span
+          aria-hidden="true"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-evergreen-100 text-sm font-bold text-evergreen-800"
+        >
+          {initials(name)}
+        </span>
+        <span>
+          <span className="block font-semibold text-ink">{name}</span>
+          <span className="block text-sm text-ink-muted">{source}</span>
+        </span>
+      </figcaption>
+    </figure>
   );
 };
 

@@ -21,16 +21,12 @@ function renderAnswer(answer: string): React.ReactNode {
       .map((line) => line.trim())
       .filter(Boolean);
 
-    const isBulleted =
-      lines.length > 1 && lines.every((line) => line.startsWith("- "));
+    const isBulleted = lines.length > 1 && lines.every((line) => line.startsWith("- "));
 
     if (isBulleted) {
       const bullets = lines.map((line) => line.replace(/^- /, "").trim());
       return (
-        <ul
-          key={blockIndex}
-          className="list-disc space-y-1 pl-5 text-slate-700 leading-relaxed"
-        >
+        <ul key={blockIndex} className="list-disc space-y-1 pl-5">
           {bullets.map((bullet) => (
             <li key={bullet}>{bullet}</li>
           ))}
@@ -38,14 +34,11 @@ function renderAnswer(answer: string): React.ReactNode {
       );
     }
 
-    return (
-      <p key={blockIndex} className="text-slate-700 leading-relaxed">
-        {block}
-      </p>
-    );
+    return <p key={blockIndex}>{block}</p>;
   });
 }
 
+/** FAQ band (native <details>, zero JS). Questions are H3s for outline. */
 export default function FAQSection({
   title = "Frequently asked questions",
   subtitle,
@@ -55,32 +48,32 @@ export default function FAQSection({
   if (!items.length) return null;
 
   return (
-    <section className={cn("py-12 bg-[#F5F9FC]", className)}>
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        {title && (
-          <div className="text-center mb-8 space-y-3">
-            <h2 className="text-3xl font-bold font-heading text-slate-900">
-              {title}
-            </h2>
-            {subtitle && (
-              <p className="text-slate-700 max-w-3xl mx-auto leading-relaxed">
-                {subtitle}
-              </p>
-            )}
+    <section className={cn("bg-cream-100 py-16 sm:py-20", className)}>
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16 lg:px-8">
+        {title ? (
+          <div>
+            <p className="eyebrow">Questions</p>
+            <h2 className="h-section mt-4 text-balance">{title}</h2>
+            {subtitle ? <p className="lead mt-4">{subtitle}</p> : null}
           </div>
-        )}
+        ) : null}
 
-        <div className="space-y-5">
-          {items.map((item) => (
-            <div
-              key={item.question}
-              className="bg-white rounded-2xl border border-slate-100 px-6 py-5 shadow-sm"
-            >
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                {item.question}
-              </h3>
-              <div className="space-y-3">{renderAnswer(item.answer)}</div>
-            </div>
+        <div className="divide-y divide-cream-300/80 rounded-[1.75rem] border border-cream-300/80 bg-white">
+          {items.map((item, index) => (
+            <details key={item.question} className="faq-item group" open={index === 0}>
+              <summary className="flex min-h-16 cursor-pointer items-center justify-between gap-6 px-5 py-4 text-left sm:px-7">
+                <h3 className="font-heading text-lg font-medium leading-snug text-ink sm:text-xl">
+                  {item.question}
+                </h3>
+                <span
+                  className="faq-plus flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-evergreen-50 text-xl leading-none text-evergreen-700 group-open:bg-evergreen-800 group-open:text-gold-300"
+                  aria-hidden="true"
+                >
+                  +
+                </span>
+              </summary>
+              <div className="prose-rooted space-y-3 px-5 pb-6 sm:px-7">{renderAnswer(item.answer)}</div>
+            </details>
           ))}
         </div>
       </div>

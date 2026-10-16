@@ -104,11 +104,7 @@ export function AppPageShell({
         Skip to main content
       </a>
       <Header variant={chromeVariant} />
-      <main
-        id="main-content"
-        tabIndex={-1}
-        style={{ paddingTop: "var(--header-height, 110px)" }}
-      >
+      <main id="main-content" tabIndex={-1} className="outline-none">
         {chromeVariant === "default" ? <HolidayHoursNotice /> : null}
         {children}
         {chromeVariant === "default" ? <SupplementalContent /> : null}
@@ -120,7 +116,7 @@ export function AppPageShell({
               never covers the last page content on small screens. */}
           <div
             aria-hidden="true"
-            className="h-[calc(3.5rem+env(safe-area-inset-bottom))] md:hidden"
+            className="h-[calc(4.75rem+env(safe-area-inset-bottom))] bg-evergreen-950 md:hidden"
           />
           <MobileActionBar />
         </>

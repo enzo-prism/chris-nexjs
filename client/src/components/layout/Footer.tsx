@@ -2,523 +2,273 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Phone, MapPin, Mail, ArrowRight, Instagram, Star } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { CalendarDays, Instagram, Mail, MapPin, Phone, Star } from "lucide-react";
+
 import { officeInfo } from "@/lib/data";
 import type { ChromeVariant } from "@/lib/chrome";
-import ButtonLink from "@/components/common/ButtonLink";
 import { cn } from "@/lib/utils";
+import { LogoMark } from "@/components/ds/LogoMark";
+import { aboutLinks, allServices, patientLinks, reviewLinks } from "@/data/siteNav";
 
 type FooterProps = {
   readonly variant?: ChromeVariant;
 };
+
+const legalLinks = [
+  { href: "/privacy-policy", label: "Privacy" },
+  { href: "/terms", label: "Terms" },
+  { href: "/hipaa", label: "HIPAA notice" },
+  { href: "/accessibility", label: "Accessibility" },
+  { href: "/changelog", label: "Site updates" },
+] as const;
+
+// Nearby-community pages stay one click from every page (internal-link audit).
+const nearbyLinks = [
+  { href: "/dentist-menlo-park", label: "Menlo Park" },
+  { href: "/dentist-stanford", label: "Stanford" },
+  { href: "/dentist-mountain-view", label: "Mountain View" },
+  { href: "/locations", label: "All nearby areas" },
+] as const;
+
+const practiceLinks = [
+  ...aboutLinks.filter((l) => !l.href.includes("#")),
+  ...reviewLinks,
+  { href: "/about#team", label: "Our team" },
+] as const;
+
+const dayRows = [
+  ["Mon", "monday"],
+  ["Tue", "tuesday"],
+  ["Wed", "wednesday"],
+  ["Thu", "thursday"],
+  ["Fri", "friday"],
+  ["Sat–Sun", "saturday"],
+] as const;
+
+// The October greeting is drawn in CSS by `cw-season-footer` (app/globals.css).
+// Urgent-care, legal, and post-conversion pages opt out via data-cw-quiet.
+const QUIET_PATHS = /^\/(emergency-dental|thank-you|privacy-policy|hipaa|terms|accessibility)\/?$/;
 
 const Footer = ({ variant = "default" }: FooterProps) => {
   const currentYear = new Date().getFullYear();
   const pathname = usePathname() || "/";
   const isActive = (href: string) => pathname === href;
 
-  const quickLinks = [
-    { href: "/", label: "Home" },
-    { href: "/about", label: "Dr. Wong" },
-    { href: "/services", label: "Services" },
-    { href: "/patient-resources", label: "Patient Resources" },
-    { href: "/insurance", label: "Insurance & Payments" },
-    { href: "/patient-stories", label: "Patient Stories" },
-    { href: "/gallery", label: "Gallery" },
-    { href: "/office-tour", label: "Office Tour" },
-    { href: "/blog", label: "Blog" },
-    { href: "/dentist-menlo-park", label: "Menlo Park" },
-    { href: "/dentist-stanford", label: "Stanford" },
-    { href: "/dentist-mountain-view", label: "Mountain View" },
-    { href: "/locations", label: "All Locations" },
-    { href: "/contact", label: "Contact" },
-  ];
-
-  const internalLinks = [{ href: "/changelog", label: "Changelog" }];
-
-  const services = [
-    { href: "/preventive-dentistry", label: "Preventive Dentistry" },
-    { href: "/invisalign", label: "Invisalign®" },
-    { href: "/dental-veneers", label: "Cosmetic Dentistry" },
-    { href: "/teeth-whitening-palo-alto", label: "Teeth Whitening" },
-    { href: "/restorative-dentistry", label: "Restorative Dentistry" },
-    { href: "/pediatric-dentistry", label: "Children's Dentistry" },
-    { href: "/dental-implants", label: "Dental Implants" },
-    { href: "/emergency-dental", label: "Emergency Dentist" },
-  ];
-
-  const legalLinks = [
-    { href: "/privacy-policy", label: "Privacy Policy" },
-    { href: "/terms", label: "Terms of Service" },
-    { href: "/hipaa", label: "HIPAA Notice" },
-    { href: "/accessibility", label: "Accessibility" },
-  ];
-
-  const socialMedia = [
-    {
-      icon: <Instagram className="h-4 w-4" />,
-      href: officeInfo.socialMedia.instagram,
-      label: "Instagram",
-      rel: "noopener noreferrer",
-    },
-  ];
-
-  const businessUrl = "https://www.chriswongdds.com";
+  const linkClass =
+    "inline-flex min-h-10 items-center rounded-md text-[15px] text-evergreen-100/85 transition-colors hover:text-cream-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-300 aria-[current=page]:text-gold-200";
 
   if (variant === "conversion") {
     return (
-      <footer className="border-t border-slate-200 bg-white/95">
-        <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-            <div className="space-y-3">
-              <div>
-                <p className="text-sm font-semibold text-slate-900">
-                  Christopher B. Wong, DDS
-                </p>
-                <p className="mt-1 text-sm text-slate-600">
-                  Palo Alto dental care with thoughtful, conservative treatment.
-                </p>
-              </div>
-              <div className="flex flex-col gap-3 text-sm text-slate-600 sm:flex-row sm:flex-wrap sm:items-center">
-                <a
-                  href={`tel:${officeInfo.phoneE164}`}
-                  aria-label={`Call Dr. Wong's office at ${officeInfo.phone}`}
-                  className="ui-focus-premium inline-flex min-h-11 items-center gap-2 rounded-lg px-2 text-slate-700 transition-colors hover:text-primary"
-                >
-                  <Phone className="h-4 w-4 text-primary" aria-hidden="true" />
-                  {officeInfo.phone}
-                </a>
-                <a
-                  href={officeInfo.mapUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Get directions to Dr. Wong's office (opens in a new tab)"
-                  className="ui-focus-premium inline-flex min-h-11 items-center gap-2 rounded-lg px-2 text-slate-700 transition-colors hover:text-primary"
-                >
-                  <MapPin className="h-4 w-4 text-primary" aria-hidden="true" />
-                  {officeInfo.address.line1}, {officeInfo.address.city}
-                </a>
-                <a
-                  href={`mailto:${officeInfo.email}`}
-                  aria-label={`Email Dr. Wong's office at ${officeInfo.email}`}
-                  className="ui-focus-premium inline-flex min-h-11 items-center gap-2 rounded-lg px-2 text-slate-700 transition-colors hover:text-primary"
-                >
-                  <Mail className="h-4 w-4 text-primary" aria-hidden="true" />
-                  {officeInfo.email}
-                </a>
-                <a
-                  href={officeInfo.reviewUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  data-analytics-context="footer-review"
-                  aria-label="Review Dr. Wong on Google (opens in a new tab)"
-                  className="ui-focus-premium inline-flex min-h-11 items-center gap-2 rounded-lg px-2 text-slate-700 transition-colors hover:text-primary"
-                >
-                  <Star className="h-4 w-4 text-primary" aria-hidden="true" />
-                  Review us on Google
-                </a>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-slate-600">
-              {legalLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  aria-current={isActive(link.href) ? "page" : undefined}
-                  className={cn(
-                    "ui-link-premium inline-flex min-h-11 items-center rounded-lg px-2 text-slate-600",
-                    isActive(link.href) && "bg-slate-100 font-semibold text-primary",
-                  )}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
+      <footer className="border-t border-cream-300/80 bg-cream-100">
+        <div className="mx-auto flex max-w-5xl flex-col gap-4 px-4 py-8 text-sm text-ink-soft sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <a
+              href={`tel:${officeInfo.phoneE164}`}
+              aria-label={`Call Dr. Wong's office at ${officeInfo.phone}`}
+              className="inline-flex min-h-11 items-center gap-2 font-semibold text-evergreen-800"
+            >
+              <Phone className="h-4 w-4" aria-hidden="true" />
+              {officeInfo.phone}
+            </a>
+            <span className="inline-flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-evergreen-600" aria-hidden="true" />
+              {officeInfo.address.line1}, {officeInfo.address.city}
+            </span>
           </div>
-
-          <Separator className="my-6 bg-slate-200" />
-
-          <div className="flex flex-col gap-2 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-            <p>&copy; {currentYear} Christopher B. Wong, DDS. All rights reserved.</p>
-            <p>Regular privacy, HIPAA, and accessibility details remain available site-wide.</p>
+          <div className="flex flex-wrap gap-x-4 gap-y-1">
+            {legalLinks.slice(0, 4).map((link) => (
+              <Link key={link.href} href={link.href} className="inline-flex min-h-11 items-center hover:text-evergreen-800">
+                {link.label}
+              </Link>
+            ))}
           </div>
         </div>
+        <p className="pb-6 text-center text-xs text-ink-muted">
+          &copy; {currentYear} Christopher B. Wong, DDS
+        </p>
       </footer>
     );
   }
 
   return (
-    // `cw-season-footer` draws the October greeting in CSS (app/globals.css,
-    // AGENTS.md "Seasonal layer (October)"); urgent-care, legal, and
-    // post-conversion pages opt out via data-cw-quiet.
     <footer
-      className="cw-season-footer bg-primary bg-opacity-95 text-white"
-      data-cw-quiet={
-        /^\/(emergency-dental|thank-you|privacy-policy|hipaa|terms|accessibility)\/?$/.test(pathname) ||
-        undefined
-      }
+      className="cw-season-footer relative isolate overflow-hidden bg-evergreen-900 text-cream-100"
+      data-cw-quiet={QUIET_PATHS.test(pathname) || undefined}
     >
-      <div className="hidden py-12 md:block">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10">
-            <div itemScope itemType="https://schema.org/Dentist">
-              <meta itemProp="url" content={businessUrl} />
-              <h3 className="text-lg font-medium tracking-tight mb-4" itemProp="name">
-                Dr. Christopher B. Wong
-              </h3>
-              <p className="text-sm text-white/80 mb-6 leading-relaxed">
-                Comprehensive dental care in a comfortable Palo Alto office.
-              </p>
-              <div className="space-y-4">
-                <p className="flex items-center text-sm text-white/90">
-                  <Phone className="h-4 w-4 mr-3 flex-shrink-0 text-white/70" aria-hidden="true" />
-                  <a
-                    href={`tel:${officeInfo.phoneE164}`}
-                    className="ui-link-premium-dark px-1 py-0.5 text-white/90"
-                    itemProp="telephone"
-                    aria-label={`Call Dr. Wong's office at ${officeInfo.phone}`}
-                  >
-                    {officeInfo.phone}
-                  </a>
-                </p>
+      {/* Redwoods on the footer's top edge with their root network glowing below. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[300px] bg-[url('/brand/roots-glow.svg')] bg-[length:1440px_360px] bg-[position:center_-128px] bg-no-repeat opacity-60 sm:bg-[length:1800px_450px] sm:bg-[position:center_-160px]"
+      />
+      <div className="absolute inset-x-0 top-0 -z-10 h-full bg-gradient-to-b from-transparent via-evergreen-900/70 to-evergreen-950" aria-hidden="true" />
 
-                <p className="flex items-center text-sm text-white/90">
-                  <Mail className="h-4 w-4 mr-3 flex-shrink-0 text-white/70" aria-hidden="true" />
-                  <a
-                    href={`mailto:${officeInfo.email}`}
-                    className="ui-link-premium-dark break-all px-1 py-0.5 text-white/90"
-                    itemProp="email"
-                    aria-label={`Email Dr. Wong's office at ${officeInfo.email}`}
-                  >
-                    {officeInfo.email}
-                  </a>
-                </p>
+      <div className="mx-auto max-w-7xl px-4 pb-10 pt-40 sm:px-6 sm:pt-48 lg:px-8">
+        <div className="grid gap-12 lg:grid-cols-[1.25fr_2fr]">
+          <div>
+            <Link href="/" className="inline-flex items-center gap-3 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-gold-300" aria-label="Christopher B. Wong, DDS home">
+              <LogoMark className="h-12 w-12 text-cream-50" />
+              <span className="font-heading text-2xl text-cream-50">Christopher B. Wong, DDS</span>
+            </Link>
+            <p className="mt-5 max-w-sm text-pretty text-[15px] leading-7 text-evergreen-100/85">
+              Unhurried family and cosmetic dentistry on Cambridge Avenue,
+              caring for Palo Alto families from first visits to lifelong smiles.
+            </p>
 
-                <div className="flex items-start text-sm text-white/90">
-                  <MapPin className="h-4 w-4 mr-3 mt-0.5 flex-shrink-0 text-white/70" aria-hidden="true" />
-                  <address
-                    className="not-italic"
-                    itemProp="address"
-                    itemScope
-                    itemType="https://schema.org/PostalAddress"
-                  >
-                    <a
-                      href={officeInfo.mapUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="ui-link-premium-dark inline-block rounded px-1 py-0.5 text-white/90"
-                      aria-label="Get directions to Dr. Wong's office (opens in a new tab)"
-                    >
-                      <span itemProp="streetAddress">{officeInfo.address.line1}</span>
-                      <br />
-                      <span>
-                        <span itemProp="addressLocality">{officeInfo.address.city}</span>,{" "}
-                        <span itemProp="addressRegion">{officeInfo.address.region}</span>{" "}
-                        <span itemProp="postalCode">{officeInfo.address.postalCode}</span>
-                      </span>
-                    </a>
-                    <meta itemProp="addressCountry" content={officeInfo.address.country} />
-                  </address>
-                </div>
-                <div className="flex space-x-2 mt-3">
-                  {socialMedia.map((social) => (
-                    <a
-                      key={social.href}
-                      href={social.href}
-                      className="ui-link-premium-dark inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white/80"
-                      aria-label={`Visit Dr. Wong on ${social.label} (opens in a new tab)`}
-                      rel="noopener noreferrer"
-                      target="_blank"
-                      itemProp="sameAs"
-                    >
-                      {social.icon}
-                    </a>
-                  ))}
-                </div>
-                <ButtonLink
-                  href="/schedule#appointment"
-                  aria-label="Request an appointment"
-                  className="mt-5 min-h-11 rounded-full border border-white/25 bg-white px-5 text-primary hover:bg-blue-50"
-                >
-                  Request Appointment
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </ButtonLink>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-sm uppercase tracking-wider mb-4 font-medium">Quick Links</h3>
-              <ul className="space-y-3">
-                {quickLinks.map((link) => (
-                  <li key={link.href} className="text-sm text-white/80">
-                    <Link
-                      href={link.href}
-                      aria-current={isActive(link.href) ? "page" : undefined}
-                      className={cn(
-                        "group inline-flex items-center rounded-md px-2 py-1 ui-link-premium-dark text-white/80",
-                        isActive(link.href) && "bg-white/10 font-semibold text-white",
-                      )}
-                    >
-                      <span>{link.label}</span>
-                      <ArrowRight
-                        className="ml-1 h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100"
-                        aria-hidden="true"
-                      />
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-sm uppercase tracking-wider mb-4 font-medium">Services</h3>
-              <ul className="space-y-3">
-                {services.map((service) => (
-                  <li key={service.href} className="text-sm text-white/80">
-                    <Link
-                      href={service.href}
-                      aria-current={isActive(service.href) ? "page" : undefined}
-                      className={cn(
-                        "rounded-md px-2 py-1 ui-link-premium-dark text-white/80",
-                        isActive(service.href) && "bg-white/10 font-semibold text-white",
-                      )}
-                    >
-                      {service.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          <Separator className="my-8 bg-white/20" />
-
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex flex-col items-center md:items-start">
-              <p className="text-xs text-white/70">&copy; {currentYear} Christopher B. Wong, DDS. All rights reserved.</p>
-              <p className="text-xs text-white/50 mt-1">
-                Invisalign®, the Invisalign® logo, iTero™, and Vivera™ are trademarks of Align Technology, Inc. and are registered in the U.S. and other countries.
-              </p>
-              <p className="text-xs text-white/50 mt-1">
-                website built by{" "}
-                <a
-                  href="https://www.design-prism.com/case-studies/dr-christopher-wong?utm_source=drwong&utm_medium=referral&utm_campaign=drwong_2025-07"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="ui-link-premium-dark px-1 py-0.5 text-white/70"
-                >
-                  Prism in Silicon Valley
-                </a>
-              </p>
-            </div>
-            <div className="flex space-x-4 mt-4 md:mt-0">
-              {legalLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  aria-current={isActive(link.href) ? "page" : undefined}
-                  className={cn(
-                    "ui-link-premium-dark rounded px-1 py-0.5 text-xs text-white/70",
-                    isActive(link.href) && "font-semibold text-white",
-                  )}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-            {internalLinks.length > 0 ? (
-              <div className="mt-4 md:mt-0 flex flex-wrap items-center justify-center md:justify-end gap-2 text-[10px]">
-                {internalLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    aria-current={isActive(link.href) ? "page" : undefined}
-                    className="ui-link-premium-dark px-1 py-0.5 text-white/30"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </div>
-            ) : null}
-          </div>
-        </div>
-      </div>
-
-      <div className="py-8 md:hidden">
-        <div className="max-w-md mx-auto px-5">
-          <div className="text-center mb-8" itemScope itemType="https://schema.org/Dentist">
-            <meta itemProp="url" content={businessUrl} />
-            <h3 className="text-lg font-medium mb-2" itemProp="name">Dr. Christopher B. Wong</h3>
-            <p className="text-sm text-white/80 mb-4">Comprehensive dental care in Palo Alto</p>
-
-            <div className="flex justify-center space-x-2 mb-4">
-              {socialMedia.map((social) => (
-                <a
-                  key={social.href}
-                  href={social.href}
-                  className="ui-link-premium-dark inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white/80"
-                  aria-label={`Visit Dr. Wong on ${social.label} (opens in a new tab)`}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  {social.icon}
-                </a>
-              ))}
-            </div>
-          </div>
-
-          <div className="mb-6 rounded-lg bg-white/10 p-2">
-            <div className="space-y-1">
+            <div className="mt-7 flex flex-col gap-2.5 sm:flex-row lg:flex-col xl:flex-row">
+              <Link href="/schedule#appointment" className="btn btn-gold" data-analytics-context="footer-book">
+                <CalendarDays aria-hidden="true" />
+                Request a visit
+              </Link>
               <a
                 href={`tel:${officeInfo.phoneE164}`}
-                className="ui-focus-premium flex min-h-11 items-center rounded-lg px-3 text-sm text-white/90 hover:bg-white/10"
-                itemProp="telephone"
+                className="btn btn-outline-light"
                 aria-label={`Call Dr. Wong's office at ${officeInfo.phone}`}
+                data-analytics-context="footer-call"
               >
-                <Phone className="mr-3 h-4 w-4 flex-shrink-0 text-white/70" aria-hidden="true" />
+                <Phone aria-hidden="true" />
                 {officeInfo.phone}
               </a>
-
-              <a
-                href={`mailto:${officeInfo.email}`}
-                className="ui-focus-premium flex min-h-11 items-center rounded-lg px-3 text-sm text-white/90 hover:bg-white/10"
-                itemProp="email"
-                aria-label={`Email Dr. Wong's office at ${officeInfo.email}`}
-              >
-                <Mail className="mr-3 h-4 w-4 flex-shrink-0 text-white/70" aria-hidden="true" />
-                <span className="break-all">{officeInfo.email}</span>
-              </a>
-
-              <address
-                className="not-italic"
-                itemProp="address"
-                itemScope
-                itemType="https://schema.org/PostalAddress"
-              >
-                <a
-                  href={officeInfo.mapUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="ui-focus-premium flex min-h-11 items-start rounded-lg px-3 py-2 text-sm text-white/90 hover:bg-white/10"
-                  aria-label="Get directions to Dr. Wong's office (opens in a new tab)"
-                >
-                  <MapPin className="mr-3 mt-0.5 h-4 w-4 flex-shrink-0 text-white/70" aria-hidden="true" />
-                  <span>
-                    <span itemProp="streetAddress">{officeInfo.address.line1}</span>
-                    <br />
-                    <span itemProp="addressLocality">{officeInfo.address.city}</span>,{" "}
-                    <span itemProp="addressRegion">{officeInfo.address.region}</span>{" "}
-                    <span itemProp="postalCode">{officeInfo.address.postalCode}</span>
-                  </span>
-                </a>
-                <meta itemProp="addressCountry" content={officeInfo.address.country} />
-              </address>
             </div>
-          </div>
 
-          <Accordion type="single" collapsible className="mb-8">
-            <AccordionItem value="quick-links" className="border-white/20">
-              <AccordionTrigger className="text-sm py-3 text-white hover:text-white">
-                Quick Links
-              </AccordionTrigger>
-              <AccordionContent>
-                <ul className="space-y-2 py-2 pl-2">
-                  {quickLinks.map((link) => (
-                    <li key={link.href} className="text-sm text-white/80">
-                      <Link
-                        href={link.href}
-                        aria-current={isActive(link.href) ? "page" : undefined}
-                        className={cn(
-                          "ui-focus-premium flex min-h-11 items-center rounded-lg px-3 text-white/80 hover:bg-white/10",
-                          isActive(link.href) && "bg-white/10 font-semibold text-white",
-                        )}
-                      >
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="services" className="border-white/20">
-              <AccordionTrigger className="text-sm py-3 text-white hover:text-white">
-                Our Services
-              </AccordionTrigger>
-              <AccordionContent>
-                <ul className="space-y-2 py-2 pl-2">
-                  {services.map((service) => (
-                    <li key={service.href} className="text-sm text-white/80">
-                      <Link
-                        href={service.href}
-                        aria-current={isActive(service.href) ? "page" : undefined}
-                        className={cn(
-                          "ui-focus-premium flex min-h-11 items-center rounded-lg px-3 text-white/80 hover:bg-white/10",
-                          isActive(service.href) && "bg-white/10 font-semibold text-white",
-                        )}
-                      >
-                        {service.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-
-          <Separator className="bg-white/20 mb-6" />
-
-          <div className="text-center">
-            <p className="text-xs text-white/70 mb-2">&copy; {currentYear} Christopher B. Wong, DDS. All rights reserved.</p>
-            <p className="text-xs text-white/50 mb-2">
-              Invisalign®, the Invisalign® logo, iTero™, and Vivera™ are trademarks of Align Technology, Inc. and are registered in the U.S. and other countries.
-            </p>
-            <p className="text-xs text-white/50 mb-4">
-              website built by{" "}
+            <address className="mt-8 grid gap-3 text-[15px] not-italic text-evergreen-100/90">
               <a
-                href="https://www.design-prism.com/case-studies/dr-christopher-wong?utm_source=drwong&utm_medium=referral&utm_campaign=drwong_2025-07"
+                href={officeInfo.mapUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="ui-link-premium-dark px-1 py-0.5 text-white/70"
+                className="inline-flex items-start gap-3 rounded-md hover:text-cream-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold-300"
+                aria-label={`Directions to ${officeInfo.address.line1}, ${officeInfo.address.line2} (opens in a new tab)`}
               >
-                Prism in Silicon Valley
+                <MapPin className="mt-1 h-4 w-4 shrink-0 text-gold-300" aria-hidden="true" />
+                <span>
+                  {officeInfo.address.line1}
+                  <br />
+                  {officeInfo.address.line2}
+                </span>
               </a>
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              {legalLinks.map((link) => (
+              <a
+                href={`mailto:${officeInfo.email}`}
+                className="inline-flex items-center gap-3 rounded-md hover:text-cream-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold-300"
+              >
+                <Mail className="h-4 w-4 shrink-0 text-gold-300" aria-hidden="true" />
+                {officeInfo.email}
+              </a>
+            </address>
+
+            <dl className="mt-8 grid max-w-xs grid-cols-[auto_1fr] gap-x-6 gap-y-1.5 text-sm">
+              {dayRows.map(([label, key]) => (
+                <div key={key} className="contents">
+                  <dt className="font-semibold text-cream-50">{label}</dt>
+                  <dd className="text-evergreen-100/85">{officeInfo.hours[key]}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+
+          <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3">
+            <nav aria-label="Services">
+              <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-gold-300">Services</h2>
+              <ul className="mt-4 space-y-0.5">
+                {allServices.map((s) => (
+                  <li key={s.href}>
+                    <Link href={s.href} aria-current={isActive(s.href) ? "page" : undefined} className={linkClass}>
+                      {s.label}
+                    </Link>
+                  </li>
+                ))}
+                <li>
+                  <Link href="/services" aria-current={isActive("/services") ? "page" : undefined} className={cn(linkClass, "font-semibold text-cream-50")}>
+                    All services
+                  </Link>
+                </li>
+              </ul>
+            </nav>
+            <nav aria-label="The practice">
+              <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-gold-300">The practice</h2>
+              <ul className="mt-4 space-y-0.5">
+                {practiceLinks.map((s) => (
+                  <li key={s.href}>
+                    <Link href={s.href} aria-current={isActive(s.href) ? "page" : undefined} className={linkClass}>
+                      {s.label}
+                    </Link>
+                  </li>
+                ))}
+                <li>
+                  <Link href="/contact" aria-current={isActive("/contact") ? "page" : undefined} className={linkClass}>
+                    Contact &amp; hours
+                  </Link>
+                </li>
+              </ul>
+            </nav>
+            <div className="col-span-2 grid grid-cols-2 gap-x-6 gap-y-10 md:col-span-1 md:grid-cols-1">
+              <nav aria-label="Patients">
+                <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-gold-300">Patients</h2>
+                <ul className="mt-4 space-y-0.5">
+                  {patientLinks.map((s) => (
+                    <li key={s.href}>
+                      <Link href={s.href} aria-current={isActive(s.href) ? "page" : undefined} className={linkClass}>
+                        {s.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+              <nav aria-label="Nearby communities">
+                <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-gold-300">Nearby</h2>
+                <ul className="mt-4 space-y-0.5">
+                  {nearbyLinks.map((s) => (
+                    <li key={s.href}>
+                      <Link href={s.href} aria-current={isActive(s.href) ? "page" : undefined} className={linkClass}>
+                        {s.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-14 flex flex-col gap-6 border-t border-white/10 pt-8 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-wrap items-center gap-3">
+            <a
+              href={officeInfo.reviewUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-analytics-context="footer-review"
+              className="pill hover:border-gold-300/50 hover:text-cream-50"
+              aria-label="Leave a Google review (opens in a new tab)"
+            >
+              <Star className="h-4 w-4 fill-gold-400 text-gold-400" aria-hidden="true" />
+              Leave a Google review
+            </a>
+            <a
+              href={officeInfo.socialMedia.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="pill hover:border-gold-300/50 hover:text-cream-50"
+              aria-label="Instagram (opens in a new tab)"
+            >
+              <Instagram className="h-4 w-4" aria-hidden="true" />
+              Instagram
+            </a>
+          </div>
+          <ul className="flex flex-wrap gap-x-5 gap-y-1 text-sm">
+            {legalLinks.map((link) => (
+              <li key={link.href}>
                 <Link
-                  key={link.href}
                   href={link.href}
                   aria-current={isActive(link.href) ? "page" : undefined}
-                  className={cn(
-                    "ui-focus-premium inline-flex min-h-11 items-center rounded-lg px-2 text-xs text-white/70",
-                    isActive(link.href) && "bg-white/10 font-semibold text-white",
-                  )}
+                  className="inline-flex min-h-11 items-center text-evergreen-100/70 hover:text-cream-50 aria-[current=page]:text-gold-200"
                 >
                   {link.label}
                 </Link>
-              ))}
-            </div>
-            {internalLinks.length > 0 ? (
-              <p className="mt-3 text-[10px] text-white/30">
-                <Link
-                  href={internalLinks[0].href}
-                  className="ui-link-premium-dark px-1 py-0.5 text-white/30"
-                >
-                  {internalLinks[0].label}
-                </Link>
-              </p>
-            ) : null}
-          </div>
+              </li>
+            ))}
+          </ul>
         </div>
+        <p className="mt-4 text-xs text-evergreen-100/55">
+          &copy; {currentYear} Christopher B. Wong, DDS · Family &amp; cosmetic dentistry in Palo Alto, CA
+        </p>
       </div>
     </footer>
   );

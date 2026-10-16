@@ -28,40 +28,17 @@ const TestimonialSection = ({
   }
 
   return (
-    <section className={cn("py-12", className)}>
-      <div
-        className={cn(
-          "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
-          containerClassName,
-        )}
-      >
-        <div className="text-center mb-10">
-          {eyebrow ? (
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-              {eyebrow}
-            </p>
-          ) : null}
-          <h2 className="mt-3 text-3xl md:text-4xl font-bold font-heading text-[#1F2933]">
-            {title}
-          </h2>
-          {subtitle ? (
-            <p className="mt-4 text-sm sm:text-base text-slate-600 max-w-3xl mx-auto">
-              {subtitle}
-            </p>
-          ) : null}
+    <section className={cn("bg-cream-100 py-16 sm:py-20", className)}>
+      <div className={cn("mx-auto max-w-7xl px-4 sm:px-6 lg:px-8", containerClassName)}>
+        <div className="mx-auto mb-10 max-w-3xl text-center">
+          <p className="eyebrow justify-center">{eyebrow ?? "Patient reviews"}</p>
+          <h2 className="h-section mt-4 text-balance">{title}</h2>
+          {subtitle ? <p className="lead mx-auto mt-4">{subtitle}</p> : null}
         </div>
 
-        <div
-          className={cn(
-            "grid gap-6 sm:grid-cols-2 xl:grid-cols-3",
-            gridClassName,
-          )}
-        >
+        <div className={cn("reveal-stagger grid gap-5 sm:grid-cols-2 xl:grid-cols-3", gridClassName)}>
           {testimonials.map((testimonial) => (
-            <TestimonialQuote
-              key={testimonial.name}
-              testimonial={testimonial}
-            />
+            <TestimonialQuote key={testimonial.name} testimonial={testimonial} />
           ))}
         </div>
       </div>

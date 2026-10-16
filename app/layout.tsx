@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Lato, Source_Sans_3 } from "next/font/google";
+import { Figtree, Newsreader } from "next/font/google";
 import { getSeoForPath } from "@/lib/seo";
 import VercelAnalytics from "@/components/common/VercelAnalytics";
 import { SeasonScript } from "@/components/seasonal/SeasonScript";
@@ -9,20 +9,19 @@ import {
 } from "@shared/analytics";
 import "./globals.css";
 
-// Self-hosted via next/font: the Tailwind font stacks referenced these
-// families for years without any webfont actually loading (visitors saw
-// system-ui). next/font subsets, self-hosts, and generates size-adjusted
-// fallbacks, so the brand typography finally renders with no layout shift
-// and no third-party font request.
-const sourceSans = Source_Sans_3({
+// Self-hosted via next/font (subset, size-adjusted fallbacks, no third-party
+// font request). "Rooted" type pairing — see docs/design-system.md:
+// Figtree for body/UI, Newsreader (the editorial serif used by the
+// "Full Circle" film captions) for headings.
+const figtree = Figtree({
   subsets: ["latin"],
-  weight: ["400", "600", "700"],
   variable: "--font-sans",
   display: "swap",
 });
-const lato = Lato({
+const newsreader = Newsreader({
   subsets: ["latin"],
-  weight: ["400", "700"],
+  style: ["normal", "italic"],
+  axes: ["opsz"],
   variable: "--font-heading",
   // On a slow first visit, keep the size-adjusted fallback instead of
   // repainting the hero heading late and extending text-based LCP.
@@ -158,7 +157,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${sourceSans.variable} ${lato.variable}`}>
+    <html
+      lang="en"
+      className={`${figtree.variable} ${newsreader.variable}`}
+      // The inline season script sets data-cw-season before hydration.
+      suppressHydrationWarning
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: googleTagBootstrap }} />
         <SeasonScript />

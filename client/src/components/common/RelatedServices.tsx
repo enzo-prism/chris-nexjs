@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { Link } from "wouter";
 import { cn } from "@/lib/utils";
+import { ServiceIcon, type ServiceIconName } from "@/components/ds/ServiceIcon";
+import { allServices } from "@/data/siteNav";
 
 export type RelatedServiceLink = {
   href: string;
@@ -15,6 +17,10 @@ interface RelatedServicesProps {
   className?: string;
 }
 
+const iconFor = (href: string): ServiceIconName =>
+  allServices.find((s) => s.href === href)?.icon ?? "tooth";
+
+/** Sibling-service cards (internal links; next/link for real navigation). */
 const RelatedServices = ({
   items,
   title = "Related services",
@@ -24,39 +30,30 @@ const RelatedServices = ({
   if (!items?.length) return null;
 
   return (
-    <section className={cn("py-16 bg-white", className)}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold font-heading text-[#333333] mb-3">
-            {title}
-          </h2>
-          {subtitle && (
-            <p className="text-[#333333] max-w-2xl mx-auto">{subtitle}</p>
-          )}
+    <section className={cn("bg-white py-16 sm:py-20", className)}>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl">
+          <p className="eyebrow">Keep exploring</p>
+          <h2 className="h-section mt-4">{title}</h2>
+          {subtitle ? <p className="lead mt-4">{subtitle}</p> : null}
         </div>
 
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="reveal-stagger mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="ui-card-interactive group block rounded-2xl border p-6"
-            >
-              <h3 className="text-lg font-semibold text-slate-900 group-hover:text-primary">
-                {item.anchorText}
-              </h3>
-              {item.description && (
-                <p className="mt-2 text-sm text-slate-600 leading-relaxed">
-                  {item.description}
-                </p>
-              )}
-              <div className="ui-link-premium mt-4 inline-flex items-center text-sm font-semibold">
+            <Link key={item.href} href={item.href} className="card card-lift group flex flex-col gap-4 p-6 outline-none">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-evergreen-50 text-evergreen-700 transition-colors group-hover:bg-evergreen-800 group-hover:text-gold-300">
+                <ServiceIcon name={iconFor(item.href)} className="h-7 w-7" />
+              </span>
+              <span>
+                <span className="block font-heading text-xl font-medium text-ink">{item.anchorText}</span>
+                {item.description ? (
+                  <span className="mt-1.5 block text-[15px] leading-6 text-ink-muted">{item.description}</span>
+                ) : null}
+              </span>
+              <span className="mt-auto inline-flex items-center gap-1.5 text-sm font-semibold text-evergreen-700">
                 Learn more
-                <ArrowRight
-                  className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                  aria-hidden="true"
-                />
-              </div>
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+              </span>
             </Link>
           ))}
         </div>
