@@ -13,6 +13,56 @@ export type ChangelogEntry = {
 
 export const changelogEntries: readonly ChangelogEntry[] = [
   {
+    "date": "2026-10-16",
+    "commitDate": "2026-10-16T21:07:24.000Z",
+    "type": "feature",
+    "title": "Complete the Rooted redesign across every page",
+    "summary": "Complete the Rooted redesign across every page.",
+    "sha": "dcbf3bff",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/dcbf3bffedc37748c2299aea3324823ca6661e58",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-10-16",
+    "commitDate": "2026-10-16T19:20:44.000Z",
+    "type": "feature",
+    "title": "Rooted design foundation — tokens, type, header, footer, homepage, story player",
+    "summary": "Rooted design foundation — tokens, type, header, footer, homepage, story player.",
+    "sha": "bbecfdc9",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/bbecfdc97787b6df6166a2bf8944b85542611d94",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-10-16",
+    "commitDate": "2026-10-16T18:17:00.000Z",
+    "type": "fix",
+    "title": "Replace patient downloads with approved forms",
+    "summary": "Replace patient downloads with approved forms.",
+    "sha": "a91edc08",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/a91edc081a41508183ddd044c80e95d679de6300",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-10-12",
+    "commitDate": "2026-10-12T21:17:41.000Z",
+    "type": "update",
+    "title": "Stabilize gallery keyboard checks and record release evidence",
+    "summary": "Stabilize gallery keyboard checks and record release evidence.",
+    "sha": "696f2cb6",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/696f2cb6776480be3b502c9d27ff903db2e6aada",
+    "source": "Current Website"
+  },
+  {
+    "date": "2026-10-12",
+    "commitDate": "2026-10-12T21:10:25.000Z",
+    "type": "update",
+    "title": "Record production verification and refresh website changelog",
+    "summary": "Record production verification and refresh website changelog.",
+    "sha": "8be62500",
+    "commitUrl": "https://github.com/enzo-prism/chris-nexjs/commit/8be625009052b14a8ea4f717b38099d9d0ec59c1",
+    "source": "Current Website"
+  },
+  {
     "date": "2026-10-12",
     "commitDate": "2026-10-12T21:07:08.000Z",
     "type": "update",

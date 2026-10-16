@@ -197,7 +197,24 @@ Local, on the release candidate (production build, 2026-10-16):
 - No React hydration errors (#418) on any route in the production build (the
   previous production threw them on several routes).
 
-Production verification is recorded below after deploy.
+### Production (2026-10-16)
+
+- `main` fast-forwarded `a91edc0..dcbf3bf`; Vercel production deployment
+  `dpl_BsYUVjYqprqEGz3vMqKnmNBx94K3` Ready, aliased to www.chriswongdds.com
+  and the apex (apex 308s to www).
+- Verified preview first (`vercel curl` against the protected preview):
+  key routes 200, redirects one hop, blog `opengraph-image` renders the new
+  Rooted card (it can't render locally while `.next` lives on the SSD).
+- Live readback: 19 key routes, `/sitemap.xml`, `/robots.txt`, `/llms.txt`,
+  the film MP4, and the redesign photos return 200; `/zoom-whitening`,
+  `/invisalign/resources`, and `/dentist-sunnyvale` (→ `/locations#sunnyvale`)
+  301 in one hop; blog share cards render as PNG.
+- Against production: `test:seo:onpage` (31 pages, 100% compliance),
+  `test:seo:links` (0 orphans), `test:seo:schema` (60 pages), `test:images`:
+  all pass.
+- Real Chrome on production at 390 px and 1440 px (`/`, `/invisalign`,
+  `/about`, `/emergency-dental`): no horizontal overflow, one H1, zero console
+  errors; the October layer is on.
 
 ## Open questions for the practice
 1. Approve the corrected Terms of Service payment/insurance lines.
