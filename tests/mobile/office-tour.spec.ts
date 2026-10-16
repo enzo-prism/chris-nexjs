@@ -2,10 +2,11 @@ import { test, expect } from "@playwright/test";
 import { gotoAndHydrate } from "./_helpers";
 
 /**
- * The /office-tour page features locally-hosted office videos. Verify it loads
- * cleanly on mobile: one h1, a click-to-play hero (poster image + play button,
- * so video bytes aren't auto-downloaded on cellular), three lazy tour clips
- * (each with a poster), and no horizontal overflow.
+ * /office-tour is the "Full Circle" film's watch page plus four short office
+ * clips, all in the custom StoryPlayer. Verify it loads cleanly on mobile: one
+ * h1, click-to-play clips (poster + play button, preload="none" so no video
+ * bytes download on cellular until someone presses play), and no horizontal
+ * overflow.
  */
 test("office tour page renders cleanly on mobile", async ({ page }) => {
   await gotoAndHydrate(page, "/office-tour");
@@ -13,18 +14,18 @@ test("office tour page renders cleanly on mobile", async ({ page }) => {
   await expect(page.locator("h1")).toHaveCount(1);
   await expect(page.locator("h1")).toContainText(/office/i);
 
-  // Hero is click-to-play (no auto-loaded video on first paint).
+  // Clips are click-to-play.
   await expect(
-    page.getByRole("button", { name: /play the office tour/i }),
-  ).toBeVisible();
+    page.getByRole("button", { name: /play the garden courtyard/i }),
+  ).toBeAttached();
 
-  // The three tour-stop clips lazy-load (preload="none") behind posters.
-  const videos = page.locator("video");
-  await expect(videos).toHaveCount(3);
-  const postered = await videos.evaluateAll(
-    (vs) => vs.filter((v) => (v as HTMLVideoElement).poster).length,
+  // Four office clips plus the film, each behind a poster and preload="none".
+  const postered = page.locator("video[poster]");
+  expect(await postered.count()).toBeGreaterThanOrEqual(5);
+  const eager = await postered.evaluateAll(
+    (vs) => vs.filter((v) => (v as HTMLVideoElement).preload !== "none").length,
   );
-  expect(postered).toBe(3);
+  expect(eager, "postered videos should not preload").toBe(0);
 
   // No horizontal overflow at 390px.
   const { scrollW, innerW } = await page.evaluate(() => ({

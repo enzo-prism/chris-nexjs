@@ -1,29 +1,23 @@
-"use client";
-
-import { useMemo } from "react";
+import type { ReactNode } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { ArrowRight, CalendarDays, Check, Clock, ListOrdered, Phone } from "lucide-react";
 import { getBlogSeoMetadata } from "@shared/blogSeo";
-import {
-  getCustomBlogImagePath,
-  resolveBlogImagePath,
-} from "@shared/blogArt";
+import { resolveBlogImagePath } from "@shared/blogArt";
 import type { BlogPost as BlogPostRecord } from "@shared/schema";
-import { useBlogPosts } from "@/hooks/useBlogPosts";
-import MetaTags from "@/components/common/MetaTags";
-import { buildExcerpt, pageDescriptions, pageTitles } from "@/lib/metaContent";
+import { blogIndex, type BlogIndexEntry } from "@/data/blogIndex";
+import { officeInfo } from "@/lib/data";
 import { getSeoForPath } from "@/lib/seo";
-import { ArrowLeft, Calendar, Clock, Tag } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import StructuredData from "@/components/seo/StructuredData";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
+import RelatedServices from "@/components/common/RelatedServices";
+import BlogPostCard from "@/components/common/BlogPostCard";
 import AuthorBox from "@/components/blog/AuthorBox";
-import AbstractBlogArt from "@/components/blog/AbstractBlogArt";
-import OptimizedImage from "@/components/seo/OptimizedImage";
-import RelatedServices, {
-  type RelatedServiceLink,
-} from "@/components/common/RelatedServices";
+import { BlogCover } from "@/components/blog/AbstractBlogArt";
+import { renderInlineMarkdown, stripInlineMarkdown } from "@/components/blog/InlineMarkdown";
+import { normalizeCategory, serviceLinksForPost, topicFor } from "@/components/blog/blogTopics";
+import { ServiceIcon } from "@/components/ds/ServiceIcon";
+import { CtaBand } from "@/components/ds/CtaBand";
 import {
   absoluteUrl,
   buildBreadcrumbSchema,
@@ -133,594 +127,504 @@ function getBlogSupplementalContent(category?: string | null): SupplementalConte
   };
 }
 
-function getMarkdownHeading(
-  line: string,
-): { level: 2 | 3; text: string } | null {
+/* ------------------------------------------------------------- parsing */
+
+type Block =
+  | { readonly kind: "h2"; readonly text: string; readonly id: string }
+  | { readonly kind: "h3"; readonly text: string; readonly num?: number }
+  | { readonly kind: "p"; readonly text: string; readonly leadIn?: boolean }
+  | { readonly kind: "ul"; readonly items: readonly string[] }
+  | { readonly kind: "ol"; readonly items: readonly string[]; readonly start: number };
+
+const BULLET = /^-\s+/;
+const NUMBERED = /^(\d+)[.)]\s+/;
+
+function getMarkdownHeading(line: string): { level: 2 | 3; text: string } | null {
   const match = line.match(/^(#{1,6})\s+(.+)$/);
-  if (!match) {
-    return null;
-  }
-
-  return {
-    level: match[1].length >= 3 ? 3 : 2,
-    text: match[2].trim(),
-  };
+  if (!match) return null;
+  // "### Choose bonding if you want:" reads better as a heading without the colon.
+  return { level: match[1].length >= 3 ? 3 : 2, text: match[2].trim().replace(/:$/, "") };
 }
 
+/**
+ * Older posts use bare lines for headings ("What to Do Before You Arrive",
+ * "When should kids start seeing a dentist?"). Only used for posts with no
+ * markdown headings, so question-shaped paragraphs in newer posts stay
+ * paragraphs. Lines ending in ":" are list lead-ins, never headings.
+ */
 function isLegacyHeading(line: string): boolean {
-  if (/[:?]$/.test(line)) {
-    return true;
-  }
-
-  if (/[.!]$/.test(line) || line.includes(",")) {
-    return false;
-  }
-
-  return /^(?:[A-Z0-9][A-Za-z0-9'"’&()/,-]*)(?:\s+(?:[A-Z0-9][A-Za-z0-9'"’&()/,-]*)){0,9}$/.test(
-    line,
-  );
+  if (/[.!:]$/.test(line) || line.includes(",")) return false;
+  if (/www\.|https?:|@|\d{3}/.test(line)) return false;
+  return line.split(/\s+/).length <= 12;
 }
 
-function renderInlineMarkdown(text: string): React.ReactNode {
-  const nodes: React.ReactNode[] = [];
-  const linkPattern = /\[([^\]]+)\]\((\/[^)\s]*|https?:\/\/[^)\s]+)\)/g;
-  let lastIndex = 0;
-
-  for (const match of text.matchAll(linkPattern)) {
-    const rawIndex = match.index ?? 0;
-    if (rawIndex > lastIndex) {
-      nodes.push(text.slice(lastIndex, rawIndex));
-    }
-
-    const label = match[1];
-    const href = match[2];
-    const key = `${href}-${rawIndex}`;
-
-    if (href.startsWith("/")) {
-      nodes.push(
-        <Link
-          key={key}
-          href={href}
-          className="font-medium text-primary underline decoration-primary/40 underline-offset-4 hover:decoration-primary"
-        >
-          {label}
-        </Link>,
-      );
-    } else {
-      nodes.push(
-        <a
-          key={key}
-          href={href}
-          className="font-medium text-primary underline decoration-primary/40 underline-offset-4 hover:decoration-primary"
-          target="_blank"
-          rel="noreferrer"
-        >
-          {label}
-        </a>,
-      );
-    }
-
-    lastIndex = rawIndex + match[0].length;
-  }
-
-  if (lastIndex < text.length) {
-    nodes.push(text.slice(lastIndex));
-  }
-
-  return nodes.length > 0 ? <>{nodes}</> : text;
+function slugify(text: string): string {
+  return stripInlineMarkdown(text)
+    .toLowerCase()
+    .replace(/[’']/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 64);
 }
+
+function parseContent(content: string): Block[] {
+  const raw = content.split("\n").map((line) => line.trim());
+  const hasMarkdownHeadings = raw.some((line) => /^#{1,6}\s/.test(line));
+  const blocks: Block[] = [];
+  const usedIds = new Set<string>();
+  let list: { kind: "ul"; items: string[] } | { kind: "ol"; items: string[]; start: number } | null = null;
+
+  const flush = () => {
+    if (list) blocks.push(list);
+    list = null;
+  };
+  const pushHeading = (level: 2 | 3, text: string, num?: number) => {
+    if (level === 3) {
+      blocks.push({ kind: "h3", text, num });
+      return;
+    }
+    const base = slugify(text) || "section";
+    let id = base;
+    for (let n = 2; usedIds.has(id); n += 1) id = `${base}-${n}`;
+    usedIds.add(id);
+    blocks.push({ kind: "h2", text, id });
+  };
+
+  for (let i = 0; i < raw.length; i += 1) {
+    const line = raw[i];
+    if (!line) continue;
+    if (BULLET.test(line)) {
+      if (list?.kind !== "ul") {
+        flush();
+        list = { kind: "ul", items: [] };
+      }
+      list.items.push(line.replace(BULLET, ""));
+      continue;
+    }
+    const numbered = line.match(NUMBERED);
+    if (numbered) {
+      const next = raw[i + 1] ?? "";
+      // "1) Toothache or severe pain" directly followed by its paragraph is a
+      // numbered subheading, not a one-item list.
+      if (next && !BULLET.test(next) && !NUMBERED.test(next) && !getMarkdownHeading(next)) {
+        flush();
+        pushHeading(3, line.replace(NUMBERED, ""), Number(numbered[1]));
+        continue;
+      }
+      if (list?.kind !== "ol") {
+        flush();
+        list = { kind: "ol", items: [], start: Number(numbered[1]) || 1 };
+      }
+      list.items.push(line.replace(NUMBERED, ""));
+      continue;
+    }
+    flush();
+    const heading = getMarkdownHeading(line);
+    if (heading) pushHeading(heading.level, heading.text);
+    else if (!hasMarkdownHeadings && blocks.length > 0 && isLegacyHeading(line)) pushHeading(2, line);
+    else blocks.push({ kind: "p", text: line, leadIn: /:$/.test(line) });
+  }
+  flush();
+  return blocks;
+}
+
+const LINK = "link-rooted";
+
+function renderBlock(block: Block, index: number, isLede: boolean): ReactNode {
+  switch (block.kind) {
+    case "h2":
+      return (
+        <h2
+          key={block.id}
+          id={block.id}
+          className="mt-12 scroll-mt-32 text-balance font-heading text-[1.6rem] font-medium leading-[1.18] text-ink first:mt-0 sm:text-[1.95rem]"
+          style={{ letterSpacing: "-0.015em" }}
+        >
+          {renderInlineMarkdown(block.text, LINK)}
+        </h2>
+      );
+    case "h3":
+      return (
+        <h3
+          key={`h3-${index}`}
+          className="mt-8 flex items-start gap-3 text-balance font-heading text-[1.3rem] font-medium leading-snug text-ink sm:text-[1.45rem]"
+        >
+          {block.num ? (
+            <span
+              aria-hidden="true"
+              className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gold-300 bg-cream-50 text-base italic text-gold-700"
+            >
+              {block.num}
+            </span>
+          ) : null}
+          <span>{renderInlineMarkdown(block.text, LINK)}</span>
+        </h3>
+      );
+    case "ul":
+      return (
+        <ul key={`ul-${index}`} className="mt-4 space-y-2.5">
+          {block.items.map((item, i) => (
+            <li key={i} className="relative pl-7 text-[1.0625rem] leading-8 text-ink-soft sm:text-[1.125rem]">
+              <span aria-hidden="true" className="absolute left-1 top-[0.8em] h-2 w-2 rounded-full bg-gold-400" />
+              {renderInlineMarkdown(item, LINK)}
+            </li>
+          ))}
+        </ul>
+      );
+    case "ol":
+      return (
+        <ol key={`ol-${index}`} start={block.start} className="mt-4 space-y-3">
+          {block.items.map((item, i) => (
+            <li key={i} className="flex gap-3.5 text-[1.0625rem] leading-8 text-ink-soft sm:text-[1.125rem]">
+              <span
+                aria-hidden="true"
+                className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gold-300 bg-cream-50 font-heading text-sm italic text-gold-700"
+              >
+                {block.start + i}
+              </span>
+              <span>{renderInlineMarkdown(item, LINK)}</span>
+            </li>
+          ))}
+        </ol>
+      );
+    default:
+      return (
+        <p
+          key={`p-${index}`}
+          className={
+            isLede
+              ? "text-pretty font-heading text-[1.3rem] leading-[1.6] text-ink sm:text-[1.45rem]"
+              : block.leadIn
+                ? "mt-6 text-pretty text-[1.0625rem] font-semibold leading-8 text-ink sm:text-[1.125rem]"
+                : "mt-5 text-pretty text-[1.0625rem] leading-8 text-ink-soft sm:text-[1.125rem] sm:leading-[1.85]"
+          }
+        >
+          {renderInlineMarkdown(block.text, LINK)}
+        </p>
+      );
+  }
+}
+
+/* ------------------------------------------------------- related posts */
+
+function relatedPostsFor(post: Pick<BlogPostRecord, "slug" | "category">): BlogIndexEntry[] {
+  const terms = (value: string) =>
+    value
+      .toLowerCase()
+      .split(/[^a-z0-9]+/)
+      .filter((term) => term.length > 3 && term !== "palo" && term !== "alto");
+  const topicTerms = new Set(terms(`${post.slug} ${post.category ?? ""}`));
+  return blogIndex
+    .filter((candidate) => candidate.slug !== post.slug)
+    .map((candidate, index) => {
+      const shared = terms(`${candidate.slug} ${candidate.category}`).filter((t) => topicTerms.has(t)).length;
+      const categoryMatch = candidate.category === post.category ? 20 : 0;
+      return { candidate, index, score: categoryMatch + shared };
+    })
+    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .slice(0, 3)
+    .map(({ candidate }) => candidate);
+}
+
+/* ---------------------------------------------------------------- page */
 
 type BlogPostPageProps = {
   params?: Params;
   initialPosts?: BlogPostRecord[];
 };
 
-const BlogPost = ({ params, initialPosts }: BlogPostPageProps) => {
-  const { slug } = params ?? { slug: "" };
-  const { posts, isLoading } = useBlogPosts(initialPosts);
-  const router = useRouter();
+const BlogPost = ({ params, initialPosts = [] }: BlogPostPageProps) => {
+  const slug = params?.slug ?? "";
+  const post = initialPosts.find((candidate) => candidate.slug === slug);
 
-  const post = useMemo(() => {
-    return posts.find((candidate) => candidate.slug === slug);
-  }, [posts, slug]);
-  const relatedPosts = useMemo(() => {
-    if (!post) return [];
-    const topicTerms = new Set(
-      `${post.slug} ${post.category ?? ""}`
-        .toLowerCase()
-        .split(/[^a-z0-9]+/)
-        .filter((term) => term.length > 3),
+  if (!post) {
+    return (
+      <section className="paper px-4 py-24 text-center">
+        <p className="eyebrow justify-center">Dental health blog</p>
+        <p className="h-section mx-auto mt-4 max-w-xl">We couldn’t find that article.</p>
+        <Link href="/blog" className="btn btn-primary mt-8">
+          Browse all articles
+          <ArrowRight aria-hidden="true" />
+        </Link>
+      </section>
     );
+  }
 
-    return posts
-      .filter((candidate) => candidate.slug !== post.slug)
-      .map((candidate) => {
-        const candidateTerms = `${candidate.slug} ${candidate.category ?? ""}`
-          .toLowerCase()
-          .split(/[^a-z0-9]+/)
-          .filter((term) => term.length > 3);
-        const sharedTerms = candidateTerms.filter((term) => topicTerms.has(term)).length;
-        const categoryMatch =
-          candidate.category && candidate.category === post.category ? 20 : 0;
-        return { candidate, score: categoryMatch + sharedTerms };
-      })
-      .sort((a, b) => b.score - a.score || b.candidate.id - a.candidate.id)
-      .slice(0, 3)
-      .map(({ candidate }) => candidate);
-  }, [post, posts]);
-
-  const blogSeo = useMemo(() => getBlogSeoMetadata(post), [post]);
-
-  const pageTitle = blogSeo?.title ?? pageTitles.blog;
-  const pageDescription = blogSeo?.description ?? pageDescriptions.blog;
+  const blogSeo = getBlogSeoMetadata(post);
+  const pageDescription = blogSeo?.description ?? getSeoForPath("/blog").description;
   const blogOgImage = getSeoForPath("/blog").ogImage;
   const pageUrl = absoluteUrl(`/blog/${slug}`);
   const resolvedBlogImage = resolveBlogImagePath(post);
-  const postIsoDate = post ? toIsoDateString(post.date) : null;
-  const blogSchema = post
-    ? {
-        "@context": "https://schema.org",
-        "@type": "BlogPosting",
-        headline: post.title,
-        description: pageDescription,
-        image: absoluteUrl(
-          resolvedBlogImage ?? blogOgImage ?? "/images/dr_wong_polaroids.png",
-        ),
-        datePublished: postIsoDate ?? post.date,
-        dateModified: postIsoDate ?? post.date,
-        author: {
-          "@type": "Organization",
-          name: "Christopher B. Wong, DDS",
-          url: absoluteUrl("/about"),
-        },
-        publisher: {
-          "@type": "Organization",
-          name: "Christopher B. Wong, DDS",
-          "@id": "https://www.chriswongdds.com/#organization",
-          logo: {
-            "@type": "ImageObject",
-            url: absoluteUrl("/favicon/apple-touch-icon.png"),
-          },
-        },
-        mainEntityOfPage: {
-          "@type": "WebPage",
-          "@id": pageUrl,
-        },
-        url: pageUrl,
-      }
-    : null;
+  const postIsoDate = toIsoDateString(post.date);
+  const blogSchema: StructuredDataNode = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: pageDescription,
+    image: absoluteUrl(resolvedBlogImage ?? blogOgImage ?? "/images/dr_wong_polaroids.png"),
+    datePublished: postIsoDate ?? post.date,
+    dateModified: postIsoDate ?? post.date,
+    author: {
+      "@type": "Organization",
+      name: "Christopher B. Wong, DDS",
+      url: absoluteUrl("/about"),
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Christopher B. Wong, DDS",
+      "@id": "https://www.chriswongdds.com/#organization",
+      logo: {
+        "@type": "ImageObject",
+        url: absoluteUrl("/favicon/apple-touch-icon.png"),
+      },
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": pageUrl,
+    },
+    url: pageUrl,
+  };
 
   const breadcrumbItems = [
     { name: "Home", path: "/" },
     { name: "Blog", path: "/blog" },
-    {
-      name: post?.title ?? "Article",
-      path: `/blog/${slug}`,
-    },
+    { name: post.title, path: `/blog/${slug}` },
   ];
   const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbItems);
   const structuredDataNodes: StructuredDataNode[] = [];
-  if (breadcrumbSchema) {
-    structuredDataNodes.push(breadcrumbSchema);
-  }
-  if (blogSchema) {
-    structuredDataNodes.push(blogSchema);
-  }
+  if (breadcrumbSchema) structuredDataNodes.push(breadcrumbSchema);
+  structuredDataNodes.push(blogSchema);
 
-  const relatedServices: RelatedServiceLink[] = (() => {
-    const slugLower = post?.slug.toLowerCase() ?? "";
-    const categoryLower = post?.category?.toLowerCase() ?? "";
+  const topic = topicFor(post.category);
+  const blocks = parseContent(post.content);
+  const toc = blocks.filter((block): block is Extract<Block, { kind: "h2" }> => block.kind === "h2");
+  const firstParagraph = blocks.findIndex((block) => block.kind === "p");
+  const supplemental = getBlogSupplementalContent(post.category);
+  const relatedServices = serviceLinksForPost(post, 3);
+  const relatedPosts = relatedPostsFor(post);
 
-    if (slugLower.includes("whitening") || categoryLower.includes("whitening")) {
-      return [
-        {
-          href: "/teeth-whitening-palo-alto",
-          anchorText: "Teeth whitening in Palo Alto",
-          description: "Compare in‑office whitening and custom take‑home trays.",
-        },
-        {
-          href: "/zoom-whitening",
-          anchorText: "ZOOM! whitening",
-          description: "Fast, in‑office whitening for a noticeable change.",
-        },
-        {
-          href: "/dental-veneers",
-          anchorText: "Cosmetic veneers in Palo Alto",
-          description: "Cover deep stains and reshape teeth for a new smile.",
-        },
-        {
-          href: "/services",
-          anchorText: "Explore all services",
-        },
-      ];
-    }
+  const tocList = (
+    <ol className="space-y-1">
+      {toc.map((item) => (
+        <li key={item.id}>
+          <a
+            href={`#${item.id}`}
+            className="flex min-h-11 items-center rounded-xl px-3 py-2 text-[15px] leading-snug text-ink-soft transition-colors hover:bg-evergreen-50 hover:text-evergreen-800"
+          >
+            {stripInlineMarkdown(item.text)}
+          </a>
+        </li>
+      ))}
+    </ol>
+  );
 
-    if (slugLower.includes("invisalign") || categoryLower.includes("invisalign")) {
-      return [
-        {
-          href: "/invisalign",
-          anchorText: "Invisalign in Palo Alto",
-          description: "Clear aligners to straighten teeth discreetly.",
-        },
-        {
-          href: "/invisalign/resources",
-          anchorText: "Invisalign resources",
-          description: "Aftercare, wear time tips, and attachment guidance.",
-        },
-        {
-          href: "/teeth-whitening-palo-alto",
-          anchorText: "Teeth whitening in Palo Alto",
-          description: "Finish your new smile with brighter teeth.",
-        },
-        {
-          href: "/dental-veneers",
-          anchorText: "Cosmetic veneers in Palo Alto",
-          description: "Cover chips, gaps, and discoloration.",
-        },
-        {
-          href: "/services",
-          anchorText: "Other dental services in Palo Alto",
-        },
-      ];
-    }
-
-    if (slugLower.includes("emergency") || categoryLower.includes("emergency")) {
-      return [
-        {
-          href: "/emergency-dental",
-          anchorText: "Emergency dentist in Palo Alto",
-          description: "Same‑day care for toothaches and injuries.",
-        },
-        {
-          href: "/services#preventive-dentistry",
-          anchorText: "Preventive dentistry",
-          description: "Cleanings and exams to avoid future emergencies.",
-        },
-        {
-          href: "/dental-implants",
-          anchorText: "Dental implants",
-          description: "Replace teeth that can’t be saved.",
-        },
-        {
-          href: "/contact",
-          anchorText: "Contact our office",
-        },
-      ];
-    }
-
-    if (
-      slugLower.includes("veneers") ||
-      categoryLower.includes("cosmetic")
-    ) {
-      return [
-        {
-          href: "/dental-veneers",
-          anchorText: "Dental veneers in Palo Alto",
-          description: "Porcelain or composite veneers for a new smile.",
-        },
-        {
-          href: "/teeth-whitening-palo-alto",
-          anchorText: "Teeth whitening in Palo Alto",
-          description: "In‑office whitening and custom take‑home trays.",
-        },
-        {
-          href: "/invisalign",
-          anchorText: "Invisalign clear aligners",
-          description: "Straighten teeth before cosmetic finishing.",
-        },
-        {
-          href: "/services",
-          anchorText: "Explore all services",
-        },
-      ];
-    }
-
-    if (
-      slugLower.includes("crown") ||
-      slugLower.includes("filling") ||
-      categoryLower.includes("restorative")
-    ) {
-      return [
-        {
-          href: "/crowns-palo-alto",
-          anchorText: "Dental crowns in Palo Alto",
-          description: "Full-coverage protection for cracked or heavily restored teeth.",
-        },
-        {
-          href: "/cavity-fillings-palo-alto",
-          anchorText: "Cavity fillings in Palo Alto",
-          description: "Tooth-colored fillings for smaller areas of decay or damage.",
-        },
-        {
-          href: "/restorative-dentistry",
-          anchorText: "Restorative dentistry",
-          description: "Compare fillings, crowns, bridges, and other repair options.",
-        },
-        {
-          href: "/schedule",
-          anchorText: "Request a restorative exam",
-        },
-      ];
-    }
-
-    if (
-      slugLower.includes("menlo-park") ||
-      slugLower.includes("family") ||
-      slugLower.includes("kids") ||
-      slugLower.includes("pediatric") ||
-      categoryLower.includes("family") ||
-      categoryLower.includes("pediatric")
-    ) {
-      return [
-        {
-          href: "/dentist-menlo-park",
-          anchorText: "Menlo Park family dentist",
-          description:
-            "Family dental care for kids, teens, and adults—nearby in Palo Alto.",
-        },
-        {
-          href: "/pediatric-dentistry",
-          anchorText: "Pediatric dentist for kids’ visits",
-          description: "Gentle, prevention‑focused care for children and teens.",
-        },
-        {
-          href: "/dental-cleaning-palo-alto",
-          anchorText: "Dental cleanings and checkups",
-          description: "Preventive visits that keep teeth and gums healthy.",
-        },
-        {
-          href: "/services",
-          anchorText: "Explore all dental services",
-        },
-      ];
-    }
-
-    return [
-      { href: "/services", anchorText: "Dental services in Palo Alto" },
-      { href: "/schedule", anchorText: "Request an appointment" },
-      { href: "/contact", anchorText: "Contact our office" },
-    ];
-  })();
-  const parsedContent = useMemo(() => {
-    if (!post?.content) return [];
-    const lines = post.content
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean);
-
-    const blocks: React.ReactNode[] = [];
-    let bulletList: string[] | null = null;
-    let orderedList: string[] | null = null;
-
-    const flushLists = () => {
-      if (bulletList) {
-        blocks.push(
-          <ul key={`ul-${blocks.length}`}>
-            {bulletList.map((item, idx) => (
-              <li key={idx}>{renderInlineMarkdown(item)}</li>
-            ))}
-          </ul>,
-        );
-      }
-      if (orderedList) {
-        blocks.push(
-          <ol key={`ol-${blocks.length}`}>
-            {orderedList.map((item, idx) => (
-              <li key={idx}>{renderInlineMarkdown(item)}</li>
-            ))}
-          </ol>,
-        );
-      }
-      bulletList = null;
-      orderedList = null;
-    };
-
-    lines.forEach((line) => {
-      if (/^-\s+/.test(line)) {
-        orderedList = null;
-        bulletList = bulletList ?? [];
-        bulletList.push(line.replace(/^-\s+/, ""));
-        return;
-      }
-
-      if (/^\d+[.)]\s+/.test(line)) {
-        bulletList = null;
-        orderedList = orderedList ?? [];
-        orderedList.push(line.replace(/^\d+[.)]\s+/, ""));
-        return;
-      }
-
-      flushLists();
-
-      const markdownHeading = getMarkdownHeading(line);
-      if (markdownHeading) {
-        blocks.push(
-          markdownHeading.level === 3 ? (
-            <h3 key={`h3-${blocks.length}`}>{markdownHeading.text}</h3>
-          ) : (
-            <h2 key={`h2-${blocks.length}`}>{markdownHeading.text}</h2>
-          ),
-        );
-      } else if (isLegacyHeading(line)) {
-        blocks.push(
-          <h2 key={`h2-${blocks.length}`}>
-            {line.replace(/[:?]$/, "")}
-          </h2>,
-        );
-      } else {
-        blocks.push(
-          <p key={`p-${blocks.length}`}>{renderInlineMarkdown(line)}</p>,
-        );
-      }
-    });
-
-    flushLists();
-    return blocks;
-  }, [post?.content]);
-
-  if (isLoading) {
-    return (
-      <section className="py-24">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="animate-pulse space-y-6">
-            <div className="h-6 bg-gray-200 rounded w-1/3" />
-            <div className="h-10 bg-gray-200 rounded w-2/3" />
-            <div className="h-96 bg-gray-200 rounded" />
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  if (!post) {
-    return (
-      <section className="py-24">
-        <div className="max-w-4xl mx-auto px-4 text-center space-y-4">
-          <p className="text-gray-500">We couldn't find that article.</p>
-          <Button onClick={() => router.push("/blog")} className="bg-primary text-white">
-            Back to Blog
-          </Button>
-        </div>
-      </section>
-    );
-  }
-
-  const supplementalContent = getBlogSupplementalContent(post.category);
-  const articleSummary = buildExcerpt(post.content, 180);
-  const articleArtImage =
-    resolvedBlogImage ?? blogOgImage ?? "/images/dr_wong_polaroids.png";
-  const customArticleImage = getCustomBlogImagePath(post);
+  const askCard = (
+    <div className="surface-evergreen on-dark rounded-[1.75rem] p-6 shadow-soft">
+      <p className="eyebrow eyebrow-light">Your own tooth</p>
+      <p className="mt-3 font-heading text-[1.45rem] leading-tight text-cream-50">
+        Want Dr. Wong to take a look?
+      </p>
+      <p className="mt-2 text-[15px] leading-6 text-evergreen-100/90">
+        Articles are general. An exam tells you what’s actually going on and what your options are.
+      </p>
+      <div className="mt-5 grid gap-2.5">
+        <Link
+          href="/schedule#appointment"
+          className="btn btn-gold"
+          data-analytics-context="blog-post-aside-request"
+        >
+          <CalendarDays aria-hidden="true" />
+          Request a visit
+        </Link>
+        <a
+          href={`tel:${officeInfo.phoneE164}`}
+          className="btn btn-outline-light"
+          data-analytics-context="blog-post-aside-call"
+          aria-label={`Call Dr. Wong's office at ${officeInfo.phone}`}
+        >
+          <Phone aria-hidden="true" />
+          {officeInfo.phone}
+        </a>
+      </div>
+    </div>
+  );
 
   return (
     <>
-      <MetaTags
-        title={pageTitle}
-        description={pageDescription}
-        image={articleArtImage || blogOgImage}
-        type="article"
-        url={pageUrl}
-      />
-      {structuredDataNodes.length > 0 && (
-        <StructuredData data={structuredDataNodes} />
-      )}
-      <PageBreadcrumbs items={breadcrumbItems} />
-      <section className="bg-[#F5F9FC] py-12">
-        <div className="max-w-5xl mx-auto px-4">
-          <Button
-            variant="ghost"
-            onClick={() => router.push("/blog")}
-            className="mb-6 inline-flex items-center text-primary hover:bg-primary/5"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" /> Back to Blog
-          </Button>
-          <div className="flex items-center text-sm text-gray-500 mb-6">
-            <Calendar className="h-4 w-4 mr-2" />
-            <span>{post.date}</span>
-            {post.readTime ? (
-              <>
-                <span className="mx-2">•</span>
-                <Clock className="h-4 w-4 mr-2" />
-                <span>{post.readTime} min read</span>
-              </>
-            ) : null}
-            {post.category ? (
-              <>
-                <span className="mx-2">•</span>
-                <Tag className="h-4 w-4 mr-2" />
-                <span>{post.category}</span>
-              </>
-            ) : null}
-          </div>
-          <h1 className="text-4xl font-heading font-bold text-[#333333] mb-4 sm:mb-6">{post.title}</h1>
-          <p className="text-lg text-gray-600 max-w-3xl mb-6">
-            {articleSummary}
-          </p>
-          <div className="mb-10 overflow-hidden rounded-[32px] border border-sky-100/80 bg-white shadow-[0_30px_90px_-48px_rgba(15,23,42,0.4)]">
-            {customArticleImage ? (
-              <OptimizedImage
-                src={customArticleImage}
-                alt={`Editorial illustration for ${post.title}`}
-                width={1200}
-                height={675}
-                sizes="(max-width: 1024px) 100vw, 960px"
-                className="h-56 w-full sm:h-72 md:h-[420px]"
-                objectPosition="50% 50%"
-              />
-            ) : (
-              <AbstractBlogArt
-                slug={post.slug}
-                className="h-56 sm:h-72 md:h-[420px]"
-              />
-            )}
-          </div>
-          <article
-	            className={cn(
-	              "bg-white rounded-3xl shadow-xl border border-[#E5E7EB]/80",
-	              "p-6 sm:p-8 break-words",
-                "prose prose-lg prose-slate max-w-none",
-                "prose-headings:font-heading prose-headings:text-[#1F2933]",
-                "prose-p:text-slate-700 prose-li:text-slate-700 prose-li:marker:text-slate-400",
-	            )}
-	          >
-            {parsedContent}
-            {supplementalContent ? (
-              <>
-                <hr />
-                <h2>{supplementalContent.heading}</h2>
-                {supplementalContent.paragraphs.map((paragraph, index) => (
-                  <p key={`supplemental-${index}`}>{paragraph}</p>
-                ))}
-                {supplementalContent.bullets ? (
-                  <ul>
-                    {supplementalContent.bullets.map((item, index) => (
-                      <li key={`supplemental-bullet-${index}`}>{item}</li>
-                    ))}
-                  </ul>
+      <StructuredData data={structuredDataNodes} />
+
+      <article aria-labelledby="article-title">
+        <header className="paper relative isolate overflow-hidden">
+          <div className="mx-auto grid max-w-7xl gap-10 px-4 pb-12 pt-6 sm:px-6 sm:pb-14 sm:pt-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-end lg:gap-14 lg:px-8 lg:pb-16">
+            <div className="min-w-0 max-w-4xl">
+              <PageBreadcrumbs items={breadcrumbItems} inline className="mb-6 sm:mb-8 [&_li:last-child]:hidden [&_li:nth-last-child(2)_svg]:hidden" />
+              <Link
+                href={`/blog?category=${normalizeCategory(post.category)}`}
+                className="inline-flex min-h-11 items-center gap-2.5 rounded-full text-[0.8125rem] font-semibold uppercase tracking-[0.16em] text-evergreen-600 hover:text-evergreen-800"
+              >
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-evergreen-800 text-gold-300">
+                  <ServiceIcon name={topic.icon} animated={false} className="h-5 w-5" />
+                </span>
+                {topic.label}
+              </Link>
+              <h1
+                id="article-title"
+                className="h-display mt-4 text-balance text-[2rem] sm:text-[2.7rem] lg:text-[3.15rem]"
+              >
+                {post.title}
+              </h1>
+              <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3 text-sm text-ink-muted">
+                <span className="flex items-center gap-2.5">
+                  <Image
+                    src="/images/about/dr-wong-portrait.webp"
+                    alt=""
+                    width={64}
+                    height={64}
+                    sizes="32px"
+                    className="h-8 w-8 rounded-full object-cover object-[50%_22%] ring-2 ring-cream-50"
+                  />
+                  <span>
+                    From the office of{" "}
+                    <Link href="/about" className="link-rooted">
+                      Dr. Christopher B. Wong
+                    </Link>
+                  </span>
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <CalendarDays className="h-4 w-4 text-evergreen-600" aria-hidden="true" />
+                  <time dateTime={postIsoDate ?? undefined}>{post.date}</time>
+                </span>
+                {post.readTime ? (
+                  <span className="flex items-center gap-1.5">
+                    <Clock className="h-4 w-4 text-evergreen-600" aria-hidden="true" />
+                    {post.readTime} min read
+                  </span>
                 ) : null}
-              </>
-            ) : null}
-          </article>
+              </div>
+            </div>
+            <div className="hidden lg:block" aria-hidden="true">
+              <BlogCover
+                slug={post.slug}
+                category={post.category}
+                size="hero"
+                caption="Patient guide"
+                className="aspect-[4/3.4] rounded-[2rem] shadow-soft"
+              />
+            </div>
+          </div>
+        </header>
+
+        <div className="bg-white px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+          <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[minmax(0,68ch)_18rem] lg:justify-between lg:gap-16">
+            <div className="min-w-0">
+              {toc.length > 2 ? (
+                <details className="faq-item group mb-10 rounded-[1.5rem] border border-cream-300/80 bg-cream-50 lg:hidden">
+                  <summary className="flex min-h-14 cursor-pointer items-center justify-between gap-4 px-5 py-3 font-semibold text-ink">
+                    <span className="flex items-center gap-2.5">
+                      <ListOrdered className="h-5 w-5 text-evergreen-600" aria-hidden="true" />
+                      In this article
+                    </span>
+                    <span
+                      aria-hidden="true"
+                      className="faq-plus flex h-8 w-8 items-center justify-center rounded-full bg-evergreen-50 text-lg text-evergreen-700 group-open:bg-evergreen-800 group-open:text-gold-300"
+                    >
+                      +
+                    </span>
+                  </summary>
+                  <div className="px-2 pb-3">{tocList}</div>
+                </details>
+              ) : null}
+
+              <div className="max-w-[68ch]">
+                {blocks.map((block, index) => renderBlock(block, index, index === firstParagraph))}
+
+                <section
+                  aria-labelledby="article-takeaways"
+                  className="mt-14 rounded-[1.75rem] border border-cream-300/80 bg-cream-100 p-6 sm:p-8"
+                >
+                  <p className="eyebrow">From our office</p>
+                  <h2
+                    id="article-takeaways"
+                    className="mt-3 text-balance font-heading text-[1.5rem] font-medium leading-tight text-ink sm:text-[1.8rem]"
+                  >
+                    {supplemental.heading}
+                  </h2>
+                  {supplemental.paragraphs.map((paragraph) => (
+                    <p key={paragraph} className="mt-4 text-[1.0625rem] leading-8 text-ink-soft">
+                      {paragraph}
+                    </p>
+                  ))}
+                  {supplemental.bullets ? (
+                    <ul className="mt-5 grid gap-2.5">
+                      {supplemental.bullets.map((item) => (
+                        <li key={item} className="flex items-start gap-3 text-[1.0625rem] leading-7 text-ink">
+                          <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-evergreen-800 text-gold-300">
+                            <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                          </span>
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </section>
+
+                <AuthorBox className="mt-10" />
+
+                <div className="mt-10 lg:hidden">{askCard}</div>
+              </div>
+            </div>
+
+            <aside aria-label="Article tools" className="hidden lg:block">
+              <div className="sticky top-[calc(var(--header-height,110px)+1.5rem)] space-y-6">
+                {toc.length > 2 ? (
+                  <nav aria-label="In this article" className="rounded-[1.5rem] border border-cream-300/80 bg-cream-50 p-3">
+                    <p className="px-3 pb-1 pt-2 text-xs font-bold uppercase tracking-[0.14em] text-ink-muted">
+                      In this article
+                    </p>
+                    {tocList}
+                  </nav>
+                ) : null}
+                {askCard}
+              </div>
+            </aside>
+          </div>
         </div>
-      </section>
-      <AuthorBox />
+      </article>
+
       <RelatedServices
         items={relatedServices}
-        title="Related services in Palo Alto"
-        subtitle="Explore treatments that complement this topic."
-        className="bg-[#F5F9FC]"
+        title="Care related to this article"
+        subtitle="Each page explains the visit, what it costs, and what Dr. Wong looks for."
+        className="bg-cream-50"
       />
+
       {relatedPosts.length > 0 ? (
-        <section className="bg-white py-12">
-          <div className="max-w-5xl mx-auto px-4">
-            <h2 className="text-2xl font-heading font-bold text-[#1F2933] mb-2">
-              Related articles
-            </h2>
-            <p className="text-slate-600 mb-6">
-              Continue learning with other patient-friendly guides from our team.
-            </p>
-            <div className="grid gap-4 md:grid-cols-3">
-              {relatedPosts.map((relatedPost) => (
-                <Link
-                  key={relatedPost.id}
-                  href={`/blog/${relatedPost.slug}`}
-                  className="group rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md"
-                >
-                  <p className="text-xs font-semibold uppercase tracking-wide text-primary">
-                    Related post
-                  </p>
-                  <h3 className="mt-2 text-base font-semibold text-slate-900 group-hover:text-primary">
-                    {relatedPost.title}
-                  </h3>
-                  <p className="mt-3 inline-flex items-center text-sm font-semibold text-primary">
-                    Read article
-                    <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
-                  </p>
-                </Link>
-              ))}
+        <section aria-labelledby="related-articles-title" className="bg-cream-100 py-16 sm:py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+              <div className="max-w-2xl">
+                <p className="eyebrow">Keep reading</p>
+                <h2 id="related-articles-title" className="h-section mt-4">
+                  Related <em>articles</em>
+                </h2>
+              </div>
+              <Link href="/blog" className="btn btn-outline self-start sm:self-auto">
+                All articles
+                <ArrowRight aria-hidden="true" />
+              </Link>
             </div>
+            <ul className="reveal-stagger mt-10 grid gap-5 md:grid-cols-3">
+              {relatedPosts.map((related) => (
+                <li key={related.slug}>
+                  <BlogPostCard post={related} />
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
       ) : null}
+
+      <CtaBand analyticsContext="blog-post-cta" />
     </>
   );
 };

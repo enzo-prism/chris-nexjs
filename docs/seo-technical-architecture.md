@@ -58,19 +58,18 @@ even though the PNG route exists.
     - do not leave duplicate `robots.txt` files in `client/public` or `public`
     - explicitly include `Google-InspectionTool` because Search Console live tests use that token
     - keep blocked-bot groups isolated after the primary allowlist groups
-- `app/sitemap.ts`
-  - includes indexable static routes from `shared/seo.ts`
-  - includes blog post routes from storage
-  - emits `lastModified` only when a parseable date exists
-  - omits ignored `priority` and `changefreq` hints
-  - never emits current-time fallback timestamps for unknown dates
-  - known issue: `sitemap.xml` is still a full `urlset`, not a sitemap index, so
-    every URL it lists is also listed by the segment sitemaps
-    (`sitemap-services.xml`, `sitemap-locations.xml`, `sitemap-blog.xml`) that
-    `robots.txt` submits alongside it. The duplicates also disagree on `lastmod`
-    format (`2026-07-15T00:00:00.000Z` vs `2026-07-15`). Converting the root to
-    a `sitemapindex` is the right shape but changes what `test:seo` and
-    `test:seo:freshness` read, so it needs its own pass.
+- `app/sitemap.xml/route.ts` (since 2026-10-16)
+  - the root `/sitemap.xml` is a `<sitemapindex>` over four segment urlsets
+    built in `app/sitemap-xml-utils.ts`: `/sitemap-pages.xml` (home, trust,
+    legal), `/sitemap-services.xml`, `/sitemap-locations.xml`, and
+    `/sitemap-blog.xml` (the `/blog` hub plus every post), so each URL is
+    listed exactly once (the old root urlset duplicated every segment)
+  - segment membership follows `seoCluster` in `shared/seo.ts` (the homepage
+    is filed under pages)
+  - includes only indexable routes and blog posts from storage
+  - emits `lastmod` (`YYYY-MM-DD`) only when a parseable date exists; never a
+    current-time fallback; no `priority`/`changefreq`
+  - `robots.txt` submits only the index
 - RSS feed:
   - canonical feed URL: `/rss.xml` (`app/rss.xml/route.ts`)
   - backward-compatible API route: `/api/rss.xml`
@@ -95,12 +94,40 @@ even though the PNG route exists.
    - no ambiguous empty user-agent groups
    - explicit allow groups for `Googlebot` and `Google-InspectionTool`
 7. Canonical host redirects should be permanent (`301`/`308`), not temporary (`307`).
-8. Retired city pages and duplicate article URLs must use one-hop redirects and remain absent from sitemaps and internal links.
+8. Retired city pages, merged service pages, and duplicate article URLs must use one-hop redirects (`staticLegacyRedirects` in `shared/redirects.ts`, applied by `middleware.ts`) and remain absent from sitemaps and internal links. The 2026-10-16 merges are listed in `docs/seo-keyword-map.md`; `/zoom-whitening` redirects on an exact match only, so the noindex `/zoom-whitening/schedule` campaign route keeps working.
 9. The practice `Dentist`/`Organization` entity schema belongs on the homepage. Nearby-city pages must not represent separate local businesses.
 10. Visible third-party reviews may remain for trust, but the practice does not emit self-serving `Review` or `aggregateRating` schema.
 11. Schema properties are omitted, never emitted empty. `specialOpeningHoursSpecification` disappears once every temporary-hours entry has expired rather than serializing as `[]`.
 12. Display copy is not reused as schema values without checking the relationship it asserts. `doctorInfo.credentials` is About-page copy and names the dental school as "… Graduate"; mapped straight into `memberOf` it invents an organization by that name and duplicates `alumniOf`, so the alumni entry is filtered out in `buildPersonSchema`.
 13. Every `ogImage` resolves to a JPEG under `public/images/og/` (see "Social share images").
+
+## Structured data map (2026-10-16 "Rooted" redesign)
+
+Builders live in `client/src/lib/structuredData.ts`; pages emit them through
+`<StructuredData>`.
+
+- Homepage: `Dentist`/`Organization` (no founder, priceRange, paymentAccepted,
+  or aggregateRating), Dr. Wong `Person`, and `WebSite` **without** a
+  `SearchAction` (Google retired the sitelinks search box in 2024, and the site
+  has no search results page). `scripts/seo-structured-data-audit.ts` now fails
+  if a SearchAction comes back.
+- Service pages: `buildServiceSchema` emits a `@graph` with a
+  `MedicalWebPage` (`reviewedBy` → Dr. Wong's Person `@id`, `lastReviewed`,
+  `specialty` Dentistry, a real office photo as `primaryImageOfPage`), the
+  `Service` (provider → practice `@id`), and an optional `MedicalProcedure`.
+  Pages also keep their `FAQPage` and `BreadcrumbList`. `HowTo` is gone (Google
+  stopped showing HowTo results).
+- `/about`: `ProfilePage` → Dr. Wong `Person` (`buildProfilePageSchema`) plus a
+  `Person` per team member (`buildTeamPersonSchemas(team)`, `worksFor` the
+  practice). The team array is passed in rather than imported so team data
+  never ships in the shared shell.
+- `/office-tour` (the film's watch page): two `VideoObject`s for *Full Circle*
+  (`buildFullCircleVideoSchemas`: 2:14 landscape and 0:56 vertical cut, local
+  MP4s and JPEG posters) next to the office-clip VideoObjects.
+- `/services` and `/locations`: `CollectionPage` + `ItemList`.
+- Blog posts: `BlogPosting` + `BreadcrumbList`.
+- Never: `Review` or `AggregateRating` (`buildReviewSchemas` is a deliberate
+  no-op), `HowTo`, or separate local-business entities on city pages.
 
 ## Automated SEO gates
 

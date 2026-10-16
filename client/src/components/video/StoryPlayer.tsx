@@ -9,6 +9,7 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
+  type Ref,
 } from "react";
 import {
   Captions,
@@ -92,6 +93,10 @@ export function StoryPlayer({
   const railRef = useRef<HTMLDivElement>(null);
   const hideTimer = useRef<number>(0);
   const rafRef = useRef<number>(0);
+  // The big play button unmounts once playback starts; a keyboard user's focus
+  // moves to the Play/Pause control instead of falling back to <body>.
+  const playPauseRef = useRef<HTMLButtonElement>(null);
+  const focusControlsOnStart = useRef(false);
   const tapRef = useRef<{ t: number; x: number; timer: number }>({ t: 0, x: 0, timer: 0 });
   const milestones = useRef<Set<number>>(new Set());
   const scrubbing = useRef(false);
@@ -161,6 +166,17 @@ export function StoryPlayer({
   }, []);
 
   useEffect(() => () => window.clearTimeout(hideTimer.current), []);
+
+  // While a film plays, floating chrome (the phone quick-action bar) steps
+  // aside so it never covers the player controls (see globals.css).
+  useEffect(() => {
+    const root = document.documentElement;
+    if (playing) root.dataset.videoPlaying = "true";
+    else delete root.dataset.videoPlaying;
+    return () => {
+      delete root.dataset.videoPlaying;
+    };
+  }, [playing]);
 
   // ---- Progress painting (rAF while playing, no React re-render per frame) --
   const paint = useCallback(() => {
@@ -270,6 +286,10 @@ export function StoryPlayer({
       video.src = pickSource(version.sources, containerRef.current);
     }
     if (at > 0) video.currentTime = at;
+    focusControlsOnStart.current = Boolean(
+      containerRef.current?.contains(document.activeElement) &&
+        document.activeElement !== containerRef.current,
+    );
     setStarted(true);
     setEnded(false);
     setFailed(false);
@@ -517,6 +537,12 @@ export function StoryPlayer({
     }
   };
 
+  useEffect(() => {
+    if (!started || !focusControlsOnStart.current) return;
+    focusControlsOnStart.current = false;
+    playPauseRef.current?.focus({ preventScroll: true });
+  }, [started]);
+
   const showChrome = !started || !playing || controlsVisible || ended;
   const activeChapter = [...chapters].reverse().find((c) => time >= c.start - 0.01);
   const hoverChapter = hover ? [...chapters].reverse().find((c) => hover.t >= c.start) : undefined;
@@ -660,7 +686,16 @@ export function StoryPlayer({
             </span>
           </button>
           {posterCaption ? (
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 p-5 sm:p-7">{posterCaption}</div>
+            // In a short landscape player on a phone the caption would collide
+            // with the centered Play button and its duration pill.
+            <div
+              className={cn(
+                "pointer-events-none absolute inset-x-0 bottom-0 p-5 sm:p-7",
+                !isPortrait && "hidden sm:block",
+              )}
+            >
+              {posterCaption}
+            </div>
           ) : null}
         </div>
       ) : null}
@@ -784,6 +819,7 @@ export function StoryPlayer({
             <PlayerButton
               label={playing ? "Pause" : ended ? "Replay" : "Play"}
               onClick={togglePlay}
+              buttonRef={playPauseRef}
             >
               {playing ? (
                 <Pause className="h-5 w-5 fill-current" />
@@ -832,15 +868,18 @@ function PlayerButton({
   label,
   onClick,
   pressed,
+  buttonRef,
   children,
 }: {
   readonly label: string;
   readonly onClick: () => void;
   readonly pressed?: boolean;
+  readonly buttonRef?: Ref<HTMLButtonElement>;
   readonly children: ReactNode;
 }) {
   return (
     <button
+      ref={buttonRef}
       type="button"
       onClick={onClick}
       aria-label={label}

@@ -36,9 +36,7 @@ import Accessibility from "@/pages/Accessibility";
 import DentalVeneers from "@/pages/DentalVeneers";
 import DentalImplants from "@/pages/DentalImplants";
 import Invisalign from "@/pages/Invisalign";
-import InvisalignResources from "@/pages/InvisalignResources";
 import EmergencyDental from "@/pages/EmergencyDental";
-import ZoomWhitening from "@/pages/ZoomWhitening";
 import ZoomWhiteningSchedule from "@/pages/ZoomWhiteningSchedule";
 import PreventiveDentistry from "@/pages/PreventiveDentistry";
 import RestorativeDentistry from "@/pages/RestorativeDentistry";
@@ -47,17 +45,9 @@ import TeethWhiteningPaloAlto from "@/pages/TeethWhiteningPaloAlto";
 import DentalCleaningPaloAlto from "@/pages/DentalCleaningPaloAlto";
 import CavityFillingsPaloAlto from "@/pages/CavityFillingsPaloAlto";
 import CrownsPaloAlto from "@/pages/CrownsPaloAlto";
-import PediatricDentistPaloAlto from "@/pages/PediatricDentistPaloAlto";
 import DentistMenloPark from "@/pages/DentistMenloPark";
 import DentistStanford from "@/pages/DentistStanford";
 import DentistMountainView from "@/pages/DentistMountainView";
-import DentistLosAltos from "@/pages/DentistLosAltos";
-import DentistLosAltosHills from "@/pages/DentistLosAltosHills";
-import DentistSunnyvale from "@/pages/DentistSunnyvale";
-import DentistCupertino from "@/pages/DentistCupertino";
-import DentistRedwoodCity from "@/pages/DentistRedwoodCity";
-import DentistAtherton from "@/pages/DentistAtherton";
-import DentistRedwoodShores from "@/pages/DentistRedwoodShores";
 import Locations from "@/pages/Locations";
 import Blog from "@/pages/Blog";
 import BlogPost from "@/pages/BlogPost";
@@ -111,7 +101,6 @@ function Router() {
             <Route path="/accessibility" component={Accessibility} />
             <Route path="/dental-veneers" component={DentalVeneers} />
             <Route path="/dental-implants" component={DentalImplants} />
-            <Route path="/zoom-whitening" component={ZoomWhitening} />
             <Route path="/preventive-dentistry" component={PreventiveDentistry} />
             <Route path="/restorative-dentistry" component={RestorativeDentistry} />
             <Route path="/pediatric-dentistry" component={PediatricDentistry} />
@@ -119,20 +108,11 @@ function Router() {
             <Route path="/dental-cleaning-palo-alto" component={DentalCleaningPaloAlto} />
             <Route path="/cavity-fillings-palo-alto" component={CavityFillingsPaloAlto} />
             <Route path="/crowns-palo-alto" component={CrownsPaloAlto} />
-            <Route path="/pediatric-dentist-palo-alto" component={PediatricDentistPaloAlto} />
             <Route path="/dentist-menlo-park" component={DentistMenloPark} />
             <Route path="/dentist-stanford" component={DentistStanford} />
             <Route path="/dentist-mountain-view" component={DentistMountainView} />
-            <Route path="/dentist-los-altos" component={DentistLosAltos} />
-            <Route path="/dentist-los-altos-hills" component={DentistLosAltosHills} />
-            <Route path="/dentist-sunnyvale" component={DentistSunnyvale} />
-            <Route path="/dentist-cupertino" component={DentistCupertino} />
-            <Route path="/dentist-redwood-city" component={DentistRedwoodCity} />
-            <Route path="/dentist-atherton" component={DentistAtherton} />
-            <Route path="/dentist-redwood-shores" component={DentistRedwoodShores} />
             <Route path="/locations" component={Locations} />
             <Route path="/invisalign" component={Invisalign} />
-            <Route path="/invisalign/resources" component={InvisalignResources} />
             <Route path="/emergency-dental" component={EmergencyDental} />
             <Route path="/zoom-whitening/schedule" component={ZoomWhiteningSchedule} />
             <Route path="/analytics" component={AnalyticsMinimal} />

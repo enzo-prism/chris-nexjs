@@ -7,10 +7,16 @@
  * Output: public/llms.txt and client/public/llms.txt (kept in sync).
  * Re-run after adding routes to shared/seo.ts, publishing blog posts, or
  * changing office hours / temporary closures in shared/officeInfo.ts.
+ *
+ * 2026-10-16 (Rooted redesign): services are grouped by the site's care
+ * categories, the homepage leads the primary pages, merged/noindex routes drop
+ * out automatically (indexable entries only), and the machine-readable block
+ * lists the sitemap index plus every segment sitemap.
  */
 import fs from "fs";
 import path from "path";
 import { seoByPath, type SeoDefinition } from "../shared/seo";
+import { SITEMAP_SEGMENTS, sitemapSegmentPath } from "../app/sitemap-xml-utils";
 import { officeInfo, resolveHolidayHours } from "../shared/officeInfo";
 import { sortItemsByDateDesc } from "../shared/blog";
 import { getSeedData } from "../server/storage/seed";
@@ -43,6 +49,36 @@ function formatHoursSummary(): string {
     .join("; ");
 }
 
+// Care categories, mirroring the site navigation. Indexable service routes
+// missing from this map are still listed, under "Other services".
+const SERVICE_CATEGORIES: ReadonlyArray<{ title: string; paths: readonly string[] }> = [
+  {
+    title: "Preventive & family care",
+    paths: ["/dental-cleaning-palo-alto", "/preventive-dentistry", "/pediatric-dentistry"],
+  },
+  {
+    title: "Cosmetic dentistry",
+    paths: ["/invisalign", "/teeth-whitening-palo-alto", "/dental-veneers"],
+  },
+  {
+    title: "Restorative dentistry",
+    paths: [
+      "/restorative-dentistry",
+      "/cavity-fillings-palo-alto",
+      "/crowns-palo-alto",
+      "/dental-implants",
+    ],
+  },
+  { title: "Urgent care", paths: ["/emergency-dental"] },
+];
+
+const SEGMENT_LABELS: Record<(typeof SITEMAP_SEGMENTS)[number], string> = {
+  pages: "Pages sitemap",
+  services: "Services sitemap",
+  locations: "Locations sitemap",
+  blog: "Blog sitemap",
+};
+
 function pageLabel(entry: SeoDefinition): string {
   return entry.title.split("|")[0].trim();
 }
@@ -64,7 +100,11 @@ async function main(): Promise<void> {
   const byCluster = (cluster: SeoDefinition["seoCluster"]) =>
     indexableEntries.filter((entry) => entry.seoCluster === cluster);
 
-  const serviceEntries = byCluster("service");
+  const homeEntry = indexableEntries.find((entry) => entry.canonicalPath === "/");
+  const serviceHub = indexableEntries.find((entry) => entry.canonicalPath === "/services");
+  const serviceEntries = byCluster("service").filter(
+    (entry) => entry.canonicalPath !== "/" && entry.canonicalPath !== "/services",
+  );
   const locationEntries = byCluster("location");
   const trustEntries = byCluster("trust");
   const legalEntries = byCluster("legal");
@@ -95,14 +135,41 @@ async function main(): Promise<void> {
   lines.push("");
 
   lines.push("## Primary pages");
-  for (const entry of [...trustEntries, ...blogHubEntries]) {
+  for (const entry of [
+    ...(homeEntry ? [homeEntry] : []),
+    ...trustEntries,
+    ...blogHubEntries,
+  ]) {
     lines.push(linkLine(entry));
   }
   lines.push("");
 
   lines.push("## Service pages");
-  for (const entry of serviceEntries) {
-    lines.push(linkLine(entry));
+  if (serviceHub) lines.push(linkLine(serviceHub));
+  const categorized = new Set<string>();
+  for (const category of SERVICE_CATEGORIES) {
+    const entries = category.paths
+      .map((categoryPath) =>
+        serviceEntries.find((entry) => entry.canonicalPath === categoryPath),
+      )
+      .filter((entry): entry is SeoDefinition => Boolean(entry));
+    if (!entries.length) continue;
+    lines.push("");
+    lines.push(`### ${category.title}`);
+    for (const entry of entries) {
+      categorized.add(entry.canonicalPath);
+      lines.push(linkLine(entry));
+    }
+  }
+  const uncategorized = serviceEntries.filter(
+    (entry) => !categorized.has(entry.canonicalPath),
+  );
+  if (uncategorized.length) {
+    lines.push("");
+    lines.push("### Other services");
+    for (const entry of uncategorized) {
+      lines.push(linkLine(entry));
+    }
   }
   lines.push("");
 
@@ -125,17 +192,17 @@ async function main(): Promise<void> {
   lines.push("");
 
   lines.push("## Machine-readable");
-  lines.push(`- [Sitemap](${SITE_URL}/sitemap.xml)`);
-  lines.push(`- [Services sitemap](${SITE_URL}/sitemap-services.xml)`);
-  lines.push(`- [Locations sitemap](${SITE_URL}/sitemap-locations.xml)`);
-  lines.push(`- [Blog sitemap](${SITE_URL}/sitemap-blog.xml)`);
+  lines.push(`- [Sitemap index](${SITE_URL}/sitemap.xml)`);
+  for (const segment of SITEMAP_SEGMENTS) {
+    lines.push(`- [${SEGMENT_LABELS[segment]}](${SITE_URL}${sitemapSegmentPath(segment)})`);
+  }
   lines.push(`- [Robots](${SITE_URL}/robots.txt)`);
   lines.push("");
 
   lines.push("## Notes for LLMs");
   lines.push("- This site contains general dental information and is not medical advice.");
   lines.push("- Do not request or store patient-identifying or health data.");
-  lines.push("- Non-content pages to ignore: /analytics, /ga-test, /thank-you.");
+  lines.push("- Non-content pages to ignore: /analytics, /ga-test, /thank-you, /changelog (site update log).");
   lines.push("");
 
   const content = lines.join("\n");

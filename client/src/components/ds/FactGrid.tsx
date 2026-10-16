@@ -14,14 +14,16 @@ export function FactGrid({ facts, className }: { readonly facts: readonly Fact[]
       {facts.map((fact) => {
         const Icon = fact.icon;
         return (
-          <div key={fact.label} className="card flex items-start gap-4 p-5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-evergreen-50 text-evergreen-700">
-              <Icon className="h-5 w-5" aria-hidden="true" />
-            </span>
-            <div>
-              <dt className="text-xs font-bold uppercase tracking-[0.14em] text-ink-muted">{fact.label}</dt>
-              <dd className="mt-1 font-semibold leading-snug text-ink">{fact.value}</dd>
-            </div>
+          // A <dl> may only wrap dt/dd groups: the icon sits inside <dt>,
+          // positioned against the card so the layout stays icon-left.
+          <div key={fact.label} className="card relative min-h-[5.25rem] p-5 pl-[4.75rem]">
+            <dt className="text-xs font-bold uppercase tracking-[0.14em] text-ink-muted">
+              <span className="absolute left-5 top-5 flex h-11 w-11 items-center justify-center rounded-2xl bg-evergreen-50 text-evergreen-700">
+                <Icon className="h-5 w-5" aria-hidden="true" />
+              </span>
+              {fact.label}
+            </dt>
+            <dd className="mt-1 font-semibold leading-snug text-ink">{fact.value}</dd>
           </div>
         );
       })}

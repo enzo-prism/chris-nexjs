@@ -1,35 +1,50 @@
-"use client";
-
-import { useQuery } from "@tanstack/react-query";
-import { type RouteComponentProps } from "wouter";
-import { ArrowRight } from "lucide-react";
-import ButtonLink from "@/components/common/ButtonLink";
+import Image from "next/image";
 import Link from "next/link";
-import ServiceCard from "@/components/common/ServiceCard";
-import type { InsertTestimonial, Service } from "@shared/schema";
-import OptimizedImage from "@/components/seo/OptimizedImage";
+import { ArrowRight, ClipboardList, ScanLine, Sprout } from "lucide-react";
+
+import type { Service } from "@shared/schema";
+import { GOOGLE_REVIEW_COUNT } from "@shared/reviewStats";
 import StructuredData from "@/components/seo/StructuredData";
-import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import FAQSection from "@/components/common/FAQSection";
-import TestimonialSection from "@/components/testimonials/TestimonialSection";
+import ServiceCard from "@/components/common/ServiceCard";
+import { PageHero } from "@/components/ds/PageHero";
+import { ReviewCard } from "@/components/ds/Reviews";
+import { Section } from "@/components/ds/Section";
+import { SectionHeading } from "@/components/ds/SectionHeading";
+import { serviceReviews } from "@/data/serviceReviews";
+import { hubGroups, hubServices } from "@/components/services-hub/hubServices";
+import { CostSection, KeepReading } from "@/components/services-hub/ServiceSections";
+import { ServicesCtaBand } from "@/components/services-hub/ServicesCtaBand";
 import {
   buildBreadcrumbSchema,
   buildCollectionPageSchema,
   buildFAQSchema,
-  buildItemListSchema,
   type FAQEntry,
+  type StructuredDataNode,
 } from "@/lib/structuredData";
 
-const preventiveDentistryFaqs: FAQEntry[] = [
+const SITE = "https://www.chriswongdds.com";
+
+const servicesFaqs: FAQEntry[] = [
+  {
+    question: "How do I know which service I need?",
+    answer:
+      "Start with an exam. We begin with a comprehensive exam and digital imaging to understand your teeth, gums, and bite. From there we map out options and explain timing, cost, and expected results, so you can decide what to do first.",
+  },
   {
     question: "How often should I schedule preventive visits?",
     answer:
       "Most patients benefit from exams and cleanings every six months. If you’re managing gum disease, wear down teeth from grinding, or have frequent cavities, we may recommend visits every 3–4 months for added protection.",
   },
   {
-    question: "What’s included in a preventive dentistry appointment?",
+    question: "What if I haven’t been to the dentist in a while?",
     answer:
-      "A typical visit includes a professional cleaning, a detailed exam, gum health screening, and digital X‑rays when needed. We look for early signs of decay, infection, or bite issues so problems can be treated before they become painful.",
+      "You’re not alone. We’ll start with a comfortable, judgment‑free exam and a plan that prioritizes your needs. Even after a long gap, preventive care is the best first step to get back on track.",
+  },
+  {
+    question: "Do you accept dental insurance?",
+    answer:
+      "We work with most major PPO plans as an out-of-network provider. Many plans include out-of-network benefits, and our team can verify coverage before treatment. We also accept Visa, MasterCard, FSA/HSA funds, and offer an in-house dental plan.",
   },
   {
     question: "Are dental X‑rays safe?",
@@ -37,310 +52,273 @@ const preventiveDentistryFaqs: FAQEntry[] = [
       "Yes. We use modern digital imaging, which reduces radiation exposure significantly compared to older film systems. We only take X‑rays at intervals that match your age, history, and risk level.",
   },
   {
-    question: "Can preventive care really stop cavities and gum disease?",
+    question: "What if I have a dental emergency?",
     answer:
-      "Preventive care can’t eliminate risk entirely, but it greatly lowers it. Regular cleanings remove hardened tartar that brushing can’t, and exams catch problems early when treatment is simpler and more affordable.",
-  },
-  {
-    question: "What if I haven’t been to the dentist in a while?",
-    answer:
-      "You’re not alone. We’ll start with a comfortable, judgment‑free exam and a plan that prioritizes your needs. Even after a long gap, preventive care is the best first step to get back on track.",
+      "If you have severe pain, swelling, bleeding, or a knocked-out tooth, please call our office right away. We reserve time in our schedule for emergency appointments and will do our best to see you the same day.",
   },
 ];
 
-const serviceHubTestimonials: readonly InsertTestimonial[] = [
-  {
-    name: "Steve Collins",
-    rating: 5,
-    location: "Google Review",
-    image: "",
-    text: "High skill level, modern tools, helpful guidance and a friendly demeanor. An excellent experience for cleanings and fillings. Strong recommend.",
-  },
-  {
-    name: "Sandi Spires",
-    rating: 5,
-    location: "Google Review",
-    image: "",
-    text: "Just had my 3rd crown installed. Dr. Kris takes great care to make the fit & bite perfect.",
-  },
-  {
-    name: "Michael Austin",
-    rating: 5,
-    location: "Google Review",
-    image: "",
-    text: "Been getting my dental care at this office for nearly 30 years, and both my parents did so before me. Kind and caring, gentle and good, and reasonably priced!",
-  },
-];
+// Verbatim quotes from client/src/data/serviceReviews.ts, one per kind of care.
+const hubQuoteNames = ["Steve Collins", "Irma Gali", "Jason Jones"] as const;
+const hubQuotes = hubQuoteNames.flatMap((name) => serviceReviews.filter((q) => q.name === name));
 
-type ServicesProps = Partial<
-  RouteComponentProps<Record<string, string | undefined>>
-> & {
-  initialServices?: Service[];
+const examSteps = [
+  {
+    icon: ScanLine,
+    title: "An exam and digital imaging",
+    body: "Dr. Wong looks at your teeth, gums, and bite, and explains what he sees in plain language.",
+  },
+  {
+    icon: ClipboardList,
+    title: "Options, timing, and cost",
+    body: "You’ll hear the choices, what each one involves, and what your plan is expected to cover.",
+  },
+  {
+    icon: Sprout,
+    title: "Care in phases, when you’re ready",
+    body: "Preventive visits build a healthy foundation; cosmetic or restorative work can follow.",
+  },
+] as const;
+
+type ServicesProps = {
+  /** Server-loaded service records (app/services/page.tsx). The cards now
+   *  come from siteNav so they match the header menu; kept for the route
+   *  contract. */
+  readonly initialServices?: Service[];
+  /** Legacy wouter `<Route component>` (client/src/App.tsx) passes route
+   *  params; declaring it keeps that call site type-compatible. Unused. */
+  readonly params?: unknown;
 };
 
-const Services = ({ initialServices }: ServicesProps) => {
-  const { data: services, isLoading } = useQuery<Service[]>({
-    queryKey: ["/api/services"],
-    initialData: initialServices,
-    enabled: typeof window !== "undefined" && !initialServices,
-  });
-
-  const servicesSchemas = [
-  ];
-
-  const itemListSchema =
-    services && services.length ? buildItemListSchema(services) : null;
-
+const Services = (_props: ServicesProps) => {
   const breadcrumbItems = [
     { name: "Home", path: "/" },
     { name: "Services", path: "/services" },
   ];
-  const serviceBreadcrumbs = buildBreadcrumbSchema(breadcrumbItems);
 
-  if (serviceBreadcrumbs) {
-    servicesSchemas.push(serviceBreadcrumbs);
-  }
-
-  const preventiveFaqSchema = buildFAQSchema(preventiveDentistryFaqs, "/services");
-  if (preventiveFaqSchema) {
-    servicesSchemas.push(preventiveFaqSchema);
-  }
-
-  const localServiceLinks = [
-    {
-      href: "/dental-cleaning-palo-alto",
-      title: "Dental cleaning in Palo Alto",
-      description: "Preventive visits designed to keep gums healthy and cavities away.",
-    },
-    {
-      href: "/teeth-whitening-palo-alto",
-      title: "Teeth whitening in Palo Alto",
-      description: "In-office and take-home options with dentist supervision.",
-    },
-    {
-      href: "/cavity-fillings-palo-alto",
-      title: "Cavity fillings in Palo Alto",
-      description: "Tooth-colored restorations that look natural and feel comfortable.",
-    },
-    {
-      href: "/crowns-palo-alto",
-      title: "Dental crowns in Palo Alto",
-      description: "Custom protection for cracked or heavily restored teeth.",
-    },
-    {
-      href: "/pediatric-dentistry",
-      title: "Children's dentistry in Palo Alto",
-      description: "Gentle preventive care for children and teens in a family setting.",
-    },
-    {
-      href: "/restorative-dentistry",
-      title: "Restorative dentistry in Palo Alto",
-      description: "Fillings, crowns, bridges, and implant restorations to rebuild function.",
-    },
-    {
-      href: "/pediatric-dentistry",
-      title: "Pediatric dentistry in Palo Alto",
-      description: "Family-centered preventive care for infants, children, and teens.",
-    },
-    {
-      href: "/dentist-menlo-park",
-      title: "Menlo Park family dentist",
-      description: "Convenient care nearby in our Palo Alto office.",
-    },
-    {
-      href: "/dentist-mountain-view",
-      title: "Mountain View family dentist",
-      description: "Comprehensive care close to Mountain View families.",
-    },
-    {
-      href: "/locations",
-      title: "All locations",
-      description: "Explore every Peninsula community we serve.",
-    },
-  ];
-
-  const serviceCollectionParts = localServiceLinks
-    .filter((link) => {
-      if (link.href === "/services") return false;
-      if (link.href === "/locations") return false;
-      if (link.href.startsWith("/dentist-")) return false;
-      return true;
-    })
-    .map((link) => ({
-      name: link.title,
-      path: link.href,
-      description: link.description,
-    }));
-  const serviceCollectionSchema = buildCollectionPageSchema({
-    path: "/services",
-    name: "Comprehensive Dental Services in Palo Alto",
-    description:
-      "Service hub for preventive, restorative, cosmetic, Invisalign, and emergency dental treatments in Palo Alto.",
-    parts: serviceCollectionParts,
+  const schemas: StructuredDataNode[] = [];
+  const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbItems);
+  if (breadcrumbSchema) schemas.push(breadcrumbSchema);
+  const faqSchema = buildFAQSchema(servicesFaqs, "/services");
+  if (faqSchema) schemas.push(faqSchema);
+  schemas.push({
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "@id": `${SITE}/services#item-list`,
+    name: "Dental services offered",
+    itemListOrder: "https://schema.org/ItemListOrderAscending",
+    numberOfItems: hubServices.length,
+    itemListElement: hubServices.map((service, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: service.name,
+      description: service.summary,
+      url: `${SITE}${service.href}`,
+    })),
   });
-
-  const fallbackItemListSchema =
-    itemListSchema ??
-    {
-      "@context": "https://schema.org",
-      "@type": "ItemList",
-      "@id": "https://www.chriswongdds.com/services#item-list-fallback",
-      name: "Dental services offered",
-      itemListElement: serviceCollectionParts.map((part, index) => ({
-        "@type": "ListItem",
-        position: index + 1,
-        name: part.name,
-        url: `https://www.chriswongdds.com${part.path}`,
-      })),
-    };
-  servicesSchemas.push(fallbackItemListSchema);
-  if (serviceCollectionSchema) {
-    servicesSchemas.push(serviceCollectionSchema);
-  }
+  const collectionSchema = buildCollectionPageSchema({
+    path: "/services",
+    name: "Dental services in Palo Alto",
+    description:
+      "Service hub for preventive, children’s, cosmetic, restorative, and emergency dental care at our Palo Alto office.",
+    parts: hubServices.map((service) => ({
+      name: service.name,
+      path: service.href,
+      description: service.summary,
+    })),
+  });
+  if (collectionSchema) schemas.push(collectionSchema);
 
   return (
     <>
-      <StructuredData data={servicesSchemas} />
-      <PageBreadcrumbs items={breadcrumbItems} />
-      {/* Services List */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h1 className="text-3xl md:text-4xl font-bold font-heading text-[#333333] mb-4">
-              Comprehensive Dental Services in Palo Alto, CA
-            </h1>
-            <p className="text-[#333333] max-w-3xl mx-auto">
-              From routine cleanings to complex restorations, we provide a full range of dental services for
-              patients in Palo Alto and nearby communities like Menlo Park and Stanford.
-            </p>
-            <div className="w-24 h-1 bg-primary mx-auto mt-4"></div>
-          </div>
-          
-          {isLoading ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[...Array(6)].map((_, index) => (
-                <div key={index} className="bg-white rounded-lg shadow-md h-64 animate-pulse">
-                  <div className="w-full h-48 bg-gray-200 rounded-t-lg"></div>
-                  <div className="p-6">
-                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {services?.map((service) => (
-                <ServiceCard key={service.id} service={service} />
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+      <StructuredData data={schemas} />
 
-      <section className="py-12 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl md:text-3xl font-bold font-heading text-[#333333] mb-3">
-              Popular Palo Alto Dental Services
-            </h2>
-            <p className="text-[#333333] max-w-3xl mx-auto">
-              Explore the most requested treatments in our Palo Alto office and learn more about care for
-              nearby neighborhoods and families.
-            </p>
+      <PageHero
+        crumbs={breadcrumbItems}
+        eyebrow="Our services"
+        title="Dental services in Palo Alto"
+        lead="From routine cleanings to complex restorations, Dr. Christopher B. Wong and our team care for children, teens, and adults from Palo Alto and nearby communities like Menlo Park and Stanford."
+        analyticsContext="services-hero"
+        chips={["PPO benefits checked first", "New patients welcome"]}
+        media={
+          <div className="grid grid-cols-5 gap-3 sm:gap-4">
+            <figure className="relative col-span-5 aspect-[16/11] overflow-hidden rounded-[2rem] bg-evergreen-900 shadow-lift sm:col-span-3 sm:row-span-2 sm:aspect-auto sm:min-h-[26rem]">
+              <Image
+                src="/images/redesign/dr-wong-white-coat-front-desk.webp"
+                alt="Dr. Christopher B. Wong in a white coat at the front desk"
+                fill
+                priority
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 60vw, 28vw"
+                className="object-cover object-[50%_22%]"
+              />
+              <figcaption className="absolute bottom-4 left-4 rounded-full bg-cream-50/90 px-3 py-1 text-sm font-semibold text-ink backdrop-blur">
+                Dr. Wong, at the office
+              </figcaption>
+            </figure>
+            <figure className="relative col-span-2 hidden overflow-hidden rounded-[1.5rem] bg-evergreen-900 sm:block">
+              <Image
+                src="/images/redesign/office-treatment-room.webp"
+                alt="Treatment room with a dental chair, monitor, and cabinetry"
+                fill
+                sizes="(max-width: 1024px) 40vw, 18vw"
+                className="object-cover"
+              />
+            </figure>
+            <figure className="relative col-span-2 hidden overflow-hidden rounded-[1.5rem] bg-evergreen-900 sm:block">
+              <Image
+                src="/images/redesign/office-aquarium-lounge.webp"
+                alt="The office lounge, with a reef aquarium and leather chairs"
+                fill
+                sizes="(max-width: 1024px) 40vw, 18vw"
+                className="object-cover object-[60%_40%]"
+              />
+            </figure>
           </div>
-
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {localServiceLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="group block h-full rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md"
-              >
-                <h3 className="text-lg font-semibold text-slate-900 group-hover:text-primary">
-                  {link.title}
-                </h3>
-                <p className="mt-2 text-sm text-slate-600">{link.description}</p>
-                <span className="mt-4 inline-flex items-center text-sm font-semibold text-primary">
-                  Learn more
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </span>
-              </Link>
+        }
+      >
+        <nav aria-label="Service categories" className="mt-7">
+          <p className="text-sm font-semibold text-ink-muted">Jump to</p>
+          <ul className="mt-2 flex flex-wrap gap-2">
+            {hubGroups.map((group) => (
+              <li key={group.id}>
+                <a
+                  href={`#${group.id}`}
+                  className="pill min-h-11 bg-white transition-colors hover:border-evergreen-400 hover:text-evergreen-800"
+                >
+                  {group.title}
+                  <span className="rounded-full bg-evergreen-50 px-2 py-0.5 text-xs font-bold text-evergreen-700">
+                    {group.services.length}
+                  </span>
+                </a>
+              </li>
             ))}
-          </div>
-        </div>
-      </section>
+          </ul>
+        </nav>
+      </PageHero>
 
-      <TestimonialSection
-        eyebrow="Google Reviews"
-        title="Patients notice the same things we focus on"
-        subtitle="Across preventive visits, restorative treatment, and family care, patients consistently call out thoughtful guidance, durable work, and a team that makes visits feel easy."
-        testimonials={serviceHubTestimonials}
-        className="bg-[#F5F9FC]"
+      {/* Services, in the same four groups as the header menu */}
+      <Section tone="white" label="Dental services by category" className="pt-12 sm:pt-16 lg:pt-20">
+        <div className="space-y-16 sm:space-y-20">
+          {hubGroups.map((group, index) => (
+            <section key={group.id} id={group.id} aria-labelledby={`${group.id}-title`} className="scroll-mt-24">
+              <div className="flex flex-col gap-3 border-b border-cream-300/80 pb-5 md:flex-row md:items-end md:justify-between md:gap-10">
+                <div className="flex items-baseline gap-4">
+                  <span aria-hidden="true" className="font-heading text-2xl italic text-gold-600 sm:text-3xl">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <h2 id={`${group.id}-title`} className="h-section text-[1.9rem] sm:text-[2.4rem]">
+                    {group.title}
+                  </h2>
+                </div>
+                <p className="max-w-md text-[15px] leading-7 text-ink-muted md:text-right">{group.blurb}</p>
+              </div>
+              <div className="reveal-stagger mt-6 grid gap-4 sm:mt-8 md:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+                {group.services.map((service) => (
+                  <div key={service.href} className={service.wide ? "md:col-span-2 lg:col-span-3" : undefined}>
+                    <ServiceCard service={service} />
+                  </div>
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
+      </Section>
+
+      {/* Not sure where to start */}
+      <Section tone="cream" labelledBy="start-title">
+        <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-16">
+          <div>
+            <SectionHeading
+              id="start-title"
+              eyebrow="Not sure where to start?"
+              title={
+                <>
+                  The right service starts <em>with an exam</em>
+                </>
+              }
+              lead="We begin with a comprehensive exam and digital imaging to understand your teeth, gums, and bite. Some care happens in phases, and we help you prioritize what will make the biggest difference."
+            />
+            <Link
+              href="/schedule?intent=preventive&source=services-start#appointment"
+              className="btn btn-primary mt-8"
+              data-analytics-context="services-start-request"
+            >
+              Request an exam
+              <ArrowRight aria-hidden="true" />
+            </Link>
+          </div>
+          <ol className="card reveal divide-y divide-cream-300/70">
+            {examSteps.map((step, i) => {
+              const Icon = step.icon;
+              return (
+                <li key={step.title} className="flex items-start gap-4 p-5 sm:p-6">
+                  <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-evergreen-800 text-gold-300">
+                    <Icon className="h-5 w-5" aria-hidden="true" />
+                    <span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-gold-400 text-[11px] font-bold text-evergreen-950">
+                      {i + 1}
+                    </span>
+                  </span>
+                  <div>
+                    <h3 className="h-card text-[1.2rem] sm:text-[1.25rem]">{step.title}</h3>
+                    <p className="mt-1 text-[15px] leading-6 text-ink-soft sm:leading-7">{step.body}</p>
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      </Section>
+
+      <CostSection
+        id="insurance"
+        title={
+          <>
+            Insurance and <em>payment</em>
+          </>
+        }
+        lead="We work with most major PPO dental insurance plans as an out-of-network provider. Our team helps you understand your coverage and make the most of your benefits, and patients without insurance can join our in-house dental plan."
+        analyticsContext="services-cost"
       />
+
+      {/* Reviews */}
+      <Section tone="white" labelledBy="services-reviews-title">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <SectionHeading
+            id="services-reviews-title"
+            eyebrow="Patient reviews"
+            title={
+              <>
+                Patients notice <em>the same things</em> we focus on
+              </>
+            }
+            lead="Thorough cleanings, careful fillings, clear explanations, and a team whole families stay with."
+          />
+          <Link href="/testimonials" className="btn btn-outline shrink-0 self-start sm:self-auto">
+            All {GOOGLE_REVIEW_COUNT} Google reviews
+            <ArrowRight aria-hidden="true" />
+          </Link>
+        </div>
+        <ul className="-mx-4 mt-8 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-3 md:mx-0 md:mt-10 md:grid md:grid-cols-3 md:gap-5 md:overflow-visible md:px-0 md:pb-0">
+          {hubQuotes.map((quote) => (
+            <li key={quote.name} className="w-[85%] max-w-[22rem] shrink-0 snap-start md:w-auto md:max-w-none">
+              <ReviewCard review={quote} />
+            </li>
+          ))}
+        </ul>
+        <p className="mt-1 text-sm text-ink-muted md:hidden" aria-hidden="true">
+          Swipe for more reviews →
+        </p>
+      </Section>
 
       <FAQSection
-        title="Preventive dentistry FAQs"
-        subtitle="Quick answers about checkups, cleanings, and keeping your smile healthy."
-        items={preventiveDentistryFaqs}
-        className="bg-white py-16"
+        title="Questions about our dental services"
+        subtitle="Quick answers about where to start, visit frequency, X‑rays, insurance, and urgent care."
+        items={servicesFaqs}
       />
 
-      {/* Insurance Section */}
-      <section className="py-16 bg-[#F5F9FC]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="md:flex items-center">
-            <div className="md:w-1/2 mb-8 md:mb-0">
-              <h2 className="text-3xl font-bold font-heading text-[#333333] mb-4">Insurance & Payment Options</h2>
-              <p className="text-[#333333] mb-4">We work with most major PPO dental insurance plans as an out-of-network provider and offer flexible payment options.</p>
-              <p className="text-[#333333] mb-6">Our team will help you understand your coverage and maximize your benefits. For patients without insurance, we offer an in-house dental plan.</p>
-              
-              <div className="bg-gray-50 p-5 rounded-lg border border-gray-200 mb-6">
-                <h3 className="text-xl font-bold font-heading text-[#333333] mb-3">PPO benefit support:</h3>
-                <p className="text-[#333333] mb-3">Many PPO plans include out-of-network benefits. We help verify your plan before treatment.</p>
-                <p className="text-[#333333]">Please contact our office to verify your specific plan's coverage before your appointment.</p>
-              </div>
-              
-              <ButtonLink
-                href="/patient-resources#insurance"
-                className="rounded-md bg-primary px-6 py-3 font-semibold text-white hover:bg-primary/90 active:bg-primary/80"
-              >
-                Learn More About Insurance
-              </ButtonLink>
-            </div>
-            <div className="md:w-1/2 md:pl-12">
-              <OptimizedImage
-                src="/images/hero-office-960.webp"
-                alt="Payment processing with mobile device"
-                className="w-full aspect-[4/3] object-cover rounded-lg shadow-xl"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
+      <KeepReading className="pt-12 sm:pt-16" />
 
-      {/* CTA Section */}
-      <section className="py-16 bg-primary">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold font-heading text-white mb-6">Ready to Request an Appointment?</h2>
-          <p className="text-white text-xl mb-8 max-w-3xl mx-auto">Send your request today. Our team will follow up to confirm an available time.</p>
-          <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <ButtonLink
-              href="/schedule#appointment"
-              className="rounded-md bg-white px-8 py-3 font-semibold text-primary hover:bg-gray-100"
-            >
-              Request an Appointment
-            </ButtonLink>
-            <ButtonLink
-              href="/contact"
-              variant="outline"
-              className="rounded-md border-2 border-white bg-transparent px-8 py-3 font-semibold text-white hover:bg-white/10"
-            >
-              Ask a Question
-            </ButtonLink>
-          </div>
-        </div>
-      </section>
+      <ServicesCtaBand />
     </>
   );
 };

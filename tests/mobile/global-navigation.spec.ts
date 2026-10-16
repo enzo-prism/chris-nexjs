@@ -21,28 +21,33 @@ test("mobile navigation exposes the current page and restores focus on close", a
   const mobileNav = page.getByRole("dialog", { name: "Mobile navigation" });
   await expect(mobileNav).toBeVisible();
   await expect(mobileNav).toHaveAttribute("aria-modal", "true");
-  await expect(mobileNav.getByRole("button", { name: "Services" })).toHaveAttribute(
-    "aria-expanded",
-    "true",
-  );
+  // The group holding the current page opens itself and marks the page.
+  await expect(mobileNav.getByRole("link", { name: "Invisalign", exact: true })).toBeVisible();
   await expect(mobileNav.getByRole("link", { name: "Invisalign", exact: true })).toHaveAttribute(
     "aria-current",
     "page",
   );
-  const homeLink = mobileNav.getByRole("link", { name: "Home", exact: true });
-  const firstLink = mobileNav.getByRole("link", {
-    name: "Christopher B. Wong, DDS home",
-  });
-  const lastLink = mobileNav.getByRole("link", {
-    name: /Get directions.+opens in a new tab/,
-  });
-  await expect(homeLink).toBeFocused();
+  // Initial focus lands on the dialog's close control.
+  await expect(mobileNav.getByRole("button", { name: "Close navigation menu" })).toBeFocused();
 
-  await lastLink.focus();
+  // Focus is contained: Tab from the last focusable wraps to the first, and back.
+  const firstLink = mobileNav.getByRole("link", { name: "Christopher B. Wong, DDS home" });
+  await mobileNav.evaluate((dialog) => {
+    const focusable = Array.from(
+      dialog.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), summary'),
+    ).filter((el) => el.checkVisibility()); // skips links inside closed <details>
+    focusable[focusable.length - 1]?.focus();
+  });
   await page.keyboard.press("Tab");
   await expect(firstLink).toBeFocused();
   await page.keyboard.press("Shift+Tab");
-  await expect(lastLink).toBeFocused();
+  const lastIsFocused = await mobileNav.evaluate((dialog) => {
+    const focusable = Array.from(
+      dialog.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), summary'),
+    ).filter((el) => el.checkVisibility()); // skips links inside closed <details>
+    return document.activeElement === focusable[focusable.length - 1];
+  });
+  expect(lastIsFocused).toBe(true);
 
   await page.keyboard.press("Escape");
   await expect(mobileNav).toHaveCount(0);
@@ -56,10 +61,13 @@ test("global appointment actions use one clear label and accessible contact name
 }) => {
   await gotoAndHydrate(page, "/");
 
+  // The floating bar slides in once the visitor scrolls past the hero.
+  await page.mouse.wheel(0, 900);
   const actionBar = page.getByTestId("mobile-action-bar");
   await expect(actionBar).toBeVisible();
+  await expect(actionBar).toHaveAttribute("data-visible", "true");
   await expect(actionBar.getByRole("link", { name: "Request an appointment" })).toContainText(
-    "Request Appointment",
+    "Request a visit",
   );
   await expect(actionBar.getByRole("link", { name: /Call Dr\. Wong's office at/ })).toHaveAttribute(
     "href",
@@ -70,10 +78,10 @@ test("global appointment actions use one clear label and accessible contact name
   ).toHaveAttribute("target", "_blank");
 });
 
-test("homepage care paths are single tappable links without stock imagery", async ({ page }) => {
+test("homepage care finder links are single tappable links without stock imagery", async ({ page }) => {
   await gotoAndHydrate(page, "/");
 
-  const services = page.locator("#services");
+  const services = page.locator("#find-care");
   await expect(services).toBeVisible();
   const carePaths = services.locator("ul > li > a");
   await expect(carePaths).toHaveCount(8);
@@ -85,7 +93,7 @@ test("homepage care paths are single tappable links without stock imagery", asyn
     expect(box, "care-path link is shorter than 44px").toBeGreaterThanOrEqual(44);
   }
 
-  await services.getByRole("link", { name: /tooth pain or emergency/i }).click();
+  await services.getByRole("link", { name: /tooth pain/i }).click();
   await expect(page).toHaveURL(/\/emergency-dental$/);
 });
 

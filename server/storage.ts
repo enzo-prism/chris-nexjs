@@ -320,35 +320,35 @@ export class MemStorage implements IStorage {
       {
         title: "Preventive Dentistry",
         description: "Regular check-ups, cleanings, and screenings to maintain optimal oral health and prevent issues before they start.",
-        image: "/images/services/preventive-dentistry.jpg",
+        image: "/images/redesign/care-through-glass-courtyard.webp",
         slug: "preventive-dentistry",
         featured: true
       },
       {
         title: "Cosmetic Dentistry",
         description: "Teeth whitening, veneers, and other aesthetic procedures to enhance your smile and boost your confidence.",
-        image: "/images/services/cosmetic-dentistry.png",
+        image: "/images/redesign/dr-wong-atrium-hallway.webp",
         slug: "cosmetic-dentistry",
         featured: true
       },
       {
         title: "Restorative Dentistry",
         description: "Fillings, crowns, bridges, and implants to repair damage and restore full function to your teeth.",
-        image: "/images/services/restorative-dentistry.jpg",
+        image: "/images/redesign/office-treatment-room.webp",
         slug: "restorative-dentistry",
         featured: false
       },
       {
         title: "Children's Dentistry",
         description: "Child-friendly dental care in a comfortable environment to establish good oral health habits early.",
-        image: "/images/services/pediatric-dentistry.jpg",
+        image: "/images/redesign/office-aquarium-lounge.webp",
         slug: "pediatric-dentistry",
         featured: true
       },
       {
         title: "Invisalign Clear Aligners",
         description: "Virtually invisible orthodontic treatment using custom clear aligners to straighten teeth discreetly for teens and adults.",
-        image: "/images/services/invisalign-aligners.jpg",
+        image: "/images/redesign/jamal-itero-scan.webp",
         slug: "invisalign",
         featured: true
       },
@@ -362,7 +362,7 @@ export class MemStorage implements IStorage {
       {
         title: "Emergency Dental Care",
         description: "Same-day emergency dental services for urgent problems including severe toothaches, trauma, broken teeth, and infections.",
-        image: "/images/generated/blog/emergency-dental-care-palo-alto.webp",
+        image: "/images/redesign/office-entrance-dr-wong.webp",
         slug: "emergency-dental",
         featured: true
       }
@@ -489,10 +489,10 @@ Call our office now: (650) 326-6319
 
 Visit us: 409 Cambridge Ave, Palo Alto, CA 94306
 
-Book online: www.chriswongdds.com/schedule
+Request a visit online: www.chriswongdds.com/schedule
 
 We are here to help quickly, safely, and with compassion.`,
-        image: "/images/generated/blog/emergency-dental-care-palo-alto.webp",
+        image: "/images/redesign/office-entrance-dr-wong.webp",
         date: "March 5, 2025",
         slug: "emergency-dental-care-palo-alto",
         category: "Emergency Dentistry",
@@ -641,7 +641,7 @@ A hospital ER is usually not the best place for routine tooth fractures. Call a 
 In many cases, yes. A crown can protect a weakened tooth and help prevent the crack from worsening, depending on how deep the damage goes.
 
 If you think you may have cracked a tooth, contact Chris Wong DDS to schedule an evaluation and get a clear, conservative treatment plan.`,
-        image: "/images/generated/blog/cracked-tooth-emergency-dentist-palo-alto.webp",
+        image: "/images/redesign/office-entrance-dr-wong.webp",
         date: "March 15, 2026",
         slug: "cracked-tooth-emergency-dentist-palo-alto",
         category: "Emergency Dentistry",
@@ -1164,10 +1164,10 @@ Sometimes. If the adjacent teeth have been reduced for crowns, conversion is pos
 
 ## A practical next step
 
-If you are deciding between an implant and a bridge, book a focused consult with Dr. Wong. Digital imaging and clear estimates make it easier to compare outcomes, timelines, and costs without pressure.
+If you are deciding between an implant and a bridge, request a focused consult with Dr. Wong. Digital imaging and clear estimates make it easier to compare outcomes, timelines, and costs without pressure.
 
 If you want help thinking through which tooth replacement option fits your goals, [contact the office](/contact) to schedule a visit. The goal is a clear plan, not a sales pitch.`,
-        image: "/images/generated/blog/dental-implants-vs-bridge-palo-alto.webp",
+        image: "/images/redesign/dr-wong-treatment-room-portrait.webp",
         date: "March 26, 2026",
         slug: "dental-implants-vs-bridge-palo-alto",
         category: "Restorative Dentistry",
@@ -1175,7 +1175,7 @@ If you want help thinking through which tooth replacement option fits your goals
         relatedServices: ["restorative-dentistry"],
       },
       {
-        title: "Bleeding Gums When Flossing in Palo Alto: What It Means and When to Book a Dental Visit",
+        title: "Bleeding Gums When Flossing in Palo Alto: What It Means and When to See a Dentist",
         content: `If your gums bleed when you floss, it is easy to assume you just flossed too hard. Sometimes that is true. But if you keep seeing pink in the sink, your mouth is usually trying to tell you something.
 
 For many Palo Alto adults, bleeding gums start with plaque building up around the gumline. When that plaque sits too long, the gums get irritated, swollen, and more likely to bleed during brushing or flossing. That early stage is often called gingivitis. The good news is that gingivitis is usually manageable when you catch it early.
@@ -1214,7 +1214,7 @@ This is common. If your gums have been inflamed from missed plaque removal, the 
 
 Certain medications, hormonal changes, dry mouth, diabetes, and tobacco use can make gum inflammation worse or make bleeding more noticeable. If you have any of these risk factors, mention them at your visit.
 
-## When bleeding gums mean you should book a dental visit
+## When bleeding gums mean it's time for a dental visit
 
 You do not need to panic every time you see a little blood. But you should stop guessing and schedule an exam if:
 
@@ -1456,7 +1456,7 @@ If it is occasional and improving, you may monitor it briefly. If it keeps retur
 If you have a tooth sensitive to cold in Palo Alto, the safest move is to get it checked before the issue becomes more painful or more expensive to fix. Chris Wong DDS provides modern, conservative care for children, teens, and adults, with treatment plans built around long-term comfort and clarity.
 
 [Contact the office](/contact) to schedule an evaluation. You will get a clear explanation of what may be causing the sensitivity and what the most practical next step looks like for your smile.`,
-        image: "/images/generated/blog/why-is-my-tooth-sensitive-to-cold-palo-alto.webp",
+        image: "/images/redesign/office-treatment-room.webp",
         date: "March 26, 2026",
         slug: "why-is-my-tooth-sensitive-to-cold-palo-alto",
         category: "Restorative Dentistry",
@@ -1678,47 +1678,6 @@ If you’re a Menlo Park parent looking for a family dentist, a first visit is t
         relatedServices: ["pediatric-dentistry", "preventive-dentistry"],
       },
       {
-        title: "Invisalign in Palo Alto: Timeline, Attachments, Cost",
-        content: `Thinking about Invisalign clear aligners? This guide breaks down how Invisalign works, who it can help, typical timelines, what affects cost, and what to expect when you start treatment with a Palo Alto dentist.
-
-What Is Invisalign and How Does It Work?
-Invisalign is an orthodontic system that uses a series of clear, custom-made plastic aligners to gradually move your teeth into better alignment. Instead of brackets and wires, you wear snug-fitting trays over your teeth and change to a new set every 1-2 weeks as your smile improves. Each set of aligners is designed from a digital 3D model of your teeth. Small, tooth-colored attachments (tiny shapes bonded to specific teeth) may be used to give the aligners extra grip, so they can rotate, tilt, or shift teeth more precisely. You will typically wear your aligners 20-22 hours per day, only removing them to eat, drink anything other than water, and brush or floss.
-
-Key Benefits of Invisalign for Palo Alto Patients
-For many patients in Palo Alto, Invisalign fits well into busy, professional, and family lives. The aligners are nearly invisible, removable for eating and cleaning, made from comfortable smooth plastic, require fewer in-office visits, and deliver predictable results thanks to digital planning. Modern Invisalign treatment uses advanced 3D software, so your dentist can preview your projected tooth movement before you even start.
-
-Who Is a Good Candidate for Invisalign?
-Invisalign can address many common orthodontic issues, including crowded teeth, gaps, mild to moderate bite problems, and relapse after previous braces. Clear aligners work best for mild to moderate concerns, while severe crowding or complex bite issues may still be better treated with traditional braces. The only way to know for sure if Invisalign is right for you is a full exam and digital scan that includes X-rays, photos, and a bite analysis. If your case is too complex for Invisalign alone, your dentist will walk you through alternatives or combined approaches.
-
-What to Expect During Invisalign Treatment
-1. Consultation and Digital Scan: Your dentist evaluates your teeth, gums, and bite, takes digital X-rays, and scans your teeth to create a 3D model. This model is used to plan how each tooth should move step by step.
-2. Personalized Treatment Plan: Using Invisalign planning software, your dentist designs a custom sequence of aligners. You will see a simulation of your projected final smile and get an estimated treatment time.
-3. Attachments and First Aligners: At your delivery appointment, small tooth-colored attachments may be placed on certain teeth to give your aligners extra grip. Then you will receive your first sets of trays and instructions for how long to wear each one.
-4. Progress Check-Ups: You will come back periodically to make sure your teeth are tracking as planned. Minor refinements toward the end of treatment are common and help fine-tune the result.
-5. Retainers to Protect Your New Smile: Once your teeth are aligned, you will switch to retainers to keep them from shifting back. Wearing retainers nightly, especially in the first year, is essential to protecting your investment long term.
-
-How Long Does Invisalign Take?
-For many adults and teens, Invisalign treatment takes about 12-18 months, though simpler cases can be shorter and more complex cases can take longer. Treatment time depends on the amount of crowding or spacing, whether your bite needs correction, and how consistently you wear your aligners (20-22 hours per day is non-negotiable). Invisalign can be faster than braces for mild issues, but braces still tend to be more efficient for very complex tooth movements.
-
-Invisalign Costs in Palo Alto and California
-Invisalign pricing is personalized. Your fee depends on how much tooth movement and bite correction you need, how many aligner sets and refinements are recommended, whether attachments or elastics are part of your plan, and any dental work needed before you start. During your Invisalign consultation in Palo Alto, you should receive a written estimate outlining costs, what's included, expected phases, and how insurance benefits or monthly payments may apply.
-
-Health Benefits: Invisalign Does More Than Straighten Teeth
-Straighter teeth look better, but there are real oral health advantages as well. Aligned teeth make brushing and flossing easier, promote healthier bite forces that reduce uneven wear, and lower the risk of chips or fractures. Because Invisalign aligners are removable, it is easier to maintain excellent hygiene throughout treatment compared with braces, where cleaning around brackets can be challenging.
-
-Invisalign FAQs for Palo Alto Patients
-Do Invisalign aligners hurt? You can expect mild pressure for a few days each time you switch to a new set, and most patients find Invisalign more comfortable overall than braces. How many hours per day do you need to wear them? Aim for 20-22 hours daily for predictable results. Can Invisalign fix every orthodontic problem? No; severe issues may still need braces. Is Invisalign right for teens? Yes, as long as the teen can commit to wearing the aligners. Will insurance cover Invisalign? Many plans that cover orthodontics contribute toward Invisalign, often up to a lifetime maximum.
-
-Ready to Explore Invisalign in Palo Alto, CA?
-If you are curious whether Invisalign is right for you, the next step is a personalized consultation with a dentist who provides Invisalign treatment in Palo Alto. During your visit, you can expect a thorough exam, digital imaging, a custom treatment plan with an estimated timeline, and a transparent discussion of costs, insurance, and payment options. Call the office at (650) 326-6319 or request an appointment online to schedule your Invisalign consultation in Palo Alto, CA.`,
-        image: "/images/services/invisalign-aligners.jpg",
-        date: "January 15, 2025",
-        slug: "invisalign-palo-alto",
-        category: "Invisalign",
-        readTime: 9,
-        relatedServices: ["invisalign"],
-      },
-      {
         title: "Invisalign Attachments & Refinements: Why They Matter",
         content: `If you’re researching Invisalign, you’ll often hear new terms like attachments, elastics, and refinements. These details can sound intimidating at first, but they’re usually simple tools that make clear aligners more precise—and help you end with a better, more stable result.
 
@@ -1749,7 +1708,7 @@ Tips to Stay on Track With Attachments
 
 Thinking About Invisalign in Palo Alto?
 The best way to understand whether you’ll need attachments, elastics, or refinements is a consultation with an exam and digital scan. If you’re looking for Invisalign in Palo Alto, our team can walk you through your options and what to expect at each step.`,
-        image: "/images/invisalign-step-3.png",
+        image: "/images/redesign/jamal-itero-scan.webp",
         date: "October 20, 2025",
         slug: "invisalign-attachments-and-refinements",
         category: "Invisalign",
@@ -1883,7 +1842,7 @@ No. Refinements are common and help fine tune the result.
 Yes. Retainers are essential for helping your teeth stay in their new position.
 
 If you are wondering how long Invisalign takes in Palo Alto, schedule a consultation with Christopher B. Wong, DDS. A personalized evaluation can show what is realistic for your smile and what steps will help you get there as efficiently as possible.`,
-        image: "/images/invisalign-treatment.jpg",
+        image: "/images/redesign/jamal-itero-scan.webp",
         date: "March 14, 2026",
         slug: "how-long-does-invisalign-take",
         category: "Invisalign",
@@ -1917,104 +1876,12 @@ If a retainer cracks, feels loose, or no longer fits snugly, don’t wait—smal
 
 Need Invisalign in Palo Alto?
 If you’re considering Invisalign or you’re ready to protect an existing result with new retainers, schedule a visit. We’ll help you plan treatment and long‑term retention so your smile stays stable.`,
-        image: "/images/invisalign-step-4.png",
+        image: "/images/redesign/jamal-itero-scan.webp",
         date: "September 10, 2025",
         slug: "retainers-after-invisalign",
         category: "Invisalign",
         readTime: 5,
         relatedServices: ["invisalign"],
-      },
-      {
-        title: "Dental Veneers in Palo Alto: Natural-Looking Results",
-        content: `If you're unhappy with chips, discoloration, uneven edges, or small gaps in your teeth, you don't necessarily need braces or extensive dental work to love your smile again. Dental veneers offer a conservative, highly aesthetic way to reshape and brighten teeth, often in just a few visits.
-
-At Christopher B. Wong, DDS in Palo Alto, Dr. Wong provides customized veneers designed to look like your teeth—just better. This guide walks through how veneers work, who they're for, what to expect, and how to decide whether they're the right choice for you.
-
-Quick Answer: What Are Dental Veneers?
-Dental veneers are thin, custom-made shells that bond to the front of your teeth to improve their color, shape, and overall appearance. Most veneers are made from porcelain or composite resin and are carefully designed to blend seamlessly with the rest of your smile.
-
-Veneers can help with:
-- Stubborn discoloration that whitening can't fix
-- Chips, cracks, or worn edges
-- Small gaps between teeth
-- Teeth that look short, uneven, or misshapen
-- Mild misalignment or crowding (in select cases)
-
-Why Patients in Palo Alto Choose Veneers
-People often ask, "Why veneers instead of whitening or bonding?" Here's what sets veneers apart.
-
-1. Big Cosmetic Change With a Conservative Approach
-Veneers are a minimally invasive way to change what you see in the mirror. In many cases, only a small amount of enamel is reshaped from the front of the tooth to make room for the veneer. Compared with full crowns, this preserves more of your natural tooth structure.
-
-2. Natural, Long-Lasting Results
-High-quality porcelain veneers are translucent, highly stain-resistant, and designed to last many years with good care.
-
-3. Customized to Your Face, Not a "Template Smile"
-Dr. Wong carefully considers your face shape, lip line, skin and tooth tone, existing bite, and personal goals. The goal is a smile that looks like you—just more confident and balanced.
-
-Types of Dental Veneers
-- Porcelain veneers: thin ceramic shells that deliver the best aesthetics, excellent stain resistance, and durability.
-- Composite veneers: tooth-colored resin that can often be done in a single visit and is easier to repair, though it may stain sooner.
-
-During your consultation, Dr. Wong will walk you through which option makes the most sense for your teeth, your goals, and your budget.
-
-Are You a Good Candidate for Veneers?
-Veneers work best when teeth and gums are healthy, cosmetic concerns are limited to discoloration, chips, gaps, or uneven edges, and your bite is relatively stable. You may not be a candidate if you have active decay or gum disease, minimal remaining tooth structure, significant crowding that needs orthodontics, or if you're hoping for a reversible treatment.
-
-What to Expect: The Veneer Process With Dr. Wong
-1. Consultation and smile planning: exam, photos, and discussion of your goals plus timeline and investment.
-2. Tooth preparation and temporaries: a small amount of enamel is reshaped, impressions are taken, and temporary veneers protect your teeth while the lab fabricates the final restorations.
-3. Try-in and final bonding: you preview the veneers, adjustments are made, and the custom shells are bonded and polished so you leave with your final smile.
-
-How Long Do Veneers Last?
-With good oral hygiene and regular dental visits, porcelain veneers commonly last 10-15 years or more. Composite veneers may have a shorter lifespan and require more frequent touch-ups or replacement. Brushing, flossing, avoiding hard foods, managing grinding, and consistent cleanings all influence longevity.
-
-Caring for Your Veneers: Do's and Don'ts
-Do brush twice daily with a soft toothbrush, floss every day, keep dental visits, and wear a nightguard if you clench. Avoid chewing ice or pens, using teeth as tools, and overdoing highly staining foods or drinks without rinsing.
-
-Are Veneers Safe? Understanding Risks and Limitations
-Enamel removal is permanent, temporary sensitivity is possible, and veneers can chip or require replacement over time. Dr. Wong's conservative approach ensures you understand when veneers are appropriate versus when whitening, bonding, crowns, or Invisalign would be better for long-term health.
-
-Veneers vs. Other Cosmetic Options
-- Whitening: great for color changes but not shape.
-- Bonding: useful for small chips or spots, though it can stain faster.
-- Orthodontics (like Invisalign): ideal for bite or alignment issues but does not change color or shape.
-Often, Dr. Wong combines treatments—such as Invisalign followed by a few veneers—to deliver the best overall result.
-
-FAQs About Dental Veneers
-Do veneers damage my teeth?
-Veneers require conservative enamel reshaping. When done carefully, they preserve as much healthy tooth structure as possible.
-
-Do veneers look fake?
-High-quality veneers are customized for shape, shade, and translucency so they mimic natural teeth.
-
-Are veneers covered by insurance?
-Most dental insurance plans consider veneers cosmetic, but patients often rely on FSA or HSA funds. Our team can review benefits and outline expected fees.
-
-Can I get veneers on just one or two teeth?
-Yes. Many patients veneer a few "key" teeth to improve symmetry or close gaps while leaving other teeth as they are.
-
-Thinking About Dental Veneers in Palo Alto?
-If you're considering veneers—or you're just curious whether they're right for you—the best next step is a personalized consultation.
-
-At Christopher B. Wong, DDS you receive:
-- An honest conversation about what you want to change
-- A thorough evaluation of your teeth and gums
-- Clear explanations of all your options—not just veneers
-- A treatment plan that respects both your goals and long-term oral health
-
-Christopher B. Wong, DDS
-409 Cambridge Ave
-Palo Alto, CA 94306
-(650) 326-6319
-
-Ready to explore dental veneers? Visit chriswongdds.com to request an appointment online.`,
-        image: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1763577353/Gemini_Generated_Image_ta4fp4ta4fp4ta4f_xlkjgw.webp",
-        date: "February 10, 2025",
-        slug: "dental-veneers-palo-alto",
-        category: "Cosmetic Dentistry",
-        readTime: 12,
-        relatedServices: ["dental-veneers", "cosmetic-dentistry"],
       },
       {
         title: "How Long Does Teeth Whitening Last? Palo Alto Guide",
@@ -2050,7 +1917,7 @@ When should you whiten again?
 If you notice your shade drifting or you have an upcoming event, we can help you plan a safe touch‑up schedule. If you’re prone to sensitivity, a slower approach may be more comfortable.
 
 If you’re considering teeth whitening in Palo Alto, the best next step is a quick evaluation to confirm whitening is appropriate for your enamel, gums, and any existing restorations.`,
-        image: "/images/generated/blog/how-long-does-teeth-whitening-last.webp",
+        image: "/images/redesign/office-operatory-courtyard.webp",
         date: "December 1, 2025",
         slug: "how-long-does-teeth-whitening-last",
         category: "Teeth Whitening",
@@ -2089,37 +1956,6 @@ In our Palo Alto practice, we tailor the strength and timing of whitening based 
         slug: "teeth-whitening-sensitivity-what-helps",
         category: "Teeth Whitening",
         readTime: 7,
-        relatedServices: ["zoom-whitening", "cosmetic-dentistry"],
-      },
-      {
-        title: "In-Office vs. Take-Home Whitening: Which Is Better?",
-        content: `If you’re comparing teeth whitening options, you’ll usually see two dentist‑supervised choices: in‑office whitening and custom take‑home trays. Both can work well, but they’re designed for different timelines and comfort needs.
-
-In‑office whitening: best for speed
-
-In‑office whitening is ideal when you want a noticeable change quickly. The appointment focuses on comfort and control—isolating the gums, selecting a shade goal, and using professional‑grade gel under supervision.
-
-Custom take‑home trays: best for gradual change and touch‑ups
-
-Take‑home trays are made from impressions or scans so they fit precisely. Whitening happens over a series of short sessions at home, which can be a great option if you want a slower change or you’re prone to sensitivity.
-
-Quick comparison
-
-- Timeline: in‑office is fast; trays are gradual
-- Sensitivity: trays can be easier to adjust (shorter sessions, lower strength)
-- Control: in‑office is fully supervised; trays give flexibility at home
-- Maintenance: trays are excellent for periodic touch‑ups
-
-Which option should you choose?
-
-Many Palo Alto patients choose in‑office whitening when they have a deadline (events, photos) and use trays afterward to maintain results. If you’re very sensitive, starting with trays may feel more comfortable.
-
-The best approach starts with an exam so we can confirm whitening is safe for your enamel and gums, and so we can plan around any crowns, veneers, or bonding that won’t change color.`,
-        image: "/images/dr-wong-office-1.png",
-        date: "December 5, 2025",
-        slug: "in-office-whitening-vs-take-home-trays",
-        category: "Teeth Whitening",
-        readTime: 6,
         relatedServices: ["zoom-whitening", "cosmetic-dentistry"],
       },
       {
@@ -2514,7 +2350,7 @@ A cracked retainer should still be evaluated quickly. Even small cracks can affe
 If you lost your retainer in Palo Alto, do not wait for your teeth to tell you there is a problem. Early action is usually the easiest path.
 
 At Christopher B. Wong, DDS, we help patients protect the results of Invisalign and other orthodontic treatment with clear guidance and conservative care. If your retainer is lost, broken, or no longer fits, contact our office to schedule an evaluation and discuss the best next step for your smile.`,
-        image: "/images/invisalign-step-4.png",
+        image: "/images/redesign/jamal-itero-scan.webp",
         date: "March 29, 2026",
         slug: "lost-retainer-palo-alto",
         category: "Invisalign",
@@ -2888,7 +2724,7 @@ Usually yes. Even a small chip can create roughness, sensitivity, or more visibl
 If you chipped a front tooth and are weighing bonding versus a veneer, the smartest next step is not guessing from photos online. It is getting a careful exam that looks at the tooth, the bite, and your long-term goals.
 
 Christopher B. Wong, DDS provides modern, conservative dentistry for Palo Alto patients who want clear guidance and natural-looking results. If you are deciding between bonding and a veneer for one chipped front tooth, schedule a visit and get a plan that fits your smile instead of a one-size-fits-all answer.`,
-        image: "/images/generated/blog/cosmetic-bonding-vs-veneer-for-one-chipped-front-tooth-palo-alto.webp",
+        image: "/images/redesign/dr-wong-atrium-hallway.webp",
         date: "April 1, 2026",
         slug: "cosmetic-bonding-vs-veneer-for-one-chipped-front-tooth-palo-alto",
         category: "Cosmetic Dentistry",
@@ -3181,7 +3017,7 @@ If a large portion of the tooth is weakened, a crown may be the safer option for
 If decay, fracture, or nerve irritation has spread further, treatment may become more involved. That is exactly why catching a failing filling early matters.
 
 ## Signs you should schedule an exam soon
-You do not need to stare at your fillings in the mirror like a tiny forensic scientist. But you should book an exam if you notice:
+You do not need to stare at your fillings in the mirror like a tiny forensic scientist. But you should come in for an exam if you notice:
 
 - pain when chewing
 - cold sensitivity that lingers
@@ -3500,7 +3336,7 @@ Some temporary sensitivity is normal after whitening. If your teeth are already 
 
 ## Whiten with a dentist who knows your smile
 Whitening works best when it is planned around the current state of your teeth. If you are deciding between Zoom and take-home trays in Palo Alto, [schedule a consultation](/schedule) with Christopher B. Wong, DDS. We will look at your enamel, existing dental work, and goals, then recommend the safest path to a brighter smile.`,
-        image: "/images/generated/services/teeth-whitening-palo-alto.webp",
+        image: "/images/redesign/office-operatory-courtyard.webp",
         date: "June 18, 2026",
         slug: "zoom-vs-take-home-whitening-palo-alto",
         category: "Cosmetic Dentistry",

@@ -1,94 +1,108 @@
-"use client";
+import { Award, CalendarCheck, Clock, Heart, ScanLine, Shield, ShieldCheck, Smile, Stethoscope, Users } from "lucide-react";
 
-import type { PropsWithChildren } from "react";
-import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle, Heart, Shield, Clock, Smile, Users, Award } from "lucide-react";
-import TestimonialQuote from "@/components/testimonials/TestimonialQuote";
-import { getTestimonialsByNames } from "@/lib/testimonials";
 import StructuredData from "@/components/seo/StructuredData";
-import MetaTags from "@/components/common/MetaTags";
 import FAQSection from "@/components/common/FAQSection";
-import { pageDescriptions, pageTitles } from "@/lib/metaContent";
+import RelatedServices, { type RelatedServiceLink } from "@/components/common/RelatedServices";
+import RelatedServicePosts from "@/components/blog/RelatedServicePosts";
+import { CtaBand } from "@/components/ds/CtaBand";
+import type { Fact } from "@/components/ds/FactGrid";
+import { PageHero } from "@/components/ds/PageHero";
+import { ReviewedBy } from "@/components/ds/ReviewedBy";
+import { Section } from "@/components/ds/Section";
+import { SectionHeading } from "@/components/ds/SectionHeading";
+import { ServiceIcon } from "@/components/ds/ServiceIcon";
+import { ServiceReviews } from "@/components/ds/ServiceReviews";
+import type { Step } from "@/components/ds/Steps";
+import { WhoTreats } from "@/components/ds/WhoTreats";
+import { CostPanel } from "@/components/services/CostPanel";
+import { Disclosure, DotList } from "@/components/services/Disclosure";
+import { FeatureGrid, type Feature } from "@/components/services/FeatureList";
+import { FitChecklist } from "@/components/services/FitChecklist";
+import { GuideLinks } from "@/components/services/GuideLinks";
+import { JumpNav } from "@/components/services/JumpNav";
+import { NearbyLine } from "@/components/services/NearbyLine";
+import { OptionCards, type ServiceOption } from "@/components/services/OptionCards";
+import { QuickFacts } from "@/components/services/QuickFacts";
+import { PhotoBadge, ServicePhoto } from "@/components/services/ServicePhoto";
+import { StepList } from "@/components/services/StepList";
 import {
   buildBreadcrumbSchema,
   buildFAQSchema,
-  buildHowToSchema,
   buildServiceSchema,
+  type FAQEntry,
+  type StructuredDataNode,
 } from "@/lib/structuredData";
-import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
-import RelatedServices, {
-  type RelatedServiceLink,
-} from "@/components/common/RelatedServices";
-import RelatedServicePosts from "@/components/blog/RelatedServicePosts";
 
-type MotionDivProps = PropsWithChildren<{
-  className?: string;
-  [key: string]: unknown;
-}>;
+const PATH = "/dental-implants";
+const SCHEDULE_HREF = "/schedule?intent=implants&source=implants-page#appointment";
+const HERO_IMAGE = "/images/redesign/dr-wong-treatment-room-portrait.webp";
 
-function MotionDiv({ className, children }: MotionDivProps) {
-  return <div className={className}>{children}</div>;
-}
+const facts: readonly Fact[] = [
+  { icon: Stethoscope, label: "Planning", value: "Exam, X-rays, 3D imaging if needed" },
+  { icon: ShieldCheck, label: "Placement", value: "Trusted surgical partners" },
+  { icon: Clock, label: "Healing", value: "Often 3–6 months" },
+  { icon: Smile, label: "Your new tooth", value: "Restored here by Dr. Wong" },
+];
 
 const benefits = [
-  "Natural Look and Feel: Implants fuse with your jawbone, becoming a permanent part of your mouth",
-  "Durability & Longevity: With proper care, dental implants can last many years",
-  "Improved Chewing Ability: Eat comfortably with stable chewing support",
-  "Preservation of Jawbone: Implants help stimulate bone and support facial structure",
-  "No Impact on Adjacent Teeth: Unlike bridges, implants don't require altering healthy neighboring teeth",
-  "Everyday Confidence: A complete smile that looks and functions more like natural teeth",
-  "Straightforward Maintenance: Care for implants much like natural teeth with brushing and flossing"
+  { label: "Natural look and feel", text: "Implants fuse with your jawbone, becoming a permanent part of your mouth." },
+  { label: "Durability and longevity", text: "With proper care, dental implants can last many years." },
+  { label: "Improved chewing ability", text: "Eat comfortably with stable chewing support." },
+  { label: "Preservation of jawbone", text: "Implants help stimulate bone and support facial structure." },
+  { label: "No impact on adjacent teeth", text: "Unlike bridges, implants don’t require altering healthy neighboring teeth." },
+  { label: "Everyday confidence", text: "A complete smile that looks and functions more like natural teeth." },
+  { label: "Straightforward maintenance", text: "Care for implants much like natural teeth, with brushing and flossing." },
+] as const;
+
+const implantTypes: readonly ServiceOption[] = [
+  {
+    name: "Single tooth implants",
+    icon: "implant",
+    tagline: "Ideal for replacing one missing tooth with a natural-looking restoration.",
+  },
+  {
+    name: "Multiple tooth implants",
+    icon: "implant",
+    tagline: "Individual implants or implant-supported bridges to replace several missing teeth.",
+  },
+  {
+    name: "Implant-supported dentures",
+    icon: "tooth",
+    tagline: "A secure and stable alternative to traditional dentures, improving comfort and function.",
+  },
+  {
+    name: "All-on-4® / All-on-X concepts",
+    icon: "crown",
+    tagline: "For replacing a full arch of teeth, using strategically placed implants to support a full prosthetic arch.",
+  },
 ];
 
-const candidateRequirements = [
-  "Good Overall Health: Certain uncontrolled chronic conditions may affect healing",
-  "Sufficient Jawbone Density: Adequate bone needed to support the implant",
-  "Healthy Gums: Gum disease needs treatment before implant placement",
-  "Commitment to Oral Hygiene: Maintaining good oral hygiene is crucial for long-term success",
-  "Non-Smokers (Preferred): Smoking can impede healing and increase risk of implant failure"
-];
-
-const implantTypes = [
+const procedureSteps: readonly Step[] = [
   {
-    title: "Single Tooth Implants",
-    description: "Ideal for replacing one missing tooth with a natural-looking restoration."
+    title: "Consultation and treatment planning",
+    meta: "At our office",
+    body: "A comprehensive exam, including X-rays and potentially 3D imaging, plus a talk about your medical history, smile goals, and options. We coordinate surgical placement with trusted partners when needed.",
   },
   {
-    title: "Multiple Tooth Implants",
-    description: "Using individual implants or implant-supported bridges to replace several missing teeth."
+    title: "Implant placement",
+    meta: "With a surgical partner",
+    body: "The titanium implant post is surgically placed into the jawbone by a surgical partner, under local anesthesia when indicated.",
   },
   {
-    title: "Implant-Supported Dentures",
-    description: "Providing a secure and stable alternative to traditional dentures, improving comfort and function."
+    title: "Osseointegration (healing)",
+    meta: "About 3–6 months",
+    body: "The implant post naturally fuses with your jawbone, creating a strong and stable foundation.",
   },
   {
-    title: "All-on-4® / All-on-X Concepts",
-    description: "For patients needing to replace a full arch of teeth, using strategically placed implants to support a full prosthetic arch."
-  }
-];
-
-const procedureSteps = [
-  {
-    title: "Initial Consultation and Treatment Planning",
-    description: "Comprehensive oral examination, including X-rays and potentially 3D imaging. Discussion of your medical history, smile goals, and treatment options. We coordinate surgical placement with trusted partners when needed."
+    title: "Abutment placement",
+    meta: "After healing",
+    body: "Once osseointegration is complete, a small connector piece called an abutment is attached to the top of the implant post.",
   },
   {
-    title: "Implant Placement",
-    description: "Surgical placement of the titanium implant post into the jawbone, performed by a surgical partner under local anesthesia when indicated."
+    title: "Custom crown, restored here",
+    meta: "At our office",
+    body: "Impressions are taken to create a custom crown, and Dr. Wong restores the implant so it matches your natural teeth.",
   },
-  {
-    title: "Osseointegration (Healing Period)",
-    description: "Over the next 3-6 months, the implant post will naturally fuse with your jawbone, creating a strong and stable foundation."
-  },
-  {
-    title: "Abutment Placement",
-    description: "Once osseointegration is complete, a small connector piece called an abutment is attached to the top of the implant post."
-  },
-  {
-    title: "Custom Crown Fabrication & Placement",
-    description: "Impressions are taken to create a custom dental crown. Dr. Wong restores the implant so it matches your natural teeth."
-  }
 ];
 
 const careInstructions = [
@@ -96,533 +110,361 @@ const careInstructions = [
   "Floss daily, paying special attention around the implant abutment",
   "Attend regular dental check-ups and professional cleanings every six months",
   "Avoid chewing extremely hard items like ice or hard candy directly on the implant",
-  "Use a custom nightguard if you clench or grind your teeth"
+  "Use a custom nightguard if you clench or grind your teeth",
+] as const;
+
+const approach: readonly Feature[] = [
+  {
+    icon: Award,
+    title: "Careful planning and restoration",
+    body: "From single-tooth cases to more complex restorations.",
+  },
+  {
+    icon: ScanLine,
+    title: "Thoughtful technology",
+    body: "Digital imaging and planning tools support precise diagnosis and treatment coordination.",
+  },
+  {
+    icon: Heart,
+    title: "Personalized care",
+    body: "We take time to understand your needs and create a tailored treatment plan.",
+  },
+  {
+    icon: Shield,
+    title: "Conservative approach",
+    body: "We preserve natural tooth structure and recommend implants when they’re truly the best solution.",
+  },
+  {
+    icon: Users,
+    title: "Coordinated surgical partners",
+    body: "When placement surgery is needed, we work with trusted surgical partners and restore the final crown in-office.",
+  },
+  {
+    icon: CalendarCheck,
+    title: "Long-term health focus",
+    body: "Our goal is to restore function and help keep your smile healthy for years to come.",
+  },
 ];
 
-const faqs = [
+const costFactors = [
+  "The number of implants needed",
+  "The type of restoration (crown, bridge, denture)",
+  "The need for preparatory procedures like bone grafting or sinus lifts",
+  "The complexity of your individual case",
+] as const;
+
+const faqs: FAQEntry[] = [
   {
     question: "Is the dental implant procedure painful?",
-    answer: "Most patients report minimal discomfort during the procedure, often comparable to a simple extraction. Local anesthesia is used, and post-operative discomfort is typically manageable with over-the-counter pain relievers."
+    answer:
+      "Most patients report minimal discomfort during the procedure, often comparable to a simple extraction. Local anesthesia is used, and post-operative discomfort is typically manageable with over-the-counter pain relievers.",
   },
   {
     question: "How long do dental implants last?",
-    answer: "With proper care and regular dental visits, dental implants can last many years—often a lifetime. The crown attached to the implant may need replacement after 10-15 years due to normal wear and tear."
+    answer:
+      "With proper care and regular dental visits, dental implants can last many years—often a lifetime. The crown attached to the implant may need replacement after 10-15 years due to normal wear and tear.",
   },
   {
     question: "How successful are dental implants?",
-    answer: "Dental implants have a high success rate—typically above 95%—when carefully planned, placed by an experienced surgeon, and properly cared for."
+    answer:
+      "Dental implants have a high success rate—typically above 95%—when carefully planned, placed by an experienced surgeon, and properly cared for.",
   },
   {
     question: "Can I get a dental implant if I have bone loss?",
-    answer: "Yes, in many cases. Bone grafting procedures can augment the existing bone, creating a suitable foundation for implant placement. Dr. Wong will assess this during your consultation."
+    answer:
+      "Yes, in many cases. Bone grafting procedures can augment the existing bone, creating a suitable foundation for implant placement. Dr. Wong will assess this during your consultation.",
   },
   {
     question: "How long will the entire dental implant process take?",
-    answer: "The entire process can take anywhere from a few months to over a year, depending on the complexity of your case and the healing time required for osseointegration."
-  }
+    answer:
+      "The entire process can take anywhere from a few months to over a year, depending on the complexity of your case and the healing time required for osseointegration.",
+  },
+];
+
+const relatedServices: RelatedServiceLink[] = [
+  {
+    href: "/restorative-dentistry",
+    anchorText: "Restorative dentistry",
+    description: "Fillings, crowns, and bridges to restore function.",
+  },
+  {
+    href: "/crowns-palo-alto",
+    anchorText: "Dental crowns",
+    description: "Protect a cracked or heavily filled tooth before it needs replacing.",
+  },
+  {
+    href: "/emergency-dental",
+    anchorText: "Emergency dental care",
+    description: "Fast help when you have sudden pain or a broken tooth.",
+  },
+];
+
+const breadcrumbItems = [
+  { name: "Home", path: "/" },
+  { name: "Services", path: "/services" },
+  { name: "Dental implants", path: PATH },
 ];
 
 const DentalImplants = () => {
-  const implantTestimonials = getTestimonialsByNames([
-    "Anne Starr",
-    "Paul Pedersen",
-    "Martha Debs",
-  ]);
-
-  const implantServiceSchema = buildServiceSchema({
-    name: "Dental Implants",
-    description:
-      "Dental implant planning and restoration in Palo Alto, with surgical placement coordinated through trusted partners when needed.",
-    slug: "/dental-implants",
-  });
-
-  const implantHowToSchema = buildHowToSchema({
-    name: "Dental implant treatment process",
-    description:
-      "Overview of implant planning, surgical placement with partners, and restoration at our Palo Alto office.",
-    steps: procedureSteps.map((step) => ({
-      title: step.title,
-      description: step.description,
-    })),
-    pagePath: "/dental-implants",
-  });
-
-  const implantFaqSchema = buildFAQSchema(faqs, "/dental-implants");
-  const breadcrumbItems = [
-    { name: "Home", path: "/" },
-    { name: "Services", path: "/services" },
-    { name: "Dental Implants", path: "/dental-implants" },
-  ];
-  const implantBreadcrumbs = buildBreadcrumbSchema(breadcrumbItems);
-
-  const relatedServices: RelatedServiceLink[] = [
-    {
-      href: "/invisalign",
-      anchorText: "Invisalign in Palo Alto",
+  const schemas: StructuredDataNode[] = [
+    buildServiceSchema({
+      name: "Dental Implants",
+      pageName: "Dental implants in Palo Alto",
       description:
-        "Clear aligners to straighten teeth discreetly for teens and adults.",
-    },
-    {
-      href: "/dental-veneers",
-      anchorText: "Dental veneers in Palo Alto",
-      description:
-        "Cosmetic smile upgrades for chips, gaps, and discoloration.",
-    },
-    {
-      href: "/zoom-whitening",
-      anchorText: "Professional teeth whitening",
-      description: "Brighten your smile quickly with in‑office ZOOM whitening.",
-    },
-    {
-      href: "/emergency-dental",
-      anchorText: "Emergency dental care in Palo Alto",
-      description: "Fast treatment when you have sudden pain or damage.",
-    },
-    {
-      href: "/services#restorative-dentistry",
-      anchorText: "Restorative dentistry",
-      description: "Fillings, crowns, and bridges to restore function.",
-    },
+        "Dental implant planning and restoration in Palo Alto: Dr. Wong plans and restores your implant in-office, with surgical placement coordinated through trusted partners.",
+      slug: PATH,
+      image: HERO_IMAGE,
+      serviceType: "Dental implant restoration",
+      procedure: {
+        name: "Dental implant treatment (planning, placement by a surgical partner, and restoration)",
+        bodyLocation: "Jaw and teeth",
+        howPerformed:
+          "A titanium implant post is placed in the jawbone by a surgical partner. After it fuses with the bone (osseointegration, often 3–6 months), an abutment is attached and Dr. Wong restores the implant with a custom crown in our office.",
+        preparation:
+          "A comprehensive exam with X-rays and 3D imaging (CBCT) if necessary; gum disease is treated first, and bone grafting may be recommended.",
+        followup:
+          "Brushing, flossing around the abutment, professional cleanings every six months, and a custom nightguard if you clench or grind.",
+      },
+    }),
   ];
-
-  const dentalImplantSchemas = [implantServiceSchema];
-
-  if (implantHowToSchema) {
-    dentalImplantSchemas.push(implantHowToSchema);
-  }
-
-  if (implantFaqSchema) {
-    dentalImplantSchemas.push(implantFaqSchema);
-  }
-
-  if (implantBreadcrumbs) {
-    dentalImplantSchemas.push(implantBreadcrumbs);
-  }
+  const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbItems);
+  if (breadcrumbSchema) schemas.push(breadcrumbSchema);
+  const faqSchema = buildFAQSchema(faqs, PATH);
+  if (faqSchema) schemas.push(faqSchema);
 
   return (
     <>
-      <MetaTags 
-        title={pageTitles.dentalImplants}
-        description={pageDescriptions.dentalImplants}
+      <StructuredData data={schemas} />
+
+      <PageHero
+        crumbs={breadcrumbItems}
+        icon="implant"
+        eyebrow="Implant planning & restoration"
+        title={
+          <>
+            Dental implants in <em>Palo Alto</em>
+          </>
+        }
+        lead="Missing one or more teeth? Dr. Christopher B. Wong plans your implant and restores it in our office, with trusted surgical partners for placement, so your new tooth looks and works like the rest of your smile."
+        scheduleHref={SCHEDULE_HREF}
+        analyticsContext="implants-hero"
+        chips={["Final crown restored in-office"]}
+        media={
+          <ServicePhoto
+            src={HERO_IMAGE}
+            alt="Dr. Christopher B. Wong seated in a treatment room"
+            focus="50% 14%"
+            aspect="aspect-[4/3] sm:aspect-[16/11] lg:aspect-[5/6]"
+            badge={
+              <PhotoBadge icon="implant" title="Planned and restored here">
+                Placement by trusted surgical partners; your crown is restored in our office.
+              </PhotoBadge>
+            }
+          />
+        }
       />
-      <StructuredData data={dentalImplantSchemas} />
-      <PageBreadcrumbs items={breadcrumbItems} />
 
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary to-blue-700 text-white py-12 sm:py-16 lg:py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold font-heading mb-4 sm:mb-6 leading-tight">
-              Dental Implants in Palo Alto: Restoring Missing Teeth
-            </h1>
-            <p className="text-base sm:text-lg lg:text-xl text-blue-100 mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed">
-              Missing one or more teeth? Dental implants can restore chewing function and a natural-looking smile
-              with a long-lasting replacement option.
-            </p>
-            <p className="text-sm sm:text-base lg:text-lg text-blue-100 mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed">
-              At the practice of Christopher B. Wong, DDS, we focus on careful implant planning and restoration.
-              When surgical placement is needed, we coordinate with trusted surgical partners and restore the final crown in our office.
-            </p>
-            <Button asChild className="bg-white text-primary hover:bg-gray-100 font-medium px-6 py-3 sm:px-8 sm:py-3 text-base sm:text-lg w-full sm:w-auto">
-              <Link href="/schedule?intent=implants&source=implants-page#appointment">
-                <span className="hidden sm:inline">Request a dental implant consultation</span>
-                <span className="sm:hidden">Request a consultation</span>
-                <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
-              </Link>
-            </Button>
-          </MotionDiv>
+      <Section id="implants-candidacy" tone="white" labelledBy="implants-candidacy-title">
+        <JumpNav
+          items={[
+            { href: "#implants-candidacy", label: "Am I a candidate?" },
+            { href: "#implants-process", label: "The process" },
+            { href: "#implant-options", label: "Implant options" },
+            { href: "#implants-cost", label: "Cost" },
+            { href: "#implants-faq", label: "FAQ" },
+          ]}
+        />
+        <QuickFacts facts={facts} className="mt-6" />
+        <ReviewedBy date="2026-10-16" className="mt-5" />
+
+        <div className="mt-12 grid gap-8 lg:mt-20 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+          <SectionHeading
+            id="implants-candidacy-title"
+            eyebrow="Is it right for you?"
+            title={
+              <>
+                Are you a candidate for <em>dental implants?</em>
+              </>
+            }
+            lead="Many people in Palo Alto who are missing teeth are excellent candidates for dental implants. During your consultation, Dr. Wong conducts a thorough examination, including 3D imaging (CBCT scans if necessary), to see whether implants are the right solution for you."
+          />
+          <FitChecklist
+            goodTitle="Ideal candidates usually have"
+            good={[
+              { label: "Good overall health", text: "Certain uncontrolled chronic conditions may affect healing." },
+              { label: "Sufficient jawbone density", text: "Adequate bone is needed to support the implant." },
+              { label: "Healthy gums", text: "Gum disease needs treatment before implant placement." },
+              { label: "A commitment to oral hygiene", text: "Good daily care is crucial for long-term success." },
+            ]}
+            plan={[
+              { label: "Smoking", text: "Non-smokers are preferred; smoking can impede healing and increase the risk of implant failure." },
+              { label: "Bone loss", text: "Bone grafting can often augment existing bone to create a suitable foundation." },
+            ]}
+          />
         </div>
-      </section>
+      </Section>
 
-      {/* Benefits Section */}
-      <section className="py-12 sm:py-16 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-8 sm:mb-12"
-          >
-            <h2 className="text-2xl sm:text-3xl font-bold font-heading text-[#333333] mb-4 sm:mb-6 leading-tight">
-              Why Choose Dental Implants?
-            </h2>
-            <p className="text-[#333333] text-base sm:text-lg max-w-3xl mx-auto leading-relaxed">
-              Dental implants are a well-established option for tooth replacement.
-              Compared with bridges or removable dentures, they offer several practical advantages:
-            </p>
-          </MotionDiv>
-
-          <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-1 lg:grid-cols-2 sm:gap-8">
-            <MotionDiv
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-              className="space-y-4 sm:space-y-6"
-            >
-              {benefits.slice(0, 4).map((benefit, index) => (
-                <div key={index} className="flex items-start bg-gray-50 p-4 rounded-lg">
-                  <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-primary mt-1 mr-3 sm:mr-4 flex-shrink-0" />
-                  <p className="text-[#333333] text-sm sm:text-base leading-relaxed">{benefit}</p>
-                </div>
-              ))}
-            </MotionDiv>
-            <MotionDiv
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-              className="space-y-4 sm:space-y-6"
-            >
-              {benefits.slice(4).map((benefit, index) => (
-                <div key={index} className="flex items-start bg-gray-50 p-4 rounded-lg">
-                  <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-primary mt-1 mr-3 sm:mr-4 flex-shrink-0" />
-                  <p className="text-[#333333] text-sm sm:text-base leading-relaxed">{benefit}</p>
-                </div>
-              ))}
-            </MotionDiv>
-          </div>
-        </div>
-      </section>
-
-      {/* Candidacy Section */}
-      <section className="py-12 sm:py-16 bg-[#F5F9FC]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-8 sm:mb-12"
-          >
-            <h2 className="text-2xl sm:text-3xl font-bold font-heading text-[#333333] mb-4 sm:mb-6 leading-tight">
-              Are You a Candidate for Dental Implants in Palo Alto?
-            </h2>
-            <p className="text-[#333333] text-base sm:text-lg mb-6 sm:mb-8 leading-relaxed">
-              Many individuals in Palo Alto missing teeth are excellent candidates for dental implants. 
-              Generally, ideal candidates should have:
-            </p>
-          </MotionDiv>
-
-          <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="bg-white rounded-lg shadow-lg p-6 sm:p-8"
-          >
-            <div className="space-y-4 sm:space-y-6">
-              {candidateRequirements.map((requirement, index) => (
-                <div key={index} className="flex items-start p-3 bg-gray-50 rounded-lg">
-                  <Heart className="h-5 w-5 sm:h-6 sm:w-6 text-primary mt-1 mr-3 sm:mr-4 flex-shrink-0" />
-                  <p className="text-[#333333] text-sm sm:text-base leading-relaxed">{requirement}</p>
-                </div>
-              ))}
-            </div>
-            <div className="mt-6 sm:mt-8 p-4 bg-blue-50 rounded-lg">
-              <p className="text-[#333333] text-sm sm:text-base leading-relaxed">
-                During your initial consultation, Dr. Wong will conduct a thorough examination, including advanced 3D imaging 
-                (CBCT scans if necessary), to determine if dental implants are the right solution for your specific needs and oral health condition.
+      <Section id="what-are-implants" tone="cream" labelledBy="what-are-implants-title">
+        <div className="grid gap-8 lg:grid-cols-[1fr_1fr] lg:items-start lg:gap-16">
+          <div>
+            <SectionHeading
+              id="what-are-implants-title"
+              eyebrow="The basics"
+              title={
+                <>
+                  Why choose <em>dental implants?</em>
+                </>
+              }
+            />
+            <div className="prose-rooted mt-5 space-y-4">
+              <p>
+                A dental implant is a titanium post that fuses with your jawbone and supports a custom crown, an
+                implant bridge, or a denture. Implants are a well-established option for tooth replacement, and
+                compared with bridges or removable dentures they offer several practical advantages.
               </p>
             </div>
-          </MotionDiv>
-        </div>
-      </section>
-
-      {/* Procedure Section */}
-      <section className="py-12 sm:py-16 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-8 sm:mb-12"
-          >
-            <h2 className="text-2xl sm:text-3xl font-bold font-heading text-[#333333] mb-4 sm:mb-6 leading-tight">
-              The Dental Implant Process with Dr. Wong
-            </h2>
-            <p className="text-[#333333] text-base sm:text-lg leading-relaxed">
-              Implant care is a multi-step process tailored to your needs. Dr. Wong plans your treatment,
-              coordinates surgical placement with trusted partners when needed, and restores the final crown in our Palo Alto office:
-            </p>
-          </MotionDiv>
-
-          <div className="space-y-4 sm:space-y-6 lg:space-y-8">
-            {procedureSteps.map((step, index) => (
-              <MotionDiv
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="bg-gray-50 rounded-lg p-4 sm:p-6"
-              >
-                <div className="flex items-start">
-                  <div className="bg-primary text-white rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center mr-3 sm:mr-4 flex-shrink-0 font-bold text-sm sm:text-base">
-                    {index + 1}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg sm:text-xl font-semibold text-[#333333] mb-2 sm:mb-3 leading-tight">{step.title}</h3>
-                    <p className="text-[#333333] text-sm sm:text-base leading-relaxed">{step.description}</p>
-                  </div>
-                </div>
-              </MotionDiv>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Types of Implants Section */}
-      <section className="py-12 sm:py-16 bg-[#F5F9FC]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-8 sm:mb-12"
-          >
-            <h3 className="text-2xl sm:text-3xl font-bold font-heading text-[#333333] mb-4 sm:mb-6 leading-tight">
-              Types of Dental Implants We Offer
-            </h3>
-            <p className="text-[#333333] text-base sm:text-lg leading-relaxed">
-              Depending on your specific situation, Dr. Wong may recommend different types of implant solutions:
-            </p>
-          </MotionDiv>
-
-          <div className="space-y-4 sm:space-y-6 sm:grid sm:grid-cols-1 lg:grid-cols-2 sm:gap-6 lg:gap-8">
-            {implantTypes.map((type, index) => (
-              <MotionDiv
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="bg-white rounded-lg shadow-lg p-5 sm:p-6"
-              >
-                <h4 className="text-lg sm:text-xl font-semibold text-[#333333] mb-3 leading-tight">{type.title}</h4>
-                <p className="text-[#333333] text-sm sm:text-base leading-relaxed">{type.description}</p>
-              </MotionDiv>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Patient Success Stories */}
-      <section className="py-12 sm:py-16 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-10 sm:mb-12"
-          >
-            <h3 className="text-2xl sm:text-3xl font-bold font-heading text-[#1F2933] leading-tight">
-              Patient experiences with implant care
-            </h3>
-            <p className="mt-4 text-sm text-[#4B5563] sm:text-base">
-              Patients appreciate clear guidance, careful planning, and restorations that look and feel natural.
-            </p>
-          </MotionDiv>
-
-          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-            {implantTestimonials.map((testimonial) => (
-              <TestimonialQuote key={testimonial.name} testimonial={testimonial} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Cost Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl font-bold font-heading text-[#333333] mb-6">
-              Understanding Dental Implant Cost in Palo Alto
-            </h2>
-            <p className="text-[#333333] text-lg mb-8">
-              The cost of dental implants can vary based on several factors:
-            </p>
-          </MotionDiv>
-
-          <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="bg-gray-50 rounded-lg p-8"
-          >
-            <ul className="space-y-3 mb-6">
-              <li className="flex items-start">
-                <CheckCircle className="h-5 w-5 text-primary mt-1 mr-3 flex-shrink-0" />
-                <span className="text-[#333333]">The number of implants needed</span>
-              </li>
-              <li className="flex items-start">
-                <CheckCircle className="h-5 w-5 text-primary mt-1 mr-3 flex-shrink-0" />
-                <span className="text-[#333333]">The type of restoration (crown, bridge, denture)</span>
-              </li>
-              <li className="flex items-start">
-                <CheckCircle className="h-5 w-5 text-primary mt-1 mr-3 flex-shrink-0" />
-                <span className="text-[#333333]">The need for preparatory procedures like bone grafting or sinus lifts</span>
-              </li>
-              <li className="flex items-start">
-                <CheckCircle className="h-5 w-5 text-primary mt-1 mr-3 flex-shrink-0" />
-                <span className="text-[#333333]">The complexity of your individual case</span>
-              </li>
-            </ul>
-            <p className="text-[#333333] mb-4">
-              While dental implants may cost more initially than other tooth replacement options,
-              their longevity and function often make them a sound long-term choice.
-            </p>
-            <p className="text-[#333333]">
-              During your consultation, we will provide a clear breakdown of costs for your treatment plan.
-              Our Palo Alto office can also discuss financing options when helpful.
-            </p>
-          </MotionDiv>
-        </div>
-      </section>
-
-      {/* Care Instructions Section */}
-      <section className="py-16 bg-[#F5F9FC]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl font-bold font-heading text-[#333333] mb-6">
-              Caring for Your Dental Implants for Lifelong Success
-            </h2>
-            <p className="text-[#333333] text-lg">
-              Maintaining your dental implants is straightforward and similar to caring for your natural teeth:
-            </p>
-          </MotionDiv>
-
-          <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="bg-white rounded-lg shadow-lg p-8"
-          >
-            <div className="space-y-4">
-              {careInstructions.map((instruction, index) => (
-                <div key={index} className="flex items-start">
-                  <Shield className="h-5 w-5 text-primary mt-1 mr-3 flex-shrink-0" />
-                  <span className="text-[#333333]">{instruction}</span>
-                </div>
-              ))}
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <div className="card p-5">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-evergreen-800 text-gold-300">
+                  <ServiceIcon name="implant" className="h-6 w-6" animated={false} />
+                </span>
+                <h3 className="mt-3 font-heading text-[1.1rem] font-medium leading-snug text-ink">
+                  Placed by a trusted surgical partner
+                </h3>
+                <p className="mt-1 text-[15px] leading-6 text-ink-soft">
+                  When surgical placement is needed, we coordinate it with trusted surgical partners.
+                </p>
+              </div>
+              <div className="card p-5">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gold-200 text-gold-700">
+                  <ServiceIcon name="crown" className="h-6 w-6" animated={false} />
+                </span>
+                <h3 className="mt-3 font-heading text-[1.1rem] font-medium leading-snug text-ink">
+                  Planned and restored by Dr. Wong
+                </h3>
+                <p className="mt-1 text-[15px] leading-6 text-ink-soft">
+                  He plans your treatment and restores the final crown in our office so it matches your natural teeth.
+                </p>
+              </div>
             </div>
-          </MotionDiv>
-        </div>
-      </section>
-
-      {/* Why Choose Dr. Wong Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl font-bold font-heading text-[#333333] mb-6">
-              Why Choose Dr. Christopher B. Wong for Dental Implants in Palo Alto?
-            </h2>
-            <p className="text-[#333333] text-lg">
-              Choosing the right dentist for implant care matters. Dr. Christopher B. Wong offers:
-            </p>
-          </MotionDiv>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              { icon: Award, title: "Experience and Expertise", desc: "Careful implant planning and restoration, from single-tooth cases to more complex restorations." },
-              { icon: Clock, title: "Thoughtful Technology", desc: "Digital imaging and planning tools to support precise diagnosis and treatment coordination." },
-              { icon: Heart, title: "Personalized Care", desc: "We take time to understand your needs and create a tailored treatment plan." },
-              { icon: Shield, title: "Conservative Approach", desc: "Committed to preserving natural tooth structure and recommending implants when they're truly the best solution." },
-              { icon: Smile, title: "Coordinated Surgical Partners", desc: "When placement surgery is needed, we work with trusted surgical partners and restore the final crown in-office." },
-              { icon: Users, title: "Long-Term Health Focus", desc: "Our goal is to restore function and help keep your smile healthy for years to come." }
-            ].map((feature, index) => (
-              <MotionDiv
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="text-center"
-              >
-                <feature.icon className="h-12 w-12 text-primary mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-[#333333] mb-3">{feature.title}</h3>
-                <p className="text-[#333333]">{feature.desc}</p>
-              </MotionDiv>
-            ))}
           </div>
+          <ul className="card divide-y divide-cream-300/70 px-5 sm:px-7">
+            {benefits.map((benefit) => (
+              <li key={benefit.label} className="flex gap-3 py-3.5">
+                <ServiceIcon name="checkup" className="mt-0.5 h-6 w-6 shrink-0 text-evergreen-600" animated={false} />
+                <span className="text-[15px] leading-6 text-ink-soft">
+                  <strong className="font-semibold text-ink">{benefit.label}.</strong> {benefit.text}
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
-      </section>
+      </Section>
 
-      <FAQSection
-        title="Frequently Asked Questions About Dental Implants"
-        items={faqs}
-        className="bg-[#F5F9FC] py-16"
+      <Section id="implants-process" tone="white" labelledBy="implants-process-title">
+        <SectionHeading
+          id="implants-process-title"
+          eyebrow="Your visits, step by step"
+          title={
+            <>
+              The dental implant process <em>with Dr. Wong</em>
+            </>
+          }
+          lead="Implant care is a multi-step process tailored to your needs. Dr. Wong plans your treatment, coordinates surgical placement with trusted partners when needed, and restores the final crown in our Palo Alto office."
+        />
+        <StepList steps={procedureSteps} columns={3} className="mt-8" />
+        <div className="mt-6 grid gap-3 lg:grid-cols-2 lg:items-end lg:gap-4">
+          <Disclosure title="Caring for your implants for lifelong success">
+            <p>Maintaining dental implants is straightforward and similar to caring for your natural teeth:</p>
+            <DotList items={[...careInstructions]} />
+          </Disclosure>
+          <GuideLinks
+            columns={1}
+            title="Timing after an extraction"
+            className="mt-3 lg:mt-0"
+            guides={[{ href: "/blog/dental-implant-after-extraction-palo-alto", title: "How long after an extraction can you get an implant?" }]}
+          />
+        </div>
+
+        <div className="mt-12 sm:mt-16">
+          <h3 className="h-card text-[1.4rem] sm:text-[1.75rem]">
+            Comfort, technology, <em>and approach</em>
+          </h3>
+          <FeatureGrid features={approach} columns={3} headingLevel="h4" rail className="mt-5" />
+        </div>
+      </Section>
+
+      <Section id="implant-options" tone="cream" labelledBy="implant-options-title">
+        <SectionHeading
+          id="implant-options-title"
+          eyebrow="Options"
+          title={
+            <>
+              Types of implant <em>restorations</em>
+            </>
+          }
+          lead="Depending on your specific situation, Dr. Wong may recommend different types of implant solutions."
+        />
+        <OptionCards options={implantTypes} columns={4} rail className="mt-8" />
+        <GuideLinks
+          className="mt-6"
+          columns={1}
+          title="Comparing options"
+          guides={[{ href: "/blog/dental-implants-vs-bridge-palo-alto", title: "Implant or bridge? How to choose tooth replacement" }]}
+        />
+      </Section>
+
+      <CostPanel
+        id="implants-cost"
+        tone="white"
+        title={
+          <>
+            Dental implant cost in Palo Alto: <em>what affects it</em>
+          </>
+        }
+        lead="While dental implants may cost more initially than other tooth replacement options, their longevity and function often make them a sound long-term choice. During your consultation, we’ll provide a clear breakdown of costs for your treatment plan."
+        drivers={costFactors}
+        coverage="Implant benefits vary widely from plan to plan."
+        scheduleHref={SCHEDULE_HREF}
+        analyticsContext="implants-cost"
       />
+
+      <ServiceReviews
+        tags={["gentle", "honest"]}
+        note="Reviews about care at our office; none of these mention implants specifically."
+      />
+
+      <WhoTreats
+        teamSlugs={["jamal", "rachel"]}
+        intro="Dr. Wong plans your implant, coordinates placement with trusted surgical partners, and restores the final crown in our office so it matches your natural teeth."
+      />
+
+      <div id="implants-faq">
+        <FAQSection
+          title="Dental implant FAQs"
+          subtitle="Comfort, success rates, bone loss, and how long the process takes."
+          items={faqs}
+        />
+      </div>
 
       <RelatedServices
         items={relatedServices}
         title="Related services"
         subtitle="See other treatments we offer in Palo Alto."
       />
+      <NearbyLine subject="Implant patients" />
 
       <RelatedServicePosts serviceSlug="dental-implants" serviceName="Dental Implants" />
 
-      {/* CTA Section */}
-      <section className="py-12 sm:py-16 bg-primary text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-2xl sm:text-3xl font-bold font-heading mb-4 sm:mb-6 leading-tight">
-              Request a Dental Implant Consultation in Palo Alto
-            </h2>
-            <p className="text-base sm:text-lg lg:text-xl text-blue-100 mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed">
-              If you&apos;d like to learn whether dental implants are a good fit, request a consultation with
-              Dr. Christopher B. Wong. We&apos;ll review your options and outline a clear next step.
-            </p>
-            <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 justify-center">
-              <Button asChild className="bg-white text-primary hover:bg-gray-100 font-medium px-6 py-3 sm:px-8 sm:py-3 w-full sm:w-auto">
-                <Link href="/schedule?intent=implants&source=implants-page#appointment">
-                  <span className="hidden sm:inline">Request a consultation</span>
-                  <span className="sm:hidden">Request a consultation</span>
-                  <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="border-white border-2 text-white bg-white/10 hover:bg-white/20 px-6 py-3 sm:px-8 sm:py-3 font-medium w-full sm:w-auto">
-                <Link href="/contact">
-                  Contact Our Practice
-                </Link>
-              </Button>
-            </div>
-          </MotionDiv>
-        </div>
-      </section>
+      <CtaBand
+        analyticsContext="implants-cta"
+        title={
+          <>
+            Request a dental implant <em>consultation</em>
+          </>
+        }
+        lead="If you’d like to learn whether dental implants are a good fit, request a consultation with Dr. Christopher B. Wong. We’ll review your options and outline a clear next step."
+      />
     </>
   );
 };

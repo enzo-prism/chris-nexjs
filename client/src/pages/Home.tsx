@@ -7,6 +7,7 @@ import { HomeHero } from "@/components/home/HomeHero";
 import {
   CareFinder,
   CostSection,
+  CurrentPatientStrip,
   FeaturedQuote,
   OfficeSection,
   ReviewRibbon,
@@ -14,7 +15,7 @@ import {
   TeamSection,
   VisitSection,
 } from "@/components/home/HomeSections";
-import { TreatTipsSection } from "@/components/seasonal/HomeSeasonal";
+import { NightBandSky, TreatTipsSection } from "@/components/seasonal/HomeSeasonal";
 import { buildFAQSchema, type FAQEntry } from "@/lib/structuredData";
 
 const homeFaqs: FAQEntry[] = [
@@ -47,6 +48,7 @@ const Home = () => {
     <>
       <StructuredData data={faqSchema ? [faqSchema] : []} />
       <HomeHero />
+      <CurrentPatientStrip />
       <ReviewRibbon />
       <CareFinder />
       <StorySection />
@@ -71,7 +73,7 @@ const Home = () => {
           <FaqList items={homeFaqs} />
         </div>
       </Section>
-      <CtaBand analyticsContext="home-cta" />
+      <CtaBand analyticsContext="home-cta" decor={<NightBandSky />} />
     </>
   );
 };

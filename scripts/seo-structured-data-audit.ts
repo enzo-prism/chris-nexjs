@@ -1,3 +1,19 @@
+/**
+ * Runtime JSON-LD audit (pnpm run test:seo:schema; set SEO_AUDIT_BASE_URL).
+ *
+ * 2026-10-16 (Rooted redesign) changes to the intended behavior:
+ *   - `@graph` documents are flattened (buildServiceSchema now returns one
+ *     node whose @graph holds MedicalWebPage + Service [+ MedicalProcedure]).
+ *   - The homepage WebSite must NOT carry a SearchAction any more (Google
+ *     retired the sitelinks search box; the site has no search). It used to be
+ *     required.
+ *   - HowTo is rejected (rich result retired in 2023), and so are Review /
+ *     AggregateRating / aggregateRating anywhere (self-serving reviews).
+ *   - MedicalWebPage needs reviewedBy + lastReviewed; Service.image must not
+ *     be a favicon; VideoObject needs name, description, thumbnailUrl,
+ *     uploadDate and contentUrl/embedUrl; Person.name must not repeat "Dr.".
+ *   - /about must expose a ProfilePage whose mainEntity is a Person.
+ */
 import { getStorage } from "../server/storage/repository";
 import { generateMetadata } from "../app/[...slug]/page";
 import { getIndexablePaths, getSeoForPath } from "../shared/seo";
@@ -30,9 +46,82 @@ function flattenNodes(value: unknown): JsonRecord[] {
     return value.flatMap((entry) => flattenNodes(entry));
   }
   if (typeof value === "object") {
-    return [value as JsonRecord];
+    const record = value as JsonRecord;
+    const graph = record["@graph"];
+    if (Array.isArray(graph)) {
+      return flattenNodes(graph);
+    }
+    return [record];
   }
   return [];
+}
+
+function nodeHasType(node: JsonRecord, type: string): boolean {
+  const rawType = node["@type"];
+  return rawType === type || (Array.isArray(rawType) && rawType.includes(type));
+}
+
+// Visit every nested object (including inline nodes such as Service.provider).
+function walkObjects(value: unknown, visit: (record: JsonRecord) => void): void {
+  if (Array.isArray(value)) {
+    value.forEach((entry) => walkObjects(entry, visit));
+    return;
+  }
+  if (value && typeof value === "object") {
+    const record = value as JsonRecord;
+    visit(record);
+    Object.values(record).forEach((entry) => walkObjects(entry, visit));
+  }
+}
+
+function validateNodeContracts(nodes: JsonRecord[], path: string, failures: Failure[]): void {
+  walkObjects(nodes, (record) => {
+    if (nodeHasType(record, "Review") || nodeHasType(record, "AggregateRating")) {
+      failures.push({ path, message: "Review/AggregateRating schema is not allowed" });
+    }
+    if ("aggregateRating" in record || "review" in record) {
+      failures.push({ path, message: "aggregateRating/review properties are not allowed" });
+    }
+    if (nodeHasType(record, "HowTo")) {
+      failures.push({ path, message: "HowTo schema is retired; remove it" });
+    }
+    if (nodeHasType(record, "Person")) {
+      const name = record.name;
+      if (typeof name === "string" && /^Dr\.?\s/i.test(name)) {
+        failures.push({
+          path,
+          message: `Person name should not include the honorific (use honorificPrefix): ${name}`,
+        });
+      }
+    }
+  });
+
+  for (const node of nodes) {
+    if (nodeHasType(node, "MedicalWebPage")) {
+      if (!node.reviewedBy) {
+        failures.push({ path, message: "MedicalWebPage is missing reviewedBy" });
+      }
+      if (typeof node.lastReviewed !== "string" || !node.lastReviewed) {
+        failures.push({ path, message: "MedicalWebPage is missing lastReviewed" });
+      }
+    }
+    if (nodeHasType(node, "Service")) {
+      const image = node.image;
+      if (typeof image === "string" && /favicon|apple-touch-icon/i.test(image)) {
+        failures.push({ path, message: `Service image is a favicon, not a photo: ${image}` });
+      }
+    }
+    if (nodeHasType(node, "VideoObject")) {
+      for (const field of ["name", "description", "thumbnailUrl", "uploadDate"] as const) {
+        if (!node[field]) {
+          failures.push({ path, message: `VideoObject is missing ${field}` });
+        }
+      }
+      if (!node.contentUrl && !node.embedUrl) {
+        failures.push({ path, message: "VideoObject needs contentUrl or embedUrl" });
+      }
+    }
+  }
 }
 
 function getNodeTypes(nodes: JsonRecord[]): Set<string> {
@@ -151,6 +240,7 @@ async function main(): Promise<void> {
 
     const types = getNodeTypes(nodes);
     validateCanonicalUrls(nodes, path, failures);
+    validateNodeContracts(nodes, path, failures);
     const isClientRenderedRoute = html.includes("BAILOUT_TO_CLIENT_SIDE_RENDERING");
 
     if (path === "/") {
@@ -158,10 +248,10 @@ async function main(): Promise<void> {
         failures.push({ path, message: "Homepage should include WebSite schema" });
       }
       const hasSearchAction = nodes.some((node) => hasWebSiteSearchAction(node));
-      if (!hasSearchAction) {
+      if (hasSearchAction) {
         failures.push({
           path,
-          message: "Homepage WebSite schema should include SearchAction with urlTemplate",
+          message: "Homepage WebSite schema should not include the retired SearchAction",
         });
       }
       if (!types.has("Organization") && !types.has("Dentist")) {
@@ -210,6 +300,16 @@ async function main(): Promise<void> {
           path,
           message: "Service page should include Service, FAQPage, or BreadcrumbList schema",
         });
+      }
+    }
+
+    if (path === "/about") {
+      const profile = nodes.find((node) => nodeHasType(node, "ProfilePage"));
+      const mainEntity = profile?.mainEntity as JsonRecord | undefined;
+      if (!profile) {
+        failures.push({ path, message: "About page should include ProfilePage schema" });
+      } else if (!mainEntity || !nodeHasType(mainEntity, "Person")) {
+        failures.push({ path, message: "ProfilePage mainEntity should be a Person" });
       }
     }
 

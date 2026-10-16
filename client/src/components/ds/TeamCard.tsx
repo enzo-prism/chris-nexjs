@@ -51,7 +51,10 @@ export function TeamCard({
       </div>
       <div className="flex flex-1 flex-col p-5">
         <p className="text-[15px] font-semibold text-evergreen-800">{member.highlight}</p>
-        {showBio ? <p className="mt-2 text-[15px] leading-6 text-ink-soft">{member.bio}</p> : null}
+        {/* Without a patient quote, the bio fills the card so grid rows stay even. */}
+        {showBio || !member.quote ? (
+          <p className="mt-2 text-[15px] leading-6 text-ink-soft">{member.bio}</p>
+        ) : null}
         {member.quote ? (
           <figure className="mt-4 rounded-2xl bg-cream-100 p-4">
             <Quote className="h-4 w-4 text-gold-500" aria-hidden="true" />

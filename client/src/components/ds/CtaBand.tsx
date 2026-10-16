@@ -29,6 +29,10 @@ type CtaBandProps = {
   readonly showSteps?: boolean;
   readonly analyticsContext?: string;
   readonly className?: string;
+  /** Optional decorative layer (e.g. the October night sky on the homepage). */
+  readonly decor?: React.ReactNode;
+  /** Urgent pages lead with the phone call; the request link becomes secondary. */
+  readonly callFirst?: boolean;
 };
 
 /** Closing "book or call" band with the glowing redwood roots. */
@@ -43,6 +47,8 @@ export function CtaBand({
   showSteps = true,
   analyticsContext = "cta-band",
   className,
+  decor,
+  callFirst = false,
 }: CtaBandProps) {
   return (
     <section
@@ -53,8 +59,9 @@ export function CtaBand({
       <div className="cw-sky surface-evergreen on-dark relative mx-auto max-w-6xl overflow-hidden rounded-[2rem] px-6 pb-10 pt-12 shadow-lift sm:px-10 sm:pt-16 lg:px-14">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 bottom-0 -z-0 h-48 bg-[url('/brand/roots-glow.svg')] bg-[length:1440px_360px] bg-[position:center_-110px] bg-no-repeat opacity-40"
+          className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[url('/brand/roots-glow.svg')] bg-[length:1440px_360px] bg-[position:center_-150px] bg-no-repeat opacity-25 [mask-image:linear-gradient(to_bottom,#000,transparent)]"
         />
+        {decor}
         <div className="relative grid items-end gap-8 lg:grid-cols-[1fr_auto] lg:gap-14">
           <div className="max-w-2xl">
             <p className="eyebrow eyebrow-light">Your next visit</p>
@@ -63,10 +70,15 @@ export function CtaBand({
             </h2>
             <p className="lead mt-5">{lead}</p>
           </div>
-          <div className="flex w-full flex-col gap-3 sm:w-auto sm:min-w-[17rem]">
+          <div
+            className={cn(
+              "flex w-full gap-3 sm:w-auto sm:min-w-[17rem]",
+              callFirst ? "flex-col-reverse" : "flex-col",
+            )}
+          >
             <Link
               href="/schedule#appointment"
-              className="btn btn-gold btn-lg"
+              className={cn("btn btn-lg", callFirst ? "btn-outline-light" : "btn-gold")}
               data-analytics-context={`${analyticsContext}-book`}
             >
               <CalendarDays aria-hidden="true" />
@@ -74,7 +86,7 @@ export function CtaBand({
             </Link>
             <a
               href={`tel:${officeInfo.phoneE164}`}
-              className="btn btn-outline-light btn-lg"
+              className={cn("btn btn-lg", callFirst ? "btn-gold" : "btn-outline-light")}
               data-analytics-context={`${analyticsContext}-call`}
               aria-label={`Call Dr. Wong's office at ${officeInfo.phone}`}
             >
@@ -84,7 +96,7 @@ export function CtaBand({
           </div>
         </div>
         {showSteps ? (
-          <ol className="relative mt-10 grid gap-5 border-t border-white/10 pt-8 md:grid-cols-3">
+          <ol className="relative mt-10 hidden gap-5 border-t border-white/10 pt-8 sm:grid md:grid-cols-3">
             {steps.map((step, i) => {
               const Icon = step.icon;
               return (

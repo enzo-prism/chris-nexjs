@@ -2,7 +2,11 @@ import assert from "node:assert/strict";
 
 import { generateMetadata } from "../app/[...slug]/page";
 import { getCanonicalRouteData } from "../app/route-utils";
-import { buildOrganizationSchema } from "../client/src/lib/structuredData";
+import {
+  buildOrganizationSchema,
+  buildServiceSchema,
+  buildWebSiteSchema,
+} from "../client/src/lib/structuredData";
 import { getBlogSeoMetadata } from "../shared/blogSeo";
 import { getLegacyRedirectPath, legacyRedirects } from "../shared/redirects";
 import { seoByPath } from "../shared/seo";
@@ -92,9 +96,11 @@ async function testCanonicalRoutesMetadata() {
     );
 
     if (redirectPath) {
+      // Retired city pages redirect to an anchor on /locations
+      // (e.g. /locations#sunnyvale); canonicals never carry a fragment.
       assert.equal(
         getCanonicalRouteData(canonicalPath),
-        redirectPath,
+        redirectPath.split("#")[0] || "/",
         `Redirected route canonical mismatch: ${canonicalPath}`,
       );
       continue;
@@ -147,6 +153,44 @@ function testLegacyRedirects() {
       expectedRedirect: "/pediatric-dentistry",
       expectedCanonical: "/pediatric-dentistry",
     },
+    // 2026-10-16 consolidations: ZOOM! merged into teeth whitening (aliases
+    // retargeted so they stay one hop), Invisalign resources + post merged
+    // into /invisalign, and legacy /post/ slugs resolve through the map.
+    {
+      from: "/zoom-whitening",
+      expectedRedirect: "/teeth-whitening-palo-alto",
+      expectedCanonical: "/teeth-whitening-palo-alto",
+    },
+    {
+      from: "/services/zoom-whitening",
+      expectedRedirect: "/teeth-whitening-palo-alto",
+      expectedCanonical: "/teeth-whitening-palo-alto",
+    },
+    {
+      from: "/whitening",
+      expectedRedirect: "/teeth-whitening-palo-alto",
+      expectedCanonical: "/teeth-whitening-palo-alto",
+    },
+    {
+      from: "/invisalign/resources",
+      expectedRedirect: "/invisalign",
+      expectedCanonical: "/invisalign",
+    },
+    {
+      from: "/post/invisalign-palo-alto",
+      expectedRedirect: "/invisalign",
+      expectedCanonical: "/invisalign",
+    },
+    {
+      from: "/blog/post/in-office-whitening-vs-take-home-trays",
+      expectedRedirect: "/blog/zoom-vs-take-home-whitening-palo-alto",
+      expectedCanonical: "/blog/zoom-vs-take-home-whitening-palo-alto",
+    },
+    {
+      from: "/locations/dentist-menlo-park",
+      expectedRedirect: "/dentist-menlo-park",
+      expectedCanonical: "/dentist-menlo-park",
+    },
   ] as const;
 
   for (const testCase of dynamicCases) {
@@ -162,6 +206,37 @@ function testLegacyRedirects() {
       testCase.expectedCanonical,
       `Canonical mapping mismatch for ${testCase.from}`,
     );
+  }
+
+  // One hop, statically: no redirect target may itself be a redirect source
+  // (test:seo:links checks the same thing over HTTP against a running server).
+  for (const redirect of legacyRedirects) {
+    const target = redirect.to.split("#")[0] || "/";
+    assert.equal(
+      getLegacyRedirectPath(target),
+      null,
+      `Redirect chain: ${redirect.from} -> ${redirect.to} redirects again`,
+    );
+  }
+
+  // The ZOOM! merge is exact-path only: the invite-only schedule child route
+  // must keep rendering (noindex) instead of following /zoom-whitening.
+  assert.equal(
+    getLegacyRedirectPath("/zoom-whitening/schedule"),
+    null,
+    "/zoom-whitening/schedule must not redirect",
+  );
+  assert.equal(
+    seoByPath["/zoom-whitening/schedule"]?.indexable,
+    false,
+    "/zoom-whitening/schedule must stay noindex",
+  );
+
+  // Merged routes stay in seoByPath as non-indexable redirects, like the
+  // seven retired city pages.
+  for (const merged of ["/zoom-whitening", "/invisalign/resources"]) {
+    assert.equal(seoByPath[merged]?.indexable, false, `${merged} should be non-indexable`);
+    assert.ok(getLegacyRedirectPath(merged), `${merged} should redirect`);
   }
 }
 
@@ -232,6 +307,43 @@ function testOrganizationSchemaIntegrity(): void {
   assert.ok(schema.name, "Organization schema should retain the practice name");
   assert.ok(schema.telephone, "Organization schema should retain the office phone");
   assert.ok(schema.address, "Organization schema should retain the office address");
+
+  // Google retired the sitelinks search box (2024) and the site has no search.
+  assert.ok(
+    !("potentialAction" in buildWebSiteSchema()),
+    "WebSite schema should not advertise a SearchAction",
+  );
+}
+
+function testServiceSchemaIntegrity(): void {
+  const schema = buildServiceSchema({
+    name: "Dental Crowns",
+    description: "Contract fixture.",
+    slug: "/crowns-palo-alto",
+  });
+  const graph = schema["@graph"];
+  assert.ok(Array.isArray(graph), "Service schema should be an @graph");
+  const nodes = graph as Record<string, unknown>[];
+  const page = nodes.find((node) => node["@type"] === "MedicalWebPage");
+  const service = nodes.find((node) => node["@type"] === "Service");
+  assert.ok(page, "Service schema should include a MedicalWebPage node");
+  assert.ok(service, "Service schema should include a Service node");
+  assert.ok(page.reviewedBy, "MedicalWebPage should name its clinical reviewer");
+  assert.match(
+    String(page.lastReviewed ?? ""),
+    /^\d{4}-\d{2}-\d{2}$/,
+    "MedicalWebPage lastReviewed should be an ISO date",
+  );
+  const provider = service.provider as Record<string, unknown> | undefined;
+  assert.ok(provider?.["@id"], "Service provider should keep the practice @id");
+  assert.ok(
+    provider?.name && provider.telephone && provider.address,
+    "Service provider should inline name, telephone and address",
+  );
+  assert.ok(
+    !String(service.image ?? "").includes("favicon"),
+    "Service image should be a real photo, not a favicon",
+  );
 }
 
 async function testBlogMetadataForStoredSlug() {
@@ -261,6 +373,7 @@ async function testBlogMetadataForStoredSlug() {
 async function main(): Promise<void> {
   testLegacyRedirects();
   testOrganizationSchemaIntegrity();
+  testServiceSchemaIntegrity();
   await testCanonicalRoutesMetadata();
   await testBlogMetadataForStoredSlug();
   await testBlogMetadataIntegrity();

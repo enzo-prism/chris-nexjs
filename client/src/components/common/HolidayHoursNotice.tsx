@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import {
   ArrowRight,
@@ -6,7 +8,9 @@ import {
   ChevronDown,
   X,
 } from "lucide-react";
-import { useHolidayHours } from "@/hooks/useHolidayHours";
+// Resolved after mount: prerendered pages would otherwise mismatch on
+// hydration once a temporary-hours entry starts or expires after a build.
+import { useHolidayNotice } from "@/components/patients/useHolidayNotice";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -21,7 +25,7 @@ const HolidayHoursNotice = ({
   className,
   containerClassName,
 }: HolidayHoursNoticeProps) => {
-  const notice = useHolidayHours();
+  const notice = useHolidayNotice();
   const [isDismissed, setIsDismissed] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const dismissalKey = notice?.id
@@ -29,17 +33,21 @@ const HolidayHoursNotice = ({
     : "holidayHoursDismissed";
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const storedValue = window.localStorage.getItem(dismissalKey);
-    if (storedValue === "true") {
-      setIsDismissed(true);
+    try {
+      if (window.localStorage.getItem(dismissalKey) === "true") {
+        setIsDismissed(true);
+      }
+    } catch {
+      // Storage can be blocked (private mode); the notice simply stays visible.
     }
   }, [dismissalKey]);
 
   const handleDismiss = () => {
     setIsDismissed(true);
-    if (typeof window !== "undefined") {
+    try {
       window.localStorage.setItem(dismissalKey, "true");
+    } catch {
+      // Dismissal still applies for this page view.
     }
   };
 
@@ -62,26 +70,22 @@ const HolidayHoursNotice = ({
     return (
       <div
         className={cn(
-          "rounded-3xl border border-slate-200 bg-white shadow-[0_20px_50px_-40px_rgba(15,23,42,0.35)]",
+          "card overflow-hidden",
           className
         )}
       >
-        <div className="relative overflow-hidden rounded-[23px] bg-[radial-gradient(circle_at_top_left,#ffffff_0%,#f5f9ff_48%,#eef2f7_100%)] px-5 py-6 text-sm">
-          <div
-            className="pointer-events-none absolute -right-8 -top-10 h-32 w-32 rounded-full bg-blue-100/40 blur-3xl"
-            aria-hidden="true"
-          />
+        <div className="paper relative overflow-hidden px-5 py-6 text-sm sm:px-7">
           <div className="flex items-center gap-3 mb-5">
-            <div className="h-11 w-11 rounded-full bg-[#0b1f3a] text-white shadow-sm ring-1 ring-white/80 flex items-center justify-center">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-evergreen-800 text-gold-300 shadow-soft">
               <CalendarClock className="h-5 w-5" aria-hidden="true" />
             </div>
             <div>
-              <p className="text-[11px] uppercase tracking-[0.24em] text-slate-500">{noticeLabel}</p>
-              <p className="text-lg font-semibold font-heading text-slate-900 leading-tight text-balance">{notice.title}</p>
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-ink-muted">{noticeLabel}</p>
+              <p className="h-card text-balance text-[1.3rem]">{notice.title}</p>
             </div>
           </div>
 
-          <p className="text-slate-600 mb-5 leading-relaxed">{notice.description}</p>
+          <p className="mb-5 text-[15px] leading-relaxed text-ink-soft">{notice.description}</p>
 
           <ul className="space-y-3">
             {displayEntries.map((entry) => {
@@ -91,33 +95,33 @@ const HolidayHoursNotice = ({
                   className={cn(
                     "relative overflow-hidden rounded-2xl border px-4 py-3",
                     entry.isClosed
-                      ? "border-amber-200 bg-amber-50/70"
+                      ? "border-gold-300 bg-gold-200/40"
                       : entry.isVariable
-                        ? "border-blue-200 bg-blue-50/70"
-                        : "border-slate-200/80 bg-white/80"
+                        ? "border-evergreen-200 bg-evergreen-50/80"
+                        : "border-cream-300/80 bg-white/80"
                   )}
                 >
                   <span
                     className={cn(
                       "absolute left-0 top-0 h-full w-1",
                       entry.isClosed
-                        ? "bg-amber-400"
+                        ? "bg-gold-500"
                         : entry.isVariable
-                          ? "bg-blue-400"
-                          : "bg-blue-200"
+                          ? "bg-evergreen-500"
+                          : "bg-evergreen-200"
                     )}
                     aria-hidden="true"
                   />
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
-                    <span className="font-semibold text-slate-900">{entry.day}</span>
+                    <span className="font-semibold text-ink">{entry.day}</span>
                     <span
                       className={cn(
                         "sm:text-right",
                         entry.isClosed
-                          ? "text-amber-900 font-semibold"
+                          ? "font-semibold text-gold-700"
                           : entry.isVariable
-                            ? "text-blue-900 font-semibold"
-                            : "text-slate-600"
+                            ? "font-semibold text-evergreen-800"
+                            : "text-ink-soft"
                       )}
                     >
                       {entry.hours}
@@ -128,10 +132,10 @@ const HolidayHoursNotice = ({
                       className={cn(
                         "mt-2 inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em]",
                         entry.isClosed
-                          ? "border-amber-200 bg-amber-100/80 text-amber-900"
+                          ? "border-gold-300 bg-gold-200/60 text-gold-700"
                           : entry.isVariable
-                            ? "border-blue-200 bg-blue-100/80 text-blue-900"
-                            : "border-slate-200 bg-slate-100 text-slate-700",
+                            ? "border-evergreen-200 bg-evergreen-50 text-evergreen-800"
+                            : "border-cream-300 bg-cream-100 text-ink-soft",
                       )}
                     >
                       {entry.badgeText}
@@ -146,14 +150,14 @@ const HolidayHoursNotice = ({
             <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <a
                 href={notice.cta.href}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90"
+                className="btn btn-primary btn-sm"
               >
                 <CalendarCheck className="h-4 w-4" aria-hidden="true" />
                 {notice.cta.label}
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </a>
               {notice.footerNote ? (
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-ink-muted">
                   {notice.footerNote}
                 </span>
               ) : null}
@@ -175,7 +179,7 @@ const HolidayHoursNotice = ({
         // sibling that pulls itself up by the header height to extend its
         // gradient behind the fixed header, and without a higher stacking
         // position here it paints over the bottom of this notice.
-        "relative z-10 border-b border-slate-200 bg-white text-slate-800",
+        "relative z-10 border-b border-cream-300/80 bg-cream-50 text-ink",
         className,
       )}
       aria-label={noticeLabel}
@@ -194,7 +198,7 @@ const HolidayHoursNotice = ({
             variant="ghost"
             size="icon"
             onClick={handleDismiss}
-            className="absolute right-0 top-2 z-10 rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700 sm:top-3"
+            className="absolute right-0 top-2 z-10 rounded-full text-ink-muted hover:bg-cream-200 hover:text-ink sm:top-3"
             aria-label="Dismiss schedule update notice"
           >
             <X className="h-4 w-4" aria-hidden="true" />
@@ -203,18 +207,18 @@ const HolidayHoursNotice = ({
           <div className="grid gap-3 lg:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.9fr)] lg:items-start lg:gap-8">
             <div className="min-w-0">
               <div className="flex items-start gap-3.5">
-                <div className="mt-0.5 hidden h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-700 sm:flex">
+                <div className="mt-0.5 hidden h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-evergreen-800 text-gold-300 sm:flex">
                   <CalendarClock className="h-5 w-5" aria-hidden="true" />
                 </div>
 
                 <div className="min-w-0">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-ink-muted">
                     {noticeLabel}
                   </p>
-                  <h2 className="mt-1 font-heading text-base font-semibold leading-snug text-slate-950 text-balance sm:text-xl sm:leading-tight">
+                  <h2 className="mt-1 text-balance font-heading text-lg font-medium leading-snug text-ink sm:text-xl sm:leading-tight">
                     {notice.title}
                   </h2>
-                  <p className="mt-1.5 hidden max-w-2xl text-[13px] leading-5 text-slate-600 text-pretty sm:mt-2 sm:block sm:text-sm sm:leading-6">
+                  <p className="mt-1.5 hidden max-w-2xl text-pretty text-[13px] leading-5 text-ink-soft sm:mt-2 sm:block sm:text-sm sm:leading-6">
                     {notice.summary}
                   </p>
 
@@ -222,7 +226,7 @@ const HolidayHoursNotice = ({
                     {notice.cta ? (
                       <Button
                         asChild
-                        className="ui-btn-primary min-h-10 rounded-full px-4 text-sm font-semibold sm:min-h-11"
+                        className="btn btn-primary btn-sm"
                       >
                         <a href={notice.cta.href}>
                           <CalendarCheck className="h-4 w-4 shrink-0" aria-hidden="true" />
@@ -238,7 +242,7 @@ const HolidayHoursNotice = ({
                       onClick={() => setShowDetails((current) => !current)}
                       aria-expanded={showDetails}
                       aria-controls="holiday-hours-details"
-                      className="min-h-10 rounded-full px-3 text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 lg:hidden"
+                      className="min-h-11 rounded-full px-3 text-sm font-semibold text-ink-soft hover:bg-cream-200 hover:text-ink lg:hidden"
                     >
                       <span>{showDetails ? "Hide schedule" : "View schedule"}</span>
                       <ChevronDown
@@ -251,7 +255,7 @@ const HolidayHoursNotice = ({
                     </Button>
 
                     {notice.footerNote ? (
-                      <p className="hidden text-xs leading-5 text-slate-500 sm:block">
+                      <p className="hidden text-xs leading-5 text-ink-muted sm:block">
                         {notice.footerNote}
                       </p>
                     ) : null}
@@ -263,20 +267,20 @@ const HolidayHoursNotice = ({
             <div
               id="holiday-hours-details"
               className={cn(
-                "min-w-0 rounded-2xl border border-slate-200 bg-slate-50",
+                "min-w-0 rounded-2xl border border-cream-300/80 bg-white",
                 showDetails ? "block" : "hidden lg:block",
               )}
             >
-              <ul className="divide-y divide-slate-200" aria-label="Temporary schedule details">
+              <ul className="divide-y divide-cream-300/80" aria-label="Temporary schedule details">
                 {displayEntries.map((entry) => (
                   <li
                     key={entry.day}
                     className="flex items-start justify-between gap-4 px-4 py-3"
                   >
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-slate-900">{entry.day}</p>
+                      <p className="text-sm font-semibold text-ink">{entry.day}</p>
                       {entry.badgeText ? (
-                        <p className="mt-0.5 text-xs text-slate-500">{entry.badgeText}</p>
+                        <p className="mt-0.5 text-xs text-ink-muted">{entry.badgeText}</p>
                       ) : null}
                     </div>
 
@@ -284,10 +288,10 @@ const HolidayHoursNotice = ({
                       className={cn(
                         "inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-xs font-semibold",
                         entry.isClosed
-                          ? "bg-amber-100 text-amber-900"
+                          ? "bg-gold-200 text-gold-700"
                           : entry.isVariable
-                            ? "bg-blue-100 text-blue-900"
-                            : "bg-slate-200 text-slate-700",
+                            ? "bg-evergreen-50 text-evergreen-800"
+                            : "bg-cream-200 text-ink-soft",
                       )}
                     >
                       {entry.hours}

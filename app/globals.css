@@ -734,6 +734,11 @@
   .h-card em {
     @apply font-normal italic text-gold-600;
   }
+  /* Card headings are below the 24px "large text" line, so their gold accent
+     needs the darker gold-700 to keep 4.5:1 contrast on white and cream. */
+  .h-card em {
+    @apply text-gold-700;
+  }
   .on-dark .h-display,
   .on-dark .h-section,
   .on-dark .h-card {
@@ -828,6 +833,13 @@
   }
 }
 
+/* Floating phone chrome steps aside while a film is playing. */
+html[data-video-playing] [data-testid="mobile-action-bar"] {
+  opacity: 0;
+  transform: translateY(calc(100% + 1.5rem));
+  pointer-events: none;
+}
+
 @keyframes rooted-marquee {
   to {
     transform: translate3d(-50%, 0, 0);
@@ -838,6 +850,11 @@
   from {
     opacity: 0;
     transform: translate3d(0, 28px, 0);
+  }
+  /* Text is fully opaque early in the range, so it reads at full contrast
+     while the rise finishes. */
+  40% {
+    opacity: 1;
   }
   to {
     opacity: 1;
@@ -1077,8 +1094,8 @@ svg.lucide {
   --cw-harvest-carve: #3a1d0a;
   --cw-harvest-stem: #5e7444;
   --cw-harvest-moon: #fbe6b3;
-  --cw-night: #0b1f3a;
-  --cw-ghost-line: hsl(212 72% 43%);
+  --cw-night: #0b2a21;
+  --cw-ghost-line: #2f6f57;
   --cw-season-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -1337,11 +1354,142 @@ html[data-cw-season] .cw-season-footer:not([data-cw-quiet])::before {
   }
 }
 
+
+/* ---- 2026-10 Rooted redesign additions ---------------------------------- */
+.cw-art-spider {
+  aspect-ratio: 48 / 44;
+  background-image: url("/seasonal/halloween-2026/spider.svg");
+}
+
+/* Homepage hero: a warm dusk wash in October (copy stays on cream). */
+html[data-cw-season] .cw-hero-dusk {
+  background-color: #f7eee2;
+  background-image:
+    radial-gradient(42rem 22rem at 78% 18%, rgba(242, 118, 31, 0.16), transparent 62%),
+    radial-gradient(40rem 24rem at 0% 100%, rgba(243, 224, 176, 0.45), transparent 60%),
+    linear-gradient(180deg, #f3e3d1 0%, #f8f4ec 70%);
+}
+
+/* Corner cobwebs on review and team cards (not on quiet pages). */
+html[data-cw-season] main:not([data-cw-quiet]) .cw-cobweb::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 44px;
+  height: 44px;
+  background: url("/seasonal/halloween-2026/cobweb.svg") top right / contain no-repeat;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* Jack-o'-lanterns at the foot of the hero redwoods: a candle flicker that
+   settles into a steady glow (3 flickers, under 5s). */
+.cw-lantern {
+  filter: drop-shadow(0 0 10px rgba(255, 170, 70, 0.75));
+  transform-origin: 50% 100%;
+}
+html[data-cw-season] .cw-lantern {
+  animation:
+    cw-lantern-pop 0.7s var(--cw-season-ease) both,
+    cw-lantern-flicker 1.1s ease-in-out 0.8s 3;
+}
+@keyframes cw-lantern-pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.6);
+  }
+}
+@keyframes cw-lantern-flicker {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 10px rgba(255, 170, 70, 0.75));
+  }
+  45% {
+    filter: drop-shadow(0 0 4px rgba(255, 170, 70, 0.4));
+  }
+  60% {
+    filter: drop-shadow(0 0 14px rgba(255, 190, 90, 0.9));
+  }
+}
+
+/* Spider drops on its silk thread once it scrolls into view, bobs twice,
+   and climbs back up a little when hovered. */
+.cw-spider-wrap {
+  overflow: visible;
+}
+.cw-spider {
+  position: relative;
+  margin-top: 3.25rem;
+  transform: translateY(-260%);
+  transition: transform 0.6s var(--cw-season-ease);
+}
+.cw-thread {
+  position: absolute;
+  bottom: 70%;
+  left: 50%;
+  width: 1px;
+  height: 140px;
+  background: linear-gradient(to bottom, transparent, rgba(20, 35, 29, 0.45));
+}
+.cw-spider-wrap[data-play] .cw-spider {
+  animation:
+    cw-spider-drop 1.3s cubic-bezier(0.3, 1.4, 0.5, 1) both,
+    cw-spider-bob 1.4s ease-in-out 1.3s 2 alternate;
+}
+@media (hover: hover) {
+  .cw-spider-wrap[data-play] .cw-spider:hover {
+    animation: none;
+    transform: translateY(-38%);
+  }
+}
+@keyframes cw-spider-drop {
+  from {
+    transform: translateY(-260%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes cw-spider-bob {
+  to {
+    transform: translateY(8px) rotate(3deg);
+  }
+}
+
+/* The hero ghost says boo on hover (desktop). */
+.cw-ghost-boo {
+  position: relative;
+  pointer-events: auto;
+}
+.cw-ghost-boo::after {
+  content: "Boo! Floss tonight.";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  translate: -50% -6px;
+  white-space: nowrap;
+  border-radius: 999px;
+  background: #14231d;
+  color: #fdfbf7;
+  font: 600 0.75rem/1 var(--font-sans), sans-serif;
+  padding: 0.45rem 0.7rem;
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+.cw-ghost-boo:hover::after {
+  opacity: 1;
+  transform: none;
+}
+
 /* 404: a ghost-tooth floating in front of a harvest moon (4.8s total). */
 .cw-porthole {
   background:
     radial-gradient(circle at 70% 28%, var(--cw-harvest-moon) 0 17%, rgba(251, 230, 179, 0.22) 18% 26%, transparent 27%),
-    linear-gradient(180deg, #1a3b66, var(--cw-night));
+    linear-gradient(180deg, #164838, var(--cw-night));
 }
 .cw-ghost-float {
   animation: cw-ghost-float 2.4s ease-in-out 0.3s 2 alternate both;
@@ -1360,8 +1508,13 @@ html[data-cw-season] .cw-season-footer:not([data-cw-quiet])::before {
   html[data-cw-season] .cw-ghost-peek,
   .cw-sky[data-play] .cw-star,
   .cw-patch[data-play] .cw-pumpkin,
-  .cw-ghost-float {
+  .cw-ghost-float,
+  html[data-cw-season] .cw-lantern,
+  .cw-spider-wrap[data-play] .cw-spider {
     animation: none !important;
+  }
+  .cw-spider {
+    transform: none;
   }
   html[data-cw-season] .cw-underline {
     animation: none !important;

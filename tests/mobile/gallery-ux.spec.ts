@@ -96,29 +96,24 @@ test("office tour videos expose keyboard play and pause", async ({ page }) => {
     page.getByRole("link", { name: /browse the photo gallery/i }),
   ).toBeVisible();
 
-  const heroPlay = page.getByRole("button", {
-    name: /play the office tour video/i,
-  });
-  await heroPlay.focus();
-  await page.keyboard.press("Enter");
+  // Each clip is a StoryPlayer region: the big Play button starts it, focus
+  // moves to the Play/Pause control, and Space toggles it without losing focus.
+  for (const clipName of ["the garden courtyard", "finding the office"]) {
+    const clip = page
+      .getByRole("region", { name: new RegExp(clipName, "i") })
+      .first();
+    const start = clip.getByRole("button", {
+      name: new RegExp(`^play ${clipName}`, "i"),
+    });
+    await start.scrollIntoViewIfNeeded();
+    await start.focus();
+    await page.keyboard.press("Enter");
 
-  const heroPause = page.getByRole("button", {
-    name: /pause the office tour video/i,
-  });
-  await expect(heroPause).toBeVisible();
-  await heroPause.focus();
-  await page.keyboard.press("Space");
-  await expect(heroPlay).toBeVisible();
-
-  const clipPlay = page.getByRole("button", {
-    name: /play the easy to find video/i,
-  });
-  await clipPlay.focus();
-  await page.keyboard.press("Enter");
-  const clipPause = page.getByRole("button", {
-    name: /pause the easy to find video/i,
-  });
-  await expect(clipPause).toBeFocused();
-  await page.keyboard.press("Space");
-  await expect(clipPlay).toBeFocused();
+    const pause = clip.getByRole("button", { name: "Pause", exact: true });
+    await expect(pause).toBeFocused();
+    await page.keyboard.press("Space");
+    await expect(
+      clip.getByRole("button", { name: "Play", exact: true }),
+    ).toBeFocused();
+  }
 });

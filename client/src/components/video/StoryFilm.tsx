@@ -139,12 +139,13 @@ export function StoryFilm({
       <div
         className={cn(
           "mx-auto",
+          // A 9:16 player never grows taller than the screen (header + gutter).
           current?.aspect === "9/16"
-            ? "max-w-[24rem]"
+            ? "max-w-[min(24rem,calc((100svh-7.5rem)*0.5625))]"
             : current
               ? "max-w-5xl"
               : short
-                ? "max-w-[24rem] sm:max-w-5xl"
+                ? "max-w-[min(24rem,calc((100svh-7.5rem)*0.5625))] sm:max-w-5xl"
                 : "max-w-5xl",
         )}
       >
@@ -152,6 +153,26 @@ export function StoryFilm({
           <StoryPlayer
             key={current.id}
             version={current}
+            posterCaption={
+              <div className="inline-flex max-w-full items-center gap-3 rounded-full bg-evergreen-950/70 py-1.5 pl-1.5 pr-4 backdrop-blur-md">
+                <img
+                  src="/images/about/dr-wong-portrait.webp"
+                  alt=""
+                  width={40}
+                  height={40}
+                  loading="lazy"
+                  className="h-10 w-10 shrink-0 rounded-full object-cover object-[50%_25%]"
+                />
+                <span className="min-w-0 text-left leading-tight">
+                  <span className="block text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-gold-300">
+                    Full Circle
+                  </span>
+                  <span className="block truncate text-sm font-semibold text-cream-50">
+                    Dr. Christopher B. Wong’s story
+                  </span>
+                </span>
+              </div>
+            }
             analyticsContext={analyticsContext}
             endScreen={endScreen}
             seekRequest={seek}
@@ -166,7 +187,7 @@ export function StoryFilm({
       {chapters.length ? (
         <ol
           aria-label="Chapters"
-          className="mx-auto mt-5 flex max-w-5xl snap-x gap-2 overflow-x-auto pb-1 [scrollbar-width:none]"
+          className="mx-auto mt-5 flex max-w-5xl snap-x gap-2 overflow-x-auto pb-1 [scrollbar-width:none] lg:flex-wrap lg:justify-center lg:overflow-visible"
         >
           {chapters.map((c, i) => {
             const active = activeChapter?.start === c.start && now > 0;

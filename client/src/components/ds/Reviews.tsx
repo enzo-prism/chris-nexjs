@@ -83,7 +83,7 @@ export function ReviewCard({
       <blockquote
         className={cn(
           "mt-3 flex-1 text-pretty text-ink",
-          size === "sm" && "text-[15px] leading-6",
+          size === "sm" && "text-base leading-7",
           size === "md" && "text-base leading-7",
           size === "lg" && "font-heading text-xl leading-8 sm:text-[1.6rem] sm:leading-10",
         )}

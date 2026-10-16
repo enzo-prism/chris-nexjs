@@ -348,7 +348,7 @@ const getChoiceCardClasses = (
             : "items-center justify-start text-left",
           selected
             ? "border-primary/45 bg-primary/[0.07] shadow-[0_14px_30px_-26px_rgba(37,99,235,0.6)]"
-            : "border-slate-200 bg-white hover:border-primary/30 hover:bg-primary/[0.02]",
+            : "border-cream-300 bg-white hover:border-primary/30 hover:bg-primary/[0.02]",
         ]
       : [
           "ui-chip-interactive relative flex min-h-11 cursor-pointer px-4 py-3 text-sm font-medium focus-within:border-primary focus-within:shadow-[var(--ui-focus-shadow)]",
@@ -357,10 +357,10 @@ const getChoiceCardClasses = (
   );
 
 const getFunnelInputClasses = (): string =>
-  "h-12 rounded-xl border-slate-200 bg-slate-50/75 px-4 text-base md:text-[15px] text-slate-900 placeholder:text-slate-400 hover:border-primary/30 focus-visible:bg-white";
+  "h-12 rounded-xl border-cream-300 bg-cream-50 px-4 text-base md:text-[15px] text-ink placeholder:text-ink-muted/60 hover:border-primary/30 focus-visible:bg-white";
 
 const getFunnelTextareaClasses = (): string =>
-  "rounded-xl border-slate-200 bg-slate-50/75 px-4 py-3 text-base md:text-[15px] text-slate-900 placeholder:text-slate-400 hover:border-primary/30 focus-visible:bg-white";
+  "rounded-xl border-cream-300 bg-cream-50 px-4 py-3 text-base md:text-[15px] text-ink placeholder:text-ink-muted/60 hover:border-primary/30 focus-visible:bg-white";
 
 type OptionalDetailsFieldsProps = {
   control: Control<ScheduleFormValues>;
@@ -382,7 +382,7 @@ const OptionalDetailsFields = ({
       render={({ field }) => (
         <FormItem>
           <FormLabel>
-            Dental insurance provider <span className="font-normal text-slate-500">(optional)</span>
+            Dental insurance provider <span className="font-normal text-ink-muted">(optional)</span>
           </FormLabel>
           <FormControl>
             <Input
@@ -396,8 +396,8 @@ const OptionalDetailsFields = ({
               {...field}
             />
           </FormControl>
-          <p className="mt-1 flex items-start gap-1.5 text-xs leading-5 text-slate-500">
-            <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
+          <p className="mt-1 flex items-start gap-1.5 text-xs leading-5 text-ink-muted">
+            <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-evergreen-600" aria-hidden="true" />
             <span>
               We&apos;re out-of-network with PPO plans, and many still pay a share.
               Add your plan and we&apos;ll check your benefits and explain your
@@ -417,7 +417,7 @@ const OptionalDetailsFields = ({
       render={({ field }) => (
         <FormItem>
           <FormLabel>
-            Scheduling note <span className="font-normal text-slate-500">(optional)</span>
+            Scheduling note <span className="font-normal text-ink-muted">(optional)</span>
           </FormLabel>
           <FormControl>
             <Textarea
@@ -431,7 +431,7 @@ const OptionalDetailsFields = ({
               value={field.value ?? ""}
             />
           </FormControl>
-          <p className="mt-1 text-xs leading-5 text-slate-500">
+          <p className="mt-1 text-xs leading-5 text-ink-muted">
             Please don&apos;t include medical history or other sensitive health
             details. Call us if you need to discuss care. {remainingNotesCharacters} characters left.
           </p>
@@ -455,15 +455,15 @@ const OptionalDetailsFields = ({
   return (
     <div className="space-y-5">
       {insuranceField}
-      <details className="group rounded-2xl border border-dashed border-slate-300 bg-slate-50/70 open:bg-white">
+      <details className="group rounded-2xl border border-dashed border-cream-400 bg-cream-50 open:bg-white">
         <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 px-5 py-3 [&::-webkit-details-marker]:hidden">
-          <span className="text-sm font-semibold text-slate-900">
+          <span className="text-sm font-semibold text-ink">
             Add a scheduling note{" "}
-            <span className="font-normal text-slate-500">(optional)</span>
+            <span className="font-normal text-ink-muted">(optional)</span>
           </span>
-          <ChevronRight className="h-4 w-4 shrink-0 text-slate-400 transition-transform group-open:rotate-90" aria-hidden="true" />
+          <ChevronRight className="h-4 w-4 shrink-0 text-ink-muted transition-transform group-open:rotate-90" aria-hidden="true" />
         </summary>
-        <div className="border-t border-slate-200 px-5 py-5">{notesField}</div>
+        <div className="border-t border-cream-300 px-5 py-5">{notesField}</div>
       </details>
     </div>
   );
@@ -517,7 +517,7 @@ const VisitNeedsStep = ({ control, presentation }: StepProps) => {
                       <span
                         className={cn(
                           presentation === "funnel"
-                            ? "text-sm font-semibold leading-6 text-slate-900"
+                            ? "text-sm font-semibold leading-6 text-ink"
                             : "text-sm font-medium",
                         )}
                       >
@@ -597,10 +597,10 @@ const VisitNeedsStep = ({ control, presentation }: StepProps) => {
                         <span className="flex min-w-0 flex-1 items-start gap-3 pr-6">
                           <FeatureIcon icon={Icon} size="sm" className="mt-0.5" />
                           <span>
-                            <span className="block text-sm font-semibold leading-6 text-slate-900">
+                            <span className="block text-sm font-semibold leading-6 text-ink">
                               {meta.title}
                             </span>
-                            <span className="mt-0.5 block text-xs leading-5 text-slate-500">
+                            <span className="mt-0.5 block text-xs leading-5 text-ink-muted">
                               {meta.description}
                             </span>
                           </span>
@@ -657,7 +657,7 @@ const PreferenceStep = ({ control, presentation }: StepProps) => {
                         isAtLimit && "cursor-not-allowed opacity-45",
                       )}
                     >
-                      <span className="text-sm font-semibold text-slate-900">{day}</span>
+                      <span className="text-sm font-semibold text-ink">{day}</span>
                       <Checkbox
                         id={`preferred-day-${day}`}
                         checked={checked}
@@ -674,7 +674,7 @@ const PreferenceStep = ({ control, presentation }: StepProps) => {
                   );
                 })}
               </div>
-              <p className="text-xs leading-5 text-slate-500" aria-live="polite">
+              <p className="text-xs leading-5 text-ink-muted" aria-live="polite">
                 {values.length === 3
                   ? "3 days selected. Unselect one to choose a different day."
                   : `${values.length} of 3 days selected.`}{" "}
@@ -712,7 +712,7 @@ const PreferenceStep = ({ control, presentation }: StepProps) => {
                         id={`preferred-time-${option.replace(/\W+/g, "-").toLowerCase()}`}
                         className="sr-only"
                       />
-                      <span className="text-sm font-semibold text-slate-900">{option}</span>
+                      <span className="text-sm font-semibold text-ink">{option}</span>
                       {presentation === "funnel" && isSelected ? (
                         <CheckCircle2
                           className="ml-auto h-5 w-5 shrink-0 text-primary"
@@ -745,7 +745,7 @@ const ContactStep = ({
 }: ContactStepProps) => {
   return (
     <div className={cn(presentation === "funnel" ? "space-y-6" : "space-y-6")}>
-      <p className="rounded-xl bg-primary/[0.05] px-4 py-3 text-sm leading-6 text-slate-600">
+      <p className="rounded-xl bg-primary/[0.05] px-4 py-3 text-sm leading-6 text-ink-soft">
         Choose the best way to reach you. Your preferred method is required,
         and the second option is only there if you want to add a backup.
       </p>
@@ -906,10 +906,10 @@ const ContactStep = ({
                             />
                           ) : null}
                           <FeatureIcon icon={Icon} size="sm" />
-                          <span className="mt-2 block text-sm font-semibold capitalize leading-5 text-slate-900">
+                          <span className="mt-2 block text-sm font-semibold capitalize leading-5 text-ink">
                             {option}
                           </span>
-                          <span className="mt-0.5 block text-[11px] leading-4 text-slate-500">
+                          <span className="mt-0.5 block text-[11px] leading-4 text-ink-muted">
                             {contactPreferenceHints[option] ?? ""}
                           </span>
                         </>
@@ -921,7 +921,7 @@ const ContactStep = ({
                 })}
               </RadioGroup>
             </FormControl>
-            <p className="text-xs leading-5 text-slate-500" aria-live="polite">
+            <p className="text-xs leading-5 text-ink-muted" aria-live="polite">
               {contactPreference === "phone"
                 ? "Add an email only if you want a backup contact method."
                 : "Add a phone number only if you want a backup contact method."}
@@ -1456,26 +1456,26 @@ const AppointmentForm = ({
       <div
         className={cn(
           presentation === "funnel"
-            ? "rounded-[28px] border border-emerald-100 bg-[linear-gradient(180deg,#f3fbf6_0%,#ffffff_100%)] px-6 py-10 text-center shadow-[0_30px_90px_-60px_rgba(22,101,52,0.45)] sm:px-10"
-            : "rounded-xl border border-emerald-100 bg-emerald-50 p-6 text-center",
+            ? "rounded-[28px] border border-evergreen-100 bg-[linear-gradient(180deg,#f3fbf6_0%,#ffffff_100%)] px-6 py-10 text-center shadow-[0_30px_90px_-60px_rgba(22,101,52,0.45)] sm:px-10"
+            : "rounded-xl border border-evergreen-100 bg-evergreen-50 p-6 text-center",
         )}
         role="status"
       >
-        <div className="inline-flex items-center justify-center rounded-full bg-emerald-100 p-3">
-          <CheckCircle2 className="h-8 w-8 text-emerald-600" aria-hidden="true" />
+        <div className="inline-flex items-center justify-center rounded-full bg-evergreen-100 p-3">
+          <CheckCircle2 className="h-8 w-8 text-evergreen-600" aria-hidden="true" />
         </div>
-        <p className="mt-5 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">
+        <p className="mt-5 text-xs font-semibold uppercase tracking-[0.2em] text-evergreen-700">
           Request Received
         </p>
-        <h3 className="mt-3 text-2xl font-bold tracking-tight text-slate-950">
+        <h3 className="mt-3 font-heading text-[1.9rem] font-medium leading-tight tracking-[-0.01em] text-ink">
           We&apos;ll confirm your appointment shortly.
         </h3>
-        <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-slate-600">
+        <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-ink-soft">
           Our team will follow up within one business day
           {confirmationDetails ? (
             <>
               {" "}by {confirmationDetails.method} at{" "}
-              <span className="font-semibold text-slate-800">
+              <span className="font-semibold text-ink">
                 {confirmationDetails.destination}
               </span>
             </>
@@ -1484,11 +1484,11 @@ const AppointmentForm = ({
           )}{" "}
           to confirm an available time. Your visit is not booked until we confirm it.
         </p>
-        <div className="mx-auto mt-6 max-w-xl rounded-2xl border border-slate-200 bg-white px-5 py-4 text-left">
-          <p className="text-sm font-semibold text-slate-900">While you wait</p>
-          <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-600">
+        <div className="mx-auto mt-6 max-w-xl rounded-2xl border border-cream-300 bg-white px-5 py-4 text-left">
+          <p className="text-sm font-semibold text-ink">While you wait</p>
+          <ul className="mt-2 space-y-2 text-sm leading-6 text-ink-soft">
             <li className="flex items-start gap-2">
-              <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" />
+              <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-evergreen-600" aria-hidden="true" />
               <span>
                 New patient? You can fill out the{" "}
                 <a href="/patient-resources" className="ui-link-premium">
@@ -1498,7 +1498,7 @@ const AppointmentForm = ({
               </span>
             </li>
             <li className="flex items-start gap-2">
-              <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" />
+              <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-evergreen-600" aria-hidden="true" />
               <span>
                 Have your dental insurance card handy. We&apos;ll check your PPO
                 benefits and explain your portion before treatment.
@@ -1516,7 +1516,7 @@ const AppointmentForm = ({
           </a>
           <a
             href="/contact"
-            className="ui-focus-premium inline-flex min-h-11 items-center gap-2 rounded-full border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition-colors hover:border-primary/35 hover:text-primary"
+            className="ui-focus-premium inline-flex min-h-11 items-center gap-2 rounded-full border border-cream-400 px-5 py-3 text-sm font-semibold text-ink-soft transition-colors hover:border-primary/35 hover:text-primary"
           >
             View office details
           </a>
@@ -1569,13 +1569,13 @@ const AppointmentForm = ({
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/70">
                 Step {activeStep} of {totalSteps}
               </p>
-              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400">
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-ink-muted">
                 <ShieldCheck className="h-3.5 w-3.5 text-primary/70" aria-hidden="true" />
                 No medical details needed
               </span>
             </div>
             <div
-              className="h-1.5 overflow-hidden rounded-full bg-slate-100"
+              className="h-1.5 overflow-hidden rounded-full bg-cream-200"
               role="progressbar"
               aria-valuenow={progressPercent}
               aria-valuemin={0}
@@ -1591,30 +1591,30 @@ const AppointmentForm = ({
               <h2
                 ref={headingRef}
                 tabIndex={-1}
-                className="text-2xl font-semibold tracking-tight text-slate-950 outline-none sm:text-[26px]"
+                className="font-heading text-[1.7rem] font-medium leading-tight tracking-[-0.01em] text-ink outline-none sm:text-[1.9rem]"
               >
                 {currentStep.title}
               </h2>
-              <p className="mt-1.5 text-sm leading-6 text-slate-600">
+              <p className="mt-1.5 text-sm leading-6 text-ink-soft">
                 {currentStep.description}
               </p>
             </div>
           </div>
         ) : (
-          <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+          <div className="rounded-xl border border-cream-300 bg-cream-50 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink-muted">
               Step {activeStep} of {totalSteps}
             </p>
             <h4
               ref={headingRef}
               tabIndex={-1}
-              className="mt-1 text-lg font-semibold text-[#333333] outline-none"
+              className="mt-1 text-lg font-semibold text-ink outline-none"
             >
               {currentStep.title}
             </h4>
-            <p className="mt-1 text-sm text-slate-600">{currentStep.description}</p>
+            <p className="mt-1 text-sm text-ink-soft">{currentStep.description}</p>
             <div
-              className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200"
+              className="mt-3 h-2 overflow-hidden rounded-full bg-cream-300"
               role="progressbar"
               aria-valuenow={progressPercent}
               aria-valuemin={0}
@@ -1645,15 +1645,15 @@ const AppointmentForm = ({
         ) : null}
 
         {isFinalStep ? (
-          <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+          <div className="rounded-2xl border border-cream-300 bg-cream-50 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
               Review your request
             </p>
             <dl className="mt-3 space-y-3 text-sm">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <dt className="text-slate-500">Visit</dt>
-                  <dd className="mt-0.5 font-medium text-slate-900">
+                  <dt className="text-ink-muted">Visit</dt>
+                  <dd className="mt-0.5 font-medium text-ink">
                     {formValues.appointmentType || "Not selected yet"}
                     {formValues.isEmergency ? (
                       <span className="ml-2 inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-rose-700">
@@ -1672,10 +1672,10 @@ const AppointmentForm = ({
                   Edit
                 </Button>
               </div>
-              <div className="flex items-start justify-between gap-3 border-t border-slate-200 pt-3">
+              <div className="flex items-start justify-between gap-3 border-t border-cream-300 pt-3">
                 <div className="min-w-0">
-                  <dt className="text-slate-500">Scheduling</dt>
-                  <dd className="mt-0.5 font-medium text-slate-900">
+                  <dt className="text-ink-muted">Scheduling</dt>
+                  <dd className="mt-0.5 font-medium text-ink">
                     {schedulingMode === "first_available"
                       ? "Soonest available visit"
                       : `${reviewDays} · ${reviewTime}`}
@@ -1697,9 +1697,9 @@ const AppointmentForm = ({
                   Edit
                 </Button>
               </div>
-              <div className="border-t border-slate-200 pt-3">
-                <dt className="text-slate-500">Confirmation</dt>
-                <dd className="mt-0.5 font-medium text-slate-900">
+              <div className="border-t border-cream-300 pt-3">
+                <dt className="text-ink-muted">Confirmation</dt>
+                <dd className="mt-0.5 font-medium text-ink">
                   {formValues.contactPreference === "phone" ? "Phone" : "Email"}
                   {formValues.contactPreference === "phone" && formValues.phone
                     ? ` · ${formValues.phone}`
@@ -1710,7 +1710,7 @@ const AppointmentForm = ({
                 </dd>
               </div>
             </dl>
-            <p className="mt-4 border-t border-slate-200 pt-3 text-xs leading-5 text-slate-500">
+            <p className="mt-4 border-t border-cream-300 pt-3 text-xs leading-5 text-ink-muted">
               Sending this form requests a time; it does not book an appointment.
               We&apos;ll confirm the final date and time with you.
             </p>
@@ -1767,8 +1767,8 @@ const AppointmentForm = ({
         ) : null}
 
         {presentation === "funnel" ? (
-          <div className="flex flex-col gap-3 border-t border-slate-200 pt-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] sm:flex-row sm:items-center sm:justify-between sm:border-slate-100 sm:pt-5 sm:pb-0">
-            <p className="order-2 text-xs leading-5 text-slate-500 sm:order-1">
+          <div className="flex flex-col gap-3 border-t border-cream-300 pt-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] sm:flex-row sm:items-center sm:justify-between sm:border-cream-200 sm:pt-5 sm:pb-0">
+            <p className="order-2 text-xs leading-5 text-ink-muted sm:order-1">
               {isFinalStep
                 ? "Your request is not booked until our team confirms it."
                 : "Most patients finish in under a minute."}
@@ -1817,7 +1817,7 @@ const AppointmentForm = ({
         ) : (
           <div
             className={cn(
-              "-mx-2 border-t border-slate-200 px-2 pt-3",
+              "-mx-2 border-t border-cream-300 px-2 pt-3",
               "pb-[calc(env(safe-area-inset-bottom)+0.75rem)] sm:-mx-0 sm:px-0",
             )}
           >
@@ -1829,7 +1829,7 @@ const AppointmentForm = ({
                 <PhoneCall className="h-4 w-4" aria-hidden="true" />
                 Need urgent help? Call now
               </a>
-              <span className="text-xs text-slate-500">
+              <span className="text-xs text-ink-muted">
                 Response in one business day
               </span>
             </div>

@@ -10,7 +10,9 @@ import { homeRibbonQuotes } from "@/data/reviewHighlights";
 import {
   HarvestMoon,
   HeroGhost,
+  PumpkinPatch,
   SeasonalGreeting,
+  SeasonalUnderline,
   harvestMoonBox,
 } from "@/components/seasonal/HomeSeasonal";
 import { HarvestBats } from "@/components/seasonal/SeasonalClient";
@@ -22,7 +24,7 @@ const heroQuote = homeRibbonQuotes.find((q) => q.name === "Jimmy") ?? homeRibbon
 
 export function HomeHero() {
   return (
-    <section className="paper relative isolate overflow-hidden" aria-labelledby="home-hero-title">
+    <section className="paper cw-hero-dusk relative isolate overflow-hidden" aria-labelledby="home-hero-title">
       <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 pb-6 pt-6 sm:px-6 sm:pt-10 lg:grid-cols-[1.02fr_0.98fr] lg:gap-14 lg:px-8 lg:pb-10 lg:pt-14">
         <div className="relative z-10">
           <SeasonalGreeting />
@@ -44,12 +46,17 @@ export function HomeHero() {
             id="home-hero-title"
             className="h-display mt-6 text-balance text-[2.55rem] sm:text-[3.5rem] lg:text-[4.1rem] xl:text-[4.5rem]"
           >
-            Your <em>gentle, unhurried</em> Palo Alto family dentist
+            Your <em>gentle, unhurried</em>{" "}
+            <span className="relative inline-block whitespace-nowrap">
+              Palo Alto
+              <SeasonalUnderline />
+            </span>{" "}
+            family dentist
           </h1>
           <p className="lead mt-5 max-w-xl">
-            Dr. Christopher B. Wong and a hygiene team patients have trusted for
-            years take time to explain what they see, protect healthy teeth, and
-            walk you through costs before any treatment.
+            Dr. Christopher B. Wong and a long-trusted hygiene team take time to
+            explain what they see, protect healthy teeth, and go over costs
+            before any treatment.
           </p>
 
           <div className="rise-in rise-in-3 mt-8 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
@@ -147,7 +154,9 @@ export function HomeHero() {
       <div
         aria-hidden="true"
         className="pointer-events-none relative -mt-2 h-[120px] bg-[url('/brand/roots-ink.svg')] bg-[length:1100px_275px] bg-[position:center_-28px] bg-no-repeat sm:h-[150px] sm:bg-[length:1440px_360px] sm:bg-[position:center_-40px]"
-      />
+      >
+        <PumpkinPatch />
+      </div>
     </section>
   );
 }

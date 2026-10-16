@@ -1,8 +1,5 @@
 import { ImageResponse } from "next/og";
-import {
-  getBlogArtSpec,
-  hexToRgba,
-} from "@shared/blogArt";
+import { getBlogArtSpec } from "@shared/blogArt";
 import { getStorage } from "../../../server/storage/repository";
 
 export const size = {
@@ -15,13 +12,26 @@ export const contentType = "image/png";
 const truncate = (value: string, max: number): string =>
   value.length > max ? `${value.slice(0, max - 1).trimEnd()}…` : value;
 
+// "Rooted" share card: evergreen field, gold growth rings, cream headline.
+// Keep the styles to what @vercel/og supports (flex layout, solid borders,
+// linear/radial gradients) — an unsupported background once crashed every
+// blog card at render time.
+const EVERGREEN_950 = "#061A14";
+const EVERGREEN_800 = "#10382C";
+const CREAM_50 = "#FDFBF7";
+const CREAM_200 = "#EFE8DA";
+const GOLD_300 = "#EBCB83";
+
 export default async function OpenGraphImage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  // The seeded spec only nudges where the rings sit, so each post's card differs.
   const spec = getBlogArtSpec(slug);
+  const ringX = 860 + (spec.angle % 90);
+  const ringY = 120 + (spec.gridOffset % 120);
   const storage = await getStorage();
   const post = await storage.getBlogPostBySlug(slug);
   const headline = truncate(post?.title ?? "Dental Health Blog", 96);
@@ -35,39 +45,21 @@ export default async function OpenGraphImage({
           width: "100%",
           height: "100%",
           overflow: "hidden",
-          background: `linear-gradient(${spec.angle}deg, ${spec.palette.backgroundStart} 0%, ${spec.palette.backgroundMid} 48%, ${spec.palette.backgroundEnd} 100%)`,
+          background: `radial-gradient(circle at 78% 22%, ${EVERGREEN_800} 0%, ${EVERGREEN_950} 70%)`,
         }}
       >
-        {spec.blobs.map((blob, index) => (
+        {[120, 200, 290, 390, 500].map((radius, index) => (
           <div
-            key={`blob-${index}`}
+            key={radius}
             style={{
               position: "absolute",
-              left: blob.cx - blob.rx,
-              top: blob.cy - blob.ry,
-              width: blob.rx * 2,
-              height: blob.ry * 2,
+              left: ringX - radius,
+              top: ringY - radius,
+              width: radius * 2,
+              height: radius * 2,
               borderRadius: 9999,
-              opacity: blob.opacity,
-              transform: `rotate(${blob.rotate}deg)`,
-              background: `linear-gradient(135deg, rgba(255,255,255,0.94), ${hexToRgba(blob.color, 0.94)})`,
-            }}
-          />
-        ))}
-
-        {spec.wavePaths.map((_, index) => (
-          <div
-            key={`wave-${index}`}
-            style={{
-              position: "absolute",
-              inset: 0,
-              borderTop:
-                index === 0
-                  ? `3px solid ${hexToRgba(spec.palette.stroke, 0.34)}`
-                  : `2px solid ${hexToRgba(spec.palette.stroke, 0.22)}`,
-              borderRadius: `${180 + index * 48}px / ${84 + index * 22}px`,
-              transform: `translate(${index * 120 - 80}px, ${138 + index * 96}px)`,
-              opacity: 0.9 - index * 0.18,
+              border: `${index === 0 ? 3 : 2}px solid ${GOLD_300}`,
+              opacity: 0.42 - index * 0.07,
             }}
           />
         ))}
@@ -75,76 +67,46 @@ export default async function OpenGraphImage({
         <div
           style={{
             position: "absolute",
-            left: spec.panel.x,
-            top: spec.panel.y,
-            width: spec.panel.width,
-            height: spec.panel.height,
-            borderRadius: 44,
-            border: `1px solid ${hexToRgba(spec.palette.panelBorder, 0.92)}`,
-            background: hexToRgba(spec.palette.panel, 0.3),
-            transform: `rotate(${spec.panel.rotate}deg)`,
-          }}
-        />
-
-        <div
-          style={{
-            position: "absolute",
-            left: spec.accent.x,
-            top: spec.accent.y,
-            width: spec.accent.width,
-            height: spec.accent.height,
-            borderRadius: 64,
-            border: "1px solid rgba(255,255,255,0.58)",
-            background: "rgba(255,255,255,0.16)",
-            transform: `rotate(${spec.accent.rotate}deg)`,
-          }}
-        />
-
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "radial-gradient(circle at top right, rgba(255,255,255,0.9), transparent 42%), linear-gradient(180deg, rgba(255,255,255,0.16), transparent 72%)",
-          }}
-        />
-
-        <div
-          style={{
-            position: "absolute",
-            left: 72,
-            bottom: 68,
+            left: 80,
+            top: 72,
+            right: 80,
+            bottom: 72,
             display: "flex",
             flexDirection: "column",
-            gap: 14,
-            padding: "24px 30px",
-            borderRadius: 34,
-            border: "1px solid rgba(255,255,255,0.82)",
-            background: "rgba(255,255,255,0.38)",
+            justifyContent: "space-between",
           }}
         >
           <div
             style={{
               display: "flex",
               fontSize: 24,
-              letterSpacing: "0.18em",
+              letterSpacing: "0.2em",
               textTransform: "uppercase",
-              color: "#36648f",
+              color: GOLD_300,
             }}
           >
-            Christopher B. Wong, DDS
+            Christopher B. Wong, DDS · Palo Alto
           </div>
           <div
             style={{
               display: "flex",
-              fontSize: headline.length > 52 ? 44 : 52,
+              fontSize: headline.length > 52 ? 52 : 62,
               fontWeight: 700,
-              lineHeight: 1.1,
-              maxWidth: 960,
-              color: "#16324f",
+              lineHeight: 1.12,
+              maxWidth: 900,
+              color: CREAM_50,
             }}
           >
             {headline}
+          </div>
+          <div
+            style={{
+              display: "flex",
+              fontSize: 24,
+              color: CREAM_200,
+            }}
+          >
+            Dental health blog · chriswongdds.com
           </div>
         </div>
       </div>

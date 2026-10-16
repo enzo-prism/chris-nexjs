@@ -113,10 +113,10 @@ const OpenNowStatus = ({ className = "" }: OpenNowStatusProps) => {
         aria-hidden="true"
         className={`h-2 w-2 shrink-0 rounded-full ${
           showOpen
-            ? "bg-emerald-500"
+            ? "bg-evergreen-500 shadow-[0_0_0_3px_rgba(63,191,152,0.25)]"
             : showClosed
-              ? "bg-slate-400"
-              : "bg-slate-300"
+              ? "bg-gold-500"
+              : "bg-cream-300"
         }`}
       />
       <span className="grid">

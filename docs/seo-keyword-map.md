@@ -2,43 +2,58 @@
 
 Primary keyword mapping for canonical indexable URLs. This is the anti-cannibalization source of truth for metadata and content planning.
 
+Generated from `primaryKeyword` / `secondaryKeywords` in `shared/seo.ts`
+(2026-10-16 "Rooted" redesign, per the local-SEO strategy). Trust and legal
+pages not listed here (`/contact`, `/schedule`, `/testimonials`, `/gallery`,
+`/office-tour`, `/patient-stories`, `/patient-resources`, legal pages) use the
+cluster defaults in `shared/seo.ts`; they are navigational, not ranking targets.
+
 | URL | Cluster | Primary keyword | Secondary keywords |
 | --- | --- | --- | --- |
-| `/` | service | palo alto dentist | family dentist palo alto, cosmetic dentist palo alto |
-| `/about` | trust | christopher b wong dds | palo alto dentist biography, dentist credentials |
-| `/services` | service | palo alto dental services | comprehensive dentistry palo alto, family dental care |
-| `/preventive-dentistry` | service | preventive dentistry palo alto | dental exam palo alto, dental cleaning preventive care |
-| `/restorative-dentistry` | service | restorative dentistry palo alto | tooth restoration palo alto, crowns and fillings |
-| `/pediatric-dentistry` | service | pediatric dentistry palo alto | kids dentist palo alto, family dental care children |
-| `/patient-resources` | trust | palo alto dental patient resources | dental forms palo alto, insurance dental office |
-| `/insurance` | trust | dental insurance palo alto | ppo dental insurance palo alto, dentist payment options palo alto |
-| `/testimonials` | trust | palo alto dentist reviews | patient stories dentist, dental testimonials palo alto |
-| `/patient-stories` | trust | dental smile transformations palo alto | invisalign results palo alto, cosmetic dentistry cases |
-| `/blog` | blog | palo alto dental blog | oral health tips, family dentistry education |
-| `/gallery` | trust | palo alto dental office gallery | dentist office photos palo alto, dental office video tour |
-| `/office-tour` | trust | palo alto dental office tour | virtual dentist office tour palo alto, dental office video walkthrough |
-| `/changelog` | trust | christopher b wong dds website updates | dental website changelog, practice site updates |
-| `/contact` | trust | contact palo alto dentist | dentist phone number palo alto, dentist address |
-| `/schedule` | trust | schedule dentist appointment palo alto | request dental visit palo alto, new patient appointment request |
-| `/invisalign` | service | invisalign palo alto | clear aligners palo alto, invisalign dentist near me |
-| `/invisalign/resources` | service | invisalign resources palo alto | invisalign timeline, invisalign cost guide |
-| `/emergency-dental` | service | emergency dentist palo alto | same day dentist palo alto, urgent dental care |
-| `/zoom-whitening` | service | zoom whitening palo alto | in office teeth whitening, cosmetic whitening dentist |
-| `/teeth-whitening-palo-alto` | service | teeth whitening palo alto | take home whitening trays, whitening dentist palo alto |
-| `/dental-cleaning-palo-alto` | service | dental cleaning palo alto | preventive cleaning dentist, checkup and cleaning |
-| `/cavity-fillings-palo-alto` | service | cavity fillings palo alto | tooth colored fillings, composite fillings palo alto |
-| `/crowns-palo-alto` | service | dental crowns palo alto | porcelain crowns palo alto, cracked tooth crown |
-| `/pediatric-dentist-palo-alto` | service | pediatric dentist palo alto | kids dental checkups, children dentist palo alto |
-| `/dentist-menlo-park` | location | dentist menlo park | menlo park family dentist, palo alto dentist near menlo park |
-| `/dentist-stanford` | location | dentist stanford | stanford dental care, nearby dentist stanford |
-| `/dentist-mountain-view` | location | dentist mountain view | mountain view family dentist, palo alto dentist near mountain view |
-| `/locations` | location | palo alto dentist locations served | dentist near me peninsula, communities we serve |
-| `/dental-implants` | service | dental implants palo alto | implant restoration palo alto, missing tooth replacement |
-| `/dental-veneers` | service | dental veneers palo alto | porcelain veneers palo alto, cosmetic smile makeover |
-| `/accessibility` | legal | dental website accessibility statement | ada accessibility dental office, accessibility policy |
-| `/hipaa` | legal | hipaa notice dental office | patient privacy rights, health information privacy |
-| `/privacy-policy` | legal | dental privacy policy | website privacy statement, data protection policy |
-| `/terms` | legal | dental website terms of service | service terms dental practice, website use terms |
+| `/` | service | dentist palo alto | family dentist palo alto, cosmetic dentist palo alto, new patient dentist palo alto, dentist california ave |
+| `/about` | trust | christopher b wong dds | dr christopher wong palo alto, kris hamamoto dds |
+| `/services` | service | dental services palo alto | general dentistry palo alto |
+| `/preventive-dentistry` | service | preventive dentistry palo alto | dental exam palo alto, oral cancer screening palo alto, fluoride and sealants for adults |
+| `/restorative-dentistry` | service | restorative dentistry palo alto | broken tooth repair, dental bridge palo alto, replace missing tooth |
+| `/pediatric-dentistry` | service | kids dentist palo alto | children's dentist palo alto, child's first dental visit, sealants for kids |
+| `/insurance` | trust | dental insurance palo alto | out-of-network ppo dentist, dentist without insurance palo alto, in-house dental plan |
+| `/blog` | blog | dental health blog | dental health tips, oral health education |
+| `/invisalign` | service | invisalign palo alto | invisalign dentist palo alto, clear aligners palo alto, invisalign cost palo alto, invisalign for teens |
+| `/emergency-dental` | service | emergency dentist palo alto | same day dentist palo alto, toothache, broken tooth dentist, urgent dental care |
+| `/teeth-whitening-palo-alto` | service | teeth whitening palo alto | zoom whitening palo alto, in-office whitening, take-home whitening trays, whitening cost palo alto |
+| `/dental-cleaning-palo-alto` | service | teeth cleaning palo alto | dental cleaning palo alto, dental checkup palo alto, deep cleaning palo alto |
+| `/cavity-fillings-palo-alto` | service | cavity filling palo alto | tooth colored fillings, replace silver fillings palo alto |
+| `/crowns-palo-alto` | service | dental crowns palo alto | porcelain crown, zirconia crown, crown cost palo alto, cracked tooth crown, crown after root canal |
+| `/dentist-menlo-park` | location | dentist menlo park | family dentist near menlo park |
+| `/dentist-stanford` | location | dentist near stanford | stanford dentist, dentist for stanford students |
+| `/dentist-mountain-view` | location | dentist mountain view | family dentist near mountain view |
+| `/locations` | location | palo alto family dentist | nearby dentist palo alto, dental office near me palo alto |
+| `/dental-implants` | service | dental implants palo alto | implant crown palo alto, missing tooth replacement, implant cost palo alto, implants vs bridge |
+| `/dental-veneers` | service | veneers palo alto | porcelain veneers palo alto, veneers cost palo alto, cosmetic dentist palo alto |
+
+## Merged and redirected URLs (2026-10-16)
+
+One hop each, declared in `staticLegacyRedirects` (`shared/redirects.ts`) and
+marked non-indexable in `seoByPath`, so they stay out of the sitemap:
+
+| Retired URL | Now | Why |
+| --- | --- | --- |
+| `/zoom-whitening` | `/teeth-whitening-palo-alto` | ZOOM! is a brand variant of the same whitening intent; the page absorbed the ZOOM! section and an in-office vs take-home comparison. `/zoom-whitening/schedule` (invite-only campaign, noindex) still works. |
+| `/invisalign/resources` | `/invisalign` | Timeline, attachments, aftercare, and retainers now live on `/invisalign`. |
+| `/blog/invisalign-palo-alto` | `/invisalign` | Duplicated the service page's head term. |
+| `/blog/dental-veneers-palo-alto` | `/dental-veneers` | Duplicated the service page's head term. |
+| `/blog/in-office-whitening-vs-take-home-trays` | `/blog/zoom-vs-take-home-whitening-palo-alto` | Duplicate comparison post; the newer, longer post is canonical. |
+| `/pediatric-dentist-palo-alto` | `/pediatric-dentistry` | Duplicate children's page (already redirected; route code deleted). |
+| `/locations/dentist-menlo-park` | `/dentist-menlo-park` | Legacy nested URL that returned 404. |
+| `/locations/dentist-redwood-shores` | `/locations` | Legacy nested URL that returned 404. |
+
+Legacy aliases that would have chained were retargeted (`/whitening`,
+`/services/zoom-whitening`, `/post/<slug>` and `/blog/post/<slug>` for merged posts).
+
+## Children's page wording
+
+Use "children's dentistry" / "kids" in copy. "Pediatric dentist" is a specialist
+title the practice does not hold.
 
 ## Blog template keyword policy
 

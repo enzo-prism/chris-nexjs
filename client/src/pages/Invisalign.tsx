@@ -1,67 +1,53 @@
-"use client";
-
-import dynamic from "next/dynamic";
-import { CheckCircle, ArrowRight, Clock, Star, Users, MapPin, Phone } from "lucide-react";
-import OfficeHoursSummary from "@/components/common/OfficeHoursSummary";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import {
+  ArrowRight,
+  CalendarCheck,
+  Clock,
+  Hand,
+  ScanLine,
+  ShieldCheck,
+  Stethoscope,
+  UtensilsCrossed,
+} from "lucide-react";
+
 import StructuredData from "@/components/seo/StructuredData";
-import { motion } from "@/lib/motion-lite";
-import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
-import type { RelatedServiceLink } from "@/components/common/RelatedServices";
-import type { InsertTestimonial } from "@shared/schema";
-import {  buildBreadcrumbSchema,
-  buildHowToSchema,
+import FAQSection from "@/components/common/FAQSection";
+import RelatedServices, { type RelatedServiceLink } from "@/components/common/RelatedServices";
+import RelatedServicePosts from "@/components/blog/RelatedServicePosts";
+import { CtaBand } from "@/components/ds/CtaBand";
+import type { Fact } from "@/components/ds/FactGrid";
+import { PageHero } from "@/components/ds/PageHero";
+import { ReviewedBy } from "@/components/ds/ReviewedBy";
+import { Section } from "@/components/ds/Section";
+import { SectionHeading } from "@/components/ds/SectionHeading";
+import { ServiceReviews } from "@/components/ds/ServiceReviews";
+import type { Step } from "@/components/ds/Steps";
+import { WhoTreats } from "@/components/ds/WhoTreats";
+import { CostPanel } from "@/components/services/CostPanel";
+import { Disclosure, DotList } from "@/components/services/Disclosure";
+import { FeatureGrid, type Feature } from "@/components/services/FeatureList";
+import { FitChecklist } from "@/components/services/FitChecklist";
+import { GuideLinks } from "@/components/services/GuideLinks";
+import { TreatsChips } from "@/components/services/IconMedallion";
+import { JumpNav } from "@/components/services/JumpNav";
+import { NearbyLine } from "@/components/services/NearbyLine";
+import { OptionCards, type ServiceOption } from "@/components/services/OptionCards";
+import { PhaseTrack, type Phase } from "@/components/services/PhaseTrack";
+import { QuickFacts } from "@/components/services/QuickFacts";
+import { PhotoBadge, ServicePhoto } from "@/components/services/ServicePhoto";
+import { StepList } from "@/components/services/StepList";
+import { officeInfo } from "@/lib/data";
+import {
+  buildBreadcrumbSchema,
   buildFAQSchema,
   buildServiceSchema,
   type FAQEntry,
+  type StructuredDataNode,
 } from "@/lib/structuredData";
-import { doctorInfo, officeInfo } from "@/lib/data";
 
-const TestimonialQuote = dynamic(
-  () => import("@/components/testimonials/TestimonialQuote"),
-  { ssr: true, loading: () => null },
-);
-const FAQSection = dynamic(
-  () => import("@/components/common/FAQSection"),
-  { ssr: true, loading: () => null },
-);
-const RelatedServices = dynamic(
-  () => import("@/components/common/RelatedServices"),
-  { ssr: true, loading: () => null },
-);
-const RelatedServicePosts = dynamic(
-  () => import("@/components/blog/RelatedServicePosts"),
-  { ssr: true, loading: () => null },
-);
-const OptimizedImage = dynamic(
-  () => import("@/components/seo/OptimizedImage"),
-  { ssr: true, loading: () => null },
-);
-
-const invisalignTestimonials: InsertTestimonial[] = [
-  {
-    name: "Kevin Zhang",
-    rating: 5,
-    location: "Google Review",
-    image: "",
-    text: "Dr. Wong is very with the times, down to earth, and gives practical, conservative advice with great results.",
-  },
-  {
-    name: "Ashley Chung",
-    rating: 5,
-    location: "Google Review",
-    image: "",
-    text: "Been going here for 10+ years since I was a kid. Great establishment and excellent teeth cleaning and guidance!",
-  },
-  {
-    name: "Abdel Fahmy",
-    rating: 5,
-    location: "Google Review",
-    image: "",
-    text: "Wonderful doctor and staff!",
-  },
-];
+const PATH = "/invisalign";
+const SCHEDULE_HREF = "/schedule?intent=invisalign&source=invisalign-page#appointment";
+const HERO_IMAGE = "/images/redesign/jamal-itero-scan.webp";
 
 const invisalignFaqs: FAQEntry[] = [
   {
@@ -101,8 +87,7 @@ const invisalignFaqs: FAQEntry[] = [
   },
   {
     question: "Where is your Palo Alto Invisalign office located?",
-    answer:
-      `We’re located at ${officeInfo.address.line1}, ${officeInfo.address.line2}. We welcome Invisalign patients from Palo Alto, Menlo Park, Stanford, and Mountain View.`,
+    answer: `We’re located at ${officeInfo.address.line1}, ${officeInfo.address.line2}. We welcome Invisalign patients from Palo Alto, Menlo Park, Stanford, and Mountain View.`,
   },
   {
     question: "What happens after Invisalign is finished?",
@@ -111,850 +96,511 @@ const invisalignFaqs: FAQEntry[] = [
   },
 ];
 
+const facts: readonly Fact[] = [
+  { icon: Clock, label: "Typical length", value: "About 12–18 months" },
+  { icon: CalendarCheck, label: "Wear time", value: "20–22 hours a day" },
+  { icon: ShieldCheck, label: "Insurance", value: "PPO ortho benefits may apply" },
+  { icon: Stethoscope, label: "Who", value: "Planned and monitored by Dr. Wong" },
+];
+
+const conditions = [
+  "Crowded teeth",
+  "Gaps between teeth",
+  "Overbite or underbite",
+  "Crossbite",
+  "Open bite",
+  "Crooked or misaligned teeth",
+  "Teeth shifting after past braces",
+] as const;
+
+const phases: readonly Phase[] = [
+  { label: "Consult & scan", time: "Week 1", icon: "calendar", weight: 1.1, tone: "light" },
+  { label: "Plan & aligners made", time: "About 3–5 weeks", icon: "forms", weight: 1.4, tone: "light" },
+  {
+    label: "Active treatment",
+    time: "Often 12–18 months",
+    icon: "aligner",
+    weight: 4.2,
+    tone: "deep",
+    detail: "A new set about every 1–2 weeks, with periodic check-ins.",
+  },
+  { label: "Refinements", time: "If needed", icon: "checkup", weight: 1.3, tone: "mid", detail: "Extra aligners to fine-tune details." },
+  { label: "Retainers", time: "Long-term", icon: "shield", weight: 1.3, tone: "gold", detail: "Full-time at first, then nightly." },
+];
+
+const visitSteps: readonly Step[] = [
+  {
+    title: "Consultation and exam",
+    meta: "About 60 minutes",
+    body: "Dr. Wong evaluates your teeth, gum health, and bite, and talks through your goals. Any cavities or gum inflammation are treated first, so aligners start on a healthy foundation.",
+  },
+  {
+    title: "3D digital scan",
+    meta: "About 30 minutes",
+    body: "A digital scan creates precise 3D images of your teeth and maps tooth movement more precisely than old-style impressions.",
+  },
+  {
+    title: "Your custom treatment plan",
+    meta: "1–2 weeks",
+    body: "Your plan shows the step-by-step movement of your teeth, about how many aligners you’ll need, and whether attachments or elastics will help.",
+  },
+  {
+    title: "Aligners are made",
+    meta: "2–3 weeks",
+    body: "Your custom aligners are made from your plan. You’ll get your first set plus clear instructions for wearing and caring for them.",
+  },
+  {
+    title: "Treatment and check-ins",
+    meta: "12–18 months on average",
+    body: "You switch to each new set as directed, often every one to two weeks, and come in periodically so we can confirm your teeth are tracking.",
+  },
+  {
+    title: "Retainers protect your result",
+    meta: "Long-term",
+    body: "Once your teeth are aligned, retainers keep them there: typically full-time for a short period, then at night long-term.",
+  },
+];
+
+const comfort: readonly Feature[] = [
+  {
+    icon: ScanLine,
+    title: "A digital scan, not putty",
+    body: "A 3D scan maps your teeth precisely and lets Dr. Wong plan each movement before your first aligner.",
+  },
+  {
+    icon: Hand,
+    title: "Pressure, not pain",
+    body: "Expect a day or two of pressure or mild soreness with each new set, a sign your teeth are moving.",
+  },
+  {
+    icon: UtensilsCrossed,
+    title: "Removable for meals",
+    body: "Take aligners out to eat and to brush and floss, so there are no food restrictions.",
+  },
+  {
+    icon: CalendarCheck,
+    title: "Check-ins that fit your week",
+    body: "Visit frequency depends on your plan and how your teeth respond; we set the schedule with you at the start.",
+  },
+];
+
+const ageOptions: readonly ServiceOption[] = [
+  {
+    name: "Invisalign for teens",
+    icon: "kids",
+    tagline:
+      "Features designed for teenage lifestyles, including compliance indicators and replacement aligners for lost or broken ones.",
+    features: ["Blue dot wear indicators", "Replacement aligners included", "Designed for growing mouths"],
+  },
+  {
+    name: "Invisalign for adults",
+    icon: "aligner",
+    tagline:
+      "Discreet treatment for working adults who want to improve their smile without changing how they look at work.",
+    features: ["Clear, discreet aligners", "Minimal lifestyle disruption", "No dietary restrictions"],
+  },
+];
+
+const careInstructions = [
+  "Wear aligners 20–22 hours per day for optimal results",
+  "Remove aligners when eating or drinking (except water)",
+  "Clean aligners daily with lukewarm water and mild soap",
+  "Brush and floss teeth before reinserting aligners",
+  "Store aligners in their case when not wearing them",
+  "Follow your scheduled aligner changes as directed",
+] as const;
+
+const costFactors = [
+  "How much tooth movement and bite correction you need",
+  "Whether attachments, elastics, or refinements are recommended",
+  "Any dental work needed before you start (cleanings, fillings, gum care)",
+  "Retainers and follow-up to protect your result",
+  "Orthodontic benefits through PPO insurance, plus HSA/FSA options",
+] as const;
+
+const consultationChecklist = [
+  "Share your goals (crowding, spacing, bite, finishing touches)",
+  "Ask if you’ll need attachments, elastics, or refinements",
+  "Review estimated timing and how often you’ll check in",
+  "Confirm what’s included in the plan and retainer options",
+  "Bring insurance information so we can help estimate benefits",
+] as const;
+
+const careGuides = [
+  { href: "/blog/invisalign-attachments-and-refinements", title: "Invisalign attachments & refinements: why they matter" },
+  { href: "/blog/retainers-after-invisalign", title: "Retainers after Invisalign: keep your smile straight" },
+  { href: "/blog/lost-retainer-palo-alto", title: "Lost or broken retainer? What to do" },
+] as const;
+
+const relatedServices: RelatedServiceLink[] = [
+  {
+    href: "/teeth-whitening-palo-alto",
+    anchorText: "Teeth whitening",
+    description: "Finish your new alignment with ZOOM! in-office whitening or take-home trays.",
+  },
+  {
+    href: "/dental-veneers",
+    anchorText: "Dental veneers",
+    description: "Reshape chipped, worn, or uneven teeth once they’re aligned.",
+  },
+  {
+    href: "/dental-cleaning-palo-alto",
+    anchorText: "Cleanings and exams",
+    description: "Healthy teeth and gums come first, before and during aligner treatment.",
+  },
+];
+
+const breadcrumbItems = [
+  { name: "Home", path: "/" },
+  { name: "Services", path: "/services" },
+  { name: "Invisalign", path: PATH },
+];
+
 const Invisalign = () => {
-  const treatmentProcess = [
-    {
-      step: "1",
-      title: "Initial Consultation",
-      description: "Dr. Wong evaluates your teeth and discusses your goals to determine if Invisalign is right for you.",
-      duration: "60 minutes"
-    },
-    {
-      step: "2", 
-      title: "3D Digital Scan",
-      description: "We create precise 3D images of your teeth using advanced digital scanning technology.",
-      duration: "30 minutes"
-    },
-    {
-      step: "3",
-      title: "Custom Treatment Plan",
-      description: "Your personalized treatment plan is created, showing the step-by-step movement of your teeth.",
-      duration: "1-2 weeks"
-    },
-    {
-      step: "4",
-      title: "Aligner Fabrication",
-      description: "Your custom aligners are manufactured using state-of-the-art technology.",
-      duration: "2-3 weeks"
-    },
-    {
-      step: "5",
-      title: "Treatment Begins",
-      description: "You receive your first set of aligners and begin your smile transformation journey.",
-      duration: "12-18 months average"
-    }
-  ];
-
-  const conditions = [
-    "Crowded teeth",
-    "Gaps between teeth",
-    "Overbite or underbite",
-    "Crossbite",
-    "Open bite",
-    "Crooked or misaligned teeth",
-    "Teeth shifting after past braces",
-  ];
-
-  const candidacyGoodFit = [
-    "Mild to moderate crowding or spacing",
-    "Relapse after previous orthodontics",
-    "Adults and teens who want removable aligners",
-    "Patients who can wear aligners 20–22 hours per day",
-  ];
-
-  const candidacyConsiderations = [
-    "Active gum disease or untreated cavities (we’ll address these first)",
-    "More complex bite issues that may be better treated with braces or specialist care",
-    "If you can’t wear aligners consistently (compliance matters)",
-  ];
-
-  const careInstructions = [
-    "Wear aligners 20-22 hours per day for optimal results",
-    "Remove aligners when eating or drinking (except water)",
-    "Clean aligners daily with lukewarm water and mild soap",
-    "Brush and floss teeth before reinserting aligners",
-    "Store aligners in their case when not wearing them",
-    "Follow your scheduled aligner changes as directed"
-  ];
-
-  const costFactors = [
-    "How much tooth movement and bite correction you need",
-    "Whether attachments, elastics, or refinements are recommended",
-    "Any dental work needed before you start (cleanings, fillings, gum care)",
-    "Retainers and follow‑up to protect your result",
-    "Orthodontic benefits through PPO insurance, plus HSA/FSA options",
-  ];
-
-  const consultationChecklist = [
-    "Share your goals (crowding, spacing, bite, finishing touches)",
-    "Ask if you’ll need attachments, elastics, or refinements",
-    "Review estimated timing and how often you’ll check in",
-    "Confirm what’s included in the plan and retainer options",
-    "Bring insurance information so we can help estimate benefits",
-  ];
-
-  const lastUpdated = "December 2025";
-
-  const providerHighlights = [
-    "University of the Pacific Arthur A. Dugoni School of Dentistry graduate",
-    "Member of the American Dental Association (ADA), California Dental Association (CDA), and Santa Clara County Dental Society (SCCDS)",
-    "Invisalign treatment plans created and monitored by Dr. Wong using 3D digital scans",
-    "Clear check-ins and retainer guidance to help results stay stable",
-  ];
-
-  const ageGroups = [
-    {
-      title: "Invisalign for Teens",
-      description: "Special features designed for teenage lifestyles, including compliance indicators and replacement aligners for lost or broken ones.",
-      features: ["Blue dot wear indicators", "Replacement aligners included", "Designed for growing mouths"]
-    },
-    {
-      title: "Invisalign for Adults",
-      description: "Professional discretion meets effective treatment. Perfect for working adults who want to improve their smile without compromising their professional image.",
-      features: ["Completely discreet treatment", "Minimal lifestyle disruption", "No dietary restrictions"]
-    }
-  ];
-
-  const serviceSchema = buildServiceSchema({
-    name: "Invisalign Clear Aligners",
-    description:
-      "Invisalign clear aligner treatment from a Palo Alto Invisalign dentist with digital scans, personalized plans, and flexible checkups for teens and adults.",
-    slug: "/invisalign",
-    image: "/images/invisalign-treatment.jpg",
-    serviceType: "Invisalign clear aligner treatment",
-  });
-
-  const breadcrumbItems = [
-    { name: "Home", path: "/" },
-    { name: "Services", path: "/services" },
-    { name: "Invisalign", path: "/invisalign" },
-  ];
-  const invisalignBreadcrumbs = buildBreadcrumbSchema(breadcrumbItems);
-  const invisalignFaqSchema = buildFAQSchema(invisalignFaqs, "/invisalign");
-  const invisalignHowToSchema = buildHowToSchema({
-    name: "Invisalign treatment steps in Palo Alto",
-    description:
-      "A step-by-step overview of Invisalign treatment with Dr. Wong in Palo Alto, from consultation to aligner delivery.",
-    steps: treatmentProcess.map((step) => ({
-      title: step.title,
-      description: step.description,
-      duration: step.duration,
-    })),
-    pagePath: "/invisalign",
-  });
-
-  const relatedServices: RelatedServiceLink[] = [
-    {
-      href: "/dental-implants",
-      anchorText: "Dental implants in Palo Alto",
+  const schemas: StructuredDataNode[] = [
+    buildServiceSchema({
+      name: "Invisalign Clear Aligners",
+      pageName: "Invisalign in Palo Alto",
       description:
-        "Replace missing teeth with stable, natural-looking implant restorations.",
-    },
-    {
-      href: "/dental-veneers",
-      anchorText: "Cosmetic veneers in Palo Alto",
-      description:
-        "Brighten and reshape your smile with custom porcelain or composite veneers.",
-    },
-    {
-      href: "/zoom-whitening",
-      anchorText: "ZOOM teeth whitening in Palo Alto",
-      description: "Fast, in‑office whitening for noticeably brighter teeth.",
-    },
-    {
-      href: "/emergency-dental",
-      anchorText: "Emergency dentist in Palo Alto",
-      description: "Same‑day help for toothaches, broken teeth, and trauma.",
-    },
-    {
-      href: "/services",
-      anchorText: "All dental services",
-    },
+        "Invisalign clear aligner treatment in Palo Alto for teens and adults: a 3D digital scan, a personalized plan created and monitored by Dr. Wong, check-ins that fit busy schedules, and retainers to protect the result.",
+      slug: PATH,
+      image: HERO_IMAGE,
+      serviceType: "Invisalign clear aligner treatment",
+      procedure: {
+        name: "Clear aligner orthodontic treatment (Invisalign)",
+        procedureType: "Noninvasive",
+        bodyLocation: "Teeth",
+        howPerformed:
+          "A series of custom, removable clear aligners, each worn about one to two weeks, gradually moves teeth along a plan built from a 3D digital scan.",
+        preparation: "A comprehensive exam and digital scan; any cavities or gum inflammation are treated first.",
+        followup: "Periodic check-ins during treatment, then retainers to keep teeth in their new position.",
+      },
+    }),
   ];
-
-  const pageSchemas = [
-    serviceSchema,
-  ];
-
-  if (invisalignBreadcrumbs) {
-    pageSchemas.push(invisalignBreadcrumbs);
-  }
-
-  if (invisalignFaqSchema) {
-    pageSchemas.push(invisalignFaqSchema);
-  }
-  if (invisalignHowToSchema) {
-    pageSchemas.push(invisalignHowToSchema);
-  }
+  const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbItems);
+  if (breadcrumbSchema) schemas.push(breadcrumbSchema);
+  const faqSchema = buildFAQSchema(invisalignFaqs, PATH);
+  if (faqSchema) schemas.push(faqSchema);
 
   return (
     <>
-      <StructuredData data={pageSchemas} />
-      <PageBreadcrumbs items={breadcrumbItems} />
+      <StructuredData data={schemas} />
 
-      {/* Hero Section */}
-      <section className="bg-gradient-to-b from-[#F5F9FC] to-white py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-10 lg:grid-cols-12 lg:items-start">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="lg:col-span-7"
-            >
-              <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-4 py-2 text-sm font-semibold mb-5">
-                <MapPin className="h-4 w-4" aria-hidden="true" />
-                Palo Alto, CA
-              </div>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-heading text-[#333333] mb-6">
-                Invisalign® in Palo Alto, CA
-              </h1>
-              <p className="text-xl text-[#333333] max-w-3xl mb-4">
-                Dr. Christopher B. Wong provides clear aligner treatment for adults and teens using 3D digital
-                scans, personalized planning, and checkups built for busy schedules.
-              </p>
-              <p className="text-lg text-[#333333] max-w-3xl mb-4">
-                Patients appreciate clear timelines, conservative tooth movement, and a care team that keeps
-                treatment comfortable from start to finish.
-              </p>
-              <p className="text-base text-[#333333] max-w-3xl mb-6">
-                Our Cambridge Ave office welcomes Invisalign patients from Palo Alto, Menlo Park, Stanford, and
-                Mountain View.
-              </p>
+      <PageHero
+        crumbs={breadcrumbItems}
+        icon="aligner"
+        eyebrow="Invisalign® clear aligners"
+        title={
+          <>
+            Invisalign in <em>Palo Alto</em>
+          </>
+        }
+        lead="Clear aligner treatment for adults and teens, planned by Dr. Christopher B. Wong from a 3D digital scan, with check-ins built for busy schedules and retainers to keep your result."
+        scheduleHref={SCHEDULE_HREF}
+        analyticsContext="invisalign-hero"
+        chips={["PPO ortho benefits checked first"]}
+        media={
+          <ServicePhoto
+            src={HERO_IMAGE}
+            alt="Jamal, registered dental assistant, reviewing a digital scan on the iTero screen"
+            focus="35% 40%"
+            aspect="aspect-[16/10] sm:aspect-[16/11] lg:aspect-[4/3]"
+            sizes="(max-width: 1024px) 100vw, 46vw"
+            badge={
+              <PhotoBadge icon="aligner" title="Planned by Dr. Wong">
+                Every plan is created from your scan and monitored at each check-in.
+              </PhotoBadge>
+            }
+          />
+        }
+      />
 
-              <ul className="grid gap-3 sm:grid-cols-2 text-sm text-slate-700 mb-8">
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                  Digital scan and step‑by‑step plan
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                  Removable for eating and cleaning
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                  Helpful for crowding, gaps, and bite issues
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                  Retainers to maintain your result
-                </li>
-              </ul>
-
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button asChild className="bg-primary hover:bg-primary/90 text-white font-medium px-8 py-3">
-                  <Link href="/schedule?intent=invisalign&source=invisalign-page#appointment">
-                    Request an Invisalign consultation
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
-                <Button asChild
-                    variant="outline"
-                    className="ui-btn-outline px-8 py-3 w-full sm:w-auto"
-                  >
-                  <a href={`tel:${officeInfo.phoneE164}`}>
-                    Call {officeInfo.phone}
-                    <Phone className="ml-2 h-5 w-5" />
-                  </a>
-                </Button>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.15 }}
-              className="lg:col-span-5"
-            >
-              <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm space-y-6">
-                <div className="flex items-start gap-3">
-                  <MapPin className="h-5 w-5 text-primary mt-0.5 shrink-0" aria-hidden="true" />
-                  <div>
-                    <p className="text-sm font-semibold tracking-wide text-slate-900 uppercase">
-                      Office location
-                    </p>
-                    <p className="mt-2 text-slate-800 leading-relaxed">
-                      {officeInfo.address.line1}
-                      <br />
-                      {officeInfo.address.line2}
-                    </p>
-                    <a
-                      href={officeInfo.mapUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-2 inline-flex items-center ui-link-premium"
-                    >
-                      Get directions
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </a>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <Phone className="h-5 w-5 text-primary mt-0.5 shrink-0" aria-hidden="true" />
-                  <div>
-                    <p className="text-sm font-semibold tracking-wide text-slate-900 uppercase">
-                      Phone
-                    </p>
-                    <a
-                      href={`tel:${officeInfo.phoneE164}`}
-                      className="mt-2 inline-flex items-center text-slate-800 font-semibold hover:text-primary transition-colors"
-                    >
-                      {officeInfo.phone}
-                    </a>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <Clock className="h-5 w-5 text-primary mt-0.5 shrink-0" aria-hidden="true" />
-                  <div>
-                    <p className="text-sm font-semibold tracking-wide text-slate-900 uppercase">
-                      Hours
-                    </p>
-                    <OfficeHoursSummary
-                      className="mt-2 text-slate-700 text-sm"
-                      noteClassName="text-slate-500"
-                    />
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      <nav
-        aria-label="On this page"
-        className="border-y border-slate-200 bg-white"
-      >
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-5 gap-y-1 px-4 py-2 text-sm sm:px-6 lg:px-8">
-          <span className="font-semibold text-slate-700">Jump to:</span>
-          {[
-            { href: "#invisalign-cost", label: "Cost & insurance" },
+      <Section id="invisalign-candidacy" tone="white" labelledBy="invisalign-candidacy-title">
+        <JumpNav
+          items={[
             { href: "#invisalign-candidacy", label: "Is it right for me?" },
-            { href: "#invisalign-process", label: "How treatment works" },
+            { href: "#invisalign-process", label: "How it works" },
+            { href: "#invisalign-care", label: "Aftercare & retainers" },
+            { href: "#invisalign-cost", label: "Cost & insurance" },
             { href: "#invisalign-faq", label: "FAQ" },
-          ].map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              className="ui-link-premium inline-flex min-h-11 items-center"
-            >
-              {item.label}
-            </a>
-          ))}
-        </div>
-      </nav>
+          ]}
+        />
+        <QuickFacts facts={facts} className="mt-6" />
+        <ReviewedBy date="2026-10-16" className="mt-5" />
 
-      {/* Why Dr. Wong for Invisalign */}
-      <section className="py-14 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold font-heading text-[#333333] mb-4">
-                Why patients choose Dr. Wong for Invisalign in Palo Alto
-              </h2>
-              <p className="text-[#333333] text-lg mb-6 max-w-3xl">
-                Your Invisalign plan is created and reviewed by a Palo Alto Invisalign dentist using careful
-                diagnostics and a conservative approach so you can move through treatment confidently.
-              </p>
-              <ul className="space-y-3 text-[#333333]">
-                {providerHighlights.map((item) => (
-                  <li key={item} className="flex items-start gap-3">
-                    <CheckCircle className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-5 text-sm text-slate-600">
-                Want the full bio?{" "}
-                <Link href="/about" className="ui-link-premium">
-                  Meet Dr. Wong
-                </Link>
-                .
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-slate-100 bg-[#F5F9FC] p-6 shadow-sm">
-              <p className="text-xs uppercase tracking-wide text-primary font-semibold">
-                Reviewed by Dr. Wong
-              </p>
-              <p className="text-xl font-bold text-[#333333] mt-2">
-                {doctorInfo.name}
-              </p>
-              <p className="text-sm text-slate-600 mt-2">
-                Invisalign plans are tailored and reviewed by Dr. Wong for accuracy, comfort, and long‑term stability.
-              </p>
-              <Link
-                href="/about"
-                className="mt-4 inline-flex items-center text-sm ui-link-premium"
-              >
-                View credentials and experience
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* What is Invisalign */}
-      <section className="py-16 bg-[#F5F9FC]" id="what-is-invisalign">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-            >
-              <h2 className="text-3xl font-bold font-heading text-[#333333] mb-6">
-                What is Invisalign, and how does it work?
-              </h2>
-              <p className="text-[#333333] mb-4 text-lg">
-                Invisalign® is a clear aligner system that straightens teeth using a series of custom‑made,
-                removable trays. Each set makes small, controlled movements, and you progress through aligners
-                as directed so your smile improves step by step.
-              </p>
-              <p className="text-[#333333] mb-6 text-lg">
-                Because aligners are removable, many Palo Alto patients like that they can eat normally and
-                keep up with brushing and flossing. Your plan is based on a comprehensive exam and a digital scan,
-                so we can map tooth movement precisely and monitor progress along the way.
-              </p>
-              <h3 className="text-xl font-semibold text-[#333333] mb-4">Invisalign Can Treat:</h3>
-              <div className="space-y-3">
-                {conditions.map((condition, index) => (
-                  <div key={index} className="flex items-start">
-                    <CheckCircle className="h-5 w-5 text-primary mt-1 mr-3 flex-shrink-0" />
-                    <span className="text-[#333333]">{condition}</span>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-              className="relative"
-            >
-	              <OptimizedImage
-	                src="/images/invisalign-treatment.jpg"
-	                alt="Invisalign clear aligners treatment at Dr. Christopher B. Wong's Palo Alto practice"
-	                className="w-full h-56 sm:h-72 md:h-96 object-cover rounded-lg shadow-lg"
-	              />
-              <div className="absolute inset-0 bg-primary/10 rounded-lg"></div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Candidacy */}
-      <section className="py-16 bg-white" id="invisalign-candidacy">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-12 gap-10 items-start">
-            <div className="lg:col-span-7">
-              <h2 className="text-3xl md:text-4xl font-bold font-heading text-[#333333] mb-6">
-                Is Invisalign right for you?
-              </h2>
-              <p className="text-[#333333] text-lg mb-6 max-w-3xl">
-                Invisalign can treat many alignment and bite concerns, but the best option depends on your bite,
-                gum health, and goals. The most important factor for success is consistent wear—typically 20–22
-                hours per day.
-              </p>
-
-              <h3 className="text-xl font-semibold text-[#333333] mb-4">Often a good fit for:</h3>
-              <div className="space-y-3">
-                {candidacyGoodFit.map((item) => (
-                  <div key={item} className="flex items-start">
-                    <CheckCircle className="h-5 w-5 text-primary mt-1 mr-3 flex-shrink-0" />
-                    <span className="text-[#333333]">{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="lg:col-span-5">
-              <div className="rounded-2xl border border-slate-100 bg-[#F5F9FC] p-6 shadow-sm">
-                <h3 className="text-xl font-semibold text-[#333333] mb-4">
-                  A few important considerations
-                </h3>
-                <div className="space-y-3">
-                  {candidacyConsiderations.map((item) => (
-                    <div key={item} className="flex items-start">
-                      <CheckCircle className="h-5 w-5 text-primary mt-1 mr-3 flex-shrink-0" />
-                      <span className="text-[#333333]">{item}</span>
-                    </div>
-                  ))}
-                </div>
-                <p className="mt-5 text-sm text-slate-600">
-                  If aligners aren’t the best option for long‑term stability, we’ll explain alternatives and help you
-                  choose the right path.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Patient Confidence */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
+        <div className="mt-12 grid gap-8 lg:mt-20 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+          <SectionHeading
+            id="invisalign-candidacy-title"
+            eyebrow="Is it right for you?"
+            title={
+              <>
+                Is Invisalign right <em>for you?</em>
+              </>
+            }
+            lead="Invisalign can treat many alignment and bite concerns, but the best option depends on your bite, gum health, and goals. The most important factor for success is consistent wear, typically 20–22 hours per day."
           >
-            <h2 className="text-3xl md:text-4xl font-bold font-heading text-[#1F2933]">
-              Clear aligners with real-life results
-            </h2>
-            <p className="mt-4 text-sm text-[#4B5563] sm:text-base">
-              Patients appreciate the modern technology, approachable team, and flexible care behind every Invisalign plan.
-            </p>
-          </motion.div>
-
-          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-            {invisalignTestimonials.map((testimonial) => (
-              <TestimonialQuote key={testimonial.name} testimonial={testimonial} />
-            ))}
-          </div>
+            <h3 className="mt-6 text-xs font-bold uppercase tracking-[0.14em] text-ink-muted">Invisalign can treat</h3>
+            <TreatsChips items={conditions} className="mt-3" />
+          </SectionHeading>
+          <FitChecklist
+            good={[
+              "Mild to moderate crowding or spacing",
+              "Teeth that shifted after previous orthodontics",
+              "You’re a teen or adult who wants removable aligners",
+              "You can wear aligners 20–22 hours per day",
+            ]}
+            goodTitle="Often a good fit for"
+            plan={[
+              "Active gum disease or untreated cavities (we’ll address these first)",
+              "More complex bite issues that may be better treated with braces or specialist care",
+              "Trouble wearing aligners consistently (compliance matters)",
+            ]}
+            planTitle="A few important considerations"
+            note="If aligners aren’t the best option for long-term stability, we’ll explain alternatives and help you choose the right path."
+          />
         </div>
-      </section>
+      </Section>
 
-      {/* Treatment Process */}
-      <section className="py-16 bg-white" id="invisalign-process">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold font-heading text-[#333333] mb-6">
-              Your Invisalign Journey
-            </h2>
-            <p className="text-[#333333] max-w-3xl mx-auto">
-              From consultation to your new smile, here's what you can expect during your Invisalign treatment 
-              at our Palo Alto practice.
-            </p>
-          </motion.div>
-
-          <div className="space-y-8">
-            {treatmentProcess.map((step, index) => (
-              <motion.div
-                key={index}
-                id={`step-${step.step}`}
-                initial={{ opacity: 0, x: index % 2 === 0 ? -30 : 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className={`flex flex-col md:flex-row items-center gap-8 ${
-                  index % 2 === 1 ? 'md:flex-row-reverse' : ''
-                }`}
-              >
-                <div className="flex-1 bg-[#F5F9FC] rounded-lg p-8">
-                  <div className="flex items-center mb-4">
-                    <div className="bg-primary text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-lg mr-4">
-                      {step.step}
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold font-heading text-[#333333]">
-                        {step.title}
-                      </h3>
-                      <span className="text-primary font-medium">{step.duration}</span>
-                    </div>
-                  </div>
-                  <p className="text-[#333333]">{step.description}</p>
-                </div>
-	                <div className="w-full md:w-64 lg:w-72 xl:w-80 aspect-[4/3] rounded-lg overflow-hidden shadow-lg">
-	                  <OptimizedImage
-	                    src={`/images/invisalign-step-${step.step}.png`}
-	                    alt={`Invisalign treatment step ${step.step}: ${step.title}`}
-	                    className="w-full h-full object-cover"
-	                  />
-	                </div>
-              </motion.div>
-            ))}
+      <Section id="what-is-invisalign" tone="cream" labelledBy="what-is-invisalign-title">
+        <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:gap-16">
+          <div>
+            <SectionHeading
+              id="what-is-invisalign-title"
+              eyebrow="The basics"
+              title={
+                <>
+                  What Invisalign is, and <em>how it works</em>
+                </>
+              }
+            />
+            <div className="prose-rooted mt-5 space-y-4">
+              <p>
+                Invisalign® is a clear aligner system that straightens teeth using a series of custom-made, removable
+                trays. Each set makes small, controlled movements, and you progress through aligners as directed so
+                your smile improves step by step.
+              </p>
+              <p>
+                Because aligners are removable, you can eat normally and keep up with brushing and flossing. Your plan
+                is based on a comprehensive exam and a digital scan, so tooth movement is mapped precisely and
+                monitored along the way. Dr. Wong keeps movement conservative: the goal is to move teeth accurately,
+                comfortably, and in a way that stays stable, not just quickly.
+              </p>
+            </div>
+            <Disclosure title="Is Invisalign faster than braces?" className="mt-5">
+              <p>
+                Sometimes, but not always. For the right case, Invisalign can be very efficient because treatment is
+                digitally planned from the beginning and aligners make small, controlled movements in sequence. Braces
+                may still be the better choice for certain complex cases, or for patients who know they’ll have trouble
+                wearing removable aligners consistently. A personalized exam matters more than broad claims online.
+              </p>
+            </Disclosure>
           </div>
-
-          <div className="mt-14">
-            <h3 className="text-2xl md:text-3xl font-bold font-heading text-[#333333] mb-4">
-              Attachments, elastics, and refinements—what to expect
+          <div className="min-w-0">
+            <h3 className="h-card text-[1.4rem] sm:text-[1.6rem]">
+              Invisalign for <em>every age</em>
             </h3>
-            <p className="text-[#333333] max-w-3xl mb-8">
-              Many Invisalign plans include small details that make aligners more effective. We’ll explain what
-              your specific case needs so there are no surprises.
+            <p className="mt-2 text-[15px] leading-6 text-ink-soft sm:text-base sm:leading-7">
+              Whether you’re a teenager or an adult, Invisalign offers age-appropriate options designed to fit your
+              lifestyle and orthodontic needs.
             </p>
-
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="bg-[#F5F9FC] rounded-lg p-6 shadow-sm">
-                <h4 className="text-lg font-semibold text-[#333333] mb-2">Attachments</h4>
-                <p className="text-[#333333]">
-                  Tiny, tooth‑colored shapes bonded to select teeth help aligners grip and guide movements like
-                  rotations and root control.
-                </p>
-              </div>
-              <div className="bg-[#F5F9FC] rounded-lg p-6 shadow-sm">
-                <h4 className="text-lg font-semibold text-[#333333] mb-2">Elastics (rubber bands)</h4>
-                <p className="text-[#333333]">
-                  Some cases use elastics to improve bite relationships. Not everyone needs them, and we’ll show you
-                  exactly how to wear them if they’re part of your plan.
-                </p>
-              </div>
-              <div className="bg-[#F5F9FC] rounded-lg p-6 shadow-sm">
-                <h4 className="text-lg font-semibold text-[#333333] mb-2">Refinements & retainers</h4>
-                <p className="text-[#333333]">
-                  Refinement aligners are common near the end to fine‑tune details. After treatment, retainers help
-                  protect your new alignment long‑term.
-                </p>
-              </div>
-            </div>
+            <OptionCards options={ageOptions} columns={2} rail className="mt-5 md:grid-cols-1 md:gap-4" />
           </div>
         </div>
-      </section>
+      </Section>
 
-      {/* Age-Specific Options */}
-      <section className="py-16 bg-[#F5F9FC]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold font-heading text-[#333333] mb-6">
-              Invisalign for Every Age
-            </h2>
-            <p className="text-[#333333] max-w-3xl mx-auto">
-              Whether you're a teenager or an adult, Invisalign offers age-appropriate solutions 
-              designed to fit your lifestyle and orthodontic needs.
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            {ageGroups.map((group, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.2 }}
-                viewport={{ once: true }}
-                className="bg-white rounded-lg shadow-lg p-8"
-              >
-                <div className="flex items-center mb-4">
-                  <Users className="h-8 w-8 text-primary mr-3" />
-                  <h3 className="text-2xl font-bold font-heading text-[#333333]">
-                    {group.title}
-                  </h3>
-                </div>
-                <p className="text-[#333333] mb-6">{group.description}</p>
-                <h4 className="font-semibold text-[#333333] mb-3">Key Features:</h4>
-                <div className="space-y-2">
-                  {group.features.map((feature, idx) => (
-                    <div key={idx} className="flex items-start">
-                      <Star className="h-4 w-4 text-primary mt-1 mr-2 flex-shrink-0" />
-                      <span className="text-[#333333]">{feature}</span>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            ))}
-          </div>
+      <Section id="invisalign-process" tone="white" labelledBy="invisalign-process-title">
+        <SectionHeading
+          id="invisalign-process-title"
+          eyebrow="Your visits, step by step"
+          title={
+            <>
+              Your Invisalign <em>journey</em>
+            </>
+          }
+          lead="From consultation to your new smile, here’s what to expect at our Palo Alto practice, and roughly how long each phase takes."
+        />
+        <div className="card mt-10 hidden p-8 lg:block">
+          <PhaseTrack phases={phases} label="Typical Invisalign timeline" />
         </div>
-      </section>
-
-      {/* Caring for Your Aligners */}
-      <section className="py-16 bg-[#F5F9FC]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl font-bold font-heading text-[#333333] mb-6">
-              Caring for Your Invisalign Aligners
-            </h2>
-            <p className="text-[#333333] max-w-2xl mx-auto">
-              Proper care of your aligners is essential for successful treatment and maintaining good oral hygiene.
+        <StepList steps={visitSteps} className="mt-8 lg:mt-6" />
+        <div className="mt-6 grid gap-3 lg:mt-8 lg:grid-cols-2 lg:items-end lg:gap-4">
+          <Disclosure title="What can slow treatment down?">
+            <p>
+              The biggest factor you control is wear time. If aligners aren’t worn 20–22 hours a day, teeth may not
+              track, which can mean delays, extra trays, or more refinements.
             </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            {careInstructions.map((instruction, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="flex items-start bg-white p-6 rounded-lg shadow-md"
-              >
-                <CheckCircle className="h-5 w-5 text-primary mt-1 mr-3 flex-shrink-0" />
-                <span className="text-[#333333]">{instruction}</span>
-              </motion.div>
-            ))}
-          </div>
+            <DotList
+              items={[
+                "Skipping check-ins",
+                "Losing trays and going too long without the right aligner",
+                "Not wearing elastics as directed",
+                "Bite issues that need slower, more controlled movement",
+              ]}
+            />
+          </Disclosure>
+          <GuideLinks
+            columns={1}
+            title="Read the full guide"
+            guides={[{ href: "/blog/how-long-does-invisalign-take", title: "How long does Invisalign take?" }]}
+            className="mt-3 lg:mt-0"
+          />
         </div>
-      </section>
 
-      {/* Cost and next steps */}
-      <section className="py-16 bg-white" id="invisalign-cost">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-12 gap-10 items-start">
-            <div className="lg:col-span-7">
-              <h2 className="text-3xl md:text-4xl font-bold font-heading text-[#333333] mb-6">
-                Invisalign cost in Palo Alto: what affects it
-              </h2>
-              <p className="text-[#333333] text-lg mb-6 max-w-3xl">
-                Invisalign fees vary because every bite and timeline is different. After your exam and digital scan,
-                we’ll share a clear, written estimate and walk through options for insurance and payments.
+        <div className="mt-12 sm:mt-16">
+          <h3 className="h-card text-[1.4rem] sm:text-[1.75rem]">
+            Comfort and <em>technology</em>
+          </h3>
+          <FeatureGrid features={comfort} columns={4} headingLevel="h4" rail className="mt-5" />
+        </div>
+      </Section>
+
+      <Section id="invisalign-care" tone="cream" labelledBy="invisalign-care-title">
+        <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-x-16 lg:gap-y-8">
+          <div className="lg:col-start-1 lg:row-start-1">
+            <SectionHeading
+              id="invisalign-care-title"
+              eyebrow="Details that keep you on track"
+              title={
+                <>
+                  Attachments, aftercare, <em>and retainers</em>
+                </>
+              }
+              lead="Many Invisalign plans include small details that make aligners more effective. We’ll explain what your case needs so there are no surprises."
+            />
+          </div>
+          <div className="space-y-3 lg:col-start-2 lg:row-span-2 lg:row-start-1">
+            <Disclosure title="Retainers after Invisalign">
+              <p>
+                Teeth naturally want to drift, and the tissues around them need time to stabilize after they move.
+                Most patients wear a retainer full-time right after Invisalign, then switch to nighttime wear.
+                Consistent wear matters most in the first year.
               </p>
-
-              <h3 className="text-xl font-semibold text-[#333333] mb-4">
-                Common factors that influence cost
-              </h3>
-              <div className="space-y-3">
-                {costFactors.map((factor) => (
-                  <div key={factor} className="flex items-start">
-                    <CheckCircle className="h-5 w-5 text-primary mt-1 mr-3 flex-shrink-0" />
-                    <span className="text-[#333333]">{factor}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-8 flex flex-col sm:flex-row gap-3">
-                <Button asChild className="ui-btn-primary px-8 py-3">
-                  <Link href="/schedule?intent=invisalign&source=invisalign-page#appointment">
-                    Request a consultation
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" className="ui-btn-outline px-8 py-3">
-                  <a href={`tel:${officeInfo.phoneE164}`}>
-                    Call {officeInfo.phone}
-                  </a>
-                </Button>
-              </div>
-            </div>
-
-            <div className="lg:col-span-5 space-y-6">
-              <div className="rounded-2xl border border-slate-100 bg-[#F5F9FC] p-6 shadow-sm">
-                <h3 className="text-xl font-semibold text-[#333333] mb-4">
-                  Your consultation checklist
-                </h3>
-                <div className="space-y-3">
-                  {consultationChecklist.map((item) => (
-                    <div key={item} className="flex items-start">
-                      <CheckCircle className="h-5 w-5 text-primary mt-1 mr-3 flex-shrink-0" />
-                      <span className="text-[#333333]">{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-slate-100 bg-[#F5F9FC] p-6 shadow-sm">
-                <h3 className="text-xl font-semibold text-[#333333] mb-2">
-                  See a real patient story
-                </h3>
-                <p className="text-[#333333] mb-5">
-                  Explore a case study that combines Invisalign with whitening and bonding to create a natural,
-                  confident smile.
-                </p>
-                <Button asChild className="ui-btn-primary">
-                  <Link href="/patient-stories#invisalign-whitening-bonding-66yo">
-                    View Invisalign case study
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </div>
-
-              <p className="text-xs text-slate-500">
-                Last updated: {lastUpdated}
+              <DotList
+                items={[
+                  "Clear retainers made from durable plastic, often similar in look to aligners",
+                  "Fixed retainers bonded behind teeth, in select cases",
+                ]}
+              />
+              <p>We’ll recommend the best option based on where your teeth are most likely to shift.</p>
+            </Disclosure>
+            <Disclosure title="Attachments">
+              <p>
+                Tiny, tooth-colored shapes bonded to select teeth help aligners grip and guide movements like rotations
+                and root control. They don’t usually hurt, and they’re removed and polished away at the end.
               </p>
-            </div>
+            </Disclosure>
+            <Disclosure title="Elastics (rubber bands)">
+              <p>
+                Some cases use elastics to improve bite relationships. Not everyone needs them, and we’ll show you
+                exactly where they hook and how to wear them if they’re part of your plan.
+              </p>
+            </Disclosure>
+            <Disclosure title="Refinements">
+              <p>
+                Refinement aligners are common near the end to fine-tune details. Teeth don’t always move exactly as
+                predicted, so refinements aren’t a sign anything went wrong.
+              </p>
+            </Disclosure>
+            <Disclosure title="Caring for your aligners">
+              <p>Proper care of your aligners is essential for successful treatment and good oral hygiene.</p>
+              <DotList items={[...careInstructions]} />
+            </Disclosure>
+            <Disclosure title="Retainer care, and when to replace one">
+              <DotList
+                items={[
+                  "Rinse after removal and clean daily",
+                  "Avoid hot water, which can warp plastic",
+                  "Store it in a protective case to prevent loss or pet damage",
+                  "Bring retainers to checkups so we can confirm fit",
+                ]}
+              />
+              <p>
+                If a retainer cracks, feels loose, or no longer fits snugly, don’t wait. Small shifts can happen
+                quickly, and a replacement is usually easier than correcting movement later.
+              </p>
+            </Disclosure>
           </div>
+          <GuideLinks
+            className="lg:col-start-1 lg:row-start-2"
+            title="Aligner and retainer guides"
+            columns={1}
+            guides={careGuides}
+          />
         </div>
-      </section>
+      </Section>
+
+      <CostPanel
+        id="invisalign-cost"
+        tone="white"
+        title={
+          <>
+            Invisalign cost in Palo Alto: <em>what affects it</em>
+          </>
+        }
+        lead="Invisalign fees vary because every bite and timeline is different. After your exam and digital scan, you’ll get a clear, written estimate and a walk-through of insurance and payment options."
+        drivers={costFactors}
+        coverage="Many PPO plans include orthodontic benefits that can apply to Invisalign."
+        scheduleHref={SCHEDULE_HREF}
+        analyticsContext="invisalign-cost"
+      >
+        <div className="mt-3 space-y-3">
+          <Disclosure title="Your consultation checklist">
+            <DotList items={[...consultationChecklist]} />
+          </Disclosure>
+          <Link
+            href="/patient-stories#invisalign-whitening-bonding-66yo"
+            className="group flex min-h-14 items-center gap-3 rounded-[1.5rem] border border-cream-300/80 bg-white px-5 py-3.5 transition-colors hover:border-evergreen-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-evergreen-500"
+          >
+            <span className="min-w-0 flex-1">
+              <span className="block font-heading text-[1.1rem] font-medium text-ink">See a real patient story</span>
+              <span className="mt-0.5 block text-sm leading-6 text-ink-muted">
+                Invisalign combined with whitening and bonding for a natural, confident smile.
+              </span>
+            </span>
+            <ArrowRight
+              className="h-4 w-4 shrink-0 text-evergreen-600 transition-transform group-hover:translate-x-0.5"
+              aria-hidden="true"
+            />
+          </Link>
+        </div>
+      </CostPanel>
+
+      <ServiceReviews
+        tags={["gentle", "honest"]}
+        note="Reviews about care at our office; none of these mention Invisalign specifically."
+      />
+
+      <WhoTreats
+        teamSlugs={["jamal", "rachel"]}
+        intro="Dr. Wong creates and reviews every Invisalign plan from your 3D scan, keeps tooth movement conservative, and gives clear check-ins and retainer guidance so results stay stable."
+      />
 
       <div id="invisalign-faq">
         <FAQSection
           title="Invisalign FAQs"
           subtitle="Clear answers to common questions about clear aligner treatment."
           items={invisalignFaqs}
-          className="bg-[#F5F9FC]"
         />
       </div>
-
-      <section className="py-12 bg-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="rounded-2xl border border-slate-200 bg-[#F5F9FC] p-8 md:p-10">
-            <h2 className="text-2xl md:text-3xl font-heading font-bold text-[#1F2933] mb-3">
-              Want the Invisalign details?
-            </h2>
-            <p className="text-slate-700 text-lg leading-relaxed mb-6">
-              Explore wear time tips, attachment guidance, refinements, and retainer
-              planning in our Invisalign resources hub.
-            </p>
-            <Button asChild className="ui-btn-primary">
-              <Link href="/invisalign/resources">
-                Explore Invisalign resources
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
 
       <RelatedServices
         items={relatedServices}
         title="More ways we can help"
-        subtitle="Explore other services offered by Dr. Wong in Palo Alto."
+        subtitle="Other care from Dr. Wong and the team in Palo Alto."
       />
+      <NearbyLine subject="Invisalign patients" />
 
-      <RelatedServicePosts
-        serviceSlug="invisalign"
-        serviceName="Invisalign"
-        category="Invisalign"
-        ctaHref="/invisalign/resources"
+      <RelatedServicePosts serviceSlug="invisalign" serviceName="Invisalign" category="Invisalign" />
+
+      <CtaBand
+        analyticsContext="invisalign-cta"
+        title={
+          <>
+            Ready to see if Invisalign <em>fits?</em>
+          </>
+        }
+        lead="Request a consultation online in about a minute, or call the front desk. You’ll leave your first visit with a scan, a clear plan, and an honest answer about whether aligners are right for you."
       />
-
-      {/* Call to Action */}
-      <section className="py-16 bg-primary text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-3xl font-bold font-heading mb-6">
-              Ready to Start Your Invisalign Journey?
-            </h2>
-            <p className="text-xl mb-8 max-w-3xl mx-auto">
-              Schedule your consultation with Dr. Wong today to discover if Invisalign is right for you. 
-              Transform your smile discreetly and comfortably.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button asChild className="bg-white text-primary hover:bg-gray-100 font-medium px-8 py-3">
-                <Link href="/schedule?intent=invisalign&source=invisalign-page#appointment">
-                  Request a consultation
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
-              <Button asChild className="bg-white text-primary hover:bg-white/90 border-white px-8 py-3">
-                <a href={`tel:${officeInfo.phoneE164}`}>
-                  Call {officeInfo.phone}
-                </a>
-              </Button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
     </>
   );
 };

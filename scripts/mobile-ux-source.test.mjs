@@ -102,21 +102,22 @@ assert(
   /icon:\s*"h-11 w-11"/.test(button),
 );
 
-// 9. Static patient proof keeps its only section-level control tappable.
-const patientProof = read("client/src/components/sections/PatientProofSection.tsx");
+// 9. The homepage review ribbon's only control (to /testimonials) is a full
+// pill button (btn = min-h-12).
+const homeSections = read("client/src/components/home/HomeSections.tsx");
 assert(
-  "PatientProofSection: patient-stories link has a >=44px hit area",
-  /href="\/testimonials"[\s\S]{0,260}min-h-11/.test(patientProof),
-  "the patient-stories link should keep min-h-11",
+  "Home review ribbon: reviews link has a >=44px hit area",
+  /href="\/testimonials"\s+className="btn\b/.test(homeSections),
+  "the review-ribbon link to /testimonials should use the btn class (min-h-12)",
 );
 
-// 10. Footer social links have a >=44px hit area.
+// 10. Footer review/social links have a >=44px hit area.
 const footer = read("client/src/components/layout/Footer.tsx");
 assert(
-  "Footer.tsx: social links have h-11 w-11 hit area",
-  /h-11 w-11[\s\S]{0,80}aria-label=\{social\.label\}/.test(footer) ||
-    /social\.label[\s\S]{0,200}h-11 w-11/.test(footer) ||
-    footer.includes("h-11 w-11"),
+  "Footer.tsx: review and social links have a >=44px hit area",
+  /officeInfo\.reviewUrl[\s\S]{0,260}min-h-11/.test(footer) &&
+    /officeInfo\.socialMedia\.instagram[\s\S]{0,260}min-h-11/.test(footer),
+  "footer review and Instagram links should keep min-h-11",
 );
 
 // 11. The analytics consent banner is removed entirely (no pop-up).
@@ -157,12 +158,13 @@ assert(
     /postContactToFormspree\(/.test(contactRoute),
 );
 
-// 13. dental-veneers uses the no-op motion stub, not framer-motion.
+// 13. dental-veneers never pulls in framer-motion (quarantined to /analytics).
+// Since the 2026-10-16 redesign the page has no JS animation at all (CSS-only
+// motion), so the motion-lite stub import is no longer required.
 const veneers = read("client/src/pages/DentalVeneers.tsx");
 assert(
-  "DentalVeneers: imports motion from @/lib/motion-lite",
-  veneers.includes('from "@/lib/motion-lite"') &&
-    !/from "framer-motion"/.test(veneers),
+  "DentalVeneers: does not import framer-motion",
+  !/from "framer-motion"/.test(veneers),
 );
 
 // 14. Keyboard users can bypass repeated navigation without showing the link
@@ -212,30 +214,31 @@ assert(
 );
 assert(
   "Header: mobile navigation panel has safe-area bottom padding",
-  /mobileMenuOpen[\s\S]{0,7000}(?:pb-\[calc\(env\(safe-area-inset-bottom\)|paddingBottom:\s*["'`]calc\(env\(safe-area-inset-bottom\))/.test(
+  /id="mobile-nav"[\s\S]{0,4000}(?:pb-\[calc\((?:[\d.]+rem\+)?env\(safe-area-inset-bottom\)|paddingBottom:\s*["'`]calc\(env\(safe-area-inset-bottom\))/.test(
     header,
   ),
   "the open mobile-navigation surface must include env(safe-area-inset-bottom) in its bottom padding",
 );
 
 // 18. The homepage routes visitors by reason for visit with compact, single-
-// action care-path links (no synthetic lifestyle images, no stacked double
-// buttons), while the complete Services catalog keeps ServiceCard's default
-// image treatment.
+// action care-finder cards (icon-led, no photos, no stacked double buttons),
+// while the complete Services catalog keeps ServiceCard's default image
+// treatment.
 const home = read("client/src/pages/Home.tsx");
 const services = read("client/src/pages/Services.tsx");
-const carePaths = read("client/src/components/sections/CarePathsSection.tsx");
+const careFinderSource =
+  homeSections.match(/export function CareFinder\(\)[\s\S]*?\n}\n/)?.[0] ?? "";
 assert(
-  "Home: services entry point is the compact CarePathsSection",
-  home.includes('import CarePathsSection from "@/components/sections/CarePathsSection"') &&
-    home.includes("<CarePathsSection />") &&
-    !home.includes("<ServiceCard"),
-  "the homepage must use CarePathsSection instead of stacked ServiceCards",
+  "Home: services entry point is the compact CareFinder",
+  home.includes("<CareFinder />") && !home.includes("<ServiceCard") && careFinderSource.length > 0,
+  "the homepage must use the CareFinder instead of stacked ServiceCards",
 );
 assert(
-  "CarePathsSection: each care path is one link with a >=44px hit area and no images",
-  carePaths.includes("min-h-[4.5rem]") && !/<Image\b|<img\b/.test(carePaths),
-  "care-path links must stay single-action, image-free, and at least 44px tall",
+  "CareFinder: each care path is one link with a >=44px hit area and no images",
+  /careFinder\.map/.test(careFinderSource) &&
+    /<Link[\s\S]{0,200}className="card card-lift group flex h-full flex-col gap-4 p-4/.test(careFinderSource) &&
+    !/<Image\b|<img\b/.test(careFinderSource),
+  "care-finder links must stay single-action, image-free, and at least 44px tall",
 );
 assert(
   "Services: catalog ServiceCards keep the default image visual",

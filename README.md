@@ -8,22 +8,35 @@ The app runs on Next.js App Router with API route handlers, centralized SEO meta
 - Marketing pages, location pages, services, and blog content.
 - Interactive lead flows: appointment request, contact form, newsletter.
 - No production chat widget or `/api/chat` endpoint in current launch scope.
-- `/gallery` media showcase with click-to-play video, editorial thumbnail crops,
-  and a fullscreen lightbox that preserves each complete frame.
-- `/office-tour` page with real office videos (hosted locally in `public/videos/` with poster stills) and photos, presented as click-to-play.
-- `/changelog` page that merges update history from current and legacy repositories.
-- Homepage visual accents powered by reusable SVG animation components with reduced-motion support.
-- Homepage (2026-09 conversion redesign): positioning hero with a self-hosted
-  "Meet Dr. Wong" intro video, a current-patient strip, eight single-action
-  care-path links, bio-sourced doctor/team facts, an insurance-and-cost section,
-  and review quotes verified verbatim against the Google export. Verified real
-  photos of Dr. Wong and the office remain the primary trust visuals; no
-  synthetic lifestyle imagery.
-- Homepage dentist section (2026-10-12): approach-first copy, a separate
-  education credential, and two people-focused team cards. The intro video
-  uses a genuine smiling frame at 53.5 seconds, cropped from the original
-  clip; its dialog has a screen-reader title and returns keyboard focus to
-  the play button. See `docs/release-2026-10-12-dentist-section.md`.
+- **"Rooted" design system (2026-10-16 full redesign):** evergreen / cream /
+  gold palette taken from the practice's redwood-tooth mark and Dr. Wong's
+  *Full Circle* film, Newsreader + Figtree type, custom line icons, and
+  CSS-only motion (roots that draw themselves, growth-ring ripples, scroll
+  reveals) that respects reduced motion. Every page uses it. See
+  `docs/design-system.md` and `docs/release-2026-10-16-rooted-redesign.md`.
+- Navigation: sticky header with a services mega menu (four groups), a
+  full-screen mobile menu with quick actions and a "What brings you in?"
+  finder, and a floating phone action bar (Call / Map / Request).
+- Homepage: review ribbon, care finder, the *Full Circle* film, the team
+  (every person with a real photo and, where patients named them, a verbatim
+  review quote), the practice's first real team group photo, the garden
+  office, cost clarity, visit info, and FAQs.
+- *Full Circle* film (2:14 landscape + 0:56 vertical cut, self-hosted) in a
+  custom `StoryPlayer`: captions, chapters, scrub thumbnails, double-tap seek,
+  keyboard shortcuts, iOS fullscreen, and bandwidth-aware source selection.
+  Plays on the homepage, `/about`, and `/office-tour` (its watch page). See
+  `docs/full-circle-film.md`.
+- Service pages share one template (fit check, visit steps, options, cost and
+  insurance, matched patient reviews, who you'll see, FAQs, related services);
+  location pages run on one data-driven template (`data/locations.ts`).
+- Real photos and video only: AI-generated and stock imagery was removed
+  site-wide in the redesign.
+- `/gallery` media showcase with click-to-play video and a lightbox; the
+  `/office-tour` page pairs the film with four real office clips.
+- `/changelog` ("Site updates") merges update history from current and legacy
+  repositories.
+- October seasonal layer (Halloween) that switches itself on and off by date;
+  see the AGENTS.md "Seasonal layer" section.
 - `/schedule` request funnel starts in the first phone screen and shows the
   insurance field with out-of-network guidance.
 - Lead-source attribution: appointment and contact leads carry a coarse channel
@@ -32,9 +45,6 @@ The app runs on Next.js App Router with API route handlers, centralized SEO meta
 - Reviews: 382 published 5-star Google reviews plus 10 hand-curated Yelp reviews
   (392 total on `/testimonials`), refreshed from Business Profile review
   notifications. See `docs/reviews-data.md`.
-- Mobile navigation uses a full-screen modal menu with compact icon-led rows,
-  grouped appointment/contact actions, focus containment, and iOS safe-area
-  spacing.
 
 ## Architecture at a glance
 
@@ -144,6 +154,7 @@ Contract and quality checks:
 - `pnpm run test:design-system`
 - `pnpm run test:images`
 - `pnpm run test:gallery`
+- `pnpm run test:blog-index` (the static related-posts index in `client/src/data/blogIndex.ts` matches the blog seed; regenerate with `pnpm run blog-index:generate`)
 
 Mobile UX checks:
 - `node scripts/mobile-ux-source.test.mjs` (static mobile-UX source guards — font sizes, touch targets, etc.)

@@ -3,8 +3,11 @@
  *
  * Sitemap lastmod values that drift far behind reality teach crawlers to
  * distrust the sitemap. This audit fails when any indexable route that
- * declares a lastmod is older than its cluster's staleness threshold, and
- * warns (without failing) for routes that declare no lastmod at all.
+ * declares a lastmod is older than its cluster's staleness threshold.
+ *
+ * 2026-10-16 (Rooted redesign): every indexable route now declares a lastmod,
+ * so a missing lastmod is enforced (it used to be a warning), and a lastmod
+ * dated in the future fails too — both keep the sitemap honest.
  *
  * Usage: pnpm run test:seo:freshness
  */
@@ -35,6 +38,7 @@ function main(): void {
   const now = Date.now();
   const stale: Finding[] = [];
   const missing: string[] = [];
+  const future: string[] = [];
   const seen = new Set<string>();
 
   for (const entry of Object.values(seoByPath)) {
@@ -60,6 +64,12 @@ function main(): void {
       continue;
     }
 
+    // Allow one day of slack for timezone differences (dates are PT days).
+    if (lastmodTime - now > DAY_MS) {
+      future.push(`${entry.canonicalPath} (${entry.lastmod})`);
+      continue;
+    }
+
     const ageDays = Math.floor((now - lastmodTime) / DAY_MS);
     const thresholdDays = STALE_THRESHOLD_DAYS[cluster];
     if (ageDays > thresholdDays) {
@@ -78,6 +88,7 @@ function main(): void {
     indexableRoutes: seen.size,
     staleRoutes: stale,
     routesWithoutLastmod: missing,
+    futureLastmod: future,
   };
   console.log(JSON.stringify(report, null, 2));
 
@@ -93,9 +104,21 @@ function main(): void {
     process.exit(1);
   }
 
-  console.log(
-    `\nFreshness audit passed. lastmod=${seen.size - missing.length} missing=${missing.length} (missing lastmod is reported, not enforced)`,
-  );
+  if (missing.length > 0 || future.length > 0) {
+    if (missing.length > 0) {
+      console.error(
+        `\nFreshness audit failed: ${missing.length} indexable route(s) declare no lastmod: ${missing.join(", ")}. Add them to LASTMOD_OVERRIDES in shared/seo.ts.`,
+      );
+    }
+    if (future.length > 0) {
+      console.error(
+        `\nFreshness audit failed: lastmod dated in the future: ${future.join(", ")}.`,
+      );
+    }
+    process.exit(1);
+  }
+
+  console.log(`\nFreshness audit passed. lastmod=${seen.size} missing=0 future=0`);
 }
 
 main();

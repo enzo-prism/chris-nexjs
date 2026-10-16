@@ -38,6 +38,11 @@ const HotjarTracking = dynamic(
   { ssr: false, loading: () => null },
 );
 
+// October decorations stay off urgent-care, conversion, legal, and
+// post-conversion pages (see AGENTS.md "Seasonal layer").
+const QUIET_PATHS =
+  /^\/(emergency-dental|schedule|zoom-whitening\/schedule|thank-you|privacy-policy|hipaa|terms|accessibility)\/?$/;
+
 type AppPageShellProps = {
   readonly ssrPath?: string;
   readonly queryClientOverride?: QueryClient;
@@ -104,7 +109,12 @@ export function AppPageShell({
         Skip to main content
       </a>
       <Header variant={chromeVariant} />
-      <main id="main-content" tabIndex={-1} className="outline-none">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="outline-none"
+        data-cw-quiet={QUIET_PATHS.test(pathname) || undefined}
+      >
         {chromeVariant === "default" ? <HolidayHoursNotice /> : null}
         {children}
         {chromeVariant === "default" ? <SupplementalContent /> : null}

@@ -150,7 +150,7 @@ const ContactForm = () => {
           />
         </div>
 
-        <p id="contact-form-guidance" className="text-sm leading-6 text-slate-600">
+        <p id="contact-form-guidance" className="text-sm leading-6 text-ink-soft">
           All fields are required. We usually reply within one business day.
         </p>
 
@@ -196,7 +196,7 @@ const ContactForm = () => {
         {isSuccess ? (
           <div
             role="status"
-            className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-900"
+            className="flex items-center gap-3 rounded-xl border border-evergreen-200 bg-evergreen-50 p-4 text-sm font-medium text-evergreen-900"
           >
             <CheckCircle2 className="h-5 w-5 shrink-0" aria-hidden="true" />
             Message sent. Opening your confirmation…
@@ -209,7 +209,7 @@ const ContactForm = () => {
             name="fullName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="font-semibold text-[#333333]">Full name</FormLabel>
+                <FormLabel className="font-semibold text-ink">Full name</FormLabel>
                 <FormControl>
                   <Input
                     enterKeyHint="next"
@@ -229,7 +229,7 @@ const ContactForm = () => {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="font-semibold text-[#333333]">Email address</FormLabel>
+                <FormLabel className="font-semibold text-ink">Email address</FormLabel>
                 <FormControl>
                   <Input
                     type="email"
@@ -256,7 +256,7 @@ const ContactForm = () => {
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="font-semibold text-[#333333]">Phone number</FormLabel>
+              <FormLabel className="font-semibold text-ink">Phone number</FormLabel>
               <FormControl>
                 <Input
                   type="tel"
@@ -282,7 +282,7 @@ const ContactForm = () => {
           name="subject"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="font-semibold text-[#333333]">
+              <FormLabel className="font-semibold text-ink">
                 What can we help with?
               </FormLabel>
               <Select
@@ -314,7 +314,7 @@ const ContactForm = () => {
           name="message"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="font-semibold text-[#333333]">Message</FormLabel>
+              <FormLabel className="font-semibold text-ink">Message</FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Tell us how we can help."
@@ -337,7 +337,7 @@ const ContactForm = () => {
           className={`ui-focus-premium flex items-start gap-3 rounded-xl border p-4 transition-[border-color,background-color,box-shadow] focus-within:shadow-[var(--ui-focus-shadow)] ${
             privacyError
               ? "border-red-400 bg-red-50/70"
-              : "border-slate-200 bg-slate-50/60 hover:border-primary/35 focus-within:border-primary"
+              : "border-cream-300 bg-cream-50 hover:border-evergreen-300 focus-within:border-evergreen-600"
           }`}
         >
           <Checkbox
@@ -361,11 +361,11 @@ const ContactForm = () => {
           <div className="min-w-0">
             <label
               htmlFor="contact-privacy"
-              className="cursor-pointer text-sm font-semibold leading-6 text-[#333333]"
+              className="cursor-pointer text-sm font-semibold leading-6 text-ink"
             >
               I agree that the office may contact me about this request.
             </label>
-            <p id="contact-privacy-description" className="mt-1 text-sm leading-6 text-slate-600">
+            <p id="contact-privacy-description" className="mt-1 text-sm leading-6 text-ink-soft">
               This form is for general questions only. Read our{" "}
               <Link className="ui-link-premium" href="/privacy-policy">
                 privacy policy
@@ -387,7 +387,7 @@ const ContactForm = () => {
         <Button
           type="submit"
           size="lg"
-          className="ui-btn-primary min-h-12 w-full rounded-xl py-3 text-base font-semibold"
+          className="ui-btn-primary min-h-12 w-full rounded-full py-3 text-base font-semibold"
           disabled={isSubmitting || isSuccess}
           aria-describedby="contact-submit-note"
           aria-busy={isSubmitting}
@@ -406,7 +406,7 @@ const ContactForm = () => {
             "Send message"
           )}
         </Button>
-        <p id="contact-submit-note" className="text-center text-xs leading-5 text-slate-500">
+        <p id="contact-submit-note" className="text-center text-xs leading-5 text-ink-muted">
           Please call the office instead for urgent dental needs.
         </p>
       </form>

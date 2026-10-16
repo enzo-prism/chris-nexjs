@@ -1,21 +1,33 @@
 "use client";
 
-import { ArrowRight, CalendarDays, Mail, MapPin, MessageSquare, Phone } from "lucide-react";
 import dynamic from "next/dynamic";
-import OfficeVisitSection from "@/components/sections/OfficeVisitSection";
-import InsuranceInfoSection from "@/components/sections/InsuranceInfoSection";
-import MetaTags from "@/components/common/MetaTags";
-import { pageTitles, pageDescriptions } from "@/lib/metaContent";
-import HolidayHoursNotice from "@/components/common/HolidayHoursNotice";
-import StructuredData from "@/components/seo/StructuredData";
-import { FeatureIcon } from "@/components/common/FeatureIcon";
-import { officeInfo } from "@/lib/data";
-import { useHolidayHours } from "@/hooks/useHolidayHours";
-import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 // next/link, not wouter: this page renders on the dedicated /contact route,
 // where there is no wouter <Switch> — a wouter Link updates the URL but never
 // swaps the page content.
 import Link from "next/link";
+import {
+  ArrowRight,
+  CalendarDays,
+  Mail,
+  MapPin,
+  MessageSquare,
+  Phone,
+  PhoneCall,
+  type LucideIcon,
+} from "lucide-react";
+
+import OfficeVisitSection from "@/components/sections/OfficeVisitSection";
+import InsuranceInfoSection from "@/components/sections/InsuranceInfoSection";
+import HolidayHoursNotice from "@/components/common/HolidayHoursNotice";
+import StructuredData from "@/components/seo/StructuredData";
+import { PageHero } from "@/components/ds/PageHero";
+import { Section } from "@/components/ds/Section";
+import { SectionHeading } from "@/components/ds/SectionHeading";
+import { CtaBand } from "@/components/ds/CtaBand";
+import { officeInfo } from "@/lib/data";
+import { getSeoForPath } from "@/lib/seo";
+import { cn } from "@/lib/utils";
+import { useHolidayNotice } from "@/components/patients/useHolidayNotice";
 import {
   buildBreadcrumbSchema,
   type StructuredDataNode,
@@ -26,22 +38,192 @@ const ContactForm = dynamic(() => import("@/components/forms/ContactForm"), {
   ssr: false,
   loading: () => (
     <div
-      className="h-96 animate-pulse rounded-2xl bg-slate-100"
+      className="h-[38rem] animate-pulse rounded-[1.25rem] bg-cream-100"
       role="status"
       aria-label="Loading contact form"
     />
   ),
 });
 
+type ContactTile = {
+  readonly key: string;
+  readonly icon: LucideIcon;
+  readonly label: string;
+  readonly detail: string;
+  readonly note: string;
+  readonly action: string;
+  readonly href: string;
+  readonly external?: boolean;
+  readonly primary?: boolean;
+  readonly breakDetail?: boolean;
+};
+
+// The four ways to reach the office. Labels are pinned by
+// tests/mobile/cta-flows.spec.ts ("call the office", "email the practice",
+// "visit the office") and scripts/contact-form-ux.test.ts.
+const contactTiles: readonly ContactTile[] = [
+  {
+    key: "request",
+    icon: CalendarDays,
+    label: "Request an appointment",
+    detail: "Online, in about a minute",
+    note: "We call or email within one business day to confirm a time.",
+    action: "Start a request",
+    href: "/schedule#appointment",
+    primary: true,
+  },
+  {
+    key: "call",
+    icon: Phone,
+    label: "Call the office",
+    detail: officeInfo.phone,
+    note: "Best for urgent questions or same-week availability checks.",
+    action: "Call now",
+    href: `tel:${officeInfo.phoneE164}`,
+  },
+  {
+    key: "email",
+    icon: Mail,
+    label: "Email the practice",
+    detail: officeInfo.email,
+    note: "For general office questions only. Please do not email private health details.",
+    action: "Start an email",
+    href: `mailto:${officeInfo.email}`,
+    breakDetail: true,
+  },
+  {
+    key: "visit",
+    icon: MapPin,
+    label: "Visit the office",
+    detail: officeInfo.address.line1,
+    note: `${officeInfo.address.city}, ${officeInfo.address.region} ${officeInfo.address.postalCode}`,
+    action: "Open in Maps",
+    href: officeInfo.mapUrl,
+    external: true,
+  },
+];
+
+const nearbyLinks = [
+  { href: "/dentist-menlo-park", label: "Menlo Park family dentist" },
+  { href: "/dentist-stanford", label: "Stanford dentist" },
+  { href: "/dentist-mountain-view", label: "Mountain View family dentist" },
+  { href: "/locations", label: "All nearby communities" },
+] as const;
+
+const careLinks = [
+  { href: "/dental-cleaning-palo-alto", label: "Dental cleanings in Palo Alto" },
+  { href: "/pediatric-dentistry", label: "Pediatric dentist in Palo Alto" },
+  { href: "/teeth-whitening-palo-alto", label: "Teeth whitening in Palo Alto" },
+  { href: "/emergency-dental", label: "Emergency dentist in Palo Alto" },
+] as const;
+
+function ContactTileLink({ tile }: { readonly tile: ContactTile }) {
+  const Icon = tile.icon;
+  const className = cn(
+    "group relative flex h-full items-start gap-4 rounded-[1.5rem] p-4 outline-none transition-[transform,box-shadow,border-color,background-color] duration-300 hover:-translate-y-0.5 focus-visible:shadow-[var(--ui-focus-shadow)] sm:flex-col sm:gap-5 sm:p-6 lg:flex-row lg:items-center lg:gap-5 lg:px-6 lg:py-5",
+    tile.primary
+      ? "bg-evergreen-800 text-cream-50 shadow-lift hover:bg-evergreen-700"
+      : "border border-cream-300/80 bg-white text-ink shadow-soft hover:border-evergreen-200 hover:shadow-lift",
+  );
+  const body = (
+    <>
+      <span
+        className={cn(
+          "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl transition-colors duration-300",
+          tile.primary
+            ? "bg-white/10 text-gold-300"
+            : "bg-evergreen-50 text-evergreen-700 group-hover:bg-evergreen-800 group-hover:text-gold-300",
+        )}
+      >
+        <Icon className="h-6 w-6" aria-hidden="true" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span
+          className={cn(
+            "block text-xs font-bold uppercase tracking-[0.14em]",
+            tile.primary ? "text-mint-300" : "text-ink-muted",
+          )}
+        >
+          {tile.label}
+        </span>
+        <span
+          className={cn(
+            "mt-1 block font-heading text-[1.3rem] font-medium leading-snug sm:text-[1.45rem] lg:text-[1.35rem]",
+            tile.breakDetail && "break-all text-[1.15rem] sm:text-[1.2rem] lg:break-normal lg:text-[1.25rem]",
+          )}
+        >
+          {tile.detail}
+        </span>
+        <span
+          className={cn(
+            "mt-1 block text-sm leading-6 lg:mt-0.5",
+            tile.primary ? "text-evergreen-100/90" : "text-ink-muted",
+          )}
+        >
+          {tile.note}
+        </span>
+        <span
+          className={cn(
+            "mt-4 hidden items-center gap-1.5 text-sm font-semibold sm:inline-flex lg:hidden",
+            tile.primary ? "text-gold-300" : "text-evergreen-700",
+          )}
+        >
+          {tile.action}
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+        </span>
+      </span>
+      <ArrowRight
+        className={cn(
+          "mt-3.5 h-5 w-5 shrink-0 sm:hidden",
+          tile.primary ? "text-gold-300" : "text-evergreen-600",
+        )}
+        aria-hidden="true"
+      />
+      <span
+        aria-hidden="true"
+        className={cn(
+          "hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-colors lg:inline-flex",
+          tile.primary
+            ? "bg-gold-400 text-evergreen-950 group-hover:bg-gold-300"
+            : "bg-evergreen-50 text-evergreen-800 group-hover:bg-evergreen-800 group-hover:text-cream-50",
+        )}
+      >
+        {tile.action}
+        <ArrowRight className="h-4 w-4" aria-hidden="true" />
+      </span>
+    </>
+  );
+
+  if (tile.href.startsWith("/")) {
+    return (
+      <Link href={tile.href} className={className} data-analytics-context={`contact-tile-${tile.key}`}>
+        {body}
+      </Link>
+    );
+  }
+  return (
+    <a
+      href={tile.href}
+      className={className}
+      data-analytics-context={`contact-tile-${tile.key}`}
+      {...(tile.external ? { target: "_blank", rel: "noopener noreferrer" } : null)}
+    >
+      {body}
+      {tile.external ? <span className="sr-only"> (opens in a new tab)</span> : null}
+    </a>
+  );
+}
+
 const Contact = () => {
-  const holiday = useHolidayHours();
+  const holiday = useHolidayNotice();
+  const seo = getSeoForPath("/contact");
   const contactPageSchema: StructuredDataNode = {
     "@context": "https://schema.org",
     "@type": "WebPage",
     "@id": `${absoluteUrl("/contact")}#webpage`,
     name: "Contact Our Palo Alto Dental Office",
     url: absoluteUrl("/contact"),
-    description: pageDescriptions.contact,
+    description: seo.description,
     about: {
       "@id": `${absoluteUrl("/")}#organization`,
     },
@@ -58,212 +240,133 @@ const Contact = () => {
 
   return (
     <>
-      <MetaTags 
-        title={pageTitles.contact}
-        description={pageDescriptions.contact}
-      />
       <StructuredData data={contactSchemas} />
-      <PageBreadcrumbs items={breadcrumbItems} />
-      {/* Hero Section */}
-      <section className="bg-[#F5F9FC] py-12 md:py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-heading text-[#333333] mb-6">
-              Contact Dr. Wong&apos;s Palo Alto dental office
-            </h1>
-            <p className="mx-auto max-w-3xl text-lg leading-8 text-[#333333] sm:text-xl">
-              Request an appointment, send a general question, or choose the fastest way to
-              reach our team. For urgent dental needs, please call the office.
-            </p>
-            <div className="mx-auto mt-8 flex max-w-xl flex-col justify-center gap-3 sm:flex-row">
-              <Link
-                href="/schedule#appointment"
-                className="ui-btn-primary ui-focus-premium inline-flex min-h-12 w-full items-center justify-center rounded-full px-6 py-3 font-semibold sm:w-auto"
-              >
-                <CalendarDays className="mr-2 h-5 w-5" aria-hidden="true" />
-                Request an appointment
-              </Link>
-              <a
-                href="#message"
-                className="ui-btn-outline ui-focus-premium inline-flex min-h-12 w-full items-center justify-center rounded-full px-6 py-3 font-semibold sm:w-auto"
-              >
-                <MessageSquare className="mr-2 h-5 w-5" aria-hidden="true" />
-                Send a general question
-              </a>
-            </div>
-            <div className="mt-10 grid gap-4 md:grid-cols-3">
-              <a
-                href={`tel:${officeInfo.phoneE164}`}
-                className="ui-focus-premium rounded-3xl border border-slate-200 bg-white px-6 py-5 text-left shadow-[0_20px_50px_-40px_rgba(15,23,42,0.32)] transition-transform hover:-translate-y-0.5 hover:border-primary/30"
-              >
-                <FeatureIcon icon={Phone} size="md" />
-                <p className="mt-4 text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
-                  Call the office
-                </p>
-                <p className="mt-2 text-lg font-semibold text-slate-900">{officeInfo.phone}</p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Best for urgent questions or same-week availability checks.
-                </p>
-                <span className="mt-4 inline-flex items-center text-sm font-semibold text-primary">
-                  Call now
-                  <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
-                </span>
-              </a>
 
-              <a
-                href={`mailto:${officeInfo.email}`}
-                className="ui-focus-premium rounded-3xl border border-slate-200 bg-white px-6 py-5 text-left shadow-[0_20px_50px_-40px_rgba(15,23,42,0.32)] transition-transform hover:-translate-y-0.5 hover:border-primary/30"
-              >
-                <FeatureIcon icon={Mail} size="md" tone="emerald" />
-                <p className="mt-4 text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
-                  Email the practice
-                </p>
-                <p className="mt-2 break-all text-lg font-semibold text-slate-900">
-                  {officeInfo.email}
-                </p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  For general office questions only. Please do not email private health details.
-                </p>
-                <span className="mt-4 inline-flex items-center text-sm font-semibold text-primary">
-                  Start an email
-                  <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
-                </span>
-              </a>
+      <PageHero
+        crumbs={breadcrumbItems}
+        eyebrow="Contact"
+        title={<>Contact Dr. Wong&apos;s Palo Alto dental office</>}
+        lead="Request an appointment, send a general question, or choose the fastest way to reach our team. For urgent dental needs, please call the office."
+        actions={null}
+        showReviews={false}
+        media={
+          <ul aria-label="Ways to reach the office" className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-1 lg:gap-3">
+            {contactTiles.map((tile) => (
+              <li key={tile.key}>
+                <ContactTileLink tile={tile} />
+              </li>
+            ))}
+          </ul>
+        }
+      >
+        <p className="mt-5 text-[15px] text-ink-soft">
+          <a href="#message" className="link-rooted inline-flex min-h-11 items-center gap-2">
+            <MessageSquare className="h-4 w-4" aria-hidden="true" />
+            Send a general question
+          </a>
+        </p>
+      </PageHero>
 
-              <a
-                href={officeInfo.mapUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="ui-focus-premium rounded-3xl border border-slate-200 bg-white px-6 py-5 text-left shadow-[0_20px_50px_-40px_rgba(15,23,42,0.32)] transition-transform hover:-translate-y-0.5 hover:border-primary/30"
-              >
-                <FeatureIcon icon={MapPin} size="md" tone="amber" />
-                <p className="mt-4 text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
-                  Visit the office
-                </p>
-                <p className="mt-2 text-lg font-semibold text-slate-900">
-                  {officeInfo.address.line1}
-                </p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  {officeInfo.address.city}, {officeInfo.address.region} {officeInfo.address.postalCode}
-                </p>
-                <span className="mt-4 inline-flex items-center text-sm font-semibold text-primary">
-                  Open in Maps
-                  <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
-                  <span className="sr-only"> (opens in a new tab)</span>
-                </span>
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
+      {holiday ? (
+        <Section tone="white" spacing="tight" width="narrow" label="Schedule update">
+          <HolidayHoursNotice variant="card" />
+        </Section>
+      ) : null}
 
-      {holiday && (
-        <section className="bg-white">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <HolidayHoursNotice variant="card" />
-          </div>
-        </section>
-      )}
+      <OfficeVisitSection analyticsContext="contact-visit" />
 
-      <section id="message" className="bg-white py-12 md:py-16" aria-labelledby="message-heading">
-        <div className="mx-auto grid max-w-5xl gap-8 px-4 sm:px-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)] lg:px-8">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">
-              General questions
-            </p>
-            <h2 id="message-heading" className="mt-2 font-heading text-2xl font-bold text-slate-900">
-              Send a non-urgent question
+      <Section id="message" tone="cream" labelledBy="message-heading">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(18rem,0.8fr)] lg:gap-8">
+          <div className="card p-5 sm:p-8">
+            <p className="eyebrow">General questions</p>
+            <h2 id="message-heading" className="h-section mt-3 text-[1.9rem] sm:text-[2.3rem]">
+              Send a <em className="whitespace-nowrap">non-urgent</em> question
             </h2>
-            <p className="mb-6 mt-2 text-sm leading-6 text-slate-600">
-              Use this form for insurance, billing, records, referral, or
-              general service questions. Please do not include medical details
-              or urgent symptoms.
+            <p className="mb-6 mt-3 text-[15px] leading-7 text-ink-soft">
+              Use this form for insurance, billing, records, referral, or general service questions.
+              Please do not include medical details or urgent symptoms.
             </p>
             <ContactForm />
           </div>
-          <aside className="rounded-3xl bg-primary p-6 text-white sm:p-8">
-            <h2 className="font-heading text-2xl font-bold">
-              Ready to request an appointment?
-            </h2>
-            <p className="mt-3 leading-7 text-blue-50">
-              The appointment form asks only for the details our scheduling
-              team needs to follow up and confirm a time.
-            </p>
-            <Link
-              href="/schedule#appointment"
-              className="ui-focus-premium mt-6 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-white px-5 py-3 text-center font-semibold text-primary hover:bg-blue-50 sm:w-auto"
-            >
-              Request an appointment
-              <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
-            </Link>
-            <div className="mt-6 border-t border-white/20 pt-5">
-              <p className="text-sm leading-6 text-blue-100">
-                In pain or dealing with a dental emergency?
+
+          <aside className="surface-evergreen on-dark relative self-start overflow-hidden rounded-[1.75rem] p-6 shadow-lift sm:p-8 lg:sticky lg:top-[calc(var(--header-height,76px)+1.5rem)]">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-[url('/brand/roots-glow.svg')] bg-[length:900px_225px] bg-[position:center_-20px] bg-no-repeat opacity-[0.18]"
+            />
+            <div className="relative">
+              <h2 className="h-card text-[1.7rem] sm:text-[1.9rem]">Ready to request an appointment?</h2>
+              <p className="mt-3 text-[15px] leading-7 text-evergreen-100">
+                The appointment form asks only for the details our scheduling team needs to follow up and
+                confirm a time.
               </p>
-              <a
-                href={`tel:${officeInfo.phoneE164}`}
-                className="ui-focus-premium mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-full border border-white/35 px-5 py-3 text-center text-sm font-semibold text-white hover:bg-white/10 sm:w-auto"
+              <Link
+                href="/schedule#appointment"
+                className="btn btn-gold mt-6 w-full"
+                data-analytics-context="contact-aside-request"
               >
-                <Phone className="mr-2 h-4 w-4" aria-hidden="true" />
-                Call {officeInfo.phone}
-              </a>
+                Request an appointment
+                <ArrowRight aria-hidden="true" />
+              </Link>
+              <div className="mt-6 border-t border-white/15 pt-5">
+                <p className="text-sm leading-6 text-evergreen-100">In pain or dealing with a dental emergency?</p>
+                <a
+                  href={`tel:${officeInfo.phoneE164}`}
+                  className="btn btn-outline-light mt-3 w-full"
+                  data-analytics-context="contact-aside-call"
+                >
+                  <PhoneCall aria-hidden="true" />
+                  Call {officeInfo.phone}
+                </a>
+              </div>
             </div>
           </aside>
         </div>
-      </section>
-
-      <OfficeVisitSection
-        imageSrc="/images/office/atrium-courtyard.webp"
-        imageAlt="Reception desk at Dr. Wong's Palo Alto dental office"
-        showDirectionsButton
-        withSchema
-        schemaUrl="https://www.chriswongdds.com/contact"
-        schemaName="Christopher B. Wong, DDS"
-        schemaImage="https://www.chriswongdds.com/images/og/dr_wong_polaroids.jpg"
-      />
-
-      <section className="py-12 bg-[#F5F9FC]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl md:text-3xl font-bold font-heading text-[#333333] mb-3">
-              Serving Palo Alto and Nearby Peninsula Communities
-            </h2>
-            <p className="text-[#333333] max-w-3xl mx-auto">
-              Our Palo Alto dental office welcomes patients from surrounding neighborhoods and cities. Find
-              the right visit for your location and care goals below.
-            </p>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {[
-                { href: "/dentist-menlo-park", label: "Menlo Park family dentist" },
-                { href: "/dentist-stanford", label: "Stanford dentist" },
-                { href: "/dentist-mountain-view", label: "Mountain View family dentist" },
-                { href: "/locations", label: "All nearby communities" },
-              { href: "/dental-cleaning-palo-alto", label: "Dental cleanings in Palo Alto" },
-              { href: "/pediatric-dentistry", label: "Pediatric dentist in Palo Alto" },
-              { href: "/teeth-whitening-palo-alto", label: "Teeth whitening in Palo Alto" },
-              { href: "/emergency-dental", label: "Emergency dentist in Palo Alto" },
-            ].map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="ui-focus-premium group flex min-h-32 flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-primary/30 hover:shadow-md"
-              >
-                <h3 className="text-lg font-semibold text-slate-900 group-hover:text-primary">
-                  {item.label}
-                </h3>
-                <span className="mt-3 inline-flex items-center text-sm font-semibold text-primary">
-                  View details
-                  <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+      </Section>
 
       <InsuranceInfoSection />
+
+      <Section tone="white" labelledBy="nearby-title">
+        <SectionHeading
+          id="nearby-title"
+          eyebrow="Nearby"
+          title={
+            <>
+              Serving Palo Alto and nearby <em>Peninsula communities</em>
+            </>
+          }
+          lead="Our Palo Alto dental office welcomes patients from surrounding neighborhoods and cities. Find the right visit for your location and care goals below."
+        />
+        <div className="mt-10 grid gap-8 md:grid-cols-2">
+          {[
+            { heading: "By community", items: nearbyLinks },
+            { heading: "Popular visits", items: careLinks },
+          ].map((group) => (
+            <div key={group.heading}>
+              <h3 className="text-xs font-bold uppercase tracking-[0.14em] text-ink-muted">{group.heading}</h3>
+              <ul className="mt-3 divide-y divide-cream-300/80 rounded-[1.5rem] border border-cream-300/80 bg-white">
+                {group.items.map((item) => (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      className="group flex min-h-14 items-center justify-between gap-4 px-5 py-3 font-medium text-ink transition-colors hover:text-evergreen-800"
+                    >
+                      <span>{item.label}</span>
+                      <ArrowRight
+                        className="h-4 w-4 shrink-0 text-evergreen-600 transition-transform group-hover:translate-x-1"
+                        aria-hidden="true"
+                      />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {/* The aside above already walks through the request steps. */}
+      <CtaBand analyticsContext="contact-cta" showSteps={false} />
     </>
   );
 };

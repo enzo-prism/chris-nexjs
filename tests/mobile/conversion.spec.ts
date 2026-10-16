@@ -72,9 +72,9 @@ test("a Google Business Profile visit keeps its source through to the appointmen
     .toContain("google_business_profile");
 
   const hero = page
-    .getByRole("heading", { name: /conservative dentistry in palo alto/i })
+    .getByRole("heading", { name: /palo alto family dentist/i })
     .locator("xpath=ancestor::section[1]");
-  await hero.getByRole("link", { name: "Request an appointment", exact: true }).click();
+  await hero.getByRole("link", { name: "Request a visit", exact: true }).click();
   await expect(page).toHaveURL(/\/schedule#appointment$/);
 
   await advanceFunnelToContactStep(page);
@@ -118,17 +118,23 @@ test("a later direct visit does not erase a known source", async ({ page }) => {
   expect(stored).toContain("google_business_profile");
 });
 
-test("the homepage intro video plays the self-hosted Meet Dr. Wong clip", async ({ page }) => {
+test("the homepage Full Circle film plays in the custom player", async ({ page }) => {
   await gotoAndHydrate(page, "/");
 
-  const playButton = page.getByRole("button", { name: /watch dr\. wong.s 1-minute intro/i });
-  await playButton.click();
-  const dialog = page.getByRole("dialog");
-  await expect(dialog).toBeVisible();
-  await expect(dialog.locator("video")).toHaveAttribute("src", "/videos/meet-dr-wong.mp4");
-  await dialog.getByRole("button", { name: "Close video" }).click();
-  await expect(dialog).toBeHidden();
-  await expect(playButton).toBeFocused();
+  await page.getByRole("link", { name: /watch dr\. wong.s story/i }).click();
+  await expect(page).toHaveURL(/#story$/);
+
+  const story = page.locator("#story");
+  const player = story.getByRole("region", { name: /full circle/i });
+  await expect(player).toBeVisible();
+  await player.getByRole("button", { name: /^play full circle/i }).click();
+  await expect(player).not.toHaveAttribute("data-state", "idle");
+  await expect
+    .poll(() => player.locator("video").first().evaluate((v) => (v as HTMLVideoElement).currentSrc))
+    .toContain("/videos/full-circle/");
+  // The custom controls are reachable and labelled.
+  await expect(player.getByRole("slider", { name: "Seek" })).toBeVisible();
+  await expect(player.getByRole("button", { name: /full screen/i })).toBeVisible();
 });
 
 test("homepage explains insurance and cost before the reviews", async ({ page }) => {

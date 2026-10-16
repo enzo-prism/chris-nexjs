@@ -15,9 +15,9 @@ type FooterProps = {
 };
 
 const legalLinks = [
-  { href: "/privacy-policy", label: "Privacy" },
-  { href: "/terms", label: "Terms" },
-  { href: "/hipaa", label: "HIPAA notice" },
+  { href: "/privacy-policy", label: "Privacy Policy" },
+  { href: "/terms", label: "Terms of Service" },
+  { href: "/hipaa", label: "HIPAA Notice" },
   { href: "/accessibility", label: "Accessibility" },
   { href: "/changelog", label: "Site updates" },
 ] as const;
@@ -92,7 +92,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
 
   return (
     <footer
-      className="cw-season-footer relative isolate overflow-hidden bg-evergreen-900 text-cream-100"
+      className="cw-season-footer on-dark relative isolate overflow-hidden bg-evergreen-900 text-cream-100"
       data-cw-quiet={QUIET_PATHS.test(pathname) || undefined}
     >
       {/* Redwoods on the footer's top edge with their root network glowing below. */}
@@ -136,7 +136,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-start gap-3 rounded-md hover:text-cream-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold-300"
-                aria-label={`Directions to ${officeInfo.address.line1}, ${officeInfo.address.line2} (opens in a new tab)`}
+                aria-label={`Get directions to ${officeInfo.address.line1}, ${officeInfo.address.line2} (opens in a new tab)`}
               >
                 <MapPin className="mt-1 h-4 w-4 shrink-0 text-gold-300" aria-hidden="true" />
                 <span>
@@ -235,7 +235,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
               target="_blank"
               rel="noopener noreferrer"
               data-analytics-context="footer-review"
-              className="pill hover:border-gold-300/50 hover:text-cream-50"
+              className="pill min-h-11 hover:border-gold-300/50 hover:text-cream-50"
               aria-label="Leave a Google review (opens in a new tab)"
             >
               <Star className="h-4 w-4 fill-gold-400 text-gold-400" aria-hidden="true" />
@@ -245,7 +245,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
               href={officeInfo.socialMedia.instagram}
               target="_blank"
               rel="noopener noreferrer"
-              className="pill hover:border-gold-300/50 hover:text-cream-50"
+              className="pill min-h-11 hover:border-gold-300/50 hover:text-cream-50"
               aria-label="Instagram (opens in a new tab)"
             >
               <Instagram className="h-4 w-4" aria-hidden="true" />

@@ -1,175 +1,175 @@
-import { Clock, Mail, MapPin, Phone, ArrowRight } from "lucide-react";
-import OptimizedImage from "@/components/seo/OptimizedImage";
+"use client";
+
+import { Car, Clock, Footprints, Mail, MapPin, Navigation, Phone } from "lucide-react";
+
 import { officeInfo } from "@/lib/data";
-import OfficeHoursSummary from "@/components/common/OfficeHoursSummary";
-import { cn } from "@/lib/utils";
+import { useHolidayNotice } from "@/components/patients/useHolidayNotice";
+import { Section } from "@/components/ds/Section";
+import { SectionHeading } from "@/components/ds/SectionHeading";
+import { StarRow } from "@/components/ds/Reviews";
+import { reviewsFor } from "@/data/serviceReviews";
+import OpenNowStatus from "@/components/common/OpenNowStatus";
+import { HoursTable } from "@/components/patients/HoursTable";
+import { MapFacade } from "@/components/patients/MapFacade";
 
 type OfficeVisitSectionProps = {
-  readonly imageSrc: string;
-  readonly imageAlt: string;
+  readonly id?: string;
   readonly className?: string;
-  readonly title?: string;
+  readonly eyebrow?: string;
+  readonly title?: React.ReactNode;
   readonly subtitle?: string;
   readonly showEmail?: boolean;
-  readonly showDirectionsButton?: boolean;
-  readonly withSchema?: boolean;
-  readonly schemaUrl?: string;
-  readonly schemaName?: string;
-  readonly schemaImage?: string;
+  /** Show the phone/email card (off on /contact, where the tiles cover it). */
+  readonly showPhone?: boolean;
+  readonly analyticsContext?: string;
 };
 
+/** Hours, a click-to-load map, directions, and arrival notes. */
 export default function OfficeVisitSection({
-  imageSrc,
-  imageAlt,
+  id = "visit",
   className,
-  title = "Visit Our Office",
-  subtitle = "Visit our Palo Alto office for thoughtful, comfortable dental care.",
+  eyebrow = "Hours & directions",
+  title = (
+    <>
+      Finding <em>the office</em>
+    </>
+  ),
+  subtitle = "A garden office on Cambridge Avenue, a short walk from California Avenue in Palo Alto.",
   showEmail = false,
-  showDirectionsButton = false,
-  withSchema = false,
-  schemaUrl,
-  schemaName,
-  schemaImage,
+  showPhone = false,
+  analyticsContext = "visit",
 }: OfficeVisitSectionProps): React.JSX.Element {
-  const wrapperSchemaProps = withSchema
-    ? {
-        itemScope: true,
-        itemType: "https://schema.org/Dentist",
-      }
-    : {};
-
-  const addressSchemaProps = withSchema
-    ? {
-        itemProp: "address",
-        itemScope: true,
-        itemType: "https://schema.org/PostalAddress",
-      }
-    : {};
+  const holiday = useHolidayNotice();
+  const parkingQuote = reviewsFor(["visit"], 1)[0];
 
   return (
-    <section className={cn("bg-white py-12", className)}>
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 text-center">
-          <h2 className="mb-4 text-2xl font-bold font-heading text-[#333333] md:text-3xl">
-            {title}
-          </h2>
-          <p className="mx-auto max-w-2xl text-[#333333]">{subtitle}</p>
-          <div className="mx-auto mt-4 h-1 w-24 bg-primary" />
-        </div>
+    <Section id={id} tone="white" labelledBy={`${id}-title`} className={className}>
+      <SectionHeading id={`${id}-title`} eyebrow={eyebrow} title={title} lead={subtitle} />
 
-        <div
-          className="grid items-center gap-8 md:grid-cols-2"
-          {...wrapperSchemaProps}
-        >
-          {withSchema && schemaUrl ? <meta itemProp="url" content={schemaUrl} /> : null}
-          {withSchema && schemaName ? (
-            <meta itemProp="name" content={schemaName} />
-          ) : null}
-          {withSchema && schemaImage ? (
-            <meta itemProp="image" content={schemaImage} />
-          ) : null}
-
-          <div className="overflow-hidden rounded-xl shadow-md">
-            <OptimizedImage
-              src={imageSrc}
-              alt={imageAlt}
-              className="h-64 w-full object-cover md:h-80"
-            />
+      <div className="mt-10 grid gap-5 lg:grid-cols-[1.15fr_0.85fr] lg:gap-6">
+        {/* Map + directions */}
+        <article className="card self-start overflow-hidden p-2.5 sm:p-3" aria-labelledby={`${id}-map-title`}>
+          <MapFacade analyticsContext={analyticsContext} />
+          <div className="grid gap-5 px-3 pb-4 pt-5 sm:grid-cols-[1fr_auto] sm:items-end sm:px-4">
+            <div>
+              <h3 id={`${id}-map-title`} className="h-card text-[1.3rem]">
+                Address
+              </h3>
+              <address className="mt-1.5 text-[15px] not-italic leading-7 text-ink-soft">
+                {officeInfo.name}
+                <br />
+                {officeInfo.address.line1}
+                <br />
+                {officeInfo.address.line2}
+              </address>
+            </div>
+            <a
+              href={officeInfo.mapUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-primary"
+              data-analytics-context={`${analyticsContext}-directions`}
+            >
+              <Navigation aria-hidden="true" />
+              Get directions
+              <span className="sr-only"> in Google Maps (opens in a new tab)</span>
+            </a>
           </div>
 
-          <div className="space-y-6">
-            <div className="flex items-start">
-              <MapPin className="mr-3 mt-1 h-6 w-6 flex-shrink-0 text-primary" aria-hidden="true" />
-              <div>
-                <h3 className="mb-1 font-semibold text-[#333333]">Office Address</h3>
-                <a
-                  href={officeInfo.mapUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[#333333] transition-colors hover:text-primary"
-                >
-                  <address className="not-italic" {...addressSchemaProps}>
-                    <span itemProp={withSchema ? "streetAddress" : undefined}>
-                      {officeInfo.address.line1}
-                    </span>
-                    <br />
-                    <span>
-                      <span itemProp={withSchema ? "addressLocality" : undefined}>
-                        {officeInfo.address.city}
-                      </span>
-                      {", "}
-                      <span itemProp={withSchema ? "addressRegion" : undefined}>
-                        {officeInfo.address.region}
-                      </span>{" "}
-                      <span itemProp={withSchema ? "postalCode" : undefined}>
-                        {officeInfo.address.postalCode}
-                      </span>
-                    </span>
-                    {withSchema ? (
-                      <meta
-                        itemProp="addressCountry"
-                        content={officeInfo.address.country}
-                      />
-                    ) : null}
-                  </address>
-                </a>
-              </div>
-            </div>
+          <ul className="grid gap-3 border-t border-cream-300/70 px-3 pb-3 pt-5 text-[15px] leading-6 text-ink-soft sm:grid-cols-2 sm:px-4">
+            <li className="flex items-start gap-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-evergreen-50 text-evergreen-700">
+                <Car className="h-[18px] w-[18px]" aria-hidden="true" />
+              </span>
+              <span>
+                <strong className="block font-semibold text-ink">Parking</strong>
+                Nearby street and lot parking. Ask the front desk for the best option when you schedule.
+              </span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-evergreen-50 text-evergreen-700">
+                <Footprints className="h-[18px] w-[18px]" aria-hidden="true" />
+              </span>
+              <span>
+                <strong className="block font-semibold text-ink">Arriving</strong>
+                Come a few minutes early so check-in and paperwork feel unhurried.
+              </span>
+            </li>
+          </ul>
+        </article>
 
-            <div className="flex items-start">
-              <Clock className="mr-3 mt-1 h-6 w-6 flex-shrink-0 text-primary" aria-hidden="true" />
-              <div>
-                <h3 className="mb-1 font-semibold text-[#333333]">Office Hours</h3>
-                <OfficeHoursSummary
-                  className="text-[#333333]"
-                  noteClassName="text-slate-500"
-                />
-              </div>
+        {/* Hours + phone */}
+        <div className="grid content-start gap-5">
+          <article className="card p-5 sm:p-6" aria-labelledby={`${id}-hours-title`}>
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+              <h3 id={`${id}-hours-title`} className="h-card flex items-center gap-2 text-[1.3rem]">
+                <Clock className="h-5 w-5 text-evergreen-600" aria-hidden="true" />
+                Office hours
+              </h3>
+              <OpenNowStatus className="text-ink-soft" />
             </div>
+            <HoursTable className="mt-4" />
+            {holiday ? (
+              <p className="mt-4 rounded-2xl bg-gold-200/50 px-4 py-3 text-sm leading-6 text-ink">
+                <span className="font-semibold">Schedule update:</span> {holiday.shortNotice}
+              </p>
+            ) : null}
+            <p className="mt-4 text-sm leading-6 text-ink-muted">
+              Messages sent after hours are answered the next business day. For pain or swelling, call us.
+            </p>
+          </article>
 
-            <div className="flex items-start">
-              <Phone className="mr-3 mt-1 h-6 w-6 flex-shrink-0 text-primary" aria-hidden="true" />
-              <div>
-                <h3 className="mb-1 font-semibold text-[#333333]">Phone</h3>
+          {showPhone || showEmail ? (
+            <article className="card grid gap-3 p-5 sm:p-6">
+              {showPhone ? (
                 <a
                   href={`tel:${officeInfo.phoneE164}`}
-                  className="text-[#333333] transition-colors hover:text-primary"
-                  itemProp={withSchema ? "telephone" : undefined}
+                  className="group flex min-h-12 items-center gap-3 rounded-2xl text-ink transition-colors hover:text-evergreen-800"
+                  data-analytics-context={`${analyticsContext}-call`}
+                  aria-label={`Phone the front desk at ${officeInfo.phone}`}
                 >
-                  {officeInfo.phone}
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-evergreen-800 text-gold-300">
+                    <Phone className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <span>
+                    <span className="block text-xs font-bold uppercase tracking-[0.14em] text-ink-muted">Front desk</span>
+                    <span className="text-lg font-semibold tabular-nums">{officeInfo.phone}</span>
+                  </span>
                 </a>
-              </div>
-            </div>
+              ) : null}
+              {showEmail ? (
+                <a
+                  href={`mailto:${officeInfo.email}`}
+                  className="group flex min-h-12 items-center gap-3 rounded-2xl text-ink transition-colors hover:text-evergreen-800"
+                >
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-evergreen-50 text-evergreen-700">
+                    <Mail className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-xs font-bold uppercase tracking-[0.14em] text-ink-muted">Email</span>
+                    <span className="block break-all font-semibold">{officeInfo.email}</span>
+                  </span>
+                </a>
+              ) : null}
+            </article>
+          ) : null}
 
-            {showEmail ? (
-              <div className="flex items-start">
-                <Mail className="mr-3 mt-1 h-6 w-6 flex-shrink-0 text-primary" aria-hidden="true" />
-                <div>
-                  <h3 className="mb-1 font-semibold text-[#333333]">Email</h3>
-                  <a
-                    href={`mailto:${officeInfo.email}`}
-                    className="text-[#333333] transition-colors hover:text-primary"
-                  >
-                    {officeInfo.email}
-                  </a>
-                </div>
-              </div>
-            ) : null}
-
-            {showDirectionsButton ? (
-              <a
-                href={officeInfo.mapUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
-              >
-                Open in Google Maps
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </a>
-            ) : null}
-          </div>
+          {parkingQuote ? (
+            <figure className="rounded-[1.5rem] bg-cream-100 p-5 sm:p-6">
+              <StarRow size="h-3.5 w-3.5" />
+              <blockquote className="mt-2 font-heading text-lg leading-8 text-ink">
+                <p>“{parkingQuote.text}”</p>
+              </blockquote>
+              <figcaption className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-ink-muted">
+                <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
+                {parkingQuote.name} · Google review
+              </figcaption>
+            </figure>
+          ) : null}
         </div>
       </div>
-    </section>
+    </Section>
   );
 }
+
+export type { OfficeVisitSectionProps };

@@ -1,422 +1,348 @@
-"use client";
+// "New patients & forms" (route stays /patient-resources). Server component:
+// no client state. Internal links use next/link — the old wouter Link changed
+// the URL on this dedicated route without swapping the page.
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, Check, Download, Lock, MapPin, ShieldCheck } from "lucide-react";
 
-import { useState } from "react";
-import { ArrowRight, FileText, Download, Calendar, CreditCard, Shield, CheckCircle, HelpCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Card, CardContent } from "@/components/ui/card";
-import { Link } from "wouter";
-import MetaTags from "@/components/common/MetaTags";
-import { drWongImages } from "@/lib/imageUrls";
-import { pageTitles, pageDescriptions } from "@/lib/metaContent";
-import { officeInfo, faqItems, patientResources } from "@/lib/data";
 import StructuredData from "@/components/seo/StructuredData";
-import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
-import TestimonialSection from "@/components/testimonials/TestimonialSection";
-import { getTestimonialCollection } from "@/lib/testimonials";
+import { PageHero } from "@/components/ds/PageHero";
+import { Section } from "@/components/ds/Section";
+import { SectionHeading } from "@/components/ds/SectionHeading";
+import { ServiceIcon } from "@/components/ds/ServiceIcon";
+import { Steps, type Step } from "@/components/ds/Steps";
+import { ServiceReviews } from "@/components/ds/ServiceReviews";
+import { FaqList } from "@/components/ds/FaqList";
+import { CtaBand } from "@/components/ds/CtaBand";
+import { faqItems, patientResources } from "@/lib/data";
 import {
   buildBreadcrumbSchema,
   buildFAQSchema,
   type StructuredDataNode,
 } from "@/lib/structuredData";
 
+const breadcrumbItems = [
+  { name: "Home", path: "/" },
+  { name: "New Patients & Forms", path: "/patient-resources" },
+];
+
+// What each approved form (lib/data.ts `patientResources.forms`) covers,
+// read from the PDFs themselves. Unknown future forms fall back to no note.
+const formNotes: Readonly<Record<string, string>> = {
+  "Adult New Patient Registration":
+    "Contact and insurance details, plus your dental and medical history. 2 pages.",
+  "Child New Patient Registration":
+    "Your child’s details, parent or guardian and insurance information, and health history. 2 pages.",
+  "Medical History Update":
+    "Returning patient? A one-page update of your physician, medications, allergies, and health history.",
+};
+
+const jumpLinks = [
+  { href: "#forms", label: "Forms" },
+  { href: "#first-visit", label: "Your first visit" },
+  { href: "#bring", label: "What to bring" },
+  { href: "#new-patient-faq", label: "FAQs" },
+] as const;
+
+const firstVisitSteps: readonly Step[] = [
+  {
+    title: "Request a visit",
+    meta: "About a minute",
+    body: (
+      <>
+        Request online or call the office. The team calls or emails within one business day to confirm a
+        time.
+      </>
+    ),
+  },
+  {
+    title: "Fill in your forms",
+    body: (
+      <>
+        Download the forms on this page, complete them before your appointment, and bring the completed copies.
+        Add your insurance carrier to your request so we can check benefits ahead of time.
+      </>
+    ),
+  },
+  {
+    title: "Arrive and settle in",
+    body: <>Arrive 15 minutes before your scheduled time so check-in and any remaining paperwork feel unhurried.</>,
+  },
+  {
+    title: "A comprehensive exam",
+    body: (
+      <>
+        <p>Dr. Wong performs a comprehensive examination and talks through your history, concerns, and goals.</p>
+        <ul className="mt-3 grid gap-1.5 sm:grid-cols-2">
+          {[
+            "Digital X-rays",
+            "Oral cancer screening",
+            "Gum disease evaluation",
+            "Review of dental and medical history",
+          ].map((item) => (
+            <li key={item} className="flex items-start gap-2">
+              <Check className="mt-1 h-4 w-4 shrink-0 text-evergreen-600" aria-hidden="true" />
+              {item}
+            </li>
+          ))}
+        </ul>
+      </>
+    ),
+  },
+  {
+    title: "A clear, personal plan",
+    body: (
+      <>
+        You get a personalized treatment plan with expected costs, including what insurance is likely to
+        cover, before you commit. We schedule any follow-up that makes sense.
+      </>
+    ),
+  },
+];
+
 const PatientResources = () => {
-  const [activeTab, setActiveTab] = useState("forms");
-  const patientResourceTestimonials = getTestimonialCollection("patientResources");
-
-  const faqs = [
-    {
-      question: "What should I expect during my first visit?",
-      answer: "During your first visit, Dr. Wong will perform a comprehensive examination including digital X-rays, oral cancer screening, and gum disease evaluation. You'll discuss your dental history, concerns, and goals. We'll create a personalized treatment plan and schedule any necessary follow-up appointments."
-    },
-    {
-      question: "How often should I have a dental checkup?",
-      answer: "Most patients benefit from professional cleanings and checkups every six months. However, Dr. Wong may recommend more frequent visits if you have specific oral health concerns like gum disease, a history of cavities, or certain medical conditions."
-    },
-    {
-      question: "What payment options do you offer?",
-      answer: "We work with most major PPO plans as an out-of-network provider. Many plans include out-of-network benefits, and our team can verify coverage before treatment. We also accept Visa, MasterCard, FSA/HSA funds, and offer an in-house dental plan."
-    },
-    {
-      question: "Do you offer emergency dental services?",
-      answer: "Yes, we provide emergency dental care. If you're experiencing severe pain, swelling, bleeding, or have a knocked-out tooth, please call our office immediately. We reserve time in our schedule for emergency appointments and will do our best to see you the same day."
-    },
-    {
-      question: "What safety measures do you follow?",
-      answer: "We follow current CDC and ADA infection-control guidelines to keep every visit safe. That includes rigorous sterilization, personal protective equipment for our team, and medical-grade air filtration throughout the office."
-    },
-  ];
-
-  const patientResourcesFAQ = buildFAQSchema(faqs, "/patient-resources");
-  const breadcrumbItems = [
-    { name: "Home", path: "/" },
-    { name: "Patient Resources", path: "/patient-resources" },
-  ];
-  const patientResourcesBreadcrumbs =
-    buildBreadcrumbSchema(breadcrumbItems);
-
   const structuredDataNodes: StructuredDataNode[] = [];
-  if (patientResourcesFAQ) {
-    structuredDataNodes.push(patientResourcesFAQ);
-  }
-  if (patientResourcesBreadcrumbs) {
-    structuredDataNodes.push(patientResourcesBreadcrumbs);
-  }
+  const faqSchema = buildFAQSchema(faqItems, "/patient-resources");
+  const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbItems);
+  if (faqSchema) structuredDataNodes.push(faqSchema);
+  if (breadcrumbSchema) structuredDataNodes.push(breadcrumbSchema);
 
   return (
     <>
-      <MetaTags 
-        title={pageTitles.patientResources}
-        description={pageDescriptions.patientResources}
-      />
-      {structuredDataNodes.length > 0 && (
-        <StructuredData data={structuredDataNodes} />
-      )}
-      <PageBreadcrumbs items={breadcrumbItems} />
-      {/* Hero Section */}
-      <section className="bg-[#F5F9FC] py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-heading text-[#333333] mb-6">Patient Resources</h1>
-            <p className="text-xl text-[#333333] max-w-3xl mx-auto">Everything you need to make your dental visit smooth and convenient, from patient forms to insurance information.</p>
+      <StructuredData data={structuredDataNodes} />
+
+      <PageHero
+        crumbs={breadcrumbItems}
+        eyebrow="New patients"
+        icon="forms"
+        title={
+          <>
+            New patients: your first visit <em>and forms</em>
+          </>
+        }
+        lead="Everything for your first visit to our Palo Alto office: what happens, what to bring, and the forms you can fill in ahead of time."
+        analyticsContext="new-patients-hero"
+        showReviews={false}
+        media={
+          <figure className="relative overflow-hidden rounded-[2rem] bg-cream-200 shadow-lift">
+            <div className="relative aspect-[16/10]">
+              <Image
+                src="/images/redesign/dr-wong-front-desk-laughing.webp"
+                alt="Dr. Christopher B. Wong laughing with two team members at the front desk"
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 45vw"
+                className="object-cover"
+                style={{ objectPosition: "60% 30%" }}
+              />
+            </div>
+            <figcaption className="absolute bottom-3 left-3 right-3 flex items-center gap-2 rounded-2xl bg-cream-50/90 px-4 py-2.5 text-sm font-semibold text-evergreen-900 backdrop-blur sm:bottom-4 sm:left-4 sm:right-auto">
+              <span className="h-2 w-2 shrink-0 rounded-full bg-evergreen-500" aria-hidden="true" />
+              New patients welcome, from first visits to family care
+            </figcaption>
+          </figure>
+        }
+      >
+        <nav aria-label="On this page" className="mt-6 flex flex-wrap gap-2">
+          {jumpLinks.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              className="pill min-h-11 transition-colors hover:border-evergreen-400 hover:text-evergreen-800"
+            >
+              {link.label}
+            </a>
+          ))}
+        </nav>
+      </PageHero>
+
+      {/* Forms */}
+      <Section id="forms" tone="white" labelledBy="forms-title" className="scroll-mt-24">
+        <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-14">
+          <div>
+            <SectionHeading
+              id="forms-title"
+              eyebrow="Patient forms"
+              title={
+                <>
+                  Fill in your forms <em>before you come</em>
+                </>
+              }
+              lead="Save time at check-in. Each form is a fillable PDF: type your answers, print, and bring the completed copies to your visit."
+            />
+            <p className="mt-6 flex items-start gap-3 rounded-2xl bg-cream-100 p-4 text-[15px] leading-6 text-ink-soft">
+              <Lock className="mt-0.5 h-5 w-5 shrink-0 text-evergreen-700" aria-hidden="true" />
+              <span>
+                Forms include health and insurance details, so please bring them to the office rather than
+                sending them through the website or email.
+              </span>
+            </p>
           </div>
+
+          <ul className="reveal-stagger grid content-start gap-3">
+            {patientResources.forms.map((form) => (
+              <li key={form.url}>
+                <a
+                  href={form.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="card card-lift group flex items-start gap-4 p-4 outline-none sm:items-center sm:gap-5 sm:p-5"
+                  data-analytics-context="new-patients-form"
+                >
+                  <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-evergreen-50 text-evergreen-700 transition-colors group-hover:bg-evergreen-800 group-hover:text-gold-300">
+                    <ServiceIcon name="forms" className="h-7 w-7" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-heading text-[1.2rem] font-medium leading-snug text-ink sm:text-[1.3rem]">
+                      {form.name}
+                    </span>
+                    {formNotes[form.name] ? (
+                      <span className="mt-1 block text-sm leading-6 text-ink-muted">{formNotes[form.name]}</span>
+                    ) : null}
+                    <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-evergreen-700">
+                      <Download className="h-4 w-4" aria-hidden="true" />
+                      {form.type}
+                      <span className="sr-only"> (opens in a new tab)</span>
+                    </span>
+                  </span>
+                  <ArrowRight
+                    className="hidden h-5 w-5 shrink-0 text-evergreen-600 transition-transform group-hover:translate-x-1 sm:block"
+                    aria-hidden="true"
+                  />
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
-      </section>
+      </Section>
 
-      {/* Resource Tabs */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Tabs defaultValue="forms" onValueChange={setActiveTab} className="w-full">
-            {/* Mobile Tab Navigation */}
-            <div className="block md:hidden mb-8">
-	              <div className="grid grid-cols-1 min-[420px]:grid-cols-2 gap-3 max-w-sm mx-auto">
-                <button
-                  onClick={() => setActiveTab("forms")}
-                  data-selected={activeTab === "forms" ? "true" : "false"}
-                  aria-pressed={activeTab === "forms"}
-                  className="ui-chip-interactive flex flex-col items-center justify-center rounded-xl p-4 text-gray-600"
-                >
-                  <FileText className="h-6 w-6 mb-2" />
-                  <span className="text-sm font-medium">Forms</span>
-                </button>
-                
-                <button
-                  onClick={() => setActiveTab("insurance")}
-                  data-selected={activeTab === "insurance" ? "true" : "false"}
-                  aria-pressed={activeTab === "insurance"}
-                  className="ui-chip-interactive flex flex-col items-center justify-center rounded-xl p-4 text-gray-600"
-                >
-                  <CreditCard className="h-6 w-6 mb-2" />
-                  <span className="text-sm font-medium">Insurance</span>
-                </button>
-                
-                <button
-                  onClick={() => setActiveTab("faq")}
-                  data-selected={activeTab === "faq" ? "true" : "false"}
-                  aria-pressed={activeTab === "faq"}
-                  className="ui-chip-interactive flex flex-col items-center justify-center rounded-xl p-4 text-gray-600"
-                >
-                  <HelpCircle className="h-6 w-6 mb-2" />
-                  <span className="text-sm font-medium">FAQs</span>
-                </button>
-                
-                <button
-                  onClick={() => setActiveTab("first-visit")}
-                  data-selected={activeTab === "first-visit" ? "true" : "false"}
-                  aria-pressed={activeTab === "first-visit"}
-                  className="ui-chip-interactive flex flex-col items-center justify-center rounded-xl p-4 text-gray-600"
-                >
-                  <Calendar className="h-6 w-6 mb-2" />
-                  <span className="text-sm font-medium">First Visit</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Desktop Tab Navigation */}
-            <div className="hidden md:flex justify-center mb-10">
-	              <TabsList className="bg-blue-50 p-1.5 rounded-3xl shadow-sm border border-blue-100 h-auto flex flex-wrap justify-center gap-1">
-	                <TabsTrigger 
-	                  value="forms" 
-	                  className="rounded-full px-4 py-2 text-sm md:px-6 md:py-3 md:text-base"
-	                >
-	                  <FileText className="h-5 w-5 mr-2" />
-	                  Forms
-	                </TabsTrigger>
-	                <TabsTrigger 
-	                  value="insurance" 
-	                  className="rounded-full px-4 py-2 text-sm md:px-6 md:py-3 md:text-base"
-	                >
-	                  <CreditCard className="h-5 w-5 mr-2" />
-	                  Insurance
-	                </TabsTrigger>
-	                <TabsTrigger 
-	                  value="faq" 
-	                  className="rounded-full px-4 py-2 text-sm md:px-6 md:py-3 md:text-base"
-	                >
-	                  <HelpCircle className="h-5 w-5 mr-2" />
-	                  FAQs
-	                </TabsTrigger>
-	                <TabsTrigger 
-	                  value="first-visit" 
-	                  className="rounded-full px-4 py-2 text-sm md:px-6 md:py-3 md:text-base"
-	                >
-	                  <Calendar className="h-5 w-5 mr-2" />
-	                  First Visit
-	                </TabsTrigger>
-	              </TabsList>
-            </div>
-
-            {/* Forms Tab */}
-            <TabsContent value="forms" className="mt-6">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold font-heading text-[#333333] mb-4">Patient Forms</h2>
-                <p className="text-[#333333] max-w-3xl mx-auto">Save time during your visit by downloading these forms and bringing the completed copies to the office.</p>
-              </div>
-
-              <div className="max-w-2xl mx-auto">
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <h3 className="text-xl font-bold font-heading text-[#333333] mb-4">Download Forms</h3>
-                  <p className="text-[#333333] mb-6">Print and complete these forms at home before your appointment.</p>
-                  
-                  <div className="space-y-4">
-                    {patientResources.forms.map((form, index) => (
-                      <a 
-                        key={index} 
-                        href={form.url} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="ui-card-interactive flex items-center justify-between rounded-xl border p-4"
-                      >
-                        <div className="flex items-center">
-                          <FileText className="h-5 w-5 text-primary mr-3" />
-                          <span>{form.name}</span>
-                        </div>
-                        <Button variant="ghost" size="sm" className="ui-focus-premium text-primary hover:bg-blue-50 hover:text-primary">
-                          <Download className="h-4 w-4 mr-1" />
-                          {form.type}
-                        </Button>
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-
-            {/* Insurance Tab */}
-            <TabsContent value="insurance" className="mt-6" id="insurance">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold font-heading text-[#333333] mb-4">Insurance & Financial Information</h2>
-                <p className="text-[#333333] max-w-3xl mx-auto">We are an out-of-network PPO provider, can help verify available benefits, and offer flexible payment options.</p>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <h3 className="text-xl font-bold font-heading text-[#333333] mb-4">PPO Benefit Verification</h3>
-                  <p className="text-[#333333] mb-4">Many PPO dental plans include out-of-network benefits.</p>
-                  
-                  <div className="bg-gray-50 p-5 rounded-lg border border-gray-200 mb-5">
-                    <div className="flex items-start">
-                      <CheckCircle className="h-5 w-5 text-primary mt-1 mr-3 flex-shrink-0" />
-                      <p>We accept most major PPO dental insurance plans as an out-of-network provider. Please contact our office to verify your specific plan's coverage before your appointment.</p>
-                    </div>
-                  </div>
-                  
-                  <p className="text-[#333333]">Not sure if we accept your insurance? Contact our office and our friendly staff will help you determine your coverage. For a full walkthrough of how out-of-network PPO coverage works and every way to pay, see our <Link href="/insurance" className="ui-link-premium">insurance &amp; payment options guide</Link>.</p>
-                </div>
-                
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <h3 className="text-xl font-bold font-heading text-[#333333] mb-4">Payment Options</h3>
-                  <p className="text-[#333333] mb-6">We offer several payment options to help you receive the dental care you need:</p>
-                  
-                  <div className="space-y-4">
-                    <div className="ui-card-interactive rounded-xl border p-4">
-                      <h4 className="font-semibold text-[#333333] mb-1">Credit Cards</h4>
-                      <p className="text-sm text-[#333333]">We accept Visa and MasterCard.</p>
-                    </div>
-                    
-                    <div className="ui-card-interactive rounded-xl border p-4">
-                      <h4 className="font-semibold text-[#333333] mb-1">Flexible Spending Accounts (FSA)</h4>
-                      <p className="text-sm text-[#333333]">We accept FSA cards for qualified dental procedures and treatments.</p>
-                    </div>
-                    
-                    <div className="ui-card-interactive rounded-xl border p-4">
-                      <h4 className="font-semibold text-[#333333] mb-1">In-House Dental Plan</h4>
-                      <p className="text-sm text-[#333333]">For patients without insurance, we offer an in-house dental plan with significant savings on preventive care and treatments.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-
-            {/* FAQ Tab */}
-            <TabsContent value="faq" className="mt-6">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold font-heading text-[#333333] mb-4">Frequently Asked Questions</h2>
-                <p className="text-[#333333] max-w-3xl mx-auto">Find answers to common questions about our dental services and procedures.</p>
-              </div>
-
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <Accordion type="single" collapsible className="w-full">
-                  {faqs.map((faq, index) => (
-                    <AccordionItem key={index} value={`item-${index}`}>
-                      <AccordionTrigger className="text-left font-semibold text-[#333333]">{faq.question}</AccordionTrigger>
-                      <AccordionContent className="text-[#333333]">
-                        {faq.answer}
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              </div>
-
-              <div className="mt-8 text-center">
-                <p className="text-[#333333] mb-4">Don't see your question here? Feel free to contact us!</p>
-                <Button asChild className="ui-btn-primary font-semibold">
-                  <Link href="/contact">
-                    Contact Us
-                  </Link>
-                </Button>
-              </div>
-            </TabsContent>
-
-            {/* First Visit Tab */}
-            <TabsContent value="first-visit" className="mt-6">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold font-heading text-[#333333] mb-4">What to Expect on Your First Visit</h2>
-                <p className="text-[#333333] max-w-3xl mx-auto">We want your first visit to be comfortable and informative. Here's what you can expect when you visit our office.</p>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <h3 className="text-xl font-bold font-heading text-[#333333] mb-4">During Your First Visit</h3>
-                  <ul className="space-y-3">
-                    <li className="flex items-start">
-                      <CheckCircle className="h-5 w-5 text-primary mt-1 mr-3" />
-                      <span>Comprehensive dental examination</span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="h-5 w-5 text-primary mt-1 mr-3" />
-                      <span>Digital X-rays for accurate diagnostics</span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="h-5 w-5 text-primary mt-1 mr-3" />
-                      <span>Oral cancer screening</span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="h-5 w-5 text-primary mt-1 mr-3" />
-                      <span>Gum disease evaluation</span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="h-5 w-5 text-primary mt-1 mr-3" />
-                      <span>Review of dental and medical history</span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="h-5 w-5 text-primary mt-1 mr-3" />
-                      <span>Discussion of your dental concerns and goals</span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="h-5 w-5 text-primary mt-1 mr-3" />
-                      <span>Development of a personalized treatment plan</span>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <h3 className="text-xl font-bold font-heading text-[#333333] mb-4">How to Prepare</h3>
-                  <p className="text-[#333333] mb-6">To make your first visit as smooth as possible, please:</p>
-                  
-                  <div className="space-y-4 mb-8">
-                    <div className="flex items-start">
-                      <div className="bg-primary rounded-full p-3 w-12 h-12 flex items-center justify-center mr-4">
-                        <FileText className="h-6 w-6 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-[#333333] mb-1">Complete Your Forms</h4>
-                        <p className="text-sm text-[#333333]">Save time by completing your new patient forms before your appointment, either online or by downloading and bringing them with you.</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start">
-                      <div className="bg-primary rounded-full p-3 w-12 h-12 flex items-center justify-center mr-4">
-                        <CreditCard className="h-6 w-6 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-[#333333] mb-1">Bring Your Insurance Information</h4>
-                        <p className="text-sm text-[#333333]">Have your dental insurance card and identification ready so we can help maximize your benefits.</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start">
-                      <div className="bg-primary rounded-full p-3 w-12 h-12 flex items-center justify-center mr-4">
-                        <Calendar className="h-6 w-6 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-[#333333] mb-1">Arrive 15 Minutes Early</h4>
-                        <p className="text-sm text-[#333333]">This gives you time to check in, complete any remaining paperwork, and get comfortable before your appointment.</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <Button asChild className="ui-btn-primary w-full font-semibold">
-                    <Link href="/schedule#appointment">
-                      Request an appointment
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
+      {/* First visit */}
+      <Section id="first-visit" tone="cream" labelledBy="first-visit-title" className="scroll-mt-24">
+        <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+          <div className="lg:sticky lg:top-[calc(var(--header-height,76px)+2rem)] lg:self-start">
+            <SectionHeading
+              id="first-visit-title"
+              eyebrow="Your first visit"
+              title={
+                <>
+                  What to expect, <em>step by step</em>
+                </>
+              }
+              lead="We want your first visit to be comfortable and informative, with clear answers before any treatment."
+            />
+            <Link
+              href="/schedule?intent=preventive#appointment"
+              className="btn btn-primary mt-8"
+              data-analytics-context="new-patients-steps-request"
+            >
+              Request a new-patient visit
+              <ArrowRight aria-hidden="true" />
+            </Link>
+          </div>
+          <Steps steps={firstVisitSteps} />
         </div>
-      </section>
+      </Section>
 
-      <TestimonialSection
-        className="bg-white"
-        eyebrow="Google Reviews"
-        title="New patients often mention how easy the first visit feels"
-        subtitle="The reviews that fit this page best talk about clear answers, welcoming staff, thoughtful treatment planning, and help navigating insurance and next steps."
-        testimonials={patientResourceTestimonials}
-      />
+      {/* What to bring + insurance check */}
+      <Section id="bring" tone="white" labelledBy="bring-title" className="scroll-mt-24">
+        <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
+          <div className="card p-6 sm:p-8">
+            <p className="eyebrow">Checklist</p>
+            <h2 id="bring-title" className="h-section mt-3 text-[1.9rem] sm:text-[2.3rem]">
+              What to <em>bring</em>
+            </h2>
+            <ul className="mt-6 grid gap-3">
+              {patientResources.prepareForVisit.map((item) => (
+                <li key={item} className="flex items-start gap-3 text-[15px] leading-6 text-ink">
+                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-evergreen-800 text-gold-300">
+                    <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                  </span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-6 flex items-start gap-3 border-t border-cream-300/70 pt-5 text-[15px] leading-6 text-ink-soft">
+              <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-evergreen-600" aria-hidden="true" />
+              <p>
+                <strong className="font-semibold text-ink">Getting here:</strong> nearby street and lot parking. Ask
+                the front desk for the best option when you schedule.{" "}
+                <Link href="/contact#visit" className="link-rooted">
+                  Hours &amp; directions
+                </Link>
+              </p>
+            </div>
+          </div>
 
-      {/* CTA Section */}
-      <section className="py-16 bg-[#F5F9FC]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-lg shadow-xl overflow-hidden">
-            <div className="md:flex">
-              <div className="md:w-1/2 p-8 md:p-12 bg-primary text-white">
-                <div className="flex items-center mb-6">
-                  <Shield className="h-8 w-8 mr-4" />
-                  <h3 className="text-2xl font-bold font-heading">Patient Privacy</h3>
-                </div>
-                <p className="mb-6">At Dr. Wong&apos;s practice, we take your privacy seriously. Please use the downloadable forms for health details and bring the completed copies to the office rather than sending sensitive medical information through the website contact form.</p>
-                <p>If you have any questions about our privacy practices or how we handle your information, please don't hesitate to contact our office.</p>
-              </div>
-              
-              <div className="md:w-1/2 p-8 md:p-12">
-                <h3 className="text-2xl font-bold font-heading text-[#333333] mb-4">Need Assistance?</h3>
-                <p className="text-[#333333] mb-6">Our friendly team is here to help you with any questions about forms, insurance, or preparing for your appointment.</p>
-                <div className="space-y-4">
-                  <div className="flex items-start">
-                    <ArrowRight className="h-5 w-5 text-primary mt-1 mr-3" />
-                    <span>Call us at {officeInfo.phone}</span>
-                  </div>
-
-                  <div className="flex items-start">
-                    <ArrowRight className="h-5 w-5 text-primary mt-1 mr-3" />
-                    <span>Visit our office at {officeInfo.address.line1}, {officeInfo.address.line2}</span>
-                  </div>
-                </div>
-                <div className="mt-8">
-                  <Button asChild className="ui-btn-primary font-semibold">
-                    <Link href="/contact">
-                      Contact Us
-                    </Link>
-                  </Button>
-                </div>
-              </div>
+          <div className="surface-evergreen on-dark relative overflow-hidden rounded-[1.75rem] p-6 shadow-lift sm:p-8">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-[url('/brand/roots-glow.svg')] bg-[length:900px_225px] bg-[position:center_-10px] bg-no-repeat opacity-[0.16]"
+            />
+            <div className="relative">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-gold-300">
+                <ShieldCheck className="h-6 w-6" aria-hidden="true" />
+              </span>
+              <h2 className="h-section mt-5 text-[1.9rem] sm:text-[2.3rem]">
+                We check your <em>insurance first</em>
+              </h2>
+              <p className="mt-4 text-[15px] leading-7 text-evergreen-100">
+                We’re an out-of-network provider for PPO plans, and many PPO plans include out-of-network
+                benefits. Add your carrier when you request a visit and we’ll verify your benefits before you
+                arrive. No insurance? Ask about our in-house dental plan. We accept Visa, MasterCard, and FSA/HSA
+                funds.
+              </p>
+              <Link
+                href="/insurance"
+                className="btn btn-outline-light mt-6"
+                data-analytics-context="new-patients-insurance"
+              >
+                How insurance and payment work
+                <ArrowRight aria-hidden="true" />
+              </Link>
             </div>
           </div>
         </div>
-      </section>
+      </Section>
+
+      <ServiceReviews
+        tags={["visit", "gentle", "honest"]}
+        title={
+          <>
+            What patients say <em>about visiting</em>
+          </>
+        }
+      />
+
+      <Section id="new-patient-faq" tone="white" labelledBy="new-patient-faq-title" className="scroll-mt-24">
+        <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+          <div>
+            <SectionHeading
+              id="new-patient-faq-title"
+              eyebrow="Questions"
+              title={
+                <>
+                  New patient <em>FAQs</em>
+                </>
+              }
+              lead="Don’t see your question here? Send us a note or call the front desk."
+            />
+            <Link href="/contact" className="btn btn-outline mt-8" data-analytics-context="new-patients-faq-contact">
+              Contact the office
+              <ArrowRight aria-hidden="true" />
+            </Link>
+          </div>
+          <FaqList items={faqItems} defaultOpen={-1} />
+        </div>
+      </Section>
+
+      <CtaBand
+        analyticsContext="new-patients-cta"
+        title={
+          <>
+            Ready for your <em>first visit?</em>
+          </>
+        }
+      />
     </>
   );
 };

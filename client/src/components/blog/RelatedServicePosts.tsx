@@ -1,134 +1,72 @@
-import { AlertCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 import BlogPostCard from "@/components/common/BlogPostCard";
-import { normalizeBlogCategory, useBlogPosts } from "@/hooks/useBlogPosts";
+import { blogIndex } from "@/data/blogIndex";
+import { cn } from "@/lib/utils";
+import { normalizeCategory, postsForService } from "./blogTopics";
 
 interface RelatedServicePostsProps {
   serviceSlug: string;
   serviceName: string;
   ctaHref?: string;
   category?: string;
+  className?: string;
 }
 
+// Hrefs that now redirect; point the CTA at the live equivalent instead.
+const RETIRED_CTA: Readonly<Record<string, string>> = {
+  "/invisalign/resources": "/blog?category=invisalign",
+};
+
+/**
+ * "From the blog" band for service pages. Reads the static blog index, so the
+ * three cards (real internal links) render identically on the server and the
+ * client — no fetch, no skeleton, no hydration mismatch. Renders nothing when
+ * no post relates to the service.
+ */
 const RelatedServicePosts = ({
   serviceSlug,
   serviceName,
-  ctaHref = "/blog",
+  ctaHref,
   category,
+  className,
 }: RelatedServicePostsProps) => {
-  const { posts, isLoading, isError, error } = useBlogPosts();
-  const normalizedCategory = category
-    ? normalizeBlogCategory(category)
-    : null;
-  const normalizedService = serviceSlug.trim().toLowerCase();
-  const matchesCategory = (postCategory?: string | null) =>
-    normalizedCategory &&
-    normalizeBlogCategory(postCategory ?? undefined) === normalizedCategory;
-  const matchesService = (relatedServices?: string[] | null) =>
-    Boolean(
-      normalizedService &&
-        relatedServices?.some(
-          (slug) => slug.trim().toLowerCase() === normalizedService,
-        ),
-    );
-  const parsePostDate = (dateValue: string) => {
-    const parsed = Date.parse(dateValue);
-    return Number.isNaN(parsed) ? 0 : parsed;
-  };
-  const filteredPosts = posts
-    .filter((post) =>
-      normalizedCategory
-        ? matchesCategory(post.category)
-        : matchesService(post.relatedServices),
-    )
-    .sort((a, b) => parsePostDate(b.date) - parsePostDate(a.date));
-  const displayedPosts = filteredPosts.slice(0, 4);
-  const hasPosts = displayedPosts.length > 0;
-  const errorMessage =
-    error instanceof Error
-      ? error.message
-      : "We couldn't load related articles. Please try again later.";
+  const posts = postsForService(blogIndex, serviceSlug, category, 3);
+  if (!posts.length) return null;
 
-  const renderSkeleton = (
-    <div className="grid md:grid-cols-3 gap-6">
-      {[...Array(3)].map((_, index) => (
-        <div
-          key={index}
-          className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse"
-        >
-          <div className="w-full h-40 bg-gray-200" />
-          <div className="p-5 space-y-3">
-            <div className="h-3 bg-gray-200 rounded w-1/3" />
-            <div className="h-4 bg-gray-200 rounded w-3/4" />
-            <div className="h-4 bg-gray-200 rounded w-2/3" />
-            <div className="h-4 bg-gray-200 rounded w-1/2" />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-
-  const renderEmpty = (
-    <div className="bg-white rounded-lg shadow-md p-8 text-center">
-      <p className="text-[#333333]">
-        We don’t have related articles to show right now. In the meantime,
-        explore the full blog for additional resources.
-      </p>
-    </div>
-  );
-
-  const renderError = (
-    <div className="bg-white rounded-lg shadow-md p-8 text-center text-[#333333]">
-      <div className="flex items-center justify-center mb-4 text-red-500">
-        <AlertCircle className="h-6 w-6 mr-2" />
-        <span>Unable to load related articles</span>
-      </div>
-      <p>{errorMessage}</p>
-    </div>
-  );
-
-  const renderPosts = (
-    <div className="grid md:grid-cols-3 gap-6">
-      {displayedPosts.map((post) => (
-        <BlogPostCard key={post.id} post={post} />
-      ))}
-    </div>
-  );
+  const allHref =
+    (ctaHref && (RETIRED_CTA[ctaHref] ?? ctaHref)) ||
+    (category ? `/blog?category=${normalizeCategory(category)}` : "/blog");
+  const titleId = `related-posts-${serviceSlug.replace(/[^a-z0-9-]/gi, "")}`;
 
   return (
-    <section className="py-16 bg-[#F5F9FC]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-10">
-          <div>
-            <p className="text-sm uppercase tracking-wide text-primary font-semibold mb-2">
-              From the Blog
-            </p>
-            <h2 className="text-3xl font-heading font-bold text-[#333333]">
-              Latest insights on {serviceName}
+    <section aria-labelledby={titleId} className={cn("bg-cream-100 py-12 sm:py-20", className)}>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <div className="max-w-2xl">
+            <p className="eyebrow">From the blog</p>
+            <h2 id={titleId} className="h-section mt-4 text-balance">
+              {serviceName} <em>guides</em>
             </h2>
-            <p className="text-[#333333] mt-2">
-              Expert advice, treatment guides, and real patient stories related to{" "}
-              {serviceName.toLowerCase()}.
-            </p>
+            <p className="lead mt-4 hidden sm:block">Plain-language answers from our office, written for patients.</p>
           </div>
-          <Button asChild className="ui-btn-primary mt-6 inline-flex items-center sm:mt-0">
-            <Link href={ctaHref}>
-              {normalizedCategory
-                ? `View all ${serviceName} articles`
-                : "View All Articles"}
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
+          <Link
+            href={allHref}
+            className="btn btn-outline self-start sm:self-auto"
+            data-analytics-context={`related-posts-${serviceSlug}`}
+          >
+            All articles
+            <ArrowRight aria-hidden="true" />
+          </Link>
         </div>
-
-        {isError
-          ? renderError
-          : isLoading
-            ? renderSkeleton
-            : hasPosts
-              ? renderPosts
-              : renderEmpty}
+        {/* Phones: a swipe row; md+: three columns. */}
+        <ul className="reveal-stagger -mx-4 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 [scroll-padding-inline:1rem] md:mx-0 md:mt-10 md:grid md:grid-cols-3 md:gap-5 md:overflow-visible md:px-0 md:pb-0">
+          {posts.map((post) => (
+            <li key={post.slug} className="w-[80%] max-w-[21rem] shrink-0 snap-start md:w-auto md:max-w-none">
+              <BlogPostCard post={post} />
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );

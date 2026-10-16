@@ -5,10 +5,12 @@ import {
   ArrowRight,
   BadgeCheck,
   Car,
+  ClipboardList,
   Clock,
   CreditCard,
   GraduationCap,
   MapPin,
+  Phone,
   PiggyBank,
   ShieldCheck,
 } from "lucide-react";
@@ -25,16 +27,48 @@ import { featuredQuote, homeRibbonQuotes } from "@/data/reviewHighlights";
 import { drWong, team } from "@/data/team";
 import { fullCircleFilm, fullCircleShort } from "@/data/fullCircleFilm";
 import { fullCircleTranscript } from "@/data/fullCircleTranscript";
+import { SpiderDrop } from "@/components/seasonal/HomeSeasonal";
 
 // The player is interactive-only chrome: its chunk loads alongside hydration
 // instead of counting toward the homepage's First Load JS.
 const StoryFilm = dynamic(() => import("@/components/video/StoryFilm"));
 
+/* ------------------------------------------------------ Current patients */
+export function CurrentPatientStrip() {
+  const linkClass =
+    "inline-flex min-h-11 items-center gap-2 rounded-full px-3 text-[15px] font-semibold text-evergreen-800 transition-colors hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-evergreen-500";
+  return (
+    <nav aria-label="For current patients" className="border-y border-cream-300/70 bg-cream-100/80">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-2 gap-y-1 px-4 py-2 sm:px-6 lg:px-8">
+        <span className="mr-2 text-sm font-semibold text-ink-muted">Already a patient?</span>
+        <Link href="/patient-resources" className={linkClass}>
+          <ClipboardList className="h-4 w-4" aria-hidden="true" />
+          Patient forms
+        </Link>
+        <Link href="/contact" className={linkClass}>
+          <Clock className="h-4 w-4" aria-hidden="true" />
+          Hours &amp; directions
+        </Link>
+        <a
+          href={`tel:${officeInfo.phoneE164}`}
+          data-analytics-context="current-patient-bar"
+          className={linkClass}
+          aria-label={`Call Dr. Wong's office at ${officeInfo.phone}`}
+        >
+          <Phone className="h-4 w-4" aria-hidden="true" />
+          {officeInfo.phone}
+        </a>
+      </div>
+    </nav>
+  );
+}
+
 /* ---------------------------------------------------------------- Reviews */
 export function ReviewRibbon() {
   const half = Math.ceil(homeRibbonQuotes.length / 2);
   return (
-    <section aria-labelledby="ribbon-title" className="bg-white py-14 sm:py-16">
+    <section aria-labelledby="ribbon-title" className="relative bg-white py-14 sm:py-16">
+      <SpiderDrop className="right-[6%] top-0 h-40 w-12 overflow-hidden sm:right-[12%]" />
       <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 sm:flex-row sm:items-end sm:justify-between sm:px-6 lg:px-8">
         <div>
           <p className="eyebrow">In their words</p>
@@ -133,10 +167,10 @@ export function StorySection() {
           eyebrow={<span className="text-mint-300">A short film · Full Circle</span>}
           title={
             <>
-              The story behind <em>the practice</em>
+              Three dentists, one practice, <em>full circle</em>
             </>
           }
-          lead="How Dr. Wong found his way to dentistry, the mentor who handed him the practice, and why so many families have stayed for decades."
+          lead="How Dr. Wong found dentistry, how Dr. Kris Hamamoto came to hand him the practice she took over from Dr. Benson Kanemoto, and why the same team still greets families who have been coming for decades."
         />
         <div className="mt-10">
           <StoryFilm
@@ -230,11 +264,68 @@ export function TeamSection() {
               <TeamCard member={member} />
             </li>
           ))}
+          {/* Fills the grid's last slot (2 cols: 8th cell; lg 3 cols: spans 2; xl 4 cols: 8th cell). */}
+          <li className="w-[78vw] max-w-[20rem] sm:w-auto sm:max-w-none lg:col-span-2 xl:col-span-1">
+            <div className="surface-evergreen on-dark flex h-full flex-col justify-between gap-6 rounded-[1.75rem] p-6 sm:p-7">
+              <div>
+                <p className="eyebrow eyebrow-light">Before your visit</p>
+                <h3 className="h-card mt-3 text-[1.6rem] leading-tight">
+                  Questions? <em>Just ask.</em>
+                </h3>
+                <p className="mt-3 text-[15px] leading-6 text-evergreen-100">
+                  The front desk can check your insurance benefits, explain costs,
+                  and find a visit time that fits your week.
+                </p>
+              </div>
+              <div className="flex flex-col gap-3">
+                <Link
+                  href="/schedule#appointment"
+                  className="btn btn-gold"
+                  data-analytics-context="home-team-request"
+                >
+                  Request a visit
+                </Link>
+                <a
+                  href={`tel:${officeInfo.phoneE164}`}
+                  className="btn btn-outline-light"
+                  data-analytics-context="home-team-call"
+                >
+                  <Phone aria-hidden="true" />
+                  {officeInfo.phone}
+                </a>
+              </div>
+            </div>
+          </li>
         </ul>
         <p className="mt-2 px-4 text-center text-sm text-ink-muted sm:hidden" aria-hidden="true">
           Swipe to meet everyone →
         </p>
       </div>
+
+      <figure className="relative mt-10 overflow-hidden rounded-[2rem] bg-cream-200 shadow-soft">
+        <div className="relative aspect-[4/3] sm:aspect-[16/8] lg:aspect-[16/7]">
+          <Image
+            src="/images/redesign/team-group-reception.webp"
+            alt="Dr. Christopher B. Wong and the dental team standing together in the office reception area"
+            fill
+            sizes="(max-width: 1280px) 100vw, 1200px"
+            className="object-cover object-[50%_55%]"
+          />
+        </div>
+        <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-evergreen-950/75 to-transparent" />
+        <figcaption className="absolute inset-x-0 bottom-0 flex flex-col gap-3 p-5 text-cream-50 sm:flex-row sm:items-end sm:justify-between sm:p-8">
+          <span>
+            <span className="block font-heading text-2xl leading-tight sm:text-3xl">
+              Same faces, <em className="text-gold-300">visit after visit</em>
+            </span>
+            <span className="mt-1 block text-sm text-cream-100/90">Dr. Wong and the team in the reception area</span>
+          </span>
+          <Link href="/about#team" className="btn btn-outline-light btn-sm self-start sm:self-auto">
+            Meet everyone
+            <ArrowRight aria-hidden="true" />
+          </Link>
+        </figcaption>
+      </figure>
     </Section>
   );
 }
@@ -287,7 +378,7 @@ export function OfficeSection() {
           <Image src="/images/office/garden-view-operatory.webp" alt="Treatment room with a window onto the garden" fill sizes="(max-width: 1024px) 50vw, 25vw" className="object-cover" />
         </figure>
         <figure className="relative aspect-[4/3] overflow-hidden rounded-[1.75rem] lg:aspect-auto">
-          <Image src="/images/office/quiet-garden-courtyard.webp" alt="The quiet garden courtyard outside the treatment rooms" fill sizes="(max-width: 1024px) 50vw, 25vw" className="object-cover" />
+          <Image src="/images/redesign/office-reception-waiting.webp" alt="Reception and waiting area with wood-slat walls and navy seating" fill sizes="(max-width: 1024px) 50vw, 25vw" className="object-cover" />
         </figure>
         {easyParking ? (
           <div className="sm:col-span-2">
@@ -404,11 +495,11 @@ export function VisitSection() {
         <div className="card overflow-hidden">
           <div className="relative aspect-[16/9]">
             <Image
-              src="/images/office/atrium-courtyard.webp"
-              alt="The courtyard entrance to the office on Cambridge Avenue"
+              src="/images/redesign/office-entrance-dr-wong.webp"
+              alt="Dr. Christopher B. Wong in a white coat at the office entrance, beside the practice sign"
               fill
               sizes="(max-width: 1024px) 100vw, 45vw"
-              className="object-cover"
+              className="object-cover object-[60%_35%]"
             />
           </div>
           <div className="grid gap-6 p-6 sm:grid-cols-2 sm:p-7">

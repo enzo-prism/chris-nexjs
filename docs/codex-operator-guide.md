@@ -238,8 +238,10 @@ If one changes, verify the others still agree.
 - raw source in `attached_assets/`
 - import/audit scripts in `scripts/`
 - follow `docs/reviews-data.md`
-- homepage quotes: `client/src/data/homeProof.ts`, verified verbatim by
-  `scripts/homepage-proof.test.ts` (part of `pnpm test:reviews`)
+- patient quotes: `client/src/data/reviewHighlights.ts` (homepage),
+  `client/src/data/serviceReviews.ts` (service/location pages), and
+  `client/src/data/team.ts` (team cards), verified verbatim (and "named in N+
+  reviews" counts) by `scripts/homepage-proof.test.ts` (part of `pnpm test:reviews`)
 
 ## Recommended task checklists
 

@@ -1,80 +1,92 @@
-import { CheckCircle2, Phone } from "lucide-react";
-import { officeInfo, insuranceProviders } from "@/lib/data";
-import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { ArrowRight, Check, CreditCard, PiggyBank, ShieldCheck } from "lucide-react";
+
+import { insuranceProviders } from "@/lib/data";
+import { Section } from "@/components/ds/Section";
+import { SectionHeading } from "@/components/ds/SectionHeading";
 
 type InsuranceInfoSectionProps = {
+  readonly id?: string;
   readonly className?: string;
-  readonly title?: string;
+  readonly title?: React.ReactNode;
   readonly subtitle?: string;
 };
 
+// Payment copy must match AGENTS.md: Visa, MasterCard, FSA/HSA, and the
+// in-house dental plan; PPO plans are out-of-network. Keep in lockstep with
+// pages/Insurance.tsx and the payment FAQ in lib/data.ts.
+const notes = [
+  {
+    icon: ShieldCheck,
+    title: "PPO plans, out-of-network",
+    body: "Many PPO plans still pay a share of your care here. We check your benefits before treatment.",
+  },
+  {
+    icon: PiggyBank,
+    title: "No insurance?",
+    body: "Ask about our in-house dental plan, with savings on preventive care and treatment.",
+  },
+  {
+    icon: CreditCard,
+    title: "Ways to pay",
+    body: "Visa, MasterCard, and FSA/HSA funds.",
+  },
+] as const;
+
+/** Compact insurance + payment summary with the PPO plans we help verify. */
 export default function InsuranceInfoSection({
+  id = "insurance-info",
   className,
-  title = "Insurance Information",
-  subtitle = "We are an out-of-network PPO provider. Many PPO plans still include benefits, and our team can verify yours before treatment.",
+  title = (
+    <>
+      Insurance, <em>explained simply</em>
+    </>
+  ),
+  subtitle = "You’ll hear what your plan is expected to pay, and what your portion would be, before treatment begins.",
 }: InsuranceInfoSectionProps): React.JSX.Element {
   return (
-    <section className={cn("bg-[#F5F9FC] py-16", className)}>
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-12 text-center">
-          <h2 className="mb-4 text-3xl font-bold font-heading text-[#333333]">
-            {title}
-          </h2>
-          <p className="mx-auto max-w-3xl text-[#333333]">{subtitle}</p>
-          <div className="mx-auto mt-4 h-1 w-24 bg-primary" />
+    <Section id={id} tone="paper" labelledBy={`${id}-title`} className={className}>
+      <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16">
+        <div>
+          <SectionHeading id={`${id}-title`} eyebrow="Insurance & payment" title={title} lead={subtitle} />
+          <ul className="mt-8 grid gap-3">
+            {notes.map((note) => {
+              const Icon = note.icon;
+              return (
+                <li key={note.title} className="flex items-start gap-4">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-evergreen-800 text-gold-300">
+                    <Icon className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <span className="text-[15px] leading-6 text-ink-soft">
+                    <strong className="block font-semibold text-ink">{note.title}</strong>
+                    {note.body}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
         </div>
 
-        <div className="rounded-xl bg-white p-8 shadow-md">
-          <div className="grid gap-8 md:grid-cols-2">
-            <div>
-              <h3 className="mb-4 text-xl font-bold font-heading text-[#333333]">
-                PPO Plans We Can Help Verify
-              </h3>
-              <ul className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
-                {insuranceProviders.map((provider) => (
-                  <li key={provider} className="flex items-center">
-                    <CheckCircle2
-                      className="mr-3 h-5 w-5 text-primary"
-                      aria-hidden="true"
-                    />
-                    <span>{provider}</span>
-                  </li>
-                ))}
-                <li className="flex items-center">
-                  <CheckCircle2
-                    className="mr-3 h-5 w-5 text-primary"
-                    aria-hidden="true"
-                  />
-                  <span>And more PPO plans</span>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="mb-4 text-xl font-bold font-heading text-[#333333]">
-                Insurance Questions?
-              </h3>
-              <p className="mb-4 text-[#333333]">
-                Our team can help verify your benefits before your visit and walk
-                through expected out-of-pocket costs.
-              </p>
-              <p className="mb-4 text-[#333333]">
-                If you do not have insurance, ask about our in-house dental plan.
-                We also accept Visa, MasterCard, and FSA/HSA funds.
-              </p>
-              <p className="flex items-center text-[#333333]">
-                <Phone className="mr-2 h-5 w-5 text-primary" aria-hidden="true" />
-                <a
-                  href={`tel:${officeInfo.phoneE164}`}
-                  className="font-semibold hover:text-primary"
-                >
-                  Call us at {officeInfo.phone}
-                </a>
-              </p>
-            </div>
-          </div>
+        <div className="card self-start p-6 sm:p-8">
+          <h3 className="h-card">PPO plans we can help verify</h3>
+          <p className="mt-2 text-[15px] leading-6 text-ink-muted">
+            Patients often use these plans here. Don’t see yours? Ask us, since most PPO plans include out-of-network benefits.
+          </p>
+          <ul className="mt-6 flex flex-wrap gap-2">
+            {insuranceProviders.map((provider) => (
+              <li key={provider} className="pill">
+                <Check className="h-3.5 w-3.5 text-evergreen-600" aria-hidden="true" />
+                {provider}
+              </li>
+            ))}
+            <li className="pill border-dashed text-ink-muted">And more PPO plans</li>
+          </ul>
+          <Link href="/insurance" className="btn btn-outline mt-8 w-full sm:w-auto">
+            How insurance and payment work
+            <ArrowRight aria-hidden="true" />
+          </Link>
         </div>
       </div>
-    </section>
+    </Section>
   );
 }

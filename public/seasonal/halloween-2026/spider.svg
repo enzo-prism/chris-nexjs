@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 44">
+  <!-- A friendly spider for the October seasonal layer. -->
+  <g stroke="#14231D" stroke-width="2.2" stroke-linecap="round" fill="none">
+    <path d="M17 20c-5-4-9-4-13 0M16 24c-5-1-9 1-12 6M17 28c-4 1-7 5-8 10M31 20c5-4 9-4 13 0M32 24c5-1 9 1 12 6M31 28c4 1 7 5 8 10"/>
+  </g>
+  <ellipse cx="24" cy="26" rx="9" ry="10" fill="#14231D"/>
+  <circle cx="24" cy="14.5" r="6.5" fill="#14231D"/>
+  <circle cx="21.6" cy="14" r="2.2" fill="#fff"/><circle cx="26.4" cy="14" r="2.2" fill="#fff"/>
+  <circle cx="22" cy="14.4" r="1" fill="#14231D"/><circle cx="26.8" cy="14.4" r="1" fill="#14231D"/>
+  <path d="M21.5 18.2q2.5 1.8 5 0" stroke="#F2761F" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+</svg>

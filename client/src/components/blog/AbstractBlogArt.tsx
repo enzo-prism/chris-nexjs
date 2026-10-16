@@ -1,184 +1,217 @@
-import { getBlogArtSpec, BLOG_ART_VIEWBOX } from "@shared/blogArt";
+import type { ReactNode } from "react";
+import { ServiceIcon } from "@/components/ds/ServiceIcon";
 import { cn } from "@/lib/utils";
+import { blogIndex } from "@/data/blogIndex";
+import { topicFor, type CoverTone } from "./blogTopics";
 
-type AbstractBlogArtProps = {
-  slug: string;
-  className?: string;
+/**
+ * Branded blog cover: the topic's tone, its line icon inside redwood growth
+ * rings (the practice mark's motif), the category, and optionally the title.
+ * Pure CSS/SVG: no images to download, no AI art, identical on server and
+ * client.
+ */
+
+type ToneStyle = {
+  readonly surface: string;
+  readonly highlight: string;
+  readonly title: string;
+  readonly chip: string;
+  readonly icon: string;
+  readonly iconWell: string;
+  readonly rings: string;
 };
 
-function sanitizeId(value: string): string {
-  return value.replace(/[^a-zA-Z0-9_-]/g, "-");
+// Literal class strings so Tailwind keeps them.
+const toneStyles: Record<CoverTone, ToneStyle> = {
+  night: {
+    surface: "bg-evergreen-900",
+    highlight:
+      "radial-gradient(30rem 18rem at 100% 0%, rgba(63,191,152,0.22), transparent 62%), radial-gradient(26rem 16rem at 0% 100%, rgba(224,182,94,0.14), transparent 60%)",
+    title: "text-cream-50",
+    chip: "bg-white/10 text-gold-200 ring-1 ring-white/15",
+    icon: "text-gold-300",
+    iconWell: "bg-evergreen-950/60 ring-1 ring-white/10",
+    rings: "text-mint-300/30",
+  },
+  cream: {
+    surface: "bg-cream-100",
+    highlight:
+      "radial-gradient(30rem 18rem at 100% 0%, rgba(176,209,193,0.45), transparent 62%), radial-gradient(26rem 16rem at 0% 100%, rgba(243,224,176,0.55), transparent 60%)",
+    title: "text-ink",
+    chip: "bg-white/80 text-evergreen-700 ring-1 ring-cream-300",
+    icon: "text-evergreen-700",
+    iconWell: "bg-white/85 ring-1 ring-cream-300",
+    rings: "text-evergreen-700/20",
+  },
+  gold: {
+    surface: "bg-gold-200",
+    highlight:
+      "radial-gradient(30rem 18rem at 100% 0%, rgba(253,251,247,0.75), transparent 62%), radial-gradient(26rem 16rem at 0% 100%, rgba(235,203,131,0.45), transparent 60%)",
+    title: "text-ink",
+    chip: "bg-white/75 text-gold-700 ring-1 ring-gold-300",
+    icon: "text-gold-700",
+    iconWell: "bg-cream-50/90 ring-1 ring-gold-300",
+    rings: "text-gold-700/25",
+  },
+  sage: {
+    surface: "bg-evergreen-100",
+    highlight:
+      "radial-gradient(30rem 18rem at 100% 0%, rgba(253,251,247,0.7), transparent 62%), radial-gradient(26rem 16rem at 0% 100%, rgba(127,179,156,0.35), transparent 60%)",
+    title: "text-ink",
+    chip: "bg-white/75 text-evergreen-700 ring-1 ring-evergreen-200",
+    icon: "text-evergreen-800",
+    iconWell: "bg-cream-50/90 ring-1 ring-evergreen-200",
+    rings: "text-evergreen-800/20",
+  },
+  mist: {
+    surface: "bg-evergreen-50",
+    highlight:
+      "radial-gradient(30rem 18rem at 100% 0%, rgba(176,209,193,0.55), transparent 62%), radial-gradient(26rem 16rem at 0% 100%, rgba(253,251,247,0.9), transparent 60%)",
+    title: "text-ink",
+    chip: "bg-white/80 text-evergreen-700 ring-1 ring-evergreen-100",
+    icon: "text-evergreen-600",
+    iconWell: "bg-white/90 ring-1 ring-evergreen-100",
+    rings: "text-evergreen-600/20",
+  },
+  sand: {
+    surface: "bg-cream-200",
+    highlight:
+      "radial-gradient(30rem 18rem at 100% 0%, rgba(243,224,176,0.7), transparent 62%), radial-gradient(26rem 16rem at 0% 100%, rgba(253,251,247,0.8), transparent 60%)",
+    title: "text-ink",
+    chip: "bg-white/75 text-gold-700 ring-1 ring-cream-400/60",
+    icon: "text-evergreen-700",
+    iconWell: "bg-cream-50/90 ring-1 ring-cream-300",
+    rings: "text-gold-700/20",
+  },
+};
+
+// Slightly irregular radii read as growth rings rather than a target.
+const RINGS = [22, 33, 46, 58, 73, 86, 102, 117, 134, 150, 168, 186];
+
+function hash(value: string): number {
+  let h = 0;
+  for (const ch of value) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return h;
 }
 
-export default function AbstractBlogArt({
+// Where the ring cluster sits; picked per slug so a grid of covers varies.
+const placements = [
+  "-right-[22%] -top-[38%]",
+  "-right-[14%] -top-[18%]",
+  "-right-[30%] top-[-8%]",
+] as const;
+
+type BlogCoverProps = {
+  readonly slug: string;
+  readonly category?: string | null;
+  /** Rendered as the cover's text. Pass `titleAs` to make it a heading. */
+  readonly title?: ReactNode;
+  readonly titleAs?: "h2" | "h3" | "p";
+  readonly size?: "card" | "feature" | "hero";
+  readonly className?: string;
+  /** Small caption under the category (e.g. "6 min read"). */
+  readonly caption?: string;
+};
+
+export function BlogCover({
   slug,
+  category,
+  title,
+  titleAs: TitleTag = "p",
+  size = "card",
   className,
-}: AbstractBlogArtProps) {
-  const spec = getBlogArtSpec(slug);
-  const idPrefix = sanitizeId(slug || "blog-art");
+  caption,
+}: BlogCoverProps) {
+  const topic = topicFor(category);
+  const tone = toneStyles[topic.tone];
+  const h = hash(slug || topic.id);
+  const placement = size === "hero" ? "-right-[18%] -bottom-[30%]" : placements[h % placements.length];
+  const rotate = (h % 40) - 20;
 
   return (
-    <div className={cn("relative isolate overflow-hidden bg-[#f8fbff]", className)} aria-hidden="true">
-      <svg
-        viewBox={`0 0 ${BLOG_ART_VIEWBOX.width} ${BLOG_ART_VIEWBOX.height}`}
-        className="h-full w-full"
-        preserveAspectRatio="xMidYMid slice"
+    <div
+      className={cn("relative isolate overflow-hidden", tone.surface, className)}
+      style={{ backgroundImage: tone.highlight }}
+    >
+      <div
+        aria-hidden="true"
+        className={cn(
+          "pointer-events-none absolute aspect-square",
+          size === "card" ? "h-[150%]" : size === "feature" ? "h-[135%]" : "h-[120%]",
+          placement,
+        )}
       >
-        <defs>
-          <linearGradient
-            id={`${idPrefix}-bg`}
-            x1="0%"
-            y1="0%"
-            x2="100%"
-            y2="100%"
-          >
-            <stop offset="0%" stopColor={spec.palette.backgroundStart} />
-            <stop offset="50%" stopColor={spec.palette.backgroundMid} />
-            <stop offset="100%" stopColor={spec.palette.backgroundEnd} />
-          </linearGradient>
-          {spec.blobs.map((blob, index) => (
-            <radialGradient
-              id={`${idPrefix}-blob-${index}`}
-              key={`${idPrefix}-blob-gradient-${index}`}
-              cx="35%"
-              cy="35%"
-              r="70%"
-            >
-              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.98" />
-              <stop offset="50%" stopColor={blob.color} stopOpacity="0.88" />
-              <stop offset="100%" stopColor={blob.color} stopOpacity="0.28" />
-            </radialGradient>
-          ))}
-        </defs>
-
-        <rect
-          width={BLOG_ART_VIEWBOX.width}
-          height={BLOG_ART_VIEWBOX.height}
-          fill={`url(#${idPrefix}-bg)`}
-        />
-
-        <g opacity="0.72">
-          {spec.blobs.map((blob, index) => (
+        <svg
+          viewBox="-200 -200 400 400"
+          className={cn("h-full w-full", tone.rings)}
+          fill="none"
+          stroke="currentColor"
+          style={{ transform: `rotate(${rotate}deg)` }}
+        >
+          {RINGS.map((r, i) => (
             <ellipse
-              key={`${idPrefix}-blob-${index}`}
-              cx={blob.cx}
-              cy={blob.cy}
-              rx={blob.rx}
-              ry={blob.ry}
-              fill={`url(#${idPrefix}-blob-${index})`}
-              opacity={blob.opacity}
-              transform={`rotate(${blob.rotate} ${blob.cx} ${blob.cy})`}
+              key={r}
+              cx={i % 3 === 0 ? 1.5 : 0}
+              cy={i % 2 === 0 ? -1 : 1}
+              rx={r}
+              ry={r * (0.94 + (i % 3) * 0.025)}
+              strokeWidth={i % 4 === 0 ? 2.2 : 1.2}
             />
           ))}
-        </g>
-
-        <g opacity="0.55">
-          {spec.wavePaths.map((pathData, index) => (
-            <path
-              key={`${idPrefix}-wave-${index}`}
-              d={pathData}
-              fill="none"
-              stroke={spec.palette.stroke}
-              strokeOpacity={0.38 - index * 0.08}
-              strokeWidth={index === 0 ? 3 : 2}
-              strokeLinecap="round"
-            />
-          ))}
-        </g>
-
-        <g opacity="0.46">
-          <path
-            d={`M ${spec.gridOffset} 0 V ${BLOG_ART_VIEWBOX.height}`}
-            stroke="#ffffff"
-            strokeOpacity="0.42"
-            strokeWidth="1.4"
-          />
-          <path
-            d={`M ${BLOG_ART_VIEWBOX.width - spec.gridOffset} 0 V ${BLOG_ART_VIEWBOX.height}`}
-            stroke="#ffffff"
-            strokeOpacity="0.32"
-            strokeWidth="1"
-          />
-          <path
-            d={`M 0 ${spec.gridOffset * 1.2} H ${BLOG_ART_VIEWBOX.width}`}
-            stroke="#ffffff"
-            strokeOpacity="0.28"
-            strokeWidth="1"
-          />
-        </g>
-
-        <g
-          transform={`translate(${spec.panel.x} ${spec.panel.y}) rotate(${spec.panel.rotate})`}
+        </svg>
+        <span
+          className={cn(
+            "absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full shadow-soft",
+            size === "card" ? "h-[17%] w-[17%]" : "h-[15%] w-[15%]",
+            tone.iconWell,
+          )}
         >
-          <rect
-            width={spec.panel.width}
-            height={spec.panel.height}
-            rx="40"
-            fill={spec.palette.panel}
-            fillOpacity="0.36"
-            stroke={spec.palette.panelBorder}
-            strokeOpacity="0.84"
-            strokeWidth="1.5"
-          />
-          <rect
-            x="24"
-            y="28"
-            width={spec.panel.width - 48}
-            height="14"
-            rx="999"
-            fill="#ffffff"
-            fillOpacity="0.72"
-          />
-          <rect
-            x="24"
-            y="56"
-            width={spec.panel.width * 0.46}
-            height="12"
-            rx="999"
-            fill="#ffffff"
-            fillOpacity="0.46"
-          />
-        </g>
-
-        <g
-          transform={`translate(${spec.accent.x} ${spec.accent.y}) rotate(${spec.accent.rotate})`}
-          opacity="0.42"
-        >
-          <rect
-            width={spec.accent.width}
-            height={spec.accent.height}
-            rx="60"
-            fill="#ffffff"
-            fillOpacity="0.2"
-          />
-          <rect
-            x="22"
-            y="22"
-            width={spec.accent.width - 44}
-            height={spec.accent.height - 44}
-            rx="48"
-            fill="none"
-            stroke="#ffffff"
-            strokeOpacity="0.44"
-            strokeWidth="1.2"
-          />
-        </g>
-      </svg>
+          <ServiceIcon name={topic.icon} animated={false} className={cn("h-[62%] w-[62%]", tone.icon)} strokeWidth={2.2} />
+        </span>
+      </div>
 
       <div
-        className="pointer-events-none absolute inset-0 opacity-35 mix-blend-screen"
-        style={{
-          backgroundImage:
-            "repeating-linear-gradient(135deg, rgba(255,255,255,0.58) 0 1px, transparent 1px 24px)",
-        }}
-      />
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle at top right, rgba(255,255,255,0.84), transparent 40%), linear-gradient(180deg, rgba(255,255,255,0.18), transparent 68%)",
-        }}
-      />
+        className={cn(
+          "relative flex h-full flex-col justify-between",
+          size === "card" ? "gap-6 p-5" : size === "feature" ? "gap-10 p-6 sm:p-8" : "gap-8 p-6 sm:p-8",
+        )}
+      >
+        <div className="flex flex-col items-start gap-1.5">
+          <span
+            className={cn(
+              "inline-flex items-center rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] backdrop-blur-sm",
+              tone.chip,
+            )}
+          >
+            {topic.label}
+          </span>
+          {caption ? <span className={cn("pl-1 text-xs font-semibold opacity-80", tone.title)}>{caption}</span> : null}
+        </div>
+        {title ? (
+          <TitleTag
+            className={cn(
+              "max-w-[88%] text-balance font-heading font-medium",
+              tone.title,
+              size === "card" && "line-clamp-4 text-[1.3rem] leading-[1.22]",
+              size === "feature" && "line-clamp-5 text-[1.65rem] leading-[1.18] sm:text-[2.1rem]",
+              size === "hero" && "text-[1.6rem] leading-[1.2]",
+            )}
+            style={{ letterSpacing: "-0.012em" }}
+          >
+            {title}
+          </TitleTag>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+/** Back-compat wrapper: a title-less cover looked up by slug. */
+export default function AbstractBlogArt({ slug, className }: { slug: string; className?: string }) {
+  const entry = blogIndex.find((post) => post.slug === slug);
+  return (
+    <div aria-hidden="true" className={cn("h-full w-full", className)}>
+      <BlogCover slug={slug} category={entry?.category} className="h-full w-full" />
     </div>
   );
 }

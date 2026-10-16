@@ -1,5 +1,12 @@
 # SVG Animation System
 
+> **Superseded 2026-10-16.** The `AnimatedDentalAura` / `AnimatedFlowDivider`
+> components described below were deleted in the "Rooted" redesign. Motion now
+> lives in the design system: CSS classes in `app/globals.css` (`reveal`,
+> `draw-path`, `ring-ripple`, `marquee`, …) and static self-animating SVG art in
+> `public/brand/roots-*.svg`. See `docs/design-system.md` (Motion rules). This
+> file is kept for history.
+
 Reference for the custom SVG motion layer used on the marketing site.
 
 ## Why this exists

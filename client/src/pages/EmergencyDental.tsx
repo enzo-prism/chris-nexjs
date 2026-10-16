@@ -1,30 +1,41 @@
-"use client";
+import Link from "next/link";
+import { ArrowRight, Clock, MapPin, Phone, ShieldCheck, TriangleAlert, Users } from "lucide-react";
 
-import { Phone, Clock, AlertTriangle, CheckCircle, ArrowRight, Shield, Heart } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Link } from "wouter";
-import MetaTags from "@/components/common/MetaTags";
-import OfficeHoursSummary from "@/components/common/OfficeHoursSummary";
 import StructuredData from "@/components/seo/StructuredData";
-import { motion } from "@/lib/motion-lite";
-import SupportImageCard from "@/components/common/SupportImageCard";
-import TestimonialQuote from "@/components/testimonials/TestimonialQuote";
-import { getTestimonialsByNames } from "@/lib/testimonials";
+import FAQSection from "@/components/common/FAQSection";
+import OfficeHoursSummary from "@/components/common/OfficeHoursSummary";
+import RelatedServices, { type RelatedServiceLink } from "@/components/common/RelatedServices";
+import RelatedServicePosts from "@/components/blog/RelatedServicePosts";
+import { CtaBand } from "@/components/ds/CtaBand";
+import type { Fact } from "@/components/ds/FactGrid";
+import { PageHero } from "@/components/ds/PageHero";
+import { ReviewedBy } from "@/components/ds/ReviewedBy";
+import { Section } from "@/components/ds/Section";
+import { SectionHeading } from "@/components/ds/SectionHeading";
+import { ServiceReviews } from "@/components/ds/ServiceReviews";
+import type { Step } from "@/components/ds/Steps";
+import { WhoTreats } from "@/components/ds/WhoTreats";
+import { CostPanel } from "@/components/services/CostPanel";
+import { Disclosure, DotList } from "@/components/services/Disclosure";
+import { FirstAidGrid, type FirstAidItem } from "@/components/services/FirstAidGrid";
+import { JumpNav } from "@/components/services/JumpNav";
+import { NearbyLine } from "@/components/services/NearbyLine";
+import { QuickFacts } from "@/components/services/QuickFacts";
+import { ServicePhoto } from "@/components/services/ServicePhoto";
+import { StepList } from "@/components/services/StepList";
+import { officeInfo } from "@/lib/data";
 import {
   buildBreadcrumbSchema,
   buildFAQSchema,
-  buildHowToSchema,
   buildServiceSchema,
   type FAQEntry,
+  type StructuredDataNode,
 } from "@/lib/structuredData";
-import RelatedServicePosts from "@/components/blog/RelatedServicePosts";
-import { pageDescriptions, pageTitles } from "@/lib/metaContent";
-import { officeInfo } from "@/lib/data";
-import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
-import FAQSection from "@/components/common/FAQSection";
-import RelatedServices, {
-  type RelatedServiceLink,
-} from "@/components/common/RelatedServices";
+
+const PATH = "/emergency-dental";
+const SCHEDULE_HREF = "/schedule?intent=emergency&source=emergency-page#appointment";
+const HERO_IMAGE = "/images/redesign/dr-wong-front-desk-laughing.webp";
+const ENTRANCE_IMAGE = "/images/redesign/office-entrance-dr-wong.webp";
 
 const emergencyFaqs: FAQEntry[] = [
   {
@@ -63,557 +74,360 @@ const emergencyFaqs: FAQEntry[] = [
   },
 ];
 
+const firstAid: readonly FirstAidItem[] = [
+  {
+    id: "toothache",
+    title: "Severe toothache",
+    icon: "emergency",
+    signs: "Throbbing pain, pain when chewing, sensitivity to hot or cold, swelling around the tooth.",
+    steps: ["Rinse with warm salt water", "Take over-the-counter pain medication", "Apply a cold compress", "Call us to be seen"],
+    guide: { href: "/blog/emergency-dental-care-palo-alto", title: "Urgent dental care: what to expect" },
+  },
+  {
+    id: "broken-tooth",
+    title: "Broken or chipped tooth",
+    icon: "filling",
+    signs: "A visible crack or chip, sharp edges, pain when biting, sensitivity.",
+    steps: ["Save any broken pieces", "Rinse your mouth with warm water", "Apply a cold compress for swelling"],
+    guide: { href: "/blog/cracked-tooth-emergency-dentist-palo-alto", title: "When is a cracked tooth an emergency?" },
+  },
+  {
+    id: "knocked-out-tooth",
+    title: "Knocked-out tooth",
+    icon: "tooth",
+    urgency: "Time matters",
+    signs: "A tooth fully out of its socket after trauma, with bleeding and pain.",
+    steps: [
+      "Handle the tooth by the crown, never the root",
+      "Gently rinse it if dirty and keep it moist, in milk or against your cheek",
+      "Call right away; care within 30 minutes gives the best chance of saving it",
+    ],
+    guide: {
+      href: "/blog/what-to-do-if-your-child-knocks-out-a-permanent-tooth-palo-alto",
+      title: "If your child knocks out a permanent tooth",
+    },
+  },
+  {
+    id: "lost-crown",
+    title: "Lost crown or filling",
+    icon: "crown",
+    signs: "Exposed tooth structure, sensitivity, discomfort when eating.",
+    steps: [
+      "Keep the crown or filling safe and bring it with you",
+      "Use dental cement or sugar-free gum as temporary protection",
+    ],
+    guide: { href: "/blog/crown-fell-off-palo-alto", title: "What to do if a crown falls off" },
+  },
+  {
+    id: "swelling",
+    title: "Swelling or abscess",
+    icon: "gum",
+    urgency: "Don’t delay",
+    signs: "Severe pain, facial swelling, fever, a bad taste, swollen lymph nodes.",
+    steps: ["Rinse with salt water", "Take pain medication", "Call now for immediate dental care"],
+    guide: { href: "/blog/tooth-abscess-symptoms-palo-alto", title: "Can an abscess cause swelling or fever?" },
+  },
+  {
+    id: "bleeding",
+    title: "Bleeding or a mouth injury",
+    icon: "shield",
+    signs: "Cuts or tears to the gums, tongue, cheeks, or lips, with bleeding and swelling.",
+    steps: ["Clean the area gently", "Apply pressure to control bleeding", "Use a cold compress for swelling"],
+  },
+];
+
+const callSteps: readonly Step[] = [
+  {
+    title: "Call us right away",
+    meta: "Same day when possible",
+    body: `Call ${officeInfo.phone}. We prioritize same-day emergency visits whenever possible and will guide you on next steps.`,
+  },
+  {
+    title: "Follow first aid on the way",
+    body: "Apply the first-aid steps above while you travel to our office. They help manage pain and prevent further damage.",
+  },
+  {
+    title: "Bring what you saved",
+    body: "Save any broken tooth pieces, crowns, or fillings. These may be reusable in your treatment.",
+  },
+  {
+    title: "Relief and a clear plan",
+    body: "We diagnose the problem, focus on getting you comfortable, and explain your options and costs before treatment.",
+  },
+];
+
+const facts: readonly Fact[] = [
+  { icon: Clock, label: "Same day", value: "Whenever possible" },
+  { icon: Users, label: "New patients", value: "Welcome for urgent visits" },
+  { icon: ShieldCheck, label: "PPO plans", value: "Often help with emergency exams" },
+  { icon: Phone, label: "Not sure?", value: "Call and ask, it’s safer" },
+];
+
+const preventionTips = [
+  "Wear a mouthguard during sports and physical activities",
+  "Avoid chewing ice, hard candies, or non-food items",
+  "Don't use teeth as tools to open packages or bottles",
+  "Maintain regular dental check-ups to catch problems early",
+  "Keep an emergency dental kit with pain relievers and dental cement",
+  "Know your dentist's emergency contact information",
+] as const;
+
+const costFactors = [
+  "What we find during your exam",
+  "The treatment needed to relieve pain and protect the tooth",
+  "Whether follow-up care is recommended once you’re comfortable",
+] as const;
+
+const relatedServices: RelatedServiceLink[] = [
+  {
+    href: "/crowns-palo-alto",
+    anchorText: "Dental crowns",
+    description: "Restore a cracked or broken tooth once the emergency is handled.",
+  },
+  {
+    href: "/dental-implants",
+    anchorText: "Dental implants",
+    description: "Long‑term solutions for missing or severely damaged teeth.",
+  },
+  {
+    href: "/preventive-dentistry",
+    anchorText: "Preventive dentistry",
+    description: "Routine exams and cleanings to help avoid emergencies.",
+  },
+];
+
+const breadcrumbItems = [
+  { name: "Home", path: "/" },
+  { name: "Services", path: "/services" },
+  { name: "Emergency dentist", path: PATH },
+];
+
 const EmergencyDental = () => {
-  const emergencyTypes = [
-    {
-      title: "Severe Toothache",
-      description: "Intense, persistent tooth pain that interferes with daily activities",
-      symptoms: ["Throbbing pain", "Pain when chewing", "Sensitivity to hot/cold", "Swelling around tooth"],
-      immediateAction: "Rinse with warm salt water, take over-the-counter pain medication, apply cold compress"
-    },
-    {
-      title: "Knocked-Out Tooth",
-      description: "Complete tooth displacement due to trauma or injury",
-      symptoms: ["Missing tooth", "Bleeding from socket", "Pain in affected area"],
-      immediateAction: "Keep tooth moist, handle by crown only, seek immediate dental care within 30 minutes"
-    },
-    {
-      title: "Broken or Chipped Tooth",
-      description: "Fractured tooth structure from injury or biting hard objects",
-      symptoms: ["Visible crack or chip", "Sharp edges", "Pain when biting", "Sensitivity"],
-      immediateAction: "Save any broken pieces, rinse mouth with warm water, apply cold compress for swelling"
-    },
-    {
-      title: "Lost Filling or Crown",
-      description: "Dental restoration becomes loose or falls out completely",
-      symptoms: ["Exposed tooth structure", "Sensitivity", "Discomfort when eating"],
-      immediateAction: "Keep crown/filling safe, use dental cement or sugar-free gum as temporary protection"
-    },
-    {
-      title: "Dental Abscess",
-      description: "Serious infection around tooth root or gums requiring immediate attention",
-      symptoms: ["Severe pain", "Facial swelling", "Fever", "Bad taste in mouth", "Swollen lymph nodes"],
-      immediateAction: "Rinse with salt water, take pain medication, seek immediate dental care - do not delay"
-    },
-    {
-      title: "Soft Tissue Injury",
-      description: "Cuts, tears, or injuries to gums, tongue, cheeks, or lips",
-      symptoms: ["Bleeding", "Pain", "Visible cuts or tears", "Swelling"],
-      immediateAction: "Clean area gently, apply pressure to control bleeding, use cold compress for swelling"
-    }
+  const schemas: StructuredDataNode[] = [
+    buildServiceSchema({
+      name: "Emergency Dental Care",
+      pageName: "Emergency dentist in Palo Alto",
+      description:
+        "Urgent dental care in Palo Alto for toothaches, broken teeth, infections, and dental trauma, with same-day visits whenever possible.",
+      slug: PATH,
+      image: HERO_IMAGE,
+      serviceType: "Emergency dentist",
+      areaServed: ["Palo Alto", "Stanford", "Menlo Park", "Mountain View"],
+    }),
   ];
-
-  const emergencySteps = [
-    {
-      step: "1",
-      title: "Stay Calm",
-      description: "Take a deep breath and assess the situation. Most dental emergencies can be effectively treated when addressed promptly."
-    },
-    {
-      step: "2", 
-      title: "Contact Us Immediately",
-      description: `Call our emergency line at ${officeInfo.phone}. We prioritize same-day emergency visits whenever possible and will guide you on next steps.`
-    },
-    {
-      step: "3",
-      title: "Follow First Aid",
-      description: "Apply appropriate first aid measures while en route to our office. This can help manage pain and prevent further damage."
-    },
-    {
-      step: "4",
-      title: "Preserve Evidence",
-      description: "Save any broken tooth pieces, crowns, or fillings. These may be reusable in your treatment."
-    }
-  ];
-
-  const emergencyTestimonials = getTestimonialsByNames([
-    "Madison Ho",
-    "Paul Pedersen",
-    "Bill Quarre",
-    "Andrew",
-  ]);
-
-  const preventionTips = [
-    "Wear a mouthguard during sports and physical activities",
-    "Avoid chewing ice, hard candies, or non-food items",
-    "Don't use teeth as tools to open packages or bottles",
-    "Maintain regular dental check-ups to catch problems early",
-    "Keep emergency dental kit with pain relievers and dental cement",
-    "Know your dentist's emergency contact information"
-  ];
-
-  const emergencyServiceSchema = buildServiceSchema({
-    name: "Emergency Dental Care",
-    description:
-      "Same-day urgent dental care in Palo Alto for toothaches, broken teeth, infections, and dental trauma.",
-    slug: "/emergency-dental",
-    serviceType: "Emergency dentist",
-    areaServed: ["Palo Alto", "Stanford", "Menlo Park", "Mountain View"],
-  });
-
-  const emergencyHowTo = buildHowToSchema({
-    name: "What to do during a dental emergency",
-    description:
-      "Immediate steps to take before arriving for urgent dental care at our Palo Alto office.",
-    steps: emergencySteps.map((step) => ({
-      title: step.title,
-      description: step.description,
-    })),
-    pagePath: "/emergency-dental",
-  });
-
-  const breadcrumbItems = [
-    { name: "Home", path: "/" },
-    { name: "Services", path: "/services" },
-    { name: "Emergency Dental", path: "/emergency-dental" },
-  ];
-  const emergencyBreadcrumbs = buildBreadcrumbSchema(breadcrumbItems);
-  const emergencyFaqSchema = buildFAQSchema(emergencyFaqs, "/emergency-dental");
-
-  const relatedServices: RelatedServiceLink[] = [
-    {
-      href: "/services#preventive-dentistry",
-      anchorText: "Preventive dentistry in Palo Alto",
-      description: "Routine exams and cleanings to avoid emergencies.",
-    },
-    {
-      href: "/dental-implants",
-      anchorText: "Dental implants",
-      description: "Long‑term solutions for missing or severely damaged teeth.",
-    },
-    {
-      href: "/invisalign",
-      anchorText: "Invisalign clear aligners",
-      description: "Straighten teeth after urgent issues are resolved.",
-    },
-    {
-      href: "/dental-veneers",
-      anchorText: "Dental veneers",
-      description: "Cosmetic repairs for chips, cracks, and discoloration.",
-    },
-    {
-      href: "/services",
-      anchorText: "See all services",
-    },
-  ];
-
-  const emergencySchemas = [emergencyServiceSchema];
-
-  if (emergencyHowTo) {
-    emergencySchemas.push(emergencyHowTo);
-  }
-
-  if (emergencyBreadcrumbs) {
-    emergencySchemas.push(emergencyBreadcrumbs);
-  }
-
-  if (emergencyFaqSchema) {
-    emergencySchemas.push(emergencyFaqSchema);
-  }
-
-  const lastUpdated = "December 2025";
+  const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbItems);
+  if (breadcrumbSchema) schemas.push(breadcrumbSchema);
+  const faqSchema = buildFAQSchema(emergencyFaqs, PATH);
+  if (faqSchema) schemas.push(faqSchema);
 
   return (
     <>
-      <MetaTags 
-        title={pageTitles.emergencyDental}
-        description={pageDescriptions.emergencyDental}
-      />
-      <StructuredData data={emergencySchemas} />
-      <PageBreadcrumbs items={breadcrumbItems} />
+      <StructuredData data={schemas} />
 
-      {/* Hero Section */}
-      <section className="bg-gradient-to-b from-orange-50 to-white py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-10 lg:grid-cols-12 lg:items-start">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="lg:col-span-7"
-            >
-              <div className="inline-flex items-center gap-2 rounded-full bg-orange-100 px-4 py-2 text-sm font-semibold text-orange-700">
-                <AlertTriangle className="h-4 w-4" />
-                Same-day emergency care
-              </div>
-              <h1 className="mt-6 text-3xl sm:text-4xl md:text-5xl font-bold font-heading text-[#333333] mb-6">
-                Emergency Dentist in Palo Alto, CA
-              </h1>
-              <p className="text-xl text-[#333333] max-w-4xl mb-8">
-                If you&apos;re in pain or dealing with a broken tooth, call us.
-                Dr. Christopher B. Wong provides same-day care for urgent
-                toothaches, swelling, and dental trauma—and will guide you to
-                fast relief and clear next steps.
+      <PageHero
+        crumbs={breadcrumbItems}
+        icon="emergency"
+        eyebrow="Urgent dental care"
+        title={
+          <>
+            Emergency dentist in <em>Palo Alto</em>
+          </>
+        }
+        lead="In pain or dealing with a broken tooth? Call us. Dr. Christopher B. Wong sees urgent toothaches, swelling, and dental trauma, and we hold time to see you the same day whenever possible."
+        callFirst
+        scheduleHref={SCHEDULE_HREF}
+        analyticsContext="emergency-hero"
+        mediaClassName="hidden lg:block"
+        media={
+          <ServicePhoto
+            src={HERO_IMAGE}
+            alt="Dr. Christopher B. Wong laughing with two team members at the front desk"
+            focus="60% 30%"
+            priority={false}
+            aspect="aspect-[16/10]"
+            sizes="44vw"
+          />
+        }
+      >
+        <p className="mt-6 flex items-start gap-3 rounded-[1.25rem] border border-gold-300 bg-gold-200/60 px-4 py-3 text-[15px] leading-6 text-ink">
+          <TriangleAlert className="mt-0.5 h-5 w-5 shrink-0 text-gold-700" aria-hidden="true" />
+          <span>
+            <strong className="font-semibold">Go to the ER right away</strong> for uncontrolled bleeding, trouble
+            breathing, or rapidly worsening facial swelling.
+          </span>
+        </p>
+      </PageHero>
+
+      <Section id="first-aid" tone="white" labelledBy="first-aid-title" className="pt-10 sm:pt-14 lg:pt-16">
+        <SectionHeading
+          id="first-aid-title"
+          eyebrow="What to do right now"
+          title={
+            <>
+              First aid until <em>you’re seen</em>
+            </>
+          }
+          lead="Recognize the signs and know what to do before you reach our office. Quick action can often save your tooth and reduce pain and complications."
+        />
+        <ReviewedBy date="2026-10-16" className="mt-5" />
+        <JumpNav
+          className="mt-6"
+          items={firstAid.map((item) => ({ href: `#${item.id}`, label: item.title }))}
+        />
+        <FirstAidGrid items={firstAid} className="mt-6" />
+        <p className="mt-6 rounded-[1.5rem] border border-cream-300/80 bg-cream-50 px-5 py-4 text-[15px] leading-6 text-ink-soft">
+          <strong className="font-semibold text-ink">Call us right away</strong> for severe pain, a knocked-out or
+          broken tooth, swelling, or a lost crown. If you’re unsure, it’s always safer to{" "}
+          <a
+            href={`tel:${officeInfo.phoneE164}`}
+            className="link-rooted"
+            data-analytics-context="emergency-first-aid-call"
+          >
+            call and ask
+          </a>
+          .
+        </p>
+        <Disclosure title="Preventing dental emergencies" className="mt-4">
+          <p>While accidents happen, many dental emergencies can be prevented with proper care and precautions.</p>
+          <DotList items={[...preventionTips]} />
+        </Disclosure>
+      </Section>
+
+      <Section id="urgent-visit" tone="cream" labelledBy="urgent-visit-title">
+        <div className="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14">
+          <div>
+            <SectionHeading
+              id="urgent-visit-title"
+              eyebrow="Your urgent visit"
+              title={
+                <>
+                  What happens <em>when you call</em>
+                </>
+              }
+              lead="Dental emergencies move fast. We reserve time for urgent visits and work to see you the same day whenever possible, so you can get relief and a clear plan quickly. Take a breath: most dental emergencies can be treated effectively when addressed promptly."
+            />
+            <QuickFacts facts={facts} className="mt-6 lg:grid-cols-2" />
+            <StepList steps={callSteps} columns={2} className="mt-8" />
+          </div>
+
+          <aside aria-labelledby="visit-info-title" className="card self-start overflow-hidden">
+            <ServicePhoto
+              src={ENTRANCE_IMAGE}
+              alt="Office entrance with the Christopher Wong D.D.S. sign, a sculpted pine, and Dr. Wong in a white coat"
+              focus="55% 15%"
+              priority={false}
+              aspect="aspect-[16/10]"
+              sizes="(max-width: 1024px) 100vw, 34vw"
+              className="[&>div]:rounded-none [&>div]:shadow-none [&>div]:ring-0"
+            />
+            <div className="p-5 sm:p-7">
+              <h3 id="visit-info-title" className="h-card text-[1.3rem]">
+                Urgent dental care close to home
+              </h3>
+              <p className="mt-2 text-[15px] leading-6 text-ink-soft">
+                Our Palo Alto office helps patients from Stanford, Menlo Park, and Mountain View with urgent dental
+                problems. Call for fast guidance, and we’ll prioritize urgent appointments whenever possible.
               </p>
-              
-              <div className="bg-primary text-white rounded-lg p-6 max-w-2xl mb-8">
-                <div className="flex items-center mb-4">
-                  <Phone className="h-8 w-8 mr-3" />
-                  <div>
-                    <h3 className="text-xl font-bold">Emergency Line</h3>
-                    <p className="text-blue-100">Call for same-day emergency dental care</p>
-                  </div>
+              <dl className="mt-5 space-y-4 text-[15px] leading-6">
+                <div className="flex gap-3">
+                  <dt className="sr-only">Address</dt>
+                  <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-evergreen-600" aria-hidden="true" />
+                  <dd className="text-ink">
+                    {officeInfo.address.line1}
+                    <br />
+                    {officeInfo.address.line2}
+                    <br />
+                    <a
+                      href={officeInfo.mapUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="link-rooted mt-1 inline-flex min-h-11 items-center gap-1.5 text-sm"
+                    >
+                      Get directions <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </a>
+                  </dd>
                 </div>
+                <div className="flex gap-3">
+                  <dt className="sr-only">Hours</dt>
+                  <Clock className="mt-0.5 h-5 w-5 shrink-0 text-evergreen-600" aria-hidden="true" />
+                  <dd>
+                    <OfficeHoursSummary className="text-ink-soft" noteClassName="text-ink-muted" />
+                  </dd>
+                </div>
+              </dl>
+              <div className="mt-6 flex flex-col gap-3">
                 <a
                   href={`tel:${officeInfo.phoneE164}`}
-                  className="text-3xl font-bold hover:text-blue-100 transition-colors"
+                  className="btn btn-primary"
+                  data-analytics-context="emergency-visit-call"
+                  aria-label={`Call Dr. Wong's office at ${officeInfo.phone}`}
                 >
-                  {officeInfo.phone}
+                  <Phone aria-hidden="true" />
+                  Call {officeInfo.phone}
                 </a>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button asChild className="bg-orange-600 hover:bg-orange-700 text-white font-medium px-8 py-3">
-                  <a href={`tel:${officeInfo.phoneE164}`}>
-                    Call Emergency Line
-                    <Phone className="ml-2 h-5 w-5" />
-                  </a>
-                </Button>
-                <Button asChild variant="outline" className="border-orange-600 text-orange-600 hover:bg-orange-50 px-8 py-3">
-                  <Link href="/contact">
-                    Contact Information
-                  </Link>
-                </Button>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="lg:col-span-5"
-            >
-              <SupportImageCard
-                src="/images/generated/services/emergency-dental.webp"
-                alt="Dentist reassuring a patient during a same-day emergency visit in a modern Palo Alto treatment room"
-                priority
-                objectPosition="50% 48%"
-              />
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Local emergency dentist info */}
-      <section className="py-14 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold font-heading text-[#333333] mb-4">
-                Urgent dental care close to home
-              </h2>
-              <p className="text-[#333333] text-lg mb-6">
-                Our Palo Alto office helps patients from Stanford, Menlo Park, and Mountain View with
-                urgent dental problems. Call for fast guidance, and we will prioritize urgent appointments
-                whenever possible.
-              </p>
-              <p className="text-[#333333] text-base">
-                If you have uncontrolled bleeding, trouble breathing, or rapidly worsening facial swelling,
-                seek emergency medical care right away.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-slate-100 bg-[#F8FAFC] p-6 shadow-sm space-y-4">
-              <div>
-                <p className="text-sm font-semibold tracking-wide text-slate-900 uppercase">Office location</p>
-                <p className="mt-2 text-slate-800 leading-relaxed">
-                  {officeInfo.address.line1}
-                  <br />
-                  {officeInfo.address.line2}
-                </p>
-                <a
-                  href={officeInfo.mapUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-2 inline-flex items-center ui-link-premium"
-                >
-                  Get directions
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </a>
-              </div>
-              <div>
-                <p className="text-sm font-semibold tracking-wide text-slate-900 uppercase">Hours</p>
-                <OfficeHoursSummary
-                  className="mt-2 text-slate-700 text-sm"
-                  noteClassName="text-slate-500"
-                />
-              </div>
-              <p className="text-xs text-slate-500">Reviewed by Dr. Wong · Last updated: {lastUpdated}</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* When to Seek Emergency Care */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold font-heading text-[#333333] mb-6">
-              Common Dental Emergencies
-            </h2>
-            <p className="text-[#333333] max-w-3xl mx-auto">
-              Recognize the signs and know what to do before you reach our office. Quick action can often 
-              save your tooth and reduce pain and complications.
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {emergencyTypes.map((emergency, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="bg-orange-50 rounded-lg border-2 border-orange-100 p-6"
-              >
-                <h3 className="text-xl font-bold font-heading text-[#333333] mb-3">
-                  {emergency.title}
-                </h3>
-                <p className="text-[#333333] mb-4">
-                  {emergency.description}
-                </p>
-                
-                <div className="mb-4">
-                  <h4 className="font-semibold text-[#333333] mb-2">Symptoms:</h4>
-                  <ul className="space-y-1">
-                    {emergency.symptoms.map((symptom, idx) => (
-                      <li key={idx} className="flex items-start">
-                        <AlertTriangle className="h-4 w-4 text-orange-600 mt-0.5 mr-2 flex-shrink-0" />
-                        <span className="text-sm text-[#333333]">{symptom}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="border-t border-orange-200 pt-4">
-                  <h4 className="font-semibold text-[#333333] mb-2">Immediate Action:</h4>
-                  <p className="text-sm text-[#333333] bg-white p-3 rounded border-l-4 border-orange-600">
-                    {emergency.immediateAction}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Emergency Response Steps */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold font-heading text-[#333333] mb-6">
-              What to Do in a Dental Emergency
-            </h2>
-            <p className="text-[#333333] max-w-2xl mx-auto">
-              Follow these steps to handle your dental emergency effectively while getting to our office.
-            </p>
-          </motion.div>
-
-          <div className="space-y-6">
-            {emergencySteps.map((step, index) => (
-              <motion.div
-                key={index}
-                id={`step-${step.step}`}
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.2 }}
-                viewport={{ once: true }}
-                className="flex items-start bg-white p-6 rounded-lg shadow-md"
-              >
-                <div className="bg-primary text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-lg mr-6 flex-shrink-0">
-                  {step.step}
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold font-heading text-[#333333] mb-2">
-                    {step.title}
-                  </h3>
-                  <p className="text-[#333333]">{step.description}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Patient Testimonials */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold font-heading text-[#333333] mb-6">
-              Emergency Care Testimonials
-            </h2>
-            <p className="text-[#333333] max-w-3xl mx-auto">
-              Real experiences from patients who received emergency dental care at our Palo Alto practice.
-            </p>
-          </motion.div>
-
-          <div className="grid gap-6 md:grid-cols-2">
-            {emergencyTestimonials.map((testimonial, index) => (
-              <motion.div
-                key={testimonial.name}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <TestimonialQuote
-                  testimonial={testimonial}
-                  className="border-none border-l-4 border-orange-600 bg-orange-50/70"
-                />
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Same-day Availability */}
-      <section className="py-16 bg-primary text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <Clock className="h-16 w-16 mx-auto mb-6" />
-            <h2 className="text-3xl md:text-4xl font-bold font-heading mb-6">
-              Same-day emergency dental care
-            </h2>
-            <p className="text-xl mb-8 max-w-3xl mx-auto">
-              Dental emergencies move fast. We reserve time for urgent visits and work to see you the same day
-              whenever possible, so you can get relief and a clear plan quickly.
-            </p>
-            
-            <div className="grid md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-blue-700 rounded-lg p-6">
-                <Shield className="h-8 w-8 mx-auto mb-4" />
-                <h3 className="text-lg font-bold mb-2">Fast relief</h3>
-                <p className="text-blue-100">Prompt evaluation and pain management</p>
-              </div>
-              <div className="bg-blue-700 rounded-lg p-6">
-                <Heart className="h-8 w-8 mx-auto mb-4" />
-                <h3 className="text-lg font-bold mb-2">Clear next steps</h3>
-                <p className="text-blue-100">Focused guidance during stressful moments</p>
-              </div>
-              <div className="bg-blue-700 rounded-lg p-6">
-                <CheckCircle className="h-8 w-8 mx-auto mb-4" />
-                <h3 className="text-lg font-bold mb-2">Experienced care</h3>
-                <p className="text-blue-100">Trusted clinical care for urgent needs</p>
+                <Link href={SCHEDULE_HREF} className="btn btn-outline" data-analytics-context="emergency-visit-request">
+                  Request an urgent visit online
+                </Link>
               </div>
             </div>
-
-            <Button asChild className="bg-white text-primary hover:bg-gray-100 font-medium px-8 py-3 text-lg">
-              <a href={`tel:${officeInfo.phoneE164}`}>
-                Call Emergency Line Now
-                <Phone className="ml-2 h-5 w-5" />
-              </a>
-            </Button>
-          </motion.div>
+          </aside>
         </div>
-      </section>
+      </Section>
 
-      {/* Prevention Tips */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl font-bold font-heading text-[#333333] mb-6">
-              Preventing Dental Emergencies
-            </h2>
-            <p className="text-[#333333] max-w-2xl mx-auto">
-              While accidents happen, many dental emergencies can be prevented with proper care and precautions.
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            {preventionTips.map((tip, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="flex items-start bg-white p-6 rounded-lg shadow-md"
-              >
-                <CheckCircle className="h-5 w-5 text-blue-600 mt-1 mr-3 flex-shrink-0" />
-                <span className="text-[#333333]">{tip}</span>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <FAQSection
-        title="Emergency dental FAQs"
-        subtitle="Answers to common questions about urgent dental care."
-        items={emergencyFaqs}
-        className="bg-white"
+      <CostPanel
+        id="emergency-cost"
+        tone="white"
+        title={
+          <>
+            Emergency visit cost: <em>no surprises</em>
+          </>
+        }
+        lead="Emergency care varies depending on what we find and what treatment is needed. We’ll review your options and costs after the exam, before any treatment."
+        drivers={costFactors}
+        driversTitle="What affects the cost"
+        coverage="Many PPO plans help cover emergency evaluations."
+        scheduleHref={SCHEDULE_HREF}
+        analyticsContext="emergency-cost"
       />
+
+      <ServiceReviews
+        tags={["emergency", "gentle"]}
+        note="The first two describe urgent visits; the third is about care at our office generally."
+      />
+
+      <WhoTreats
+        teamSlugs={["kelty", "rachel"]}
+        intro="Dr. Wong diagnoses the problem, focuses on getting you comfortable, and explains the next steps clearly. The front-desk team finds you the soonest available time."
+      />
+
+      <div id="emergency-faq">
+        <FAQSection
+          title="Emergency dental FAQs"
+          subtitle="Answers to common questions about urgent dental care."
+          items={emergencyFaqs}
+        />
+      </div>
 
       <RelatedServices
         items={relatedServices}
         title="Related services"
         subtitle="After urgent care, explore these next steps."
       />
+      <NearbyLine />
 
       <RelatedServicePosts serviceSlug="emergency-dental" serviceName="Emergency Dental Care" />
 
-      {/* Final CTA */}
-      <section className="py-16 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-3xl font-bold font-heading text-[#333333] mb-6">
-              Don't Wait - Get Emergency Dental Care Now
-            </h2>
-            <p className="text-xl text-[#333333] mb-8 max-w-3xl mx-auto">
-              If you&apos;re experiencing a dental emergency, time is critical. Call our Palo Alto office
-              for prompt care and clear next steps.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button asChild className="bg-orange-600 hover:bg-orange-700 text-white font-medium px-8 py-3">
-                <a href={`tel:${officeInfo.phoneE164}`}>
-                  Call Emergency Line
-                  <Phone className="ml-2 h-5 w-5" />
-                </a>
-              </Button>
-              <Button asChild variant="outline" className="ui-btn-outline px-8 py-3">
-                <Link href="/schedule?intent=emergency&source=emergency-page#appointment">
-                  Request an appointment
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      <CtaBand
+        analyticsContext="emergency-cta"
+        showSteps={false}
+        callFirst
+        title={
+          <>
+            In pain right now? <em>Call us.</em>
+          </>
+        }
+        lead="If you’re experiencing a dental emergency, time is critical. Call our Palo Alto office for prompt care and clear next steps, or request an appointment online for something less urgent."
+      />
     </>
   );
 };

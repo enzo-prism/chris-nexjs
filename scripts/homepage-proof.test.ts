@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 
-import { homeProofQuotes } from "../client/src/data/homeProof";
 import { featuredQuote, homeRibbonQuotes } from "../client/src/data/reviewHighlights";
 import { drWong, team } from "../client/src/data/team";
 import { serviceReviews } from "../client/src/data/serviceReviews";
@@ -22,7 +21,6 @@ function assertVerbatim(quote: Quote, where: string): void {
 }
 
 const quotes: [Quote, string][] = [
-  ...homeProofQuotes.map((q): [Quote, string] => [q, "homeProof"]),
   ...homeRibbonQuotes.map((q): [Quote, string] => [q, "reviewHighlights.homeRibbonQuotes"]),
   [featuredQuote, "reviewHighlights.featuredQuote"],
   [drWong.quote, "team.drWong"],

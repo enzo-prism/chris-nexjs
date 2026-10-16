@@ -1,8 +1,24 @@
+/**
+ * Static SEO regression gate (pnpm run test:seo).
+ *
+ * 2026-10-16: the root /sitemap.xml became a <sitemapindex> over the segment
+ * sitemaps (pages, services, locations, blog) instead of a full urlset that
+ * duplicated them. This gate now reads every segment through
+ * app/sitemap-xml-utils.ts and additionally asserts that the index lists each
+ * segment once, that no URL appears in two segments, that lastmod values share
+ * one yyyy-mm-dd format, and that no redirecting (merged/retired) URL is listed.
+ */
 import fs from "node:fs";
 import path from "node:path";
 import { getCanonicalRouteData } from "../app/route-utils";
-import sitemap from "../app/sitemap";
+import {
+  SITEMAP_SEGMENTS,
+  getSegmentEntries,
+  getSitemapIndexEntries,
+  sitemapSegmentPath,
+} from "../app/sitemap-xml-utils";
 import robots from "../app/robots";
+import { getLegacyRedirectPath, legacyRedirects } from "../shared/redirects";
 import {
   GOOGLE_CRAWLER_USER_AGENTS,
   buildRobotsTxtContent,
@@ -73,11 +89,50 @@ async function main(): Promise<void> {
 
   const storage = await getStorage();
   const blogPosts = await storage.getBlogPosts();
-  const generated = await sitemap();
 
-  const generatedPaths = new Set<string>(
-    generated.map((entry) => pathFromLoc(entry.url)),
-  );
+  const generatedPaths = new Set<string>();
+  const segmentByPath = new Map<string, string>();
+  for (const segment of SITEMAP_SEGMENTS) {
+    for (const entry of await getSegmentEntries(segment)) {
+      const entryPath = pathFromLoc(entry.url);
+      const existing = segmentByPath.get(entryPath);
+      if (existing) {
+        errors.push({
+          message: `Sitemap URL listed twice (${existing} and ${segment}): ${entryPath}`,
+        });
+      }
+      segmentByPath.set(entryPath, segment);
+      generatedPaths.add(entryPath);
+      if (entry.lastmod && !/^\d{4}-\d{2}-\d{2}$/.test(entry.lastmod)) {
+        errors.push({
+          message: `Sitemap lastmod should be yyyy-mm-dd for ${entryPath}: ${entry.lastmod}`,
+        });
+      }
+    }
+  }
+
+  const indexEntries = await getSitemapIndexEntries();
+  const indexedSegments = indexEntries.map((entry) => pathFromLoc(entry.url));
+  for (const segment of SITEMAP_SEGMENTS) {
+    const expected = sitemapSegmentPath(segment);
+    const count = indexedSegments.filter((entry) => entry === expected).length;
+    if (count !== 1) {
+      errors.push({
+        message: `Sitemap index should list ${expected} exactly once (found ${count})`,
+      });
+    }
+  }
+
+  generatedPaths.forEach((entryPath) => {
+    if (getLegacyRedirectPath(entryPath)) {
+      errors.push({ message: `Sitemap lists a redirecting URL: ${entryPath}` });
+    }
+  });
+  legacyRedirects.forEach(({ from }) => {
+    if (generatedPaths.has(from)) {
+      errors.push({ message: `Sitemap lists a legacy redirect source: ${from}` });
+    }
+  });
 
   const expectedBlogPaths = new Set(blogPosts.map((post) => `/blog/${post.slug}`));
   const expectedAll = new Set<string>([...expectedSitemapEntries, ...expectedBlogPaths]);
@@ -142,6 +197,14 @@ async function main(): Promise<void> {
   }
 
   const robotsConfig = robots();
+  const robotsSitemaps = Array.isArray(robotsConfig.sitemap)
+    ? robotsConfig.sitemap
+    : robotsConfig.sitemap
+      ? [robotsConfig.sitemap]
+      : [];
+  if (!robotsSitemaps.some((entry) => entry.endsWith("/sitemap.xml"))) {
+    errors.push({ message: "robots config should reference the /sitemap.xml index" });
+  }
   const allRules = Array.isArray(robotsConfig.rules)
     ? robotsConfig.rules
     : [robotsConfig.rules];

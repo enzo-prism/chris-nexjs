@@ -1,368 +1,419 @@
-"use client";
+import dynamic from "next/dynamic";
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, CalendarDays, Images, MapPin } from "lucide-react";
 
-import { useEffect, useRef, useState } from "react";
-import { Play, Pause, MapPin, ArrowRight, CalendarCheck } from "lucide-react";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
-import ButtonLink from "@/components/common/ButtonLink";
-import OptimizedImage from "@/components/seo/OptimizedImage";
 import StructuredData from "@/components/seo/StructuredData";
-import { buildVideoObjectSchemas } from "@/lib/structuredData";
+import { CtaBand } from "@/components/ds/CtaBand";
+import { ReviewCard } from "@/components/ds/Reviews";
+import { Section } from "@/components/ds/Section";
+import { SectionHeading } from "@/components/ds/SectionHeading";
+import type { StoryVideoVersion } from "@/components/video/types";
+import { fullCircleFilm, fullCircleShort } from "@/data/fullCircleFilm";
+import { fullCircleTranscriptText } from "@/data/fullCircleTranscript";
+import { homeRibbonQuotes } from "@/data/reviewHighlights";
 import { officeInfo } from "@/lib/data";
-import { cn } from "@/lib/utils";
+import {
+  buildBreadcrumbSchema,
+  buildFullCircleVideoSchemas,
+  buildVideoObjectSchemas,
+  type StructuredDataNode,
+} from "@/lib/structuredData";
+
+// Interactive players load their chunk alongside hydration; the SSR shell
+// (poster + play button) paints without it.
+const StoryFilm = dynamic(() => import("@/components/video/StoryFilm"));
+const StoryPlayer = dynamic(() =>
+  import("@/components/video/StoryPlayer").then((mod) => mod.StoryPlayer),
+);
 
 const breadcrumbItems = [
   { name: "Home", path: "/" },
-  { name: "Office Tour", path: "/office-tour" },
+  { name: "Office tour & film", path: "/office-tour" },
 ];
 
-type TourStop = {
-  src: string;
-  poster: string;
-  label: string;
-  caption: string;
+// The four real office clips (silent, 1280×720, self-hosted). Captions only
+// describe what the clips show.
+type TourClip = {
+  readonly id: string;
+  readonly schemaId: string;
+  readonly version: StoryVideoVersion;
+  readonly caption: string;
 };
 
-const TOUR_STOPS: TourStop[] = [
+const clip = (
+  id: string,
+  title: string,
+  durationSeconds: number,
+): StoryVideoVersion => ({
+  id: `tour-${id}`,
+  label: title,
+  title,
+  durationSeconds,
+  aspect: "16/9",
+  sources: [{ src: `/videos/office-${id}.mp4`, width: 1280 }],
+  poster: `/images/tour/office-${id}-poster.webp`,
+});
+
+const tourClips: readonly TourClip[] = [
   {
-    src: "/videos/office-exterior.mp4",
-    poster: "/images/tour/office-exterior-poster.webp",
-    label: "Easy to find",
-    caption: `We're at ${officeInfo.address.line1} in downtown ${officeInfo.address.city}, with convenient parking and a welcoming entrance.`,
+    id: "atrium",
+    schemaId: "atrium",
+    version: clip("atrium", "The garden courtyard", 13),
+    caption:
+      "The treatment rooms open onto a planted courtyard with a stone fountain, so most visits come with daylight and a little green.",
   },
   {
-    src: "/videos/office-lounge.mp4",
-    poster: "/images/tour/office-lounge-poster.webp",
-    label: "A calming reception",
-    caption:
-      "Settle into our quiet reception lounge — soft lighting and a saltwater reef aquarium make the wait feel like anything but.",
+    id: "exterior",
+    schemaId: "stop-1",
+    version: clip("exterior", "Finding the office", 8),
+    caption: `The entrance at ${officeInfo.address.line1} in ${officeInfo.address.city}, marked by a sculpted pine and the Christopher Wong D.D.S. sign.`,
   },
   {
-    src: "/videos/office-frontdesk.mp4",
-    poster: "/images/tour/office-frontdesk-poster.webp",
-    label: "A team that takes care of the details",
-    caption:
-      "From scheduling to insurance, our front-desk team keeps every visit smooth so you can focus on your smile.",
+    id: "lounge",
+    schemaId: "stop-2",
+    version: clip("lounge", "The aquarium lounge", 12),
+    caption: "A quiet place to wait, with a reef aquarium, leather chairs, and soft light.",
+  },
+  {
+    id: "frontdesk",
+    schemaId: "stop-3",
+    version: clip("frontdesk", "The front desk", 11),
+    caption: "Where the team checks you in, confirms your visits, and answers insurance questions.",
   },
 ];
 
-function TourClip({ stop }: { stop: TourStop }): React.JSX.Element {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-
-  // Pause and reset to the poster when scrolled out of view.
-  useEffect(() => {
-    const el = videoRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting && !el.paused) {
-            el.pause();
-          }
-        }
-      },
-      { threshold: 0.25 },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  const toggle = async () => {
-    const el = videoRef.current;
-    if (!el) return;
-    if (el.paused) {
-      el.muted = true;
-      el.loop = true;
-      try {
-        await el.play();
-      } catch {
-        // Autoplay can be blocked; ignore and keep the poster.
-      }
-    } else {
-      el.pause();
-    }
-  };
-
-  return (
-    <figure className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_24px_55px_-40px_rgba(15,23,42,0.5)]">
-      <div className="relative aspect-video overflow-hidden bg-slate-900">
-        <video
-          ref={videoRef}
-          src={stop.src}
-          poster={stop.poster}
-          className="h-full w-full object-cover"
-          muted
-          loop
-          playsInline
-          preload="none"
-          controls={false}
-          onPlay={() => setIsPlaying(true)}
-          onPause={() => setIsPlaying(false)}
-          onEnded={() => setIsPlaying(false)}
-        />
-        <button
-          type="button"
-          onClick={toggle}
-          aria-label={`${isPlaying ? "Pause" : "Play"} the ${stop.label} video`}
-          className={cn(
-            "ui-focus-premium absolute flex items-center justify-center transition-[background-color,border-color,transform]",
-            isPlaying
-              ? "bottom-4 left-4 h-11 w-11 rounded-full border border-white/40 bg-black/45 text-white backdrop-blur-sm hover:bg-black/65"
-              : "inset-0 bg-gradient-to-t from-black/40 via-black/5 to-transparent",
-          )}
-        >
-          {isPlaying ? (
-            <Pause className="h-5 w-5 fill-current" aria-hidden="true" />
-          ) : (
-            <span className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-white/90 text-primary shadow-lg ring-1 ring-white/70 transition-transform group-hover:scale-105">
-              <Play className="h-7 w-7 translate-x-0.5 fill-current" aria-hidden="true" />
-            </span>
-          )}
-        </button>
-      </div>
-      <figcaption className="px-6 py-6">
-        <h3 className="font-heading text-lg font-semibold text-slate-900">
-          {stop.label}
-        </h3>
-        <p className="mt-2 text-sm leading-relaxed text-slate-600">
-          {stop.caption}
-        </p>
-      </figcaption>
-    </figure>
-  );
-}
+// Real office photos (manifest selects, exported to public/images/redesign).
+const photos = [
+  {
+    src: "/images/redesign/office-entrance-dr-wong.webp",
+    width: 1024,
+    height: 576,
+    alt: "Dr. Christopher B. Wong in a white coat at the office entrance, beside the Christopher Wong D.D.S. sign and a sculpted pine",
+    caption: "The front entrance",
+    span: "col-span-2 lg:col-span-2 lg:row-span-2",
+    position: "55% 40%",
+  },
+  {
+    src: "/images/redesign/office-front-desk-atrium.webp",
+    width: 1280,
+    height: 720,
+    alt: "Front desk with wood-slat panels beside the glass atrium",
+    caption: "Front desk",
+    span: "",
+    position: "40% 45%",
+  },
+  {
+    src: "/images/redesign/office-aquarium-lounge.webp",
+    width: 1280,
+    height: 720,
+    alt: "Lounge with a reef aquarium and leather chairs",
+    caption: "Aquarium lounge",
+    span: "",
+    position: "55% 40%",
+  },
+  {
+    src: "/images/office/garden-view-operatory.webp",
+    width: 1800,
+    height: 1350,
+    alt: "Treatment room that looks out onto the garden courtyard",
+    caption: "Garden-view treatment room",
+    span: "",
+    position: "50% 50%",
+  },
+  {
+    src: "/images/redesign/office-reception-waiting.webp",
+    width: 1024,
+    height: 576,
+    alt: "Reception and waiting area with wood-slat walls and navy seating",
+    caption: "Reception",
+    span: "",
+    position: "50% 45%",
+  },
+  {
+    src: "/images/office/quiet-garden-courtyard.webp",
+    width: 1800,
+    height: 1350,
+    alt: "Quiet garden courtyard with a stone fountain, seen through the office’s glass walls",
+    caption: "The courtyard fountain",
+    span: "",
+    position: "50% 55%",
+  },
+  {
+    src: "/images/redesign/office-hallway-glass.webp",
+    width: 1280,
+    height: 720,
+    alt: "Office hallway with glass walls and framed artwork",
+    caption: "Glass-walled hallway",
+    span: "",
+    position: "50% 50%",
+  },
+] as const;
 
 // All four clips shipped together on 2026-06-23 (self-hosted, no
 // Cloudinary version segment to derive the date from).
 const TOUR_VIDEO_UPLOAD_DATE = "2026-06-23";
 
-const tourVideoSchemas = buildVideoObjectSchemas(
-  [
-    {
-      id: "atrium",
-      title: "Office tour: garden courtyard and treatment rooms",
-      description:
-        "A walk through the Palo Alto dental office, from the planted garden courtyard to the treatment rooms.",
-      src: "/videos/office-atrium.mp4",
-      poster: "/images/tour/office-atrium-poster.webp",
-      uploadDate: TOUR_VIDEO_UPLOAD_DATE,
-    },
-    ...TOUR_STOPS.map((stop, index) => ({
-      id: `stop-${index + 1}`,
-      title: `Office tour: ${stop.label}`,
-      description: stop.caption,
-      src: stop.src,
-      poster: stop.poster,
-      uploadDate: TOUR_VIDEO_UPLOAD_DATE,
-    })),
-  ],
-  "/office-tour",
-);
+const transcriptPlainText = fullCircleTranscriptText.map((part) => part.lines).join(" ");
 
-const OfficeTour = (): React.JSX.Element => {
-  // Click-to-play: a priority poster image is the LCP element (fast paint on
-  // mobile); the video only mounts/loads when the visitor taps play.
-  const [heroPlaying, setHeroPlaying] = useState(false);
-  const heroVideoRef = useRef<HTMLVideoElement>(null);
+function buildOfficeTourSchema(): StructuredDataNode[] {
+  const nodes: StructuredDataNode[] = [];
+  const breadcrumbs = buildBreadcrumbSchema(breadcrumbItems);
+  if (breadcrumbs) nodes.push(breadcrumbs);
+  // The film is this page's main content (Google shows video results there).
+  nodes.push(...buildFullCircleVideoSchemas({ transcript: transcriptPlainText }));
+  nodes.push(
+    ...buildVideoObjectSchemas(
+      tourClips.map((c) => ({
+        id: c.schemaId,
+        title: `Office tour: ${c.version.title.replace(/^The /, "the ")}`,
+        description: c.caption,
+        src: c.version.sources[0].src,
+        poster: c.version.poster,
+        uploadDate: TOUR_VIDEO_UPLOAD_DATE,
+      })),
+      "/office-tour",
+    ),
+  );
+  return nodes;
+}
 
-  const pauseHeroVideo = () => {
-    heroVideoRef.current?.pause();
-    setHeroPlaying(false);
-  };
+const parkingQuote = homeRibbonQuotes.find((q) => q.name === "Lawan Jackson");
 
+const OfficeTour = () => {
   return (
     <>
-      <StructuredData data={tourVideoSchemas} id="office-tour-video-schema" />
-      <PageBreadcrumbs items={breadcrumbItems} />
+      <StructuredData data={buildOfficeTourSchema()} id="office-tour-video-schema" />
 
-      {/* Hero */}
-      <section className="relative overflow-x-clip bg-gradient-to-b from-[#f6fafc] via-white to-[#f9fbff] pt-8 lg:pt-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-12 lg:pb-16">
-          <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.15fr] lg:gap-14">
-            <div>
-              <span className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-blue-600 ring-1 ring-inset ring-blue-600/10">
-                Virtual Office Tour
-              </span>
-              <h1 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
-                Step inside our Palo Alto dental office
+      {/* ------------------------------------------------- Hero + the film */}
+      <section className="paper relative isolate overflow-hidden" aria-labelledby="office-tour-title">
+        <div className="mx-auto max-w-7xl px-4 pb-14 pt-6 sm:px-6 sm:pb-16 sm:pt-8 lg:px-8 lg:pb-20">
+          <PageBreadcrumbs items={breadcrumbItems} inline className="mb-6 sm:mb-8" />
+          <div className="grid items-end gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:gap-14">
+            <div className="max-w-3xl">
+              <p className="eyebrow rise-in">Office tour · A short film</p>
+              <h1
+                id="office-tour-title"
+                className="h-display mt-5 text-balance text-[2.35rem] sm:text-[3.1rem] lg:text-[3.6rem]"
+              >
+                Step inside our Palo Alto <em>dental office</em>
               </h1>
-              <p className="mt-5 max-w-xl text-lg leading-relaxed text-slate-600">
-                Calm, modern, and designed around your comfort — from a serene
-                garden courtyard to a relaxing reception lounge. Take a look
-                around before your first visit with Dr. Wong and the team.
+              <p className="lead mt-5 max-w-2xl">
+                Start with <em className="font-heading">Full Circle</em>, Dr. Wong’s two-minute film about how
+                the practice came to him. Then walk through the courtyard, the lounge, and the front desk
+                before your first visit.
               </p>
-              <div className="mt-8 flex flex-wrap items-center gap-4">
-                <ButtonLink
-                  href="/schedule#appointment"
-                  className="ui-btn-primary inline-flex h-12 items-center gap-2 rounded-full px-7 text-base font-semibold"
-                >
-                  <CalendarCheck className="h-5 w-5" aria-hidden="true" />
-                  Request Appointment
-                </ButtonLink>
-                <ButtonLink
-                  href="/gallery"
-                  variant="outline"
-                  className="inline-flex h-12 items-center rounded-full px-6 text-base font-semibold"
-                >
-                  Browse the photo gallery
-                </ButtonLink>
+            </div>
+            <div className="rise-in rise-in-3 flex flex-col gap-3 sm:flex-row sm:flex-wrap lg:flex-col lg:items-stretch">
+              <Link
+                href="/schedule#appointment"
+                className="btn btn-primary btn-lg"
+                data-analytics-context="office-tour-hero-request"
+              >
+                <CalendarDays aria-hidden="true" />
+                Request a visit
+              </Link>
+              <Link href="/gallery" className="btn btn-outline btn-lg" data-analytics-context="office-tour-hero-gallery">
+                <Images aria-hidden="true" />
+                Browse the photo gallery
+              </Link>
+            </div>
+          </div>
+
+          <div id="film" className="mx-auto mt-10 max-w-5xl scroll-mt-24 sm:mt-12">
+            <StoryFilm film={fullCircleFilm} short={fullCircleShort} analyticsContext="office-tour-film" />
+          </div>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------ Transcript */}
+      <Section id="transcript" tone="white" labelledBy="transcript-title" spacing="tight">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)] lg:gap-14">
+          <div>
+            <SectionHeading
+              id="transcript-title"
+              eyebrow="Read along"
+              title={
+                <>
+                  Full Circle, <em>in his words</em>
+                </>
+              }
+            />
+            <p className="mt-4 text-[15px] leading-7 text-ink-soft">
+              The film’s transcript, by chapter. Captions are also available in the player.
+            </p>
+            <Link href="/about" className="link-rooted mt-4 inline-flex min-h-11 items-center gap-1.5 text-sm">
+              More about Dr. Wong <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </div>
+          <ol className="grid gap-x-10 gap-y-6 sm:grid-cols-2">
+            {fullCircleTranscriptText.map((part, i) => (
+              <li key={part.chapter} className="border-l-2 border-gold-300 pl-4">
+                <h3 className="font-heading text-lg font-medium text-ink">
+                  <span className="mr-2 text-gold-700">{i + 1}</span>
+                  {part.chapter}
+                </h3>
+                <p className="mt-1.5 text-[15px] leading-7 text-ink-soft">{part.lines}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </Section>
+
+      {/* ------------------------------------------------------- The clips */}
+      <Section id="walkthrough" tone="cream" labelledBy="walkthrough-title">
+        <div className="grid items-end gap-6 lg:grid-cols-[1fr_auto]">
+          <SectionHeading
+            id="walkthrough-title"
+            eyebrow="A short walk-through"
+            title={
+              <>
+                Four corners of the <em>office</em>
+              </>
+            }
+            lead="Short, silent clips filmed in the office. Tap any one to play it."
+          />
+          <a
+            href={officeInfo.mapUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-outline self-start lg:self-auto"
+            data-analytics-context="office-tour-directions"
+          >
+            <MapPin aria-hidden="true" />
+            Directions
+          </a>
+        </div>
+        <ul className="mt-10 grid gap-6 md:grid-cols-2 lg:gap-8">
+          {tourClips.map((c) => (
+            <li key={c.id}>
+              <figure>
+                <StoryPlayer version={c.version} analyticsContext={`office-tour-clip-${c.id}`} />
+                <figcaption className="mt-4 px-1">
+                  <h3 className="h-card text-[1.3rem]">{c.version.title}</h3>
+                  <p className="mt-1.5 text-[15px] leading-7 text-ink-soft">{c.caption}</p>
+                </figcaption>
+              </figure>
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      {/* ------------------------------------------------------- Photos */}
+      <Section id="photos" tone="white" labelledBy="photos-title">
+        <div className="grid items-end gap-6 lg:grid-cols-[1fr_auto]">
+          <SectionHeading
+            id="photos-title"
+            eyebrow="Photo highlights"
+            title={
+              <>
+                Light, wood, and a <em>garden in the middle</em>
+              </>
+            }
+            lead="Real photos of the office on Cambridge Avenue, from the front door to the treatment rooms."
+          />
+          <Link href="/gallery" className="btn btn-primary self-start lg:self-auto" data-analytics-context="office-tour-photos-gallery">
+            See the full gallery
+            <ArrowRight aria-hidden="true" />
+          </Link>
+        </div>
+        <ul className="reveal-stagger mt-10 grid auto-rows-[9.5rem] grid-cols-2 gap-3 sm:auto-rows-[12rem] sm:gap-4 lg:auto-rows-[13rem] lg:grid-cols-4">
+          {photos.map((photo) => (
+            <li key={photo.src} className={photo.span}>
+              <figure className="group relative h-full overflow-hidden rounded-[1.5rem] bg-cream-200 shadow-soft">
+                <Image
+                  src={photo.src}
+                  alt={photo.alt}
+                  fill
+                  sizes={photo.span ? "(max-width: 1024px) 100vw, 50vw" : "(max-width: 1024px) 50vw, 25vw"}
+                  className="object-cover transition-transform duration-700 ease-out-soft group-hover:scale-[1.03]"
+                  style={{ objectPosition: photo.position }}
+                />
+                <figcaption className="absolute bottom-2.5 left-2.5 rounded-full bg-cream-50/90 px-2.5 py-1 text-xs font-semibold text-ink-soft backdrop-blur sm:bottom-3 sm:left-3 sm:px-3">
+                  {photo.caption}
+                </figcaption>
+              </figure>
+            </li>
+          ))}
+          <li className="col-span-2">
+            <div className="surface-evergreen on-dark flex h-full flex-col justify-between gap-4 rounded-[1.5rem] p-5 sm:p-6">
+              <p className="font-heading text-xl leading-snug text-cream-50">
+                See everything, from the operatories to <em className="text-gold-300">Dr. Wong’s polaroids</em>.
+              </p>
+              <Link href="/gallery" className="btn btn-gold btn-sm self-start">
+                Open the gallery
+                <ArrowRight aria-hidden="true" />
+              </Link>
+            </div>
+          </li>
+        </ul>
+
+        {/* Visiting: the team photo and practical next steps. */}
+        <div className="mt-14 grid gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)]">
+          <figure className="relative overflow-hidden rounded-[2rem] bg-cream-200 shadow-soft">
+            <Image
+              src="/images/redesign/team-group-reception.webp"
+              alt="Dr. Christopher B. Wong and the dental team standing together in the office reception area"
+              width={1600}
+              height={1066}
+              sizes="(max-width: 1024px) 100vw, 60vw"
+              className="aspect-[4/3] h-auto w-full object-cover object-[52%_45%] sm:aspect-[16/9]"
+            />
+            <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-evergreen-950/75 to-transparent" />
+            <figcaption className="absolute inset-x-0 bottom-0 flex flex-col gap-3 p-5 text-cream-50 sm:flex-row sm:items-end sm:justify-between sm:p-7">
+              <span>
+                <span className="block font-heading text-2xl leading-tight">
+                  Who you’ll meet <em className="text-gold-300">at the door</em>
+                </span>
+                <span className="mt-1 block text-sm text-cream-100/90">Dr. Wong and the team in the reception area</span>
+              </span>
+              <Link href="/about#team" className="btn btn-outline-light btn-sm self-start sm:self-auto">
+                Meet the team
+                <ArrowRight aria-hidden="true" />
+              </Link>
+            </figcaption>
+          </figure>
+          <div className="flex flex-col gap-5">
+            <div className="card flex flex-1 flex-col p-6">
+              <p className="eyebrow">Visiting</p>
+              <address className="mt-3 not-italic">
+                <span className="block font-heading text-xl text-ink">{officeInfo.address.line1}</span>
+                <span className="block text-[15px] text-ink-soft">
+                  {officeInfo.address.city}, {officeInfo.address.region} {officeInfo.address.postalCode}
+                </span>
+              </address>
+              <div className="mt-5 flex flex-wrap gap-2">
                 <a
                   href={officeInfo.mapUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="ui-focus-premium inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-slate-600 hover:text-primary"
+                  className="btn btn-outline btn-sm"
+                  data-analytics-context="office-tour-visit-map"
                 >
-                  <MapPin className="h-4 w-4" aria-hidden="true" />
-                  {officeInfo.address.line1}, {officeInfo.address.city}
+                  <MapPin aria-hidden="true" />
+                  Open in Maps
                 </a>
+                <Link href="/contact" className="btn btn-ghost btn-sm" data-analytics-context="office-tour-visit-contact">
+                  Contact & hours
+                  <ArrowRight aria-hidden="true" />
+                </Link>
               </div>
             </div>
-
-            <div className="relative aspect-[16/10] overflow-hidden rounded-[32px] bg-slate-900 shadow-[0_40px_100px_-30px_rgba(15,23,42,0.35)] ring-1 ring-slate-900/10">
-              {heroPlaying ? (
-                <>
-                  <video
-                    ref={heroVideoRef}
-                    src="/videos/office-atrium.mp4"
-                    className="h-full w-full object-cover"
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    controls={false}
-                    onPause={() => setHeroPlaying(false)}
-                    onEnded={() => setHeroPlaying(false)}
-                  />
-                  <button
-                    type="button"
-                    onClick={pauseHeroVideo}
-                    aria-label="Pause the office tour video"
-                    className="ui-focus-premium absolute bottom-5 left-5 inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/40 bg-black/45 text-white backdrop-blur-sm transition-colors hover:bg-black/65"
-                  >
-                    <Pause className="h-5 w-5 fill-current" aria-hidden="true" />
-                  </button>
-                </>
-              ) : (
-                <>
-                  {/* Plain <img> (not OptimizedImage) so the LCP hero paints as
-                      soon as the small webp arrives, with no JS opacity-gating. */}
-                  <img
-                    src="/images/tour/office-atrium-poster.webp"
-                    alt="Inside the Palo Alto dental office: the garden courtyard and treatment rooms"
-                    width={1280}
-                    height={800}
-                    fetchPriority="high"
-                    decoding="async"
-                    className="h-full w-full object-cover"
-                  />
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
-                  <button
-                    type="button"
-                    onClick={() => setHeroPlaying(true)}
-                    aria-label="Play the office tour video"
-                    className="ui-focus-premium group absolute inset-0 flex items-center justify-center"
-                  >
-                    <span className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-white/90 text-primary shadow-lg ring-1 ring-white/70 transition-transform group-hover:scale-105">
-                      <Play className="h-8 w-8 translate-x-0.5 fill-current" aria-hidden="true" />
-                    </span>
-                  </button>
-                </>
-              )}
-            </div>
+            {parkingQuote ? <ReviewCard review={parkingQuote} /> : null}
           </div>
         </div>
-      </section>
+      </Section>
 
-      {/* Tour stops */}
-      <section className="bg-white py-14 md:py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="font-heading text-2xl font-bold text-slate-900 sm:text-3xl md:text-4xl">
-              A look around the practice
-            </h2>
-            <p className="mt-3 text-base leading-relaxed text-slate-600">
-              Tap any clip to play. Everything you see is our real Palo Alto
-              office and team.
-            </p>
-          </div>
-
-          <div className="mt-10 grid gap-6 md:mt-12 md:grid-cols-2 lg:grid-cols-3">
-            {TOUR_STOPS.map((stop) => (
-              <TourClip key={stop.src} stop={stop} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Garden courtyard photo band */}
-      <section className="bg-gradient-to-b from-white to-[#f5f9fc] py-14 md:py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
-            <div className="overflow-hidden rounded-3xl shadow-md ring-1 ring-slate-200/70">
-              <OptimizedImage
-                src="/images/office/atrium-courtyard.webp"
-                alt="The garden courtyard with a water feature at the Palo Alto dental office"
-                width={1600}
-                height={900}
-                sizes="(max-width: 1024px) 100vw, 600px"
-                className="aspect-[16/9] w-full"
-              />
-            </div>
-            <div>
-              <h2 className="font-heading text-2xl font-bold text-slate-900 sm:text-3xl md:text-4xl">
-                A breath of calm at the center of it all
-              </h2>
-              <p className="mt-4 text-base leading-relaxed text-slate-600">
-                Our treatment rooms open onto a planted garden courtyard with a
-                quiet water feature — natural light, greenery, and a moment of
-                calm that makes a dental visit feel a little more like a retreat.
-              </p>
-              <ul className="mt-6 space-y-3 text-sm text-slate-700">
-                {[
-                  "Modern, light-filled treatment rooms",
-                  "Up-to-date imaging and technology",
-                  "A friendly, long-tenured team",
-                ].map((item) => (
-                  <li key={item} className="flex items-start gap-3">
-                    <span className="mt-1 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                      <ArrowRight className="h-3 w-3" aria-hidden="true" />
-                    </span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="bg-[#0b1f3a] py-16">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-heading text-2xl font-bold text-white sm:text-3xl md:text-4xl">
-            Come see it in person
-          </h2>
-          <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-blue-100">
-            New and returning patients are always welcome. Request an appointment and
-            we&rsquo;ll confirm by phone or email within one business day.
-          </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-            <ButtonLink
-              href="/schedule#appointment"
-              className="ui-btn-primary inline-flex h-12 items-center gap-2 rounded-full px-7 text-base font-semibold"
-            >
-              <CalendarCheck className="h-5 w-5" aria-hidden="true" />
-              Request an appointment
-            </ButtonLink>
-            <a
-              href={`tel:${officeInfo.phoneE164}`}
-              className="ui-focus-premium inline-flex h-12 items-center gap-2 rounded-full border border-white/30 px-6 text-base font-semibold text-white transition-colors hover:bg-white/10"
-            >
-              Call {officeInfo.phone}
-            </a>
-          </div>
-        </div>
-      </section>
+      <CtaBand
+        analyticsContext="office-tour-cta"
+        title={
+          <>
+            Come see it <em>in person</em>
+          </>
+        }
+        lead="New patients are always welcome. Request a visit online in about a minute, or call and talk with the front desk."
+      />
     </>
   );
 };

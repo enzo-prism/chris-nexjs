@@ -1,7 +1,7 @@
 "use client";
 
 import { officeInfo } from "@/lib/data";
-import { useHolidayHours } from "@/hooks/useHolidayHours";
+import { useHolidayNotice } from "@/components/patients/useHolidayNotice";
 import { cn } from "@/lib/utils";
 
 type OfficeHoursSummaryProps = {
@@ -24,7 +24,8 @@ const OfficeHoursSummary = ({
   hoursClassName,
   noteClassName,
 }: OfficeHoursSummaryProps) => {
-  const holiday = useHolidayHours();
+  // Post-mount only (see useHolidayNotice): avoids a hydration mismatch.
+  const holiday = useHolidayNotice();
   const temporaryNotice = holiday ? (
     <p
       className={cn(

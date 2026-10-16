@@ -173,8 +173,17 @@ const Header = ({ variant = "default" }: HeaderProps) => {
 
   const trapFocus = (event: ReactKeyboardEvent<HTMLDivElement>) => {
     if (event.key !== "Tab" || !panelRef.current) return;
-    const focusable = panelRef.current.querySelectorAll<HTMLElement>(
-      'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    // Only elements that can really take focus right now: links inside a
+    // closed <details> are skipped (Chrome still gives them layout boxes, so
+    // getClientRects() alone can't tell), and <summary> toggles are included.
+    const focusable = Array.from(
+      panelRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), summary, [tabindex]:not([tabindex="-1"])',
+      ),
+    ).filter((el) =>
+      typeof el.checkVisibility === "function"
+        ? el.checkVisibility()
+        : el.getClientRects().length > 0,
     );
     if (!focusable.length) return;
     const first = focusable[0];
@@ -516,7 +525,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
               type="button"
               variant="ghost"
               onClick={() => setMobileMenuOpen(true)}
-              aria-label="Open navigation menu"
+              aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-nav"
               aria-haspopup="dialog"
@@ -642,8 +651,9 @@ function MobileGroup({
   readonly extra?: NavItem;
 }) {
   const list = extra ? [...items, extra] : items;
+  const containsCurrent = list.some((item) => isActive(item.href));
   return (
-    <details className="faq-item group mt-3 rounded-2xl border border-cream-300 bg-white">
+    <details className="faq-item group mt-3 rounded-2xl border border-cream-300 bg-white" open={containsCurrent}>
       <summary className="flex min-h-14 cursor-pointer items-center justify-between px-4 text-base font-semibold text-ink">
         {title}
         <ChevronDown className="h-5 w-5 text-ink-muted transition-transform group-open:rotate-180" aria-hidden="true" />

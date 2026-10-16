@@ -34,29 +34,63 @@ export function HarvestMoon() {
   );
 }
 
-/** A ghost-tooth peeking out from behind the hero photo (desktop only). */
+/** A ghost-tooth peeking out from behind the hero photo (desktop only).
+ *  Hovering it shows a little "Boo!" note (CSS only). */
 export function HeroGhost() {
   return (
     <div
       aria-hidden="true"
-      className="cw-season-only pointer-events-none absolute -left-14 bottom-14 w-20"
+      className="cw-season-only absolute -left-12 bottom-24 z-10 w-20"
     >
       <div className="hidden lg:block">
-        <span className="cw-art cw-art-ghost cw-ghost-peek w-full" />
+        <span className="cw-art cw-art-ghost cw-ghost-peek cw-ghost-boo w-full" />
       </div>
     </div>
   );
 }
 
-/** "Happy Halloween" chip above the hero's address chip (navy hero). */
+/** "Happy Halloween" chip above the hero chips (cream hero). */
 export function SeasonalGreeting() {
   return (
     <div className="cw-season-only mb-3">
-      <p className="inline-flex items-center gap-1.5 rounded-full border border-amber-200/25 bg-amber-300/10 py-1 pl-1.5 pr-3 text-xs font-semibold text-amber-100 sm:gap-2 sm:py-1.5 sm:pl-2 sm:pr-4 sm:text-sm">
+      <p className="inline-flex items-center gap-2 rounded-full border border-pumpkin-300/60 bg-[#FFF1E2] py-1 pl-1.5 pr-3.5 text-xs font-semibold text-[#8A3B0C] sm:text-sm">
         <span aria-hidden="true" className="cw-art cw-art-ghost w-5 shrink-0 sm:w-6" />
         Happy Halloween from Cambridge Ave
       </p>
     </div>
+  );
+}
+
+// Jack-o'-lanterns sitting at the foot of the redwoods in the hero's root
+// band (positions follow public/brand/roots-ink.svg's tree bases).
+const lanterns: readonly CSSProperties[] = [
+  { left: "calc(50% - 470px)", width: 26, animationDelay: "0.2s" },
+  { left: "calc(50% - 300px)", width: 34, animationDelay: "0.6s" },
+  { left: "calc(50% - 22px)", width: 30, animationDelay: "0s" },
+  { left: "calc(50% + 190px)", width: 36, animationDelay: "0.9s" },
+  { left: "calc(50% + 420px)", width: 26, animationDelay: "0.4s" },
+];
+
+/** Glowing pumpkin patch along the hero's redwood band. */
+export function PumpkinPatch() {
+  return (
+    <div aria-hidden="true" className="cw-season-only pointer-events-none absolute inset-x-0 top-[34px] h-12 sm:top-[46px]">
+      {lanterns.map((style, i) => (
+        <span key={i} className="cw-art cw-art-pumpkin cw-lantern absolute bottom-0" style={style} />
+      ))}
+    </div>
+  );
+}
+
+/** A friendly spider that drops in on its thread once, then bobs. */
+export function SpiderDrop({ className = "" }: { readonly className?: string }) {
+  return (
+    <SeasonPlay ariaHidden className={`cw-season-only cw-spider-wrap pointer-events-none absolute z-10 ${className}`}>
+      <span className="cw-spider pointer-events-auto block">
+        <span className="cw-thread" />
+        <span className="cw-art cw-art-spider block w-9 sm:w-11" />
+      </span>
+    </SeasonPlay>
   );
 }
 
@@ -117,37 +151,29 @@ const treatTips = [
 /** Homepage seasonal band: three treat-smart tips and a checkup nudge. */
 export function TreatTipsSection() {
   return (
-    <section
-      aria-labelledby="treat-tips-title"
-      className="cw-season-only bg-white pt-16 md:pt-24"
-    >
+    <section aria-labelledby="treat-tips-title" className="cw-season-only bg-cream-100 pb-4 pt-16 sm:pt-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <SeasonPlay className="cw-patch relative overflow-hidden rounded-[2rem] border border-amber-200/70 bg-[#FFF8EE] p-6 sm:p-8 lg:p-10">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.6fr)] lg:items-center lg:gap-12">
+        <SeasonPlay className="cw-patch relative overflow-hidden rounded-[2rem] bg-night p-6 text-cream-100 shadow-lift sm:p-8 lg:p-10">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-full bg-pumpkin-500/25 blur-3xl"
+          />
+          <div className="relative grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.6fr)] lg:items-center lg:gap-12">
             <div>
               <div aria-hidden="true" className="flex items-end gap-1.5">
-                <span className="cw-art cw-art-pumpkin cw-pumpkin w-9" />
-                <span
-                  className="cw-art cw-art-pumpkin cw-pumpkin w-12"
-                  style={{ animationDelay: "0.18s" }}
-                />
-                <span
-                  className="cw-art cw-art-ghost cw-pumpkin w-9"
-                  style={{ animationDelay: "0.36s" }}
-                />
+                <span className="cw-art cw-art-pumpkin cw-pumpkin w-10" />
+                <span className="cw-art cw-art-pumpkin cw-pumpkin w-14" style={{ animationDelay: "0.18s" }} />
+                <span className="cw-art cw-art-ghost cw-pumpkin w-10" style={{ animationDelay: "0.36s" }} />
               </div>
-              <p className="mt-5 text-sm font-semibold uppercase tracking-[0.18em] text-[#9A4A12]">
+              <p className="mt-5 text-[0.8125rem] font-semibold uppercase tracking-[0.18em] text-pumpkin-300">
                 Happy Halloween
               </p>
-              <h2
-                id="treat-tips-title"
-                className="mt-2 text-balance font-heading text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl"
-              >
-                Treat-smart tips for a sweet October
+              <h2 id="treat-tips-title" className="mt-2 text-balance font-heading text-[1.9rem] font-medium leading-tight text-cream-50 sm:text-[2.3rem]">
+                Treat-smart tips for a <em className="text-candle">sweet</em> October
               </h2>
               <Link
-                href="/preventive-dentistry"
-                className="ui-link-premium mt-4 inline-flex min-h-11 items-center gap-1.5"
+                href="/dental-cleaning-palo-alto"
+                className="mt-5 inline-flex min-h-11 items-center gap-1.5 font-semibold text-candle underline decoration-pumpkin-400/60 underline-offset-4 hover:decoration-candle"
               >
                 Due for a post-Halloween cleaning?
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -155,12 +181,9 @@ export function TreatTipsSection() {
             </div>
             <ul className="grid gap-4 sm:grid-cols-3">
               {treatTips.map((tip) => (
-                <li
-                  key={tip.title}
-                  className="rounded-2xl border border-amber-200/60 bg-white p-5 shadow-[0_12px_28px_-24px_rgba(154,74,18,0.6)]"
-                >
-                  <h3 className="font-semibold text-slate-950">{tip.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-slate-700">{tip.body}</p>
+                <li key={tip.title} className="rounded-2xl border border-white/10 bg-white/[0.06] p-5 backdrop-blur-sm">
+                  <h3 className="font-semibold text-cream-50">{tip.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-cream-100/80">{tip.body}</p>
                 </li>
               ))}
             </ul>

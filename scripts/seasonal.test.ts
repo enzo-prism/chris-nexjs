@@ -189,8 +189,11 @@ describe("seasonal layer boundaries", () => {
     assert.doesNotMatch(footer, /components\/seasonal|@shared\/seasonal/);
   });
 
-  it("keeps the homepage H1 text unchanged", () => {
-    const hero = read("client/src/components/sections/HeroSection.tsx");
-    assert.match(hero, /Unhurried, conservative dentistry in\{" "\}\s*<span[^>]*>\s*Palo Alto\s*<SeasonalUnderline \/>/);
+  it("keeps the homepage H1 (and its seasonal underline) intact", () => {
+    const hero = read("client/src/components/home/HomeHero.tsx");
+    assert.match(
+      hero,
+      /Your <em>gentle, unhurried<\/em>\{" "\}\s*<span[^>]*>\s*Palo Alto\s*<SeasonalUnderline \/>\s*<\/span>\{" "\}\s*family dentist/,
+    );
   });
 });

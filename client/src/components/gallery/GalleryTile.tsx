@@ -13,27 +13,12 @@ type GalleryTileProps = {
   onOpen: () => void;
 };
 
+// Tiles fill the bento cell the gallery grid gives them (see Gallery.tsx).
 function getSizes(item: GalleryMediaItem): string {
   if (item.layout === "videoWide") {
-    return [
-      "(max-width: 639px) calc(100vw - 2rem)",
-      "(max-width: 1023px) calc(100vw - 3rem)",
-      "(max-width: 1279px) 60vw",
-      "38rem",
-    ].join(", ");
+    return ["(max-width: 1023px) calc(100vw - 2rem)", "(max-width: 1279px) 50vw", "38rem"].join(", ");
   }
-  return [
-    "(max-width: 639px) calc(100vw - 2rem)",
-    "(max-width: 1023px) calc(50vw - 2rem)",
-    "(max-width: 1279px) 33vw",
-    "20rem",
-  ].join(", ");
-}
-
-function getAspectClass(item: GalleryMediaItem): string {
-  if (item.layout === "videoWide") return "aspect-video";
-  if (item.layout === "photoTall") return "aspect-[4/5]";
-  return "aspect-[4/3]";
+  return ["(max-width: 1023px) 50vw", "(max-width: 1279px) 25vw", "20rem"].join(", ");
 }
 
 export default function GalleryTile({
@@ -49,12 +34,7 @@ export default function GalleryTile({
 
   useEffect(() => {
     const videoElement = videoRef.current;
-    if (
-      !videoElement ||
-      item.kind !== "video" ||
-      !videoRequested ||
-      videoErrored
-    ) {
+    if (!videoElement || item.kind !== "video" || !videoRequested || videoErrored) {
       return;
     }
 
@@ -109,33 +89,33 @@ export default function GalleryTile({
     }
   };
 
+  const zoom =
+    "transition-transform duration-700 ease-out-soft group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100";
+
   return (
     <div
       className={cn(
-        "ui-card-interactive group relative overflow-hidden rounded-[24px] border border-slate-900/5 bg-slate-100",
-        getAspectClass(item),
+        "group relative h-full w-full overflow-hidden rounded-[1.5rem] border border-cream-300/70 bg-cream-200 shadow-soft",
         className,
       )}
     >
       {item.kind === "image" ? (
-        <div className="relative h-full w-full overflow-hidden bg-slate-50">
-          <Image
-            src={item.src}
-            alt={item.alt}
-            fill
-            sizes={getSizes(item)}
-            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.02] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-            priority={priority}
-          />
-        </div>
+        <Image
+          src={item.src}
+          alt={item.alt}
+          fill
+          sizes={getSizes(item)}
+          className={cn("object-cover", zoom)}
+          priority={priority}
+        />
       ) : (
-        <div className="relative h-full w-full overflow-hidden bg-slate-900">
+        <div className="absolute inset-0 bg-evergreen-950">
           {videoRequested && !videoErrored ? (
             <video
               ref={videoRef}
               src={item.src}
               poster={item.poster}
-              className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.01] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+              className="h-full w-full object-cover"
               playsInline
               muted
               loop
@@ -153,20 +133,37 @@ export default function GalleryTile({
               alt={item.alt}
               fill
               sizes={getSizes(item)}
-              className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.01] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+              className={cn("object-cover", zoom)}
               priority={priority}
             />
-          ) : (
-            <div className="h-full w-full bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900" />
-          )}
+          ) : null}
         </div>
       )}
+
+      {/* Readability scrim + title (decorative; the opener carries the name). */}
+      <div
+        aria-hidden="true"
+        className={cn(
+          "pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-evergreen-950/70 to-transparent transition-opacity duration-500",
+          isInlinePlaying && "opacity-0",
+        )}
+      />
+      <p
+        aria-hidden="true"
+        className={cn(
+          "pointer-events-none absolute bottom-3 left-3 font-heading text-[0.95rem] font-medium leading-tight text-cream-50 transition-opacity duration-500 sm:bottom-4 sm:left-4 sm:text-lg",
+          item.kind === "video" ? "right-16" : "right-3",
+          isInlinePlaying && "opacity-0",
+        )}
+      >
+        {item.title}
+      </p>
 
       <button
         type="button"
         onClick={onOpen}
         aria-label={`Open ${item.title} in gallery viewer`}
-        className="ui-focus-premium absolute inset-0 z-10 rounded-[24px]"
+        className="absolute inset-0 z-10 rounded-[1.5rem] outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-gold-300"
       />
 
       {item.kind === "video" && !videoErrored && (
@@ -174,15 +171,17 @@ export default function GalleryTile({
           type="button"
           onClick={toggleInlinePlayback}
           className={cn(
-            "ui-focus-premium absolute inset-0 z-20 m-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/40 bg-black/45 text-white shadow-lg backdrop-blur-md transition-[background-color,border-color,opacity,transform] duration-300 motion-reduce:transition-none",
-            "scale-100 opacity-100 hover:bg-black/50 sm:scale-90 sm:opacity-0 sm:group-hover:scale-100 sm:group-hover:opacity-100 sm:focus-visible:scale-100 sm:focus-visible:opacity-100",
+            "absolute bottom-3 right-3 z-20 flex h-12 w-12 items-center justify-center rounded-full shadow-lg outline-none transition-[background-color,transform] duration-300 focus-visible:ring-4 focus-visible:ring-cream-50/80 motion-reduce:transition-none sm:bottom-4 sm:right-4",
+            isInlinePlaying
+              ? "border border-white/30 bg-evergreen-950/60 text-cream-50 backdrop-blur-md hover:bg-evergreen-950/80"
+              : "bg-gold-400 text-evergreen-950 hover:scale-105",
           )}
           aria-label={isInlinePlaying ? `Pause ${item.title} preview` : `Play ${item.title} preview`}
         >
           {isInlinePlaying ? (
-            <Pause className="h-6 w-6 fill-current" aria-hidden="true" />
+            <Pause className="h-5 w-5 fill-current" aria-hidden="true" />
           ) : (
-            <Play className="h-6 w-6 fill-current" aria-hidden="true" />
+            <Play className="ml-0.5 h-5 w-5 fill-current" aria-hidden="true" />
           )}
         </button>
       )}

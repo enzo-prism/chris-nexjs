@@ -46,6 +46,7 @@ jobs:
           pnpm exec tsx scripts/og-meta-check.ts
           pnpm run test:gallery
           pnpm run test:reviews
+          pnpm run test:blog-index
 
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium

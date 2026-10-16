@@ -1,123 +1,117 @@
-"use client";
+import Link from "next/link";
+import { Accessibility, ArrowRight, Car, Clock, MapPin, TrainFront } from "lucide-react";
 
-import MetaTags from "@/components/common/MetaTags";
-import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
-import OptimizedImage from "@/components/seo/OptimizedImage";
 import StructuredData from "@/components/seo/StructuredData";
-import { Button } from "@/components/ui/button";
-import { officeInfo } from "@/lib/data";
-import { getSeoForPath } from "@/lib/seo";
-import { ArrowRight, MapPin, Phone } from "lucide-react";
-import { Link } from "wouter";
+import { CtaBand } from "@/components/ds/CtaBand";
+import { FaqList } from "@/components/ds/FaqList";
+import { PageHero } from "@/components/ds/PageHero";
+import { ReviewCard } from "@/components/ds/Reviews";
+import { Section } from "@/components/ds/Section";
+import { SectionHeading } from "@/components/ds/SectionHeading";
+import { PeninsulaMap } from "@/components/locations/PeninsulaMap";
+import { VisitCard } from "@/components/locations/VisitCard";
+import { cityPages, nearbyCommunities } from "@/data/locations";
+import { reviewsFor } from "@/data/serviceReviews";
 import {
   buildBreadcrumbSchema,
   buildCollectionPageSchema,
   buildFAQSchema,
   buildLocationItemListSchema,
+  type FAQEntry,
   type StructuredDataNode,
 } from "@/lib/structuredData";
 
+const breadcrumbItems = [
+  { name: "Home", path: "/" },
+  { name: "Areas we serve", path: "/locations" },
+];
+
+const faqs: FAQEntry[] = [
+  {
+    question: "Do you accept patients from outside Palo Alto?",
+    answer:
+      "Yes. We welcome patients from across the Peninsula and regularly see families from Menlo Park, Stanford, Mountain View, Los Altos, Sunnyvale, and nearby communities.",
+  },
+  {
+    question: "How do I choose the right location page?",
+    answer:
+      "All care takes place at our Palo Alto office. Dedicated pages cover the few communities with distinct visit-planning needs; every nearby community receives the same services.",
+  },
+  {
+    question: "Do you offer the same services for all nearby cities?",
+    answer:
+      "Yes. Our Palo Alto office provides preventive care, restorative dentistry, Invisalign, cosmetic treatments, and emergency care for all nearby communities.",
+  },
+];
+
+// ItemList/CollectionPage parts: the office itself plus the three city pages.
+const locationParts = [
+  {
+    name: "Palo Alto (Primary Office)",
+    path: "/",
+    description: "Visit our main Palo Alto dental office for comprehensive care.",
+  },
+  {
+    name: "Menlo Park",
+    path: "/dentist-menlo-park",
+    description: "Family dentistry near Menlo Park with convenient Palo Alto access.",
+  },
+  {
+    name: "Stanford",
+    path: "/dentist-stanford",
+    description: "Flexible care for students, faculty, and families near campus.",
+  },
+  {
+    name: "Mountain View",
+    path: "/dentist-mountain-view",
+    description: "Preventive, restorative, and Invisalign care for Mountain View families.",
+  },
+];
+
+const arrivalFacts = [
+  {
+    icon: MapPin,
+    title: "California Avenue district",
+    body: "The office is on Cambridge Avenue, a short walk from California Avenue in Palo Alto.",
+  },
+  {
+    icon: TrainFront,
+    title: "Coming by Caltrain",
+    body: "Caltrain’s California Avenue station serves the same district. Ask the front desk for the simplest walking route.",
+  },
+  {
+    icon: Car,
+    title: "Parking",
+    body: "Nearby street and lot parking. Tell us where you’re coming from and we’ll share the best option and the easiest route when you schedule.",
+  },
+  {
+    icon: Accessibility,
+    title: "Accessibility",
+    body: "Wheelchair-accessible entry, accessible parking spaces, and wide doorways and hallways.",
+  },
+  {
+    icon: Clock,
+    title: "First visit",
+    body: (
+      <>
+        Arriving a few minutes early helps with check-in and paperwork, or fill in your{" "}
+        <Link href="/patient-resources" className="link-rooted">
+          new-patient forms
+        </Link>{" "}
+        ahead of time.
+      </>
+    ),
+  },
+] as const;
+
 const Locations = () => {
-  const seo = getSeoForPath("/locations");
-
-  const breadcrumbItems = [
-    { name: "Home", path: "/" },
-    { name: "Locations", path: "/locations" },
-  ];
-
-  const faqs = [
-    {
-      question: "Do you accept patients from outside Palo Alto?",
-      answer:
-        "Yes. We welcome patients from across the Peninsula and regularly see families from Menlo Park, Stanford, Mountain View, Los Altos, Sunnyvale, and nearby communities.",
-    },
-    {
-      question: "How do I choose the right location page?",
-      answer:
-        "All care takes place at our Palo Alto office. Dedicated pages cover the few communities with distinct visit-planning needs; every nearby community receives the same services.",
-    },
-    {
-      question: "Do you offer the same services for all nearby cities?",
-      answer:
-        "Yes. Our Palo Alto office provides preventive care, restorative dentistry, Invisalign, cosmetic treatments, and emergency care for all nearby communities.",
-    },
-  ];
-
   const structuredDataNodes: StructuredDataNode[] = [];
   const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbItems);
-  const faqSchema = buildFAQSchema(faqs, "/locations");
   if (breadcrumbSchema) structuredDataNodes.push(breadcrumbSchema);
+  const faqSchema = buildFAQSchema(faqs, "/locations");
   if (faqSchema) structuredDataNodes.push(faqSchema);
-
-  const locations = [
-    {
-      href: "/",
-      title: "Palo Alto (Primary Office)",
-      description: "Visit our main Palo Alto dental office for comprehensive care.",
-    },
-    {
-      href: "/dentist-menlo-park",
-      title: "Menlo Park",
-      description: "Family dentistry near Menlo Park with convenient Palo Alto access.",
-    },
-    {
-      href: "/dentist-stanford",
-      title: "Stanford",
-      description: "Flexible care for students, faculty, and families near campus.",
-    },
-    {
-      href: "/dentist-mountain-view",
-      title: "Mountain View",
-      description: "Preventive, restorative, and Invisalign care for Mountain View families.",
-    },
-    {
-      href: "/locations",
-      title: "Los Altos",
-      description: "Personalized care for Los Altos patients at our nearby Palo Alto office.",
-    },
-    {
-      href: "/locations",
-      title: "Los Altos Hills",
-      description: "Conservative dental care for Los Altos Hills families.",
-    },
-    {
-      href: "/locations",
-      title: "Sunnyvale",
-      description: "Family-friendly dental care close to Sunnyvale patients.",
-    },
-    {
-      href: "/locations",
-      title: "Cupertino",
-      description: "Comprehensive dental care for Cupertino families.",
-    },
-    {
-      href: "/locations",
-      title: "Redwood City",
-      description: "Conservative care for Redwood City patients near Palo Alto.",
-    },
-    {
-      href: "/locations",
-      title: "Redwood Shores",
-      description: "Preventive and cosmetic care for Redwood Shores patients.",
-    },
-    {
-      href: "/locations",
-      title: "Atherton",
-      description: "Modern dentistry for Atherton families near Palo Alto.",
-    },
-  ];
-
-  const locationParts = locations
-    .filter((location) => location.href !== "/locations")
-    .map((location) => ({
-    name: location.title,
-    path: location.href,
-    description: location.description,
-    }));
   const locationListSchema = buildLocationItemListSchema(locationParts);
-  if (locationListSchema) {
-    structuredDataNodes.push(locationListSchema);
-  }
+  if (locationListSchema) structuredDataNodes.push(locationListSchema);
   const locationCollectionSchema = buildCollectionPageSchema({
     path: "/locations",
     name: "Peninsula locations served by Christopher B. Wong, DDS",
@@ -125,118 +119,163 @@ const Locations = () => {
       "Location hub for Palo Alto and nearby Peninsula communities served by our dental office.",
     parts: locationParts,
   });
-  if (locationCollectionSchema) {
-    structuredDataNodes.push(locationCollectionSchema);
-  }
+  if (locationCollectionSchema) structuredDataNodes.push(locationCollectionSchema);
+
+  const parkingQuote = reviewsFor(["visit"], 1)[0];
 
   return (
     <>
-      <MetaTags title={seo.title} description={seo.description} />
-      {structuredDataNodes.length > 0 && <StructuredData data={structuredDataNodes} />}
-      <PageBreadcrumbs items={breadcrumbItems} />
+      <StructuredData data={structuredDataNodes} />
 
-      <section className="bg-[#F5F9FC] py-12 md:py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-10 lg:grid-cols-12 lg:items-center">
-            <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">
-                <MapPin className="h-4 w-4" aria-hidden="true" />
-                Serving Palo Alto and nearby communities
-              </div>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-heading text-[#1F2933]">Locations We Serve</h1>
-              <p className="text-lg text-slate-700 max-w-3xl mx-auto lg:mx-0">
-                Our Palo Alto dental office welcomes patients from across the Peninsula. Use the links below for
-                visit-planning details where they are genuinely distinct.
-              </p>
-              <div className="inline-flex items-center gap-2 text-slate-700">
-                <MapPin className="h-5 w-5 text-primary" aria-hidden="true" />
-                <span>
-                  {officeInfo.address.line1}, {officeInfo.address.city}, {officeInfo.address.region}{" "}
-                  {officeInfo.address.postalCode}
+      <PageHero
+        crumbs={breadcrumbItems}
+        eyebrow="Areas we serve"
+        title={
+          <>
+            Patients we serve from around the <em>Peninsula</em>
+          </>
+        }
+        lead="Every visit happens at one office in Palo Alto’s California Avenue district. Families come from Menlo Park, Stanford, Mountain View, Los Altos, Atherton, and towns up and down the Peninsula."
+        analyticsContext="locations-hero"
+        chips={["All care at one Palo Alto office", "New patients welcome"]}
+        media={<PeninsulaMap className="mx-auto max-w-[34rem]" />}
+      />
+
+      {/* The three neighbors with their own pages */}
+      <Section id="city-pages" tone="white" labelledBy="city-pages-title">
+        <SectionHeading
+          id="city-pages-title"
+          eyebrow="Plan your visit"
+          title={
+            <>
+              Three neighbors with <em>their own page</em>
+            </>
+          }
+          lead="Menlo Park, Stanford, and Mountain View each have a page with the route to our door, scheduling notes, and answers to the questions those patients ask most."
+        />
+        <ul className="reveal-stagger mt-10 grid gap-4 md:grid-cols-3">
+          {cityPages.map((page) => (
+            <li key={page.path}>
+              <Link
+                href={page.path}
+                className="card card-lift group flex h-full flex-col p-6 outline-none sm:p-7"
+                data-analytics-context={`locations-card-${page.slug}`}
+              >
+                <span className="flex items-center gap-3">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-evergreen-800 text-gold-300">
+                    <MapPin className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <span className="text-xs font-bold uppercase tracking-[0.14em] text-ink-muted">{page.eyebrow}</span>
                 </span>
-              </div>
-              <div className="flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
-                <Button asChild className="ui-btn-primary">
-                  <Link href="/schedule#appointment">Request an appointment</Link>
-                </Button>
-                <Button asChild variant="outline" className="ui-btn-outline">
-                  <a href={`tel:${officeInfo.phoneE164}`}>
-                    Call {officeInfo.phone}
-                    <Phone className="ml-2 h-4 w-4" />
-                  </a>
-                </Button>
-              </div>
-            </div>
-
-            <div className="lg:col-span-5">
-              <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
-                <OptimizedImage
-                  src="/images/palo-alto-community-serving.png"
-                  alt="Illustrated scene of a Palo Alto dental team welcoming local families and nearby communities"
-                  width={1536}
-                  height={1024}
-                  priority
-                  fetchPriority="high"
-                  sizes="(max-width: 1024px) 100vw, 38vw"
-                  quality={72}
-                  className="aspect-[3/2] w-full"
-                  objectPosition="50% 50%"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-12 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {locations.map((location) =>
-              location.href === "/locations" ? (
-                <div
-                  key={location.title}
-                  className="h-full rounded-2xl border border-slate-200 bg-slate-50 p-5"
-                >
-                  <h2 className="text-lg font-semibold text-slate-900">
-                    {location.title}
-                  </h2>
-                  <p className="mt-2 text-sm text-slate-600">{location.description}</p>
-                  <span className="mt-4 inline-flex text-sm font-medium text-slate-500">
-                    Served from our Palo Alto office
-                  </span>
-                </div>
-              ) : (
-              <Link key={location.title} href={location.href}>
-                <div className="group h-full rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
-                  <h2 className="text-lg font-semibold text-slate-900 group-hover:text-primary">
-                    {location.title}
-                  </h2>
-                  <p className="mt-2 text-sm text-slate-600">{location.description}</p>
-                  <span className="mt-4 inline-flex items-center text-sm font-semibold text-primary">
-                    View details
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </span>
-                </div>
+                <h3 className="h-card mt-5 text-[1.6rem]">{page.city}</h3>
+                <p className="mt-2 text-[15px] leading-7 text-ink-soft">{page.hub.blurb}</p>
+                <p className="mt-4 flex items-start gap-2 rounded-2xl bg-cream-100 px-3.5 py-2.5 text-sm font-medium text-ink-soft">
+                  <Car className="mt-0.5 h-4 w-4 shrink-0 text-evergreen-600" aria-hidden="true" />
+                  {page.hub.routeLine}
+                </p>
+                <span className="mt-auto inline-flex items-center gap-1.5 pt-6 text-[15px] font-semibold text-evergreen-700">
+                  Plan a visit from {page.city}
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                </span>
               </Link>
-              ),
-            )}
-          </div>
-        </div>
-      </section>
+            </li>
+          ))}
+        </ul>
+      </Section>
 
-      <section className="py-12 bg-[#F5F9FC]">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold font-heading text-[#1F2933] mb-6">Locations FAQs</h2>
-          <div className="grid gap-4">
-            {faqs.map((faq) => (
-              <div key={faq.question} className="rounded-2xl border border-slate-200 bg-white p-5">
-                <h3 className="text-lg font-semibold text-slate-900">{faq.question}</h3>
-                <p className="mt-2 text-slate-700">{faq.answer}</p>
-              </div>
-            ))}
+      {/* Directions, parking, arrival */}
+      <Section id="directions" tone="cream" labelledBy="directions-title">
+        <div className="grid gap-10 lg:grid-cols-[1fr_1fr] lg:gap-14">
+          <div>
+            <SectionHeading
+              id="directions-title"
+              eyebrow="Directions & parking"
+              title={
+                <>
+                  Finding <em>our door</em>
+                </>
+              }
+              lead="Wherever you start, you end up in the same garden office. Here’s what helps on the way in."
+            />
+            <ul className="card mt-8 divide-y divide-cream-300/70 overflow-hidden">
+              {arrivalFacts.map((fact) => {
+                const Icon = fact.icon;
+                return (
+                  <li key={fact.title} className="flex items-start gap-4 p-5 sm:p-6">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-evergreen-50 text-evergreen-700">
+                      <Icon className="h-5 w-5" aria-hidden="true" />
+                    </span>
+                    <div>
+                      <h3 className="font-semibold text-ink">{fact.title}</h3>
+                      <p className="mt-1 text-[15px] leading-6 text-ink-soft">{fact.body}</p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+          <div className="grid content-start gap-6">
+            <VisitCard analyticsContext="locations" showNotes={false} />
+            {parkingQuote ? <ReviewCard review={parkingQuote} /> : null}
           </div>
         </div>
-      </section>
+      </Section>
+
+      {/* Retired city pages keep a short, honest entry and a stable anchor. */}
+      <Section id="nearby" tone="white" labelledBy="nearby-title">
+        <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
+          <div>
+            <SectionHeading
+              id="nearby-title"
+              eyebrow="More of the Peninsula"
+              title={
+                <>
+                  Also coming from <em>nearby</em>
+                </>
+              }
+              lead="These communities don’t have separate pages because the visit is the same: you come to our Palo Alto office, and we share the easiest route and parking tips when you schedule."
+            />
+            <p className="prose-rooted mt-6">
+              Every neighbor gets the full range of care, from{" "}
+              <Link href="/dental-cleaning-palo-alto">cleanings and exams</Link> and{" "}
+              <Link href="/pediatric-dentistry">children’s visits</Link> to{" "}
+              <Link href="/invisalign">Invisalign</Link>,{" "}
+              <Link href="/restorative-dentistry">restorative care</Link>, and{" "}
+              <Link href="/emergency-dental">urgent appointments</Link>. See{" "}
+              <Link href="/services">every service</Link>.
+            </p>
+          </div>
+          <ul className="divide-y divide-cream-300/80 overflow-hidden rounded-[1.75rem] border border-cream-300/80 bg-cream-50">
+            {nearbyCommunities.map((place) => (
+              <li key={place.id} id={place.id} className="flex scroll-mt-32 items-start gap-4 px-5 py-5 target:bg-gold-200/30 sm:px-7">
+                <MapPin className="mt-1 h-5 w-5 shrink-0 text-evergreen-500" aria-hidden="true" />
+                <div>
+                  <h3 className="font-heading text-[1.25rem] font-medium leading-snug text-ink">{place.name}</h3>
+                  <p className="mt-1 text-[15px] leading-6 text-ink-soft">{place.body}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </Section>
+
+      <Section id="faq" tone="cream" labelledBy="locations-faq-title">
+        <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+          <SectionHeading
+            id="locations-faq-title"
+            eyebrow="Questions"
+            title={
+              <>
+                Areas we serve <em>FAQs</em>
+              </>
+            }
+            lead="All care happens at our Palo Alto office, for every community."
+          />
+          <FaqList items={faqs} />
+        </div>
+      </Section>
+
+      <CtaBand analyticsContext="locations-cta" />
     </>
   );
 };

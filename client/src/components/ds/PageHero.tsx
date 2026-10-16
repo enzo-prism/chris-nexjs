@@ -25,6 +25,8 @@ type PageHeroProps = {
   readonly showReviews?: boolean;
   /** Phone call first (urgent pages). */
   readonly callFirst?: boolean;
+  /** Classes for the media column wrapper (e.g. "hidden lg:block"). */
+  readonly mediaClassName?: string;
   /** Pre-fill the request form's visit type. */
   readonly scheduleHref?: string;
   readonly analyticsContext?: string;
@@ -44,13 +46,14 @@ export function PageHero({
   chips = [],
   showReviews = true,
   callFirst = false,
+  mediaClassName,
   scheduleHref = "/schedule#appointment",
   analyticsContext = "page-hero",
   className,
   children,
 }: PageHeroProps) {
   const request = (
-    <Link key="request" href={scheduleHref} className="btn btn-primary btn-lg" data-analytics-context={`${analyticsContext}-request`}>
+    <Link key="request" href={scheduleHref} className={cn("btn btn-lg", callFirst ? "btn-outline" : "btn-primary")} data-analytics-context={`${analyticsContext}-request`}>
       <CalendarDays aria-hidden="true" />
       Request a visit
     </Link>
@@ -113,7 +116,7 @@ export function PageHero({
           ) : null}
           {children}
         </div>
-        {media ? <div className="relative">{media}</div> : null}
+        {media ? <div className={cn("relative", mediaClassName)}>{media}</div> : null}
       </div>
     </section>
   );

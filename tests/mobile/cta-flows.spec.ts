@@ -26,13 +26,13 @@ test("homepage primary CTAs reach the scheduling funnel and services hub", async
 
   const hero = page
     .getByRole("heading", {
-      name: /conservative dentistry in palo alto/i,
+      name: /palo alto family dentist/i,
     })
     .locator("xpath=ancestor::section[1]");
 
   await clickAndExpectPath(
     page,
-    hero.getByRole("link", { name: "Request an appointment", exact: true }),
+    hero.getByRole("link", { name: "Request a visit", exact: true }),
     "/schedule",
   );
   await expect(page).toHaveURL(/\/schedule#appointment$/);
@@ -44,12 +44,7 @@ test("homepage primary CTAs reach the scheduling funnel and services hub", async
   await gotoAndHydrate(page, "/");
   await clickAndExpectPath(
     page,
-    page
-      .getByRole("heading", {
-        name: /conservative dentistry in palo alto/i,
-      })
-      .locator("xpath=ancestor::section[1]")
-      .getByRole("link", { name: "Explore services", exact: true }),
+    page.locator("#find-care").getByRole("link", { name: "See every service", exact: true }),
     "/services",
   );
   await expect(page.getByRole("heading", { level: 1 })).toContainText(/dental services/i);
@@ -60,8 +55,10 @@ test("mobile quick actions expose working call, directions, and visit links", as
 }) => {
   await gotoAndHydrate(page, "/");
 
+  await page.mouse.wheel(0, 900);
   const bar = page.getByTestId("mobile-action-bar");
   await expect(bar).toBeVisible();
+  await expect(bar).toHaveAttribute("data-visible", "true");
   await expect(bar.getByRole("link")).toHaveCount(3);
   await expect(bar.getByRole("link", { name: /call dr\. wong's office at/i })).toHaveAttribute(
     "href",
@@ -105,12 +102,10 @@ test("mobile menu supports touch and keyboard navigation without trapping scroll
 
   await toggle.click();
   const mobileNav = page.locator("#mobile-nav");
-  const servicesToggle = mobileNav.getByRole("button", {
-    name: "Services",
-    exact: true,
-  });
-  await servicesToggle.click();
-  await expect(servicesToggle).toHaveAttribute("aria-expanded", "true");
+  // Service groups are native <details> disclosures.
+  const servicesGroup = mobileNav.locator("details", { hasText: "All services" });
+  await servicesGroup.locator("summary").click();
+  await expect(servicesGroup).toHaveAttribute("open", "");
 
   await clickAndExpectPath(
     page,
@@ -121,18 +116,15 @@ test("mobile menu supports touch and keyboard navigation without trapping scroll
   await expect(page.locator("body")).not.toHaveCSS("overflow", "hidden");
 });
 
-test("footer quick links and legal links are usable on mobile", async ({ page }) => {
+test("footer links and legal links are usable on mobile", async ({ page }) => {
   await gotoAndHydrate(page, "/");
 
   const footer = page.getByRole("contentinfo");
   await footer.scrollIntoViewIfNeeded();
-  const quickLinks = footer.getByRole("button", { name: "Quick Links", exact: true });
-  await quickLinks.click();
-  await expect(quickLinks).toHaveAttribute("aria-expanded", "true");
-
+  // Footer link groups are always expanded (no accordion to open first).
   await clickAndExpectPath(
     page,
-    footer.getByRole("link", { name: "Contact", exact: true }).filter({ visible: true }),
+    footer.getByRole("link", { name: "Contact & hours", exact: true }).filter({ visible: true }),
     "/contact",
   );
   await expect(

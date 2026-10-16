@@ -1,3 +1,11 @@
+/**
+ * Runtime internal-link audit (pnpm run test:seo:links; set SEO_AUDIT_BASE_URL).
+ *
+ * 2026-10-16 (Rooted redesign): crawled pages must not link to a redirecting
+ * URL (legacy alias, merged page, or retired city page) — internal links point
+ * at the canonical target directly (SEO strategy §8f). The one-hop redirect
+ * check also covers the dynamic /post/ and /services/ aliases of merged pages.
+ */
 import { getStorage } from "../server/storage/repository";
 import { getLegacyRedirectPath, legacyRedirects } from "../shared/redirects";
 import { getIndexablePaths, getSeoForPath, normalizePathname } from "../shared/seo";
@@ -134,6 +142,7 @@ async function main(): Promise<void> {
 
   const visited = new Set<string>();
   const queue: string[] = ["/"];
+  const redirectingLinks = new Map<string, Set<string>>();
 
   while (queue.length > 0) {
     const current = queue.shift();
@@ -142,10 +151,22 @@ async function main(): Promise<void> {
 
     const links = await fetchLinksForPath(current, linksCache, indexableSet, failures);
     for (const link of links) {
+      if (getLegacyRedirectPath(link)) {
+        const sources = redirectingLinks.get(link) ?? new Set<string>();
+        sources.add(current);
+        redirectingLinks.set(link, sources);
+      }
       if (!indexableSet.has(link)) continue;
       inboundCount.set(link, (inboundCount.get(link) ?? 0) + 1);
       if (!visited.has(link)) queue.push(link);
     }
+  }
+
+  for (const [link, sources] of redirectingLinks) {
+    failures.push({
+      path: link,
+      message: `Internal links point at a redirecting URL (link to ${getLegacyRedirectPath(link)} instead) from: ${[...sources].join(", ")}`,
+    });
   }
 
   const orphans = indexablePaths.filter(
@@ -235,6 +256,8 @@ async function main(): Promise<void> {
     ...legacyRedirects.map((entry) => entry.from),
     "/post/emergency-dental-care-palo-alto",
     "/services/invisalign",
+    "/services/zoom-whitening",
+    "/post/invisalign-palo-alto",
     "/dr-chris-wong",
     "/about-us",
   ]);

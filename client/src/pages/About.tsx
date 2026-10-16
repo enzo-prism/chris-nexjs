@@ -1,105 +1,143 @@
-"use client";
-
 import dynamic from "next/dynamic";
-import { CheckCircle, Award, UserCheck, Shield, Play, Sparkles, X, ArrowLeft, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import Link from "next/link";
-import { drWongImages } from "@/lib/imageUrls";
-import * as data from "@/lib/data";
-import StructuredData from "@/components/seo/StructuredData";
-import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
-import { useState } from "react";
-import VideoModal from "@/components/common/VideoModal";
-import OptimizedImage from "@/components/seo/OptimizedImage";
-import { motion, AnimatePresence } from "@/lib/motion-lite";
-import TestimonialQuote from "@/components/testimonials/TestimonialQuote";
 import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { getTestimonialsByNames } from "@/lib/testimonials";
+  ArrowRight,
+  BadgeCheck,
+  BookOpen,
+  CalendarDays,
+  CarFront,
+  ChefHat,
+  Flag,
+  GraduationCap,
+  MapPin,
+  Mountain,
+  Play,
+  Plane,
+  Users,
+} from "lucide-react";
+
+import StructuredData from "@/components/seo/StructuredData";
+import { CtaBand } from "@/components/ds/CtaBand";
+import { FactGrid, type Fact } from "@/components/ds/FactGrid";
+import { PageHero } from "@/components/ds/PageHero";
+import { ReviewCard, StarRow, type ReviewQuote } from "@/components/ds/Reviews";
+import { Section } from "@/components/ds/Section";
+import { SectionHeading } from "@/components/ds/SectionHeading";
+import { ServiceIcon, type ServiceIconName } from "@/components/ds/ServiceIcon";
+import { ServiceReviews } from "@/components/ds/ServiceReviews";
+import { TeamCard } from "@/components/ds/TeamCard";
+import { PracticeLineage } from "@/components/trust/PracticeLineage";
+import type { StoryVideoVersion } from "@/components/video/types";
+import { fullCircleFilm, fullCircleShort } from "@/data/fullCircleFilm";
+import { fullCircleTranscript } from "@/data/fullCircleTranscript";
+import { featuredQuote, homeRibbonQuotes } from "@/data/reviewHighlights";
+import { serviceReviews } from "@/data/serviceReviews";
+import { drWong, team } from "@/data/team";
 import {
   buildBreadcrumbSchema,
+  buildProfilePageSchema,
+  buildTeamPersonSchemas,
   buildVideoObjectSchemas,
+  type StructuredDataNode,
 } from "@/lib/structuredData";
+import { GOOGLE_REVIEW_COUNT } from "@shared/reviewStats";
 
-const OfficeGallerySection = dynamic(
-  () => import("@/components/sections/OfficeGallerySection"),
-  { ssr: true, loading: () => null },
+// Interactive players load their chunk alongside hydration; the SSR shell
+// (poster + play button) paints without it.
+const StoryFilm = dynamic(() => import("@/components/video/StoryFilm"));
+const StoryPlayer = dynamic(() =>
+  import("@/components/video/StoryPlayer").then((mod) => mod.StoryPlayer),
 );
 
-const weddingCarouselImages = [
-  { src: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1764193096/IMG_8193_wcxrms.webp", alt: "Dr. Wong and Dr. Michelle celebrating with the team" },
-  { src: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1764193096/Michelle_Chris-preview28_zkbzo6.webp", alt: "Wedding ceremony moment with Dr. Wong and Dr. Michelle" },
-  { src: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1764193096/IMG_8294_dbsehz.webp", alt: "Dr. Wong greeting guests at the reception" },
-  { src: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1764193096/IMG_8197_rrgv98.webp", alt: "Dr. Wong and Dr. Michelle posing together" },
-  { src: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1764193096/IMG_8224_s4xuoa.webp", alt: "Team members celebrating with the newlyweds" },
-  { src: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1764193097/IMG_8199_jkkdtm.webp", alt: "Candid laugh with friends at the wedding" },
-  { src: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1764193096/Michelle_Chris-preview62_actrrw.webp", alt: "Dr. Wong and Dr. Michelle enjoying the reception" },
-  { src: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1764193098/IMG_8195_hddelf.webp", alt: "Wedding party cheering together" },
-  { src: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1764193098/Michelle_Chris-preview85_whoc8v.webp", alt: "Dance floor celebration with friends and family" },
-  { src: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1764193098/Michelle_Chris-preview54_dg6hwz.webp", alt: "Dr. Wong and Dr. Michelle sharing a moment at sunset" },
-  { src: "https://res.cloudinary.com/dhqpqfw6w/image/upload/v1764193098/Michelle_Chris-preview73_orakjs.webp", alt: "Group photo with the dental practice team at the wedding" },
+const INTERVIEW_SRC = "/videos/meet-dr-wong.mp4";
+const INTERVIEW_POSTER = "/images/about/meet-dr-wong-smile.webp";
+
+const meetDrWong: StoryVideoVersion = {
+  id: "meet-dr-wong",
+  label: "Interview",
+  title: "Meet Dr. Wong, a one-minute introduction",
+  durationSeconds: 59,
+  aspect: "16/9",
+  sources: [{ src: INTERVIEW_SRC, width: 1280 }],
+  poster: INTERVIEW_POSTER,
+};
+
+const breadcrumbItems = [
+  { name: "Home", path: "/" },
+  { name: "About Dr. Wong", path: "/about" },
 ];
 
-const About = () => {
-  // State for video modal
-  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
-  const [weddingModalIndex, setWeddingModalIndex] = useState<number | null>(null);
-  const interviewVideoUrl = "/videos/meet-dr-wong.mp4";
-  
-  // Using the team members from shared data
-  const { teamMembers: sharedTeamMembers } = data;
-  const aboutPageTeamMembers = sharedTeamMembers.filter(
-    (member) => member.name !== "Dr. Hamamoto",
-  );
-  const spotlightTestimonials = getTestimonialsByNames([
-    "Anat Sipres",
-    "Loretta Guarino Reid",
-    "Marypat Power",
-  ]);
-  
-  // Create a full team with Dr. Wong at the top, using shorter bio for team display
-  const teamMembers = [
-    {
-      name: "Dr. Christopher B. Wong",
-      role: "Lead Dentist",
-      image: drWongImages.drWongPortrait1,
-      bio: "Dr. Christopher B. Wong was born and raised in Sacramento and earned his bachelor's degree in Biology from UC Davis. He graduated from the University of the Pacific Arthur A. Dugoni School of Dentistry in San Francisco in 2018. His clinical focus includes conservative dentistry, Invisalign, and implant restoration, with an ethical and non-invasive approach."
-    },
-    ...aboutPageTeamMembers
-  ];
-  const profileHighlights = [
-    {
-      label: "Location",
-      value: "Palo Alto, CA",
-    },
-    {
-      label: "Focus",
-      value: "Conservative dentistry, Invisalign, implant restoration",
-    },
-    {
-      label: "Patients",
-      value: "Adults, teens, and families across the Peninsula",
-    },
-  ];
+// Verbatim quotes from the lead-owned, test-guarded review files.
+const byName = (list: readonly ReviewQuote[], name: string): ReviewQuote | undefined =>
+  list.find((q) => q.name === name);
+const heroQuote = byName(homeRibbonQuotes, "Kevin Zhang");
+const historyQuotes = [
+  byName(homeRibbonQuotes, "Anne Starr"),
+  byName(serviceReviews, "Ross Veltman"),
+  featuredQuote,
+].filter((q): q is ReviewQuote => Boolean(q));
 
-  const aboutSchema = [];
+const credentials: readonly Fact[] = [
+  { icon: GraduationCap, label: "Dental school", value: "University of the Pacific, Dugoni School of Dentistry, 2018" },
+  { icon: BookOpen, label: "Undergraduate", value: "UC Davis, bachelor’s degree in biology" },
+  { icon: BadgeCheck, label: "Memberships", value: "ADA, CDA, and Santa Clara County Dental Society" },
+  { icon: MapPin, label: "Hometown", value: "Born and raised in Sacramento" },
+];
 
-  const breadcrumbItems = [
-    { name: "Home", path: "/" },
-    { name: "Dr. Christopher Wong", path: "/about" },
-  ];
-  const aboutBreadcrumbs = buildBreadcrumbSchema(breadcrumbItems);
+const approach: readonly { icon: ServiceIconName; title: string; body: string }[] = [
+  {
+    icon: "calendar",
+    title: "Unhurried visits",
+    body: "Time to ask questions and to understand your options. Nobody should leave a dental chair confused.",
+  },
+  {
+    icon: "checkup",
+    title: "He explains first",
+    body: "Dr. Wong shows you what he sees and why it matters before he recommends anything.",
+  },
+  {
+    icon: "tooth",
+    title: "Conservative by default",
+    body: "Prevention and early detection come first, and the plan keeps as much natural tooth as possible.",
+  },
+  {
+    icon: "insurance",
+    title: "Costs before treatment",
+    body: "The team checks your PPO benefits and explains your portion before any treatment begins.",
+  },
+];
 
-  if (aboutBreadcrumbs) {
-    aboutSchema.push(aboutBreadcrumbs);
-  }
+const interests = [
+  { icon: Mountain, label: "Running, hiking & working out" },
+  { icon: Flag, label: "Golf & basketball" },
+  { icon: Plane, label: "Travel & new cultures" },
+  { icon: ChefHat, label: "Cooking international cuisines" },
+  { icon: CarFront, label: "An avid car enthusiast" },
+] as const;
 
-  aboutSchema.push(
+// Real photos from Dr. Wong and Dr. Michelle Fong's wedding, which the team
+// attended (Cloudinary originals, resized at the CDN before next/image).
+const cld = (path: string) => `https://res.cloudinary.com/dhqpqfw6w/image/upload/c_limit,w_1100,q_auto/${path}`;
+const weddingPhotos = [
+  { src: cld("v1764193096/Michelle_Chris-preview28_zkbzo6.webp"), alt: "Dr. Wong and Dr. Michelle Fong walking hand in hand on their wedding day" },
+  { src: cld("v1764193096/IMG_8294_dbsehz.webp"), alt: "The newlyweds with guests in front of a red floral backdrop" },
+  { src: cld("v1764193096/IMG_8193_wcxrms.webp"), alt: "Dr. Wong laughing in the photo booth with friends at his wedding" },
+  { src: cld("v1764193098/Michelle_Chris-preview54_dg6hwz.webp"), alt: "Dr. Wong and Dr. Michelle Fong at sunset above the coast" },
+  { src: cld("v1764193098/IMG_8195_hddelf.webp"), alt: "Wedding guests posing with props in the photo booth with Dr. Wong" },
+] as const;
+
+const hygiene = team.filter((m) => m.group === "hygiene");
+const others = team.filter((m) => m.group !== "hygiene");
+
+function buildAboutSchema(): StructuredDataNode[] {
+  const nodes: StructuredDataNode[] = [];
+  const breadcrumbs = buildBreadcrumbSchema(breadcrumbItems);
+  if (breadcrumbs) nodes.push(breadcrumbs);
+  // ProfilePage → Dr. Wong, plus a Person node for everyone on the team grid.
+  nodes.push(buildProfilePageSchema({ dateModified: "2026-10-16" }));
+  nodes.push(...buildTeamPersonSchemas(team));
+  nodes.push(
     ...buildVideoObjectSchemas(
       [
         {
@@ -107,484 +145,423 @@ const About = () => {
           title: "Meet Dr. Wong — Palo Alto dentist introduction",
           description:
             "Dr. Christopher B. Wong introduces himself and his conservative, comfort-first approach to dentistry in Palo Alto.",
-          src: interviewVideoUrl,
-          poster: "/images/about/meet-dr-wong-smile.webp",
+          src: INTERVIEW_SRC,
+          poster: INTERVIEW_POSTER,
           uploadDate: "2026-06-23",
         },
       ],
       "/about",
     ),
   );
-  
-  const openWeddingModal = (index: number) => setWeddingModalIndex(index);
-  const closeWeddingModal = () => setWeddingModalIndex(null);
-  const goToWeddingImage = (direction: "next" | "prev") => {
-    if (weddingModalIndex === null) return;
-    const total = weddingCarouselImages.length;
-    const nextIndex =
-      direction === "next"
-        ? (weddingModalIndex + 1) % total
-        : (weddingModalIndex - 1 + total) % total;
-    setWeddingModalIndex(nextIndex);
-  };
+  return nodes;
+}
 
+const interviewEnd = (
+  <div className="flex max-w-sm flex-col items-center gap-4 text-center">
+    <p className="font-heading text-2xl font-medium text-cream-50">
+      Come say <em className="text-gold-300">hello</em>.
+    </p>
+    <div className="flex flex-wrap justify-center gap-2.5">
+      <Link href="/schedule#appointment" className="btn btn-gold btn-sm" data-analytics-context="about-interview-end-request">
+        <CalendarDays aria-hidden="true" />
+        Request a visit
+      </Link>
+      <Link href="#story" className="btn btn-outline-light btn-sm">
+        <Play aria-hidden="true" />
+        Watch the film
+      </Link>
+    </div>
+  </div>
+);
+
+const About = () => {
   return (
     <>
-      <StructuredData data={aboutSchema} />
-      <PageBreadcrumbs items={breadcrumbItems} />
-      {/* Hero Section - Mobile First */}
-      <section className="bg-[#F5F9FC] py-12 sm:py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-heading text-[#333333] mb-4 sm:mb-6 leading-tight">
-              About Dr. Christopher B. Wong
-            </h1>
-            <p className="text-lg sm:text-xl text-[#333333] max-w-3xl mx-auto leading-relaxed">
-              Get to know Dr. Wong and the dedicated dental team committed to conservative, comfortable care
-              in Palo Alto.
-            </p>
-          </div>
-        </div>
-      </section>
+      <StructuredData data={buildAboutSchema()} />
 
-      {/* Wedding Celebration Carousel */}
-      <section className="bg-white py-10 sm:py-14 md:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="rounded-[2rem] border border-slate-200/80 bg-gradient-to-r from-[#f7edf3] via-[#f8f6fb] to-[#eaf5ff] shadow-[0_28px_70px_-36px_rgba(15,23,42,0.35)] p-5 sm:p-7 lg:p-9">
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.25fr] gap-6 sm:gap-8 items-center">
-              <div className="space-y-4 sm:space-y-5 w-full max-w-xl min-w-0">
-                <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white/80 px-4 py-2 text-[11px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-primary shadow-sm">
-                  <Sparkles className="h-4 w-4" />
-                  <span>Team celebration</span>
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-bold font-heading text-[#1F2933] leading-tight text-balance">
-                  Congratulations Dr. Christopher Wong & Dr. Michelle 💍
-                </h2>
-                <p className="text-sm sm:text-base text-[#374151] leading-relaxed">
-                  Dr. Christopher Wong married{" "}
-                  <a
-                    href="https://www.instagram.com/dr.michellefong/"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-primary font-semibold underline decoration-primary/50 underline-offset-4 hover:decoration-primary"
-                  >
-                    Dr. Michelle Fong
-                  </a>{" "}
-                  (also a dentist), and our dental family joined them at the wedding. Browse a few favorite moments below.
-                </p>
-                <p className="text-xs sm:text-sm text-slate-500">
-                  Tip: Swipe on mobile or use the arrows to move through photos.
-                </p>
-              </div>
-
-              <div className="w-full min-w-0">
-                <div className="rounded-3xl border border-slate-200/70 bg-white/85 p-3 sm:p-4 shadow-xl backdrop-blur-sm">
-                  <Carousel
-                    opts={{ align: "start", loop: true }}
-                    className="w-full"
-                  >
-                    <CarouselContent className="-ml-2 sm:-ml-3">
-                      {weddingCarouselImages.map((image, index) => (
-                        <CarouselItem
-                          key={image.src}
-                          className="pl-2 sm:pl-3 basis-[88%] sm:basis-[68%] lg:basis-[56%]"
-                        >
-                          <button
-                            type="button"
-                            onClick={() => openWeddingModal(index)}
-                            className="h-full w-full text-left group rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2"
-                          >
-                            <div className="relative h-full overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-2 sm:p-3 shadow-md">
-                              <OptimizedImage
-                                src={image.src}
-                                alt={image.alt}
-                                className="w-full h-full rounded-xl"
-                                fit="cover"
-                                useIntrinsicAspect
-                                objectPosition="50% 45%"
-                                style={{ maxHeight: 520 }}
-                                priority={index < 2}
-                              />
-                              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-black/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex items-end">
-                                <div className="w-full px-4 pb-3 text-white/90 text-xs sm:text-sm">
-                                  Tap to view larger
-                                </div>
-                              </div>
-                            </div>
-                          </button>
-                        </CarouselItem>
-                      ))}
-                    </CarouselContent>
-                    <CarouselPrevious className="left-2 sm:left-3 h-9 w-9 sm:h-10 sm:w-10 border-slate-200 bg-white/95 text-slate-700 shadow-lg hover:bg-white" />
-                    <CarouselNext className="right-2 sm:right-3 h-9 w-9 sm:h-10 sm:w-10 border-slate-200 bg-white/95 text-slate-700 shadow-lg hover:bg-white" />
-                  </Carousel>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <AnimatePresence>
-        {weddingModalIndex !== null && (
-          <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 sm:p-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={(event) => {
-              if (event.target === event.currentTarget) closeWeddingModal();
-            }}
-          >
-              <button
-                type="button"
-                onClick={closeWeddingModal}
-                className="absolute top-3 right-3 sm:top-4 sm:right-4 rounded-full text-white/80 hover:text-white hover:bg-white/10 focus-visible:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 active:scale-95 transition-colors p-2 z-30"
-                aria-label="Close wedding gallery"
+      <PageHero
+        crumbs={breadcrumbItems}
+        eyebrow="Your Palo Alto dentist"
+        title={
+          <>
+            About Dr. Christopher B. <em>Wong</em>
+          </>
+        }
+        lead="Dr. Wong leads the Cambridge Avenue practice that many Palo Alto families have trusted for decades. He takes time to explain what he sees, keeps as much natural tooth as he can, and makes sure you know your costs before treatment."
+        analyticsContext="about-hero"
+        chips={[
+          <>
+            <GraduationCap className="h-3.5 w-3.5 text-evergreen-600" aria-hidden="true" />
+            UOP Dugoni, 2018
+          </>,
+        ]}
+        media={
+          <div className="relative mx-auto w-full max-w-md lg:max-w-none">
+            <div
+              aria-hidden="true"
+              className="absolute -inset-4 -z-10 rounded-[2.75rem] bg-[conic-gradient(from_200deg,rgba(176,209,193,0.55),rgba(243,224,176,0.6),rgba(176,209,193,0.55))] opacity-60 blur-2xl"
+            />
+            <div className="relative overflow-hidden rounded-[2.25rem] border border-white/70 bg-evergreen-900 shadow-lift">
+              <Image
+                src="/images/about/dr-wong-portrait.webp"
+                alt="Dr. Christopher B. Wong smiling in the hallway of his Palo Alto office"
+                width={880}
+                height={1100}
+                priority
+                fetchPriority="high"
+                sizes="(max-width: 1024px) 100vw, 40vw"
+                className="aspect-square h-auto w-full object-cover object-[50%_22%] sm:aspect-[4/4.4] lg:aspect-[4/4.6]"
+              />
+              <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-evergreen-950/70 to-transparent" />
+              <Link
+                href="#story"
+                className="group absolute bottom-4 left-4 inline-flex min-h-11 items-center gap-3 rounded-full bg-cream-50/95 py-1.5 pl-1.5 pr-4 text-sm font-semibold text-ink shadow-lg backdrop-blur transition-transform hover:-translate-y-0.5 sm:bottom-5 sm:left-5"
+                data-analytics-context="about-hero-film"
               >
-              <X className="h-6 w-6" />
-            </button>
-
-            <div className="absolute inset-y-0 left-2 sm:left-6 flex items-center z-20 pointer-events-none">
-              <button
-                type="button"
-                onClick={() => goToWeddingImage("prev")}
-                className="bg-white/10 hover:bg-white/20 text-white/90 rounded-full p-3 shadow-md transition-[background-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 active:scale-95 pointer-events-auto"
-                aria-label="Previous wedding photo"
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="absolute inset-y-0 right-2 sm:right-6 flex items-center z-20 pointer-events-none">
-              <button
-                type="button"
-                onClick={() => goToWeddingImage("next")}
-                className="bg-white/10 hover:bg-white/20 text-white/90 rounded-full p-3 shadow-md transition-[background-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 active:scale-95 pointer-events-auto"
-                aria-label="Next wedding photo"
-              >
-                <ArrowRight className="h-5 w-5" />
-              </button>
-            </div>
-
-            <motion.div
-              className="relative max-w-5xl w-full z-10"
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
-            >
-              <div className="overflow-hidden rounded-2xl bg-black/60 border border-white/10 shadow-2xl flex justify-center">
-                <OptimizedImage
-                  src={weddingCarouselImages[weddingModalIndex].src}
-                  alt={weddingCarouselImages[weddingModalIndex].alt}
-                  className="w-full h-full"
-                  fit="cover"
-                  useIntrinsicAspect
-                  objectPosition="50% 45%"
-                  style={{ maxHeight: "80vh", maxWidth: "92vw" }}
-                  priority
-                />
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Doctor Profile - Mobile First */}
-      <section className="py-12 sm:py-16 bg-gradient-to-b from-white to-[#F5F9FC]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8 sm:mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold font-heading text-[#333333] mb-3 leading-tight">
-              Dr. Christopher B. Wong
-            </h2>
-            <div className="w-16 sm:w-24 h-1 bg-primary mx-auto"></div>
-          </div>
-          
-          <motion.div 
-            className="bg-white rounded-3xl shadow-lg overflow-hidden border border-[#E0E6EF]/70"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="grid md:grid-cols-5">
-              <motion.div 
-                className="relative bg-gradient-to-br from-[#F5F9FC] via-[#EEF4FB] to-[#D7E8FF] p-6 sm:p-10 flex items-center justify-center md:col-span-2"
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-              >
-                <div className="relative w-full max-w-sm sm:max-w-md">
-                  <div className="absolute -inset-4 hidden md:block rounded-[32px] bg-white/40 blur-md"></div>
-                  <div className="relative rounded-[28px] bg-white/70 backdrop-blur-sm shadow-xl border border-white/60 p-4 sm:p-6 flex items-center justify-center">
-                    <OptimizedImage
-                      src="/images/about/dr-wong-portrait.webp"
-                      alt="Dr. Christopher B. Wong in his Palo Alto dental office"
-                      width={880}
-                      height={1100}
-                      fit="contain"
-                      className="w-full h-full object-contain max-h-[520px] rounded-2xl"
-                    />
-                  </div>
-                </div>
-              </motion.div>
-              
-              <motion.div 
-                className="md:col-span-3 p-6 sm:p-8 md:p-10 space-y-8"
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-              >
-                <div className="space-y-4 text-left">
-                  <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-4 py-1 text-xs sm:text-sm font-semibold tracking-wide">
-                    <span>Meet Dr. Christopher B. Wong</span>
-                  </div>
-                  <p className="text-sm text-slate-600">
-                    Dr. Wong · Palo Alto dentist
-                  </p>
-                  <p className="text-[#333333] leading-relaxed text-sm sm:text-base">
-                    {data.doctorInfo.bio}
-                  </p>
-                  <p className="text-[#333333] leading-relaxed text-sm sm:text-base">
-                    Patients trust Dr. Wong for conservative care, clear communication,
-                    and a comfortable visit in Palo Alto.
-                  </p>
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-3">
-                  {profileHighlights.map((item) => (
-                    <div
-                      key={item.label}
-                      className="rounded-2xl border border-[#E0E6EF] bg-white px-4 py-3 shadow-sm"
-                    >
-                      <p className="text-[11px] uppercase tracking-[0.2em] text-[#666666] font-semibold">
-                        {item.label}
-                      </p>
-                      <p className="mt-2 text-sm text-[#333333] leading-relaxed">
-                        {item.value}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="grid gap-3 sm:gap-4">
-                  {[
-                    { icon: Award, text: "University of the Pacific Arthur A. Dugoni School of Dentistry Graduate" },
-                    { icon: CheckCircle, text: "American Dental Association" },
-                    { icon: CheckCircle, text: "California Dental Association" },
-                    { icon: CheckCircle, text: "Santa Clara County Dental Society" }
-                  ].map((credential, index) => (
-                    <motion.div 
-                      key={index}
-                      className="flex items-start gap-3 rounded-2xl border border-[#E0E6EF] bg-[#F7FAFE] px-4 py-3 sm:px-5 sm:py-4"
-                      initial={{ opacity: 0, x: 20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.4, delay: 0.4 + (index * 0.1) }}
-                    >
-                      <credential.icon className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                      <span className="text-[#333333] text-sm sm:text-base leading-relaxed">{credential.text}</span>
-                    </motion.div>
-                  ))}
-                </div>
-                
-                <motion.div 
-                  className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: 0.8 }}
-                >
-                  <div className="text-left bg-[#F5F9FC] border border-[#E0E6EF] rounded-2xl px-5 py-4">
-                    <p className="text-[#666666] text-xs sm:text-sm uppercase tracking-[0.2em] font-semibold">Experience</p>
-                    <p className="text-lg sm:text-xl font-heading text-[#333333]">{data.doctorInfo.experience}</p>
-                  </div>
-                  
-                  <Button 
-                    onClick={() => setIsVideoModalOpen(true)}
-                    className="bg-primary hover:bg-primary/90 text-white flex items-center gap-2 w-full sm:w-auto justify-center text-sm sm:text-base px-4 sm:px-6 py-3 hover:scale-105 transition-transform duration-200"
-                  >
-                    <Play className="h-4 w-4" />
-                    Watch Interview with Dr. Christopher Wong
-                  </Button>
-                </motion.div>
-                <p className="text-xs text-slate-500">
-                  Reviewed by Dr. Christopher B. Wong · Last updated: December 2025
-                </p>
-              </motion.div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Mid-page conversion band — About is a top-traffic trust page */}
-      <section className="bg-gradient-to-r from-[#0b1f3a] to-[#123a6b] py-10 sm:py-12">
-        <div className="mx-auto flex max-w-4xl flex-col items-center gap-5 px-4 text-center sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold font-heading leading-tight text-white sm:text-3xl">
-            Ready to meet Dr. Wong in person?
-          </h2>
-          <p className="max-w-xl text-sm text-white/80 sm:text-base">
-            New patients are always welcome. Request an appointment online or give us a
-            call — we&rsquo;ll help you find a time that works.
-          </p>
-          <div className="flex flex-col items-center gap-3 sm:flex-row sm:gap-4">
-            <Button asChild className="h-auto rounded-full bg-white px-6 py-3 font-medium text-[#0b1f3a] shadow-sm transition-colors hover:bg-blue-50">
-              <Link href="/schedule#appointment" data-analytics-context="about-midpage-cta">
-                Request an appointment
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gold-400 text-evergreen-950">
+                  <Play className="ml-0.5 h-4 w-4 fill-current" aria-hidden="true" />
+                </span>
+                Watch his story
+                <span className="font-normal text-ink-muted">2:14</span>
               </Link>
-            </Button>
-            <a
-              href={`tel:${data.officeInfo.phoneE164}`}
-              data-analytics-context="about-midpage-cta"
-              className="inline-flex items-center gap-2 text-sm font-medium text-white/90 transition-colors hover:text-white"
-            >
-              Or call {data.officeInfo.phone}
-            </a>
+            </div>
+            {heroQuote ? (
+              <figure className="absolute -bottom-8 right-3 hidden w-[16.5rem] rounded-[1.4rem] border border-cream-300/80 bg-white/95 p-4 shadow-lift backdrop-blur sm:block lg:-right-6 lg:bottom-12">
+                <StarRow size="h-3.5 w-3.5" />
+                <blockquote className="mt-2 font-heading text-[1.05rem] leading-snug text-ink">
+                  <p>“{heroQuote.text}”</p>
+                </blockquote>
+                <figcaption className="mt-2 text-xs font-semibold text-ink-muted">{heroQuote.name} · Google review</figcaption>
+              </figure>
+            ) : null}
           </div>
-        </div>
-      </section>
+        }
+      />
 
-      {/* Patient Stories */}
-      <section className="py-12 sm:py-16 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="text-center mb-10 sm:mb-12"
-          >
-            <span className="inline-flex items-center justify-center rounded-full bg-primary/10 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-primary">
-              Patient voices
-            </span>
-            <h2 className="mt-4 text-3xl font-bold font-heading leading-tight text-[#1F2933] sm:text-4xl">
-              Experiences that guide our care
-            </h2>
-            <p className="mt-4 text-sm text-[#4B5563] sm:text-base">
-              Hear from patients who trust Dr. Wong and our hygiene team for compassionate, thoughtful dentistry.
-            </p>
-          </motion.div>
-
-          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-            {spotlightTestimonials.map((testimonial) => (
-              <TestimonialQuote key={testimonial.name} testimonial={testimonial} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Our Approach - Mobile First */}
-      <section className="py-12 sm:py-16 bg-[#F5F9FC]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8 sm:mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold font-heading text-[#333333] mb-3 sm:mb-4 leading-tight">Our Approach to Dental Care</h2>
-            <p className="text-[#333333] max-w-3xl mx-auto text-sm sm:text-base leading-relaxed">We believe in providing comprehensive, personalized dental care that puts your comfort and well-being first.</p>
-            <div className="w-16 sm:w-24 h-1 bg-primary mx-auto mt-4"></div>
-          </div>
-
-          {/* Mobile-first: Stack cards vertically on mobile, then grid on larger screens */}
-          <div className="space-y-6 sm:space-y-8 md:space-y-0 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 lg:gap-8">
-            <motion.div 
-              className="bg-white p-6 sm:p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-            >
-              <div className="rounded-full bg-blue-100 p-3 w-12 h-12 flex items-center justify-center mb-4">
-                <UserCheck className="h-6 w-6 text-blue-600" />
-              </div>
-              <h3 className="text-lg sm:text-xl font-bold font-heading text-[#333333] mb-2 sm:mb-3">Patient-Centered Care</h3>
-              <p className="text-[#333333] text-sm sm:text-base leading-relaxed">We take the time to listen to your concerns and goals, creating personalized treatment plans that address your specific needs.</p>
-            </motion.div>
-
-            <motion.div 
-              className="bg-white p-6 sm:p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <div className="rounded-full bg-[#00AA90] bg-opacity-10 p-3 w-12 h-12 flex items-center justify-center mb-4">
-                <Award className="h-6 w-6 text-[#00AA90]" />
-              </div>
-              <h3 className="text-lg sm:text-xl font-bold font-heading text-[#333333] mb-2 sm:mb-3">Excellence in Quality</h3>
-              <p className="text-[#333333] text-sm sm:text-base leading-relaxed">We use only the highest quality materials and latest techniques to ensure lasting results that look natural and feel comfortable.</p>
-            </motion.div>
-
-            <motion.div 
-              className="bg-white p-6 sm:p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 md:col-span-2 lg:col-span-1"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              <div className="rounded-full bg-[#E63946] bg-opacity-10 p-3 w-12 h-12 flex items-center justify-center mb-4">
-                <Shield className="h-6 w-6 text-[#E63946]" />
-              </div>
-              <h3 className="text-lg sm:text-xl font-bold font-heading text-[#333333] mb-2 sm:mb-3">Comprehensive Care</h3>
-              <p className="text-[#333333] text-sm sm:text-base leading-relaxed">
-                From preventive cleanings to complex restorations, we provide a full range of services to meet your oral health needs in one location, including{" "}
-                <Link href="/invisalign" className="ui-link-premium">
-                  Invisalign clear aligners
-                </Link>{" "}
-                for adults and teens.
+      {/* ---------------------------------------------------------- His story */}
+      <Section id="his-story" tone="white" labelledBy="his-story-title">
+        <div className="grid gap-12 lg:grid-cols-[1fr_1.05fr] lg:gap-16">
+          <div>
+            <SectionHeading
+              id="his-story-title"
+              eyebrow="His story"
+              title={
+                <>
+                  Where it <em>started</em>
+                </>
+              }
+            />
+            <div className="prose-rooted mt-6 space-y-5">
+              <p>
+                Dr. Wong was born and raised in Sacramento and earned his bachelor’s degree in biology
+                from the University of California, Davis. He graduated from the University of the
+                Pacific Arthur A. Dugoni School of Dentistry in San Francisco in 2018.
               </p>
-            </motion.div>
+              <p>
+                He found dentistry through his dad’s family friends, two brothers who were dentists.
+                When he didn’t yet know what he wanted to do, they gave him a job assisting and
+                sterilizing instruments. What stayed with him was the team, and how well the staff
+                knew their patients.
+              </p>
+              <p>
+                Today his clinical focus includes{" "}
+                <Link href="/invisalign">Invisalign</Link>,{" "}
+                <Link href="/dental-implants">implant restoration</Link>, and{" "}
+                <Link href="/restorative-dentistry">restorative care</Link>, with an ethical,
+                non-invasive approach. He stays current with advances in dentistry and is an active
+                member of the ADA, CDA, and SCCDS.
+              </p>
+            </div>
+            <figure className="mt-8 border-l-2 border-gold-400 pl-5">
+              <blockquote className="font-heading text-[1.45rem] leading-snug text-ink sm:text-[1.65rem]">
+                <p>
+                  “What I noticed most that I liked was just the team dynamic and the patient
+                  relationships… <em className="text-gold-700">that’s what really drew me into dentistry.</em>”
+                </p>
+              </blockquote>
+              <figcaption className="mt-3 text-sm font-semibold text-ink-muted">Dr. Wong, in the film Full Circle</figcaption>
+            </figure>
+          </div>
+
+          <div className="lg:pt-4">
+            <StoryPlayer
+              version={meetDrWong}
+              analyticsContext="about-interview"
+              endScreen={interviewEnd}
+              posterCaption={
+                <p className="font-heading text-xl font-medium text-cream-50 sm:text-2xl">
+                  Meet Dr. Wong <span className="font-sans text-sm font-semibold text-cream-100/80">· 0:59</span>
+                </p>
+              }
+            />
+            <p className="mt-3 text-sm text-ink-muted">
+              A one-minute introduction, filmed in the office hallway beside the garden courtyard.
+            </p>
+            <FactGrid facts={credentials} className="mt-6 sm:grid-cols-2 lg:grid-cols-2" />
+          </div>
+        </div>
+      </Section>
+
+      {/* ---------------------------------------------------- Full Circle film */}
+      <section
+        id="story"
+        aria-labelledby="story-title"
+        className="surface-evergreen on-dark relative isolate overflow-hidden py-16 sm:py-20 lg:py-24"
+      >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[360px] bg-[url('/brand/roots-glow.svg')] bg-[length:1440px_360px] bg-[position:center_-150px] bg-no-repeat opacity-50"
+        />
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <SectionHeading
+            id="story-title"
+            align="center"
+            eyebrow={<span className="text-mint-300">A short film · Full Circle</span>}
+            title={
+              <>
+                The story behind <em>the practice</em>
+              </>
+            }
+            lead="Dr. Wong tells how he found dentistry, how Dr. Hamamoto passed the practice to him, and why so many patients have stayed."
+          />
+          <div className="mt-10">
+            <StoryFilm
+              film={fullCircleFilm}
+              short={fullCircleShort}
+              analyticsContext="about-story"
+              transcript={fullCircleTranscript}
+              onDark
+            />
           </div>
         </div>
       </section>
 
-      {/* Meet Our Team - Mobile First */}
-      <section className="py-12 sm:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8 sm:mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold font-heading text-[#333333] mb-3 sm:mb-4 leading-tight">Meet Our Team</h2>
-            <p className="text-[#333333] max-w-3xl mx-auto text-sm sm:text-base leading-relaxed">Our skilled professionals work together to provide comprehensive, compassionate dental care to our community.</p>
-            <div className="w-16 sm:w-24 h-1 bg-primary mx-auto mt-4"></div>
-          </div>
+      {/* ---------------------------------------------------- Practice history */}
+      <Section id="history" tone="paper" labelledBy="history-title">
+        <div className="grid items-end gap-8 lg:grid-cols-[1fr_0.9fr] lg:gap-14">
+          <SectionHeading
+            id="history-title"
+            eyebrow="Three generations of one practice"
+            title={
+              <>
+                A practice that’s come <em>full circle</em>
+              </>
+            }
+            lead="“This practice does have a lot of history, and a lot of patients are still around,” Dr. Wong says in the film. When Dr. Hamamoto passed it to him, patients got to meet him with her blessing, and the team stayed."
+          />
+          <figure className="relative overflow-hidden rounded-[2rem] border border-cream-300/80 bg-cream-50 shadow-soft">
+            <Image
+              src="/images/redesign/film-growth-rings-kanemoto-hamamoto-wong.webp"
+              alt="Illustration from the film: tree growth rings labeled Dr. Kanemoto at the center, Dr. Hamamoto, and Dr. Wong at the outer ring"
+              width={1600}
+              height={900}
+              sizes="(max-width: 1024px) 100vw, 42vw"
+              className="h-auto w-full"
+            />
+            <figcaption className="absolute bottom-3 left-3 rounded-full bg-cream-50/90 px-3 py-1 text-xs font-semibold text-ink-soft">
+              Still from Full Circle
+            </figcaption>
+          </figure>
+        </div>
 
-          {/* Mobile-first: Stack cards on mobile, then responsive grid */}
-          <div className="space-y-6 sm:space-y-8 md:space-y-0 md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-6 lg:gap-8">
-            {teamMembers.map((member, index) => (
-              <motion.div 
-                key={index} 
-                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <div className="relative aspect-square bg-gray-100">
-                  <OptimizedImage
-                    src={member.image}
-                    alt={member.name}
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                </div>
-                <div className="p-5 sm:p-6">
-                  <h3 className="text-lg sm:text-xl font-bold font-heading text-[#333333] mb-1">{member.name}</h3>
-                  <p className="text-[#00AA90] font-semibold mb-3 text-sm sm:text-base">{member.role}</p>
-                  <p className="text-[#333333] text-sm sm:text-base leading-relaxed">{member.bio}</p>
-                </div>
-              </motion.div>
+        <PracticeLineage className="mt-12 lg:mt-16" />
+
+        <div className="-mx-4 mt-12 md:mx-0">
+          <ul className="snap-rail px-4 md:grid md:grid-cols-3 md:gap-5 md:overflow-visible md:px-0">
+            {historyQuotes.map((q) => (
+              <li key={q.name} className="w-[82vw] max-w-[22rem] md:w-auto md:max-w-none">
+                <ReviewCard review={q} />
+              </li>
             ))}
+          </ul>
+        </div>
+        <p className="mt-6 text-center text-sm text-ink-muted">
+          “The staff has been the same staff that she had, and they’ve been great and supportive as
+          well. Can’t do it without them.” — Dr. Wong
+        </p>
+      </Section>
+
+      {/* ------------------------------------------------------------ Approach */}
+      <Section id="approach" tone="white" labelledBy="approach-title">
+        <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-16">
+          <div>
+            <SectionHeading
+              id="approach-title"
+              eyebrow="How he practices"
+              title={
+                <>
+                  Unhurried, conservative, <em>clear about cost</em>
+                </>
+              }
+              lead="The same few habits show up again and again in patients’ reviews, and they start at the front desk."
+            />
+            <p className="mt-6 text-[15px] text-ink-soft">
+              Curious about coverage?{" "}
+              <Link href="/insurance" className="link-rooted">
+                See how out-of-network PPO benefits work
+              </Link>
+              .
+            </p>
+          </div>
+          <figure className="reveal relative overflow-hidden rounded-[2rem] bg-cream-200 shadow-soft">
+            <Image
+              src="/images/redesign/dr-wong-front-desk-laughing.webp"
+              alt="Dr. Christopher B. Wong laughing with two team members at the front desk"
+              width={1024}
+              height={576}
+              sizes="(max-width: 1024px) 100vw, 44vw"
+              className="aspect-[16/10] h-auto w-full object-cover object-[60%_30%]"
+            />
+            <figcaption className="absolute bottom-3 left-3 rounded-full bg-cream-50/90 px-3 py-1 text-xs font-semibold text-ink-soft backdrop-blur">
+              An ordinary afternoon at the front desk
+            </figcaption>
+          </figure>
+        </div>
+        <ul className="reveal-stagger mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {approach.map((item) => (
+            <li key={item.title} className="card card-lift group flex gap-4 p-5 sm:flex-col sm:p-6">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-evergreen-800 text-gold-300">
+                <ServiceIcon name={item.icon} className="h-7 w-7" />
+              </span>
+              <div>
+                <h3 className="h-card text-[1.25rem] sm:text-[1.3rem]">{item.title}</h3>
+                <p className="mt-2 text-[15px] leading-7 text-ink-soft">{item.body}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <ServiceReviews
+        tags={["gentle", "honest"]}
+        title={
+          <>
+            What patients say about <em>Dr. Wong</em>
+          </>
+        }
+      />
+
+      {/* ---------------------------------------------------------------- Team */}
+      <Section id="team" tone="cream" labelledBy="team-title">
+        <div className="grid items-end gap-6 lg:grid-cols-[1fr_auto]">
+          <SectionHeading
+            id="team-title"
+            eyebrow="Meet the team"
+            title={
+              <>
+                The people who’ll <em>know your name</em>
+              </>
+            }
+            lead="Many patients have seen the same friendly faces for years, and they name them in their reviews."
+          />
+          <Link href="/testimonials" className="btn btn-outline self-start lg:self-auto">
+            Read {GOOGLE_REVIEW_COUNT} Google reviews
+            <ArrowRight aria-hidden="true" />
+          </Link>
+        </div>
+
+        {/* The practice's first team group photo: everyone, in the aquarium lounge. */}
+        <figure className="relative mt-10 overflow-hidden rounded-[2rem] bg-evergreen-950 shadow-lift">
+          <Image
+            src="/images/redesign/team-group-lounge.webp"
+            alt="Dr. Christopher B. Wong and the dental team in the office lounge, lit by the aquarium"
+            width={1280}
+            height={853}
+            sizes="(max-width: 1280px) 100vw, 1216px"
+            className="aspect-[4/3] h-auto w-full object-cover object-[50%_45%] sm:aspect-[16/8] lg:aspect-[16/7]"
+          />
+          <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-evergreen-950/80 to-transparent" />
+          <figcaption className="absolute inset-x-0 bottom-0 flex flex-col gap-1 p-5 text-cream-50 sm:p-8">
+            <span className="font-heading text-2xl leading-tight sm:text-3xl">
+              One team, <em className="text-gold-300">one front door</em>
+            </span>
+            <span className="text-sm text-cream-100/90">Dr. Wong and the team in the office lounge, beside the reef aquarium</span>
+          </figcaption>
+        </figure>
+
+        <h3 className="mt-12 text-xs font-bold uppercase tracking-[0.16em] text-ink-muted">Hygiene team</h3>
+        <div className="-mx-4 mt-4 sm:mx-0">
+          <ul className="snap-rail px-4 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 lg:grid-cols-3">
+            {hygiene.map((member) => (
+              <li key={member.slug} className="w-[80vw] max-w-[20rem] sm:w-auto sm:max-w-none">
+                <TeamCard member={member} showBio sizes="(max-width: 640px) 80vw, (max-width: 1024px) 50vw, 26rem" />
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <h3 className="mt-12 text-xs font-bold uppercase tracking-[0.16em] text-ink-muted">Clinical, front desk & specialist care</h3>
+        <div className="-mx-4 mt-4 sm:mx-0">
+          <ul className="snap-rail px-4 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 lg:grid-cols-4">
+            {others.map((member) => (
+              <li key={member.slug} className="w-[80vw] max-w-[20rem] sm:w-auto sm:max-w-none">
+                <TeamCard member={member} showBio sizes="(max-width: 640px) 80vw, (max-width: 1024px) 50vw, 20rem" />
+              </li>
+            ))}
+          </ul>
+        </div>
+        <p className="mt-2 text-center text-sm text-ink-muted sm:hidden" aria-hidden="true">
+          Swipe to meet everyone →
+        </p>
+
+        <div className="mt-8 flex flex-col items-start gap-4 rounded-[1.75rem] border border-cream-300/80 bg-white/70 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="flex items-center gap-3 text-[15px] text-ink-soft">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-evergreen-50 text-evergreen-700">
+              <Users className="h-5 w-5" aria-hidden="true" />
+            </span>
+            Dr. Wong is named in {drWong.mentions}+ five-star Google reviews, and the hygienists in dozens more.
+          </p>
+          <Link href="/office-tour" className="link-rooted inline-flex min-h-11 items-center gap-1.5 text-sm">
+            See where they work <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
+        </div>
+      </Section>
+
+      {/* -------------------------------------------------- Outside the office */}
+      <Section id="outside-the-office" tone="white" labelledBy="outside-title">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-center lg:gap-14">
+          <div className="min-w-0">
+            <SectionHeading
+              id="outside-title"
+              eyebrow="Outside the office"
+              title={
+                <>
+                  When he’s not <em>at the chair</em>
+                </>
+              }
+              lead="Dr. Wong stays active, loves to travel, and enjoys cooking international cuisines. He married Dr. Michelle Fong, also a dentist, and the office team joined the celebration."
+            />
+            <ul className="mt-7 flex flex-wrap gap-2">
+              {interests.map(({ icon: Icon, label }) => (
+                <li key={label} className="pill min-h-10">
+                  <Icon className="h-4 w-4 text-evergreen-600" aria-hidden="true" />
+                  {label}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="-mx-4 min-w-0 sm:mx-0">
+            <ul className="snap-rail px-4 sm:px-0" aria-label="Photos from Dr. Wong’s wedding">
+              {weddingPhotos.map((photo) => (
+                <li key={photo.src} className="w-[62vw] max-w-[15rem] sm:w-[13.5rem]">
+                  <div className="relative aspect-[3/4] overflow-hidden rounded-[1.5rem] bg-cream-200 shadow-soft">
+                    <Image src={photo.src} alt={photo.alt} fill sizes="(max-width: 640px) 62vw, 14rem" className="object-cover" />
+                  </div>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
-      </section>
+      </Section>
 
-      {/* Our Office Gallery */}
-      <OfficeGallerySection />
-
-      {/* Video Modal */}
-      <VideoModal
-        isOpen={isVideoModalOpen}
-        onClose={() => setIsVideoModalOpen(false)}
-        videoUrl={interviewVideoUrl}
-        poster="/images/about/meet-dr-wong-smile.webp"
+      <CtaBand
+        analyticsContext="about-cta"
+        title={
+          <>
+            Come meet <em>Dr. Wong</em>
+          </>
+        }
+        lead="New patients are always welcome. Request a visit online in about a minute, or call and talk with the front desk."
       />
     </>
   );

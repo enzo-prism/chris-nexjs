@@ -123,7 +123,7 @@ export default function GalleryLightbox({
     >
       {activeItem && activeIndex !== null && (
         <DialogPrimitive.Portal>
-          <DialogPrimitive.Overlay className="fixed inset-0 z-[159] bg-slate-950/94 backdrop-blur-sm" />
+          <DialogPrimitive.Overlay className="fixed inset-0 z-[159] bg-evergreen-950/95 backdrop-blur-sm" />
           <DialogPrimitive.Content
             className="fixed inset-0 z-[160] outline-none"
             onKeyDown={onDialogKeyDown}
@@ -155,7 +155,7 @@ export default function GalleryLightbox({
               <button
                 ref={closeButtonRef}
                 type="button"
-                className="ui-focus-premium absolute right-3 top-3 z-20 rounded-full border border-white/20 bg-black/35 p-2 text-white/85 transition-[background-color,color,border-color,transform] hover:border-white/35 hover:bg-black/55 hover:text-white active:translate-y-[0.5px] sm:right-5 sm:top-5"
+                className="absolute right-3 top-3 z-20 flex h-12 w-12 items-center justify-center rounded-full border border-cream-100/25 bg-white/[0.06] text-cream-50 outline-none transition-[background-color,border-color,transform] hover:border-cream-100/50 hover:bg-white/15 focus-visible:ring-4 focus-visible:ring-gold-300/70 active:translate-y-[0.5px] sm:right-5 sm:top-5"
                 aria-label="Close gallery viewer"
               >
                 <X className="h-6 w-6" aria-hidden="true" />
@@ -165,7 +165,7 @@ export default function GalleryLightbox({
             <button
               type="button"
               onClick={goPrev}
-              className="ui-focus-premium absolute left-2 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/20 bg-black/35 p-2 text-white/85 transition-[background-color,color,border-color,transform] hover:border-white/35 hover:bg-black/55 hover:text-white active:scale-[0.98] sm:left-5 sm:p-3"
+              className="absolute left-2 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-cream-100/25 bg-evergreen-950/60 text-cream-50 outline-none backdrop-blur transition-[background-color,border-color,transform] hover:border-cream-100/50 hover:bg-evergreen-900 focus-visible:ring-4 focus-visible:ring-gold-300/70 active:scale-[0.98] sm:left-5 sm:h-14 sm:w-14"
               aria-label="Previous media"
             >
               <ChevronLeft className="h-6 w-6" aria-hidden="true" />
@@ -174,14 +174,14 @@ export default function GalleryLightbox({
             <button
               type="button"
               onClick={goNext}
-              className="ui-focus-premium absolute right-2 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/20 bg-black/35 p-2 text-white/85 transition-[background-color,color,border-color,transform] hover:border-white/35 hover:bg-black/55 hover:text-white active:scale-[0.98] sm:right-5 sm:p-3"
+              className="absolute right-2 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-cream-100/25 bg-evergreen-950/60 text-cream-50 outline-none backdrop-blur transition-[background-color,border-color,transform] hover:border-cream-100/50 hover:bg-evergreen-900 focus-visible:ring-4 focus-visible:ring-gold-300/70 active:scale-[0.98] sm:right-5 sm:h-14 sm:w-14"
               aria-label="Next media"
             >
               <ChevronRight className="h-6 w-6" aria-hidden="true" />
             </button>
 
             <div
-              className="mx-auto flex h-full w-full max-w-[1400px] items-center justify-center px-4 pb-16 pt-12 sm:px-12 sm:pt-16"
+              className="mx-auto flex h-full w-full max-w-[1400px] items-center justify-center px-4 pb-32 pt-16 sm:px-20 sm:pb-28 sm:pt-16"
               onTouchStart={onTouchStart}
               onTouchEnd={onTouchEnd}
               onClick={(event) => {
@@ -191,7 +191,7 @@ export default function GalleryLightbox({
                 }
               }}
             >
-              <div className="group relative h-[74vh] w-full overflow-hidden rounded-2xl bg-black/30 ring-1 ring-white/10">
+              <div className="group relative h-[64vh] w-full overflow-hidden rounded-[1.5rem] bg-black/25 ring-1 ring-white/10 sm:h-[70vh]">
                 {activeItem.kind === "image" ? (
                   <Image
                     src={activeItem.src}
@@ -220,13 +220,17 @@ export default function GalleryLightbox({
                     <button
                       type="button"
                       onClick={toggleLightboxVideo}
-                      className="ui-focus-premium absolute inset-0 m-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/45 bg-black/40 text-white backdrop-blur-sm transition-[background-color,border-color,opacity,transform] hover:border-white/70 hover:bg-black/55 active:translate-y-[0.5px]"
+                      className={
+                        isVideoPlaying
+                          ? "absolute bottom-4 right-4 flex h-12 w-12 items-center justify-center rounded-full border border-white/30 bg-evergreen-950/60 text-cream-50 outline-none backdrop-blur-md transition-colors hover:bg-evergreen-950/80 focus-visible:ring-4 focus-visible:ring-cream-50/80"
+                          : "absolute inset-0 m-auto flex h-16 w-16 items-center justify-center rounded-full bg-gold-400 text-evergreen-950 shadow-lg outline-none transition-transform hover:scale-105 focus-visible:ring-4 focus-visible:ring-cream-50/80"
+                      }
                       aria-label={isVideoPlaying ? `Pause ${activeItem.title}` : `Play ${activeItem.title}`}
                     >
                       {isVideoPlaying ? (
-                        <Pause className="h-6 w-6" aria-hidden="true" />
+                        <Pause className="h-5 w-5 fill-current" aria-hidden="true" />
                       ) : (
-                        <Play className="h-6 w-6" aria-hidden="true" />
+                        <Play className="ml-1 h-7 w-7 fill-current" aria-hidden="true" />
                       )}
                     </button>
                   </>
@@ -234,11 +238,21 @@ export default function GalleryLightbox({
               </div>
             </div>
 
-            <div
-              className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full border border-white/20 bg-black/40 px-4 py-1.5 text-xs font-medium text-white/90"
-              aria-live="polite"
-            >
-              {activeIndex + 1} / {items.length}
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 px-4 pb-5 sm:pb-6">
+              <div className="mx-auto flex max-w-3xl flex-col items-center gap-1.5 text-center">
+                <p className="font-heading text-xl font-medium text-cream-50 sm:text-2xl" aria-hidden="true">
+                  {activeItem.title}
+                </p>
+                <p className="text-sm leading-6 text-evergreen-100/85" aria-hidden="true">
+                  {activeItem.description}
+                </p>
+                <p
+                  className="mt-1 rounded-full border border-cream-100/20 bg-white/[0.06] px-3 py-1 text-xs font-semibold text-cream-100"
+                  aria-live="polite"
+                >
+                  {activeIndex + 1} / {items.length}
+                </p>
+              </div>
             </div>
           </DialogPrimitive.Content>
         </DialogPrimitive.Portal>

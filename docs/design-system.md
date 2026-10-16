@@ -54,6 +54,28 @@ and chips, hairline `border-cream-300/80`, `shadow-soft` / `shadow-lift`.
 | `TeamCard`, `WhoTreats` | real team portraits, roles, verbatim quotes about them |
 | `Steps`, `FactGrid`, `FaqList`, `ReviewedBy`, `CtaBand`, `LogoMark` | visit steps, quick facts, FAQs, clinical-review line, closing CTA, vector mark |
 
+### Page kits (built on the primitives)
+
+| Folder | Used by | Pieces |
+|---|---|---|
+| `components/services/` | cosmetic + urgent service pages (and reused by the others) | `ServicePhoto`, `QuickFacts`, `FitChecklist`, `OptionCards` / `FeatureList` (optional phone `rail`), `PhaseTrack`, `StepList`, `CompareTable`, `FirstAidGrid`, `CostPanel` (PPO out-of-network, in-house plan, Visa/MasterCard/FSA-HSA), `Disclosure`, `GuideLinks`, `JumpNav`, `NearbyLine`, `IconMedallion` |
+| `components/services-hub/` | `/services` + preventive/restorative pages | `hubServices`, `ServiceBlocks` (`QuickFacts`, `FitAndDefinition`, `SpokeCards`, `IconPoints`, `AsideNote`), `ServiceSections`, `ServicesCtaBand` |
+| `components/trust/` | `/about`, `/testimonials`, `/patient-stories` | `PracticeLineage` (Kanemoto → Hamamoto → Wong, no invented years), `HandwrittenNote` |
+| `components/patients/` | contact, insurance, forms, legal | `MapFacade` (click-to-load map), `HoursTable`, `LegalPage`, `useHolidayNotice` (post-mount, hydration-safe) |
+| `components/locations/` | `/locations` + the 3 city pages | `LocationPage` template fed by `data/locations.ts`, `RouteCard` (inline-SVG route, north up), `VisitCard`, `PeninsulaMap` |
+| `components/blog/` | `/blog`, posts, service pages | `RelatedServicePosts` (static SSR index `data/blogIndex.ts`, drift-checked by `pnpm test:blog-index`), `AbstractBlogArt` (CSS/SVG covers, no AI art), `InlineMarkdown` |
+
+Phone pattern: card groups that would stack 3+ tall on a phone (service
+reviews, related services, related posts, team, spoke cards) become a
+horizontal scroll-snap row below `sm`/`md` and a grid above. Build it from
+Tailwind utilities (`-mx-4 flex snap-x … md:grid`), not the global `.snap-rail`
+class, which is unlayered and beats responsive `sm:grid`.
+
+Every page ends with `CtaBand` (`callFirst` on urgent pages leads with the
+phone call). The shell may append a short "Good to know" block from
+`lib/supplementalContent.ts` after it (only `/contact` and `/patient-resources`
+still have one).
+
 Video: `client/src/components/video/StoryPlayer.tsx` (custom player) and
 `StoryFilm.tsx` (version switcher + chapters + transcript). Data in
 `client/src/data/fullCircleFilm.ts`. See `docs/full-circle-film.md`.

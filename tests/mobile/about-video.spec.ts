@@ -2,20 +2,37 @@ import { test, expect } from "@playwright/test";
 import { gotoAndHydrate } from "./_helpers";
 
 /**
- * The About page "Meet Dr. Wong" interview plays a self-hosted local clip
- * (no YouTube embed). Clicking the button must open a modal with a native
- * <video> sourced from /videos/, with controls — and no YouTube iframe.
+ * The About page "Meet Dr. Wong" interview plays the self-hosted local clip in
+ * the custom StoryPlayer (no YouTube embed). The <video> renders up front with
+ * a poster and preload="none"; pressing play sets its source to
+ * /videos/meet-dr-wong.mp4 and swaps the big play button for labelled custom
+ * controls, with keyboard focus landing on Pause.
  */
 test("About interview plays a local self-hosted video (no YouTube)", async ({
   page,
 }) => {
   await gotoAndHydrate(page, "/about");
 
-  await page.getByRole("button", { name: /watch interview/i }).first().click();
+  const player = page.getByRole("region", { name: /meet dr\. wong/i }).first();
+  await expect(player).toBeVisible();
 
-  const video = page.locator('video[src*="/videos/"]');
-  await expect(video).toHaveCount(1);
-  await expect(video).toHaveJSProperty("controls", true);
+  const play = player.getByRole("button", { name: /^play meet dr\. wong/i });
+  await play.focus();
+  await page.keyboard.press("Enter");
+
+  await expect(player).not.toHaveAttribute("data-state", "idle");
+  await expect
+    .poll(() =>
+      player
+        .locator("video")
+        .first()
+        .evaluate((v) => (v as HTMLVideoElement).currentSrc),
+    )
+    .toContain("/videos/meet-dr-wong.mp4");
+
+  // Custom controls replace native ones; focus moves to the Play/Pause control.
+  await expect(player.getByRole("button", { name: /^(pause|play)$/i })).toBeFocused();
+  await expect(player.getByRole("slider", { name: "Seek" })).toBeAttached();
 
   // No third-party YouTube/Vimeo iframe.
   await expect(

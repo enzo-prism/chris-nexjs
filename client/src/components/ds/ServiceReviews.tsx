@@ -28,7 +28,7 @@ export function ServiceReviews({
   const quotes = reviewsFor(tags, limit);
   if (!quotes.length) return null;
   return (
-    <section className={cn("bg-cream-100 py-16 sm:py-20", className)} aria-labelledby="service-reviews-title">
+    <section className={cn("bg-cream-100 py-12 sm:py-20", className)} aria-labelledby="service-reviews-title">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-2xl">
@@ -43,11 +43,14 @@ export function ServiceReviews({
             <ArrowRight aria-hidden="true" />
           </Link>
         </div>
-        <div className="reveal-stagger mt-10 grid gap-5 md:grid-cols-3">
+        {/* Phones: a swipe row (saves ~2 screens per page); md+: three columns. */}
+        <ul className="reveal-stagger -mx-4 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 [scroll-padding-inline:1rem] md:mx-0 md:mt-10 md:grid md:grid-cols-3 md:gap-5 md:overflow-visible md:px-0 md:pb-0">
           {quotes.map((q) => (
-            <ReviewCard key={q.name} review={q} />
+            <li key={q.name} className="w-[85%] max-w-[22rem] shrink-0 snap-start md:w-auto md:max-w-none">
+              <ReviewCard review={q} className="h-full" />
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   );

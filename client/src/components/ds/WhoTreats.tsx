@@ -19,18 +19,18 @@ export function WhoTreats({
     .map((slug) => team.find((m) => m.slug === slug))
     .filter((m): m is TeamMember => Boolean(m));
   return (
-    <section className={cn("bg-white py-16 sm:py-20", className)} aria-labelledby="who-treats-title">
+    <section className={cn("bg-white py-12 sm:py-20", className)} aria-labelledby="who-treats-title">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <p className="eyebrow">Your care team</p>
         <h2 id="who-treats-title" className="h-section mt-4">
           Who you’ll <em>see</em>
         </h2>
-        <div className="mt-10 grid gap-5 lg:grid-cols-[1.2fr_1fr]">
-          <article className="card grid overflow-hidden sm:grid-cols-[13rem_1fr]">
-            <div className="relative min-h-[16rem] bg-evergreen-900">
-              <Image src={drWong.image} alt="Dr. Christopher B. Wong" fill sizes="(max-width: 640px) 100vw, 13rem" className="object-cover object-[50%_25%]" />
+        <div className="mt-8 grid gap-5 sm:mt-10 lg:grid-cols-[1.2fr_1fr]">
+          <article className="card grid grid-cols-[6.5rem_1fr] overflow-hidden sm:grid-cols-[13rem_1fr]">
+            <div className="relative min-h-[10rem] bg-evergreen-900 sm:min-h-[16rem]">
+              <Image src={drWong.image} alt="Dr. Christopher B. Wong" fill sizes="(max-width: 640px) 104px, 13rem" className="object-cover object-[50%_25%]" />
             </div>
-            <div className="p-6">
+            <div className="p-5 sm:p-6">
               <h3 className="h-card">Dr. Christopher B. Wong</h3>
               <p className="mt-1 text-sm font-semibold text-evergreen-700">{drWong.role}</p>
               <p className="mt-3 text-[15px] leading-7 text-ink-soft">{intro}</p>

@@ -1,10 +1,11 @@
 "use client";
 
+// Invite-only, noindex campaign form (Formspree ops). Fields, names, and
+// submission behavior are unchanged; only the presentation moved to Rooted.
 import { useState } from "react";
 import { CalendarDays, Camera, CheckCircle, Clock, Sparkles } from "lucide-react";
-import { Link } from "wouter";
-import MetaTags from "@/components/common/MetaTags";
 import OfficeHoursSummary from "@/components/common/OfficeHoursSummary";
+import { BtnLink } from "@/components/ds/BtnLink";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,7 +33,9 @@ const WEDNESDAY_TIME_WINDOWS = WEEKDAY_TIME_WINDOWS.slice(0, 7);
 const FRIDAY_TIME_WINDOWS = WEEKDAY_TIME_WINDOWS.slice(0, 8);
 
 const selectClassName =
-  "h-12 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
+  "h-12 w-full rounded-xl border border-cream-300 bg-white px-3 py-2 text-base text-ink ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-cream-100 disabled:text-ink-muted md:text-sm";
+
+const inputClassName = "h-12 rounded-xl border-cream-300 bg-white";
 
 const FORM_ENDPOINT = getPublicFormspreeEndpoint();
 const FORMSPREE_OPS_UTM_FIELDS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"];
@@ -290,136 +293,134 @@ const ZoomWhiteningSchedule = () => {
     await submitForm(form);
   };
 
+  const renderHint = (
+    value: string,
+    day: number | null,
+    closed: boolean,
+    weekend: boolean,
+    limited: boolean,
+  ) =>
+    closed && value ? (
+      <p className="text-xs leading-5 text-rose-700">{getSpecialClosureMessage(value)}</p>
+    ) : weekend && value ? (
+      <p className="text-xs leading-5 text-rose-700">
+        Office is closed on weekends. Please choose a weekday date.
+      </p>
+    ) : limited ? (
+      <p className="text-xs leading-5 text-gold-700">{getOfficeHoursHint(day, value)}</p>
+    ) : value ? (
+      <p className="text-xs leading-5 text-ink-muted">{getOfficeHoursHint(day, value)}</p>
+    ) : (
+      <p className="text-xs leading-5 text-ink-muted">Select a date to see available time windows.</p>
+    );
+
   return (
     <>
-      <MetaTags
-        title="Invite Only - Whitening Appointment Schedule"
-        description="Private scheduling page for invited patients booking a complimentary in-office ZOOM! Whitening session with photo and video capture."
-        canonicalPath="/zoom-whitening/schedule"
-        robots="noindex, nofollow, noarchive"
-      />
+      <section className="surface-evergreen on-dark relative overflow-hidden pb-14 pt-10 sm:pb-20 sm:pt-14">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-[url('/brand/roots-glow.svg')] bg-[length:1440px_360px] bg-[position:center_-170px] bg-no-repeat opacity-20 [mask-image:linear-gradient(to_bottom,#000,transparent)]"
+        />
 
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#0b1f3a] via-[#154477] to-[#f5f9fc] pt-24 pb-16">
-        <div className="absolute -top-24 right-0 h-64 w-64 rounded-full bg-white/10 blur-3xl" aria-hidden="true" />
-        <div className="absolute -bottom-28 left-0 h-72 w-72 rounded-full bg-primary/20 blur-3xl" aria-hidden="true" />
-
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
-            <div className="text-white">
-              <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-wide">
-                Invite-only scheduling
-              </div>
-              <h1 className="mt-5 text-3xl sm:text-4xl lg:text-5xl font-bold font-heading leading-tight">
+        <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="grid items-start gap-10 lg:grid-cols-[1fr_1fr] lg:gap-14">
+            <div className="lg:pt-6">
+              <p className="eyebrow eyebrow-light">Invite-only scheduling</p>
+              <h1 className="h-display mt-5 text-balance text-[2.3rem] sm:text-[3rem] lg:text-[3.4rem]">
                 ZOOM! Whitening photo and video session
               </h1>
-              <p className="mt-4 text-lg text-white/85 leading-relaxed max-w-xl">
+              <p className="lead mt-5 max-w-xl">
                 This page is reserved for invited patients who are helping Dr. Wong with a marketing
                 shoot. Your visit includes a complimentary in-office ZOOM! Whitening treatment while
                 our team captures photos and video.
               </p>
 
-              <div className="mt-6 grid gap-3 sm:grid-cols-3 text-sm">
-                <div className="flex items-center gap-2 rounded-2xl bg-white/10 px-4 py-3">
-                  <Sparkles className="h-4 w-4 text-blue-200" />
-                  Complimentary whitening
-                </div>
-                <div className="flex items-center gap-2 rounded-2xl bg-white/10 px-4 py-3">
-                  <Camera className="h-4 w-4 text-blue-200" />
-                  Photo and video capture
-                </div>
-                <div className="flex items-center gap-2 rounded-2xl bg-white/10 px-4 py-3">
-                  <Clock className="h-4 w-4 text-blue-200" />
-                  About 90 minutes
-                </div>
-              </div>
+              <ul className="mt-7 flex flex-wrap gap-2 text-sm">
+                {[
+                  { icon: Sparkles, label: "Complimentary whitening" },
+                  { icon: Camera, label: "Photo and video capture" },
+                  { icon: Clock, label: "About 90 minutes" },
+                ].map(({ icon: Icon, label }) => (
+                  <li
+                    key={label}
+                    className="flex min-h-10 items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 font-medium text-cream-50"
+                  >
+                    <Icon className="h-4 w-4 shrink-0 text-gold-300" aria-hidden="true" />
+                    {label}
+                  </li>
+                ))}
+              </ul>
 
-              <div className="mt-6 rounded-2xl bg-white/10 p-4 text-sm text-white/85">
-                <p className="font-semibold text-white">Choose two times that work for you.</p>
+              <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.06] p-4 text-sm leading-6 text-evergreen-100">
+                <p className="font-semibold text-cream-50">Choose two times that work for you.</p>
                 <p className="mt-1">
                   Pick two date and 1-hour time windows within office hours. We will confirm the best fit.
                 </p>
               </div>
             </div>
 
-            <div className="rounded-3xl bg-white/95 p-6 sm:p-8 text-[#162338] shadow-2xl ring-1 ring-white/40 backdrop-blur">
+            <div className="rounded-[1.75rem] bg-white p-6 text-ink shadow-lift sm:p-8">
               {submissionStatus === "success" ? (
                 <div className="space-y-6">
                   <div className="flex flex-col items-center text-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-                      <CheckCircle className="h-8 w-8" />
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-evergreen-800 text-gold-300">
+                      <CheckCircle className="h-8 w-8" aria-hidden="true" />
                     </div>
-                    <h2 className="mt-4 text-2xl sm:text-3xl font-bold font-heading">
-                      Request received
-                    </h2>
-                    <p className="mt-2 text-sm sm:text-base text-slate-600">
+                    <h2 className="mt-4 font-heading text-[1.9rem] font-medium leading-tight text-ink">Request received</h2>
+                    <p className="mt-2 text-[15px] leading-7 text-ink-soft">
                       We have received your submission. Someone on the team will reach out soon to
                       coordinate next steps.
                     </p>
                   </div>
 
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                  <div className="rounded-2xl border border-cream-300 bg-cream-50 p-4 sm:p-5">
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-ink-muted">
                       Your selected windows
                     </p>
                     <div className="mt-4 space-y-4">
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <p className="text-sm font-semibold text-slate-700">
-                            Preferred option 1
-                          </p>
-                          <p className="text-xs text-slate-500">Date and time</p>
+                      {[
+                        { label: "Preferred option 1", date: preferredDate1, time: preferredTime1 },
+                        { label: "Preferred option 2", date: preferredDate2, time: preferredTime2 },
+                      ].map((option) => (
+                        <div key={option.label} className="flex items-start justify-between gap-4">
+                          <div>
+                            <p className="text-sm font-semibold text-ink">{option.label}</p>
+                            <p className="text-xs text-ink-muted">Date and time</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-medium text-ink">{formatDate(option.date)}</p>
+                            <p className="text-xs text-ink-muted">{option.time || "Not provided"}</p>
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <p className="text-sm font-medium text-slate-700">
-                            {formatDate(preferredDate1)}
-                          </p>
-                          <p className="text-xs text-slate-500">
-                            {preferredTime1 || "Not provided"}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <p className="text-sm font-semibold text-slate-700">
-                            Preferred option 2
-                          </p>
-                          <p className="text-xs text-slate-500">Date and time</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-medium text-slate-700">
-                            {formatDate(preferredDate2)}
-                          </p>
-                          <p className="text-xs text-slate-500">
-                            {preferredTime2 || "Not provided"}
-                          </p>
-                        </div>
-                      </div>
+                      ))}
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600">
-                    <div className="flex items-start gap-3">
-                      <Clock className="mt-0.5 h-4 w-4 text-primary" />
-                      <div>
-                        <p className="font-semibold text-slate-700">Need to update your request?</p>
-                        <p className="text-slate-600">
-                          Call us at {officeInfo.phone} and we will be happy to help.
-                        </p>
-                      </div>
+                  <div className="flex items-start gap-3 rounded-2xl border border-cream-300 bg-white p-4 text-sm">
+                    <Clock className="mt-0.5 h-4 w-4 shrink-0 text-evergreen-600" aria-hidden="true" />
+                    <div>
+                      <p className="font-semibold text-ink">Need to update your request?</p>
+                      <p className="text-ink-soft">
+                        Call us at{" "}
+                        <a href={`tel:${officeInfo.phoneE164}`} className="link-rooted">
+                          {officeInfo.phone}
+                        </a>{" "}
+                        and we will be happy to help.
+                      </p>
                     </div>
                   </div>
                 </div>
               ) : (
                 <>
-                  <h2 className="text-2xl sm:text-3xl font-bold font-heading">Request your visit</h2>
-                  <p className="mt-2 text-sm sm:text-base text-slate-600">
+                  <h2 className="font-heading text-[1.9rem] font-medium leading-tight text-ink">Request your visit</h2>
+                  <p className="mt-2 text-[15px] leading-7 text-ink-soft">
                     Enter your name, then select two possible 1-hour windows. All times are Pacific.
                   </p>
 
                   <form
                     action={FORM_ENDPOINT}
                     method="POST"
-                    className="mt-6 space-y-6"
+                    className="mt-6 space-y-5"
                     onSubmit={handleSubmit}
                     aria-busy={isSubmitting}
                   >
@@ -431,7 +432,7 @@ const ZoomWhiteningSchedule = () => {
                           name="firstName"
                           autoComplete="given-name"
                           required
-                          className="h-12 rounded-xl"
+                          className={inputClassName}
                         />
                       </div>
                       <div className="space-y-2">
@@ -441,14 +442,15 @@ const ZoomWhiteningSchedule = () => {
                           name="lastName"
                           autoComplete="family-name"
                           required
-                          className="h-12 rounded-xl"
+                          className={inputClassName}
                         />
                       </div>
                     </div>
 
-                    <div className="space-y-4 rounded-2xl bg-slate-50 p-4 sm:p-5">
-                      <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-                        <CalendarDays className="h-4 w-4 text-primary" />
+                    <fieldset className="space-y-4 rounded-2xl bg-cream-100 p-4 sm:p-5">
+                      <legend className="sr-only">Preferred option 1</legend>
+                      <div aria-hidden="true" className="flex items-center gap-2 text-sm font-semibold text-ink">
+                        <CalendarDays className="h-4 w-4 text-evergreen-600" />
                         Preferred option 1
                       </div>
                       <div className="grid gap-4 sm:grid-cols-2">
@@ -461,7 +463,7 @@ const ZoomWhiteningSchedule = () => {
                             required
                             value={preferredDate1}
                             onChange={(event) => handlePreferredDate1Change(event.target.value)}
-                            className="h-12 rounded-xl"
+                            className={inputClassName}
                           />
                         </div>
                         <div className="space-y-2">
@@ -484,34 +486,15 @@ const ZoomWhiteningSchedule = () => {
                               </option>
                             ))}
                           </select>
-                          {isClosedDate1 && preferredDate1 ? (
-                            <p className="text-xs text-rose-600">
-                              {getSpecialClosureMessage(preferredDate1)}
-                            </p>
-                          ) : isWeekend1 && preferredDate1 ? (
-                            <p className="text-xs text-rose-600">
-                              Office is closed on weekends. Please choose a weekday date.
-                            </p>
-                          ) : isLimitedHoursDate1 ? (
-                            <p className="text-xs text-amber-700">
-                              {getOfficeHoursHint(preferredDay1, preferredDate1)}
-                            </p>
-                          ) : preferredDate1 ? (
-                            <p className="text-xs text-slate-500">
-                              {getOfficeHoursHint(preferredDay1, preferredDate1)}
-                            </p>
-                          ) : (
-                            <p className="text-xs text-slate-500">
-                              Select a date to see available time windows.
-                            </p>
-                          )}
+                          {renderHint(preferredDate1, preferredDay1, isClosedDate1, isWeekend1, isLimitedHoursDate1)}
                         </div>
                       </div>
-                    </div>
+                    </fieldset>
 
-                    <div className="space-y-4 rounded-2xl bg-slate-50 p-4 sm:p-5">
-                      <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-                        <CalendarDays className="h-4 w-4 text-primary" />
+                    <fieldset className="space-y-4 rounded-2xl bg-cream-100 p-4 sm:p-5">
+                      <legend className="sr-only">Preferred option 2</legend>
+                      <div aria-hidden="true" className="flex items-center gap-2 text-sm font-semibold text-ink">
+                        <CalendarDays className="h-4 w-4 text-evergreen-600" />
                         Preferred option 2
                       </div>
                       <div className="grid gap-4 sm:grid-cols-2">
@@ -524,7 +507,7 @@ const ZoomWhiteningSchedule = () => {
                             required
                             value={preferredDate2}
                             onChange={(event) => handlePreferredDate2Change(event.target.value)}
-                            className="h-12 rounded-xl"
+                            className={inputClassName}
                           />
                         </div>
                         <div className="space-y-2">
@@ -547,65 +530,43 @@ const ZoomWhiteningSchedule = () => {
                               </option>
                             ))}
                           </select>
-                          {isClosedDate2 && preferredDate2 ? (
-                            <p className="text-xs text-rose-600">
-                              {getSpecialClosureMessage(preferredDate2)}
-                            </p>
-                          ) : isWeekend2 && preferredDate2 ? (
-                            <p className="text-xs text-rose-600">
-                              Office is closed on weekends. Please choose a weekday date.
-                            </p>
-                          ) : isLimitedHoursDate2 ? (
-                            <p className="text-xs text-amber-700">
-                              {getOfficeHoursHint(preferredDay2, preferredDate2)}
-                            </p>
-                          ) : preferredDate2 ? (
-                            <p className="text-xs text-slate-500">
-                              {getOfficeHoursHint(preferredDay2, preferredDate2)}
-                            </p>
-                          ) : (
-                            <p className="text-xs text-slate-500">
-                              Select a date to see available time windows.
-                            </p>
-                          )}
+                          {renderHint(preferredDate2, preferredDay2, isClosedDate2, isWeekend2, isLimitedHoursDate2)}
                         </div>
                       </div>
-                    </div>
+                    </fieldset>
 
-                    <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600">
-                      <div className="flex items-start gap-3">
-                        <Clock className="mt-0.5 h-4 w-4 text-primary" />
-                        <div>
-                          <p className="font-semibold text-slate-700">Office hours</p>
-                          <OfficeHoursSummary
-                            variant="inline"
-                            hoursClassName="text-slate-600"
-                            noteClassName="text-slate-500"
-                          />
-                        </div>
+                    <div className="flex items-start gap-3 rounded-2xl border border-cream-300 bg-white p-4 text-sm">
+                      <Clock className="mt-0.5 h-4 w-4 shrink-0 text-evergreen-600" aria-hidden="true" />
+                      <div>
+                        <p className="font-semibold text-ink">Office hours</p>
+                        <OfficeHoursSummary
+                          variant="inline"
+                          hoursClassName="text-ink-soft"
+                          noteClassName="text-ink-muted"
+                        />
                       </div>
                     </div>
 
                     {submissionError ? (
-                      <p className="text-sm text-rose-600" role="alert">
+                      <p className="text-sm text-rose-700" role="alert">
                         {submissionError}
                       </p>
                     ) : null}
 
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-col gap-3">
                       <Button
                         type="submit"
-                        className="h-12 w-full rounded-full px-6 text-base sm:w-auto"
+                        className="btn btn-primary btn-lg w-full"
                         disabled={isSubmitting}
                       >
                         {isSubmitting ? "Submitting..." : "Submit scheduling request"}
                       </Button>
-                      <div className="flex items-start gap-2 text-xs text-slate-500">
-                        <CheckCircle className="mt-0.5 h-3.5 w-3.5 text-primary" />
+                      <p className="flex items-start gap-2 text-xs leading-5 text-ink-muted">
+                        <CheckCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-evergreen-600" aria-hidden="true" />
                         <span>
                           By submitting, you confirm you are comfortable with photo and video capture during your visit.
                         </span>
-                      </div>
+                      </p>
                     </div>
                   </form>
                 </>
@@ -615,28 +576,20 @@ const ZoomWhiteningSchedule = () => {
         </div>
       </section>
 
-      <section className="bg-white py-12 sm:py-16">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="rounded-3xl border border-slate-200 bg-gradient-to-r from-slate-50 via-white to-slate-50 p-6 sm:p-10 shadow-sm">
-            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-                  Learn more
-                </p>
-                <h2 className="mt-2 text-2xl sm:text-3xl font-bold font-heading text-[#162338]">
-                  See how ZOOM! Whitening works
-                </h2>
-                <p className="mt-2 text-sm sm:text-base text-slate-600 max-w-2xl">
-                  Review the in-office process, timeline, and expected results before your visit.
-                </p>
-              </div>
-              <Button asChild className="h-12 w-full rounded-full px-6 text-base md:w-auto">
-                <Link href="/zoom-whitening">
-                  Explore the ZOOM! process
-                </Link>
-              </Button>
-            </div>
+      <section className="bg-cream-100 px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+        <div className="card mx-auto flex max-w-5xl flex-col gap-6 p-6 sm:p-10 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="eyebrow">Learn more</p>
+            <h2 className="h-section mt-3 text-[1.8rem] sm:text-[2.2rem]">
+              See how ZOOM! <em>Whitening works</em>
+            </h2>
+            <p className="mt-2 max-w-2xl text-[15px] leading-7 text-ink-soft">
+              Review the in-office process, timeline, and expected results before your visit.
+            </p>
           </div>
+          <BtnLink href="/teeth-whitening-palo-alto" className="w-full md:w-auto">
+            Explore the ZOOM! process
+          </BtnLink>
         </div>
       </section>
     </>

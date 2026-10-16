@@ -60,6 +60,20 @@ Use this file as the central index for project documentation.
 - `release-2026-10-12-dentist-section.md`
   Clearer homepage doctor/team hierarchy, the original intro video's smiling
   poster frame, modal keyboard accessibility, and local/production release evidence.
+- `release-2026-10-16-rooted-redesign.md`
+  Full-site "Rooted" redesign: new design system, navigation, every page
+  rebuilt, the *Full Circle* film in a custom player, real photos only (AI and
+  stock imagery removed), SEO consolidations and schema, gate changes, release
+  evidence, and the open questions for the practice.
+
+## Design
+
+- `design-system.md`
+  The "Rooted" tokens, type, component classes, React primitives, page kits,
+  motion and accessibility rules.
+- `full-circle-film.md`
+  The *Full Circle* film files, the StoryPlayer, bandwidth rules, and the facts
+  the film states (keep site copy consistent with them).
 
 ## SEO documentation
 
@@ -83,7 +97,7 @@ Use this file as the central index for project documentation.
 - `gallery.md`  
   `/gallery` media model, no-crop frame strategy, Cloudinary still-image pack, and QA checklist.
 - `svg-animation-system.md`
-  Custom SVG components, motion hooks, reduced-motion behavior, and placement map.
+  Superseded (2026-10-16) by the motion rules in `design-system.md`; kept for history.
 - `reviews-data.md`
   Google reviews import pipeline, data quality profile, integrity checks, and
   the Business Profile notification-email refresh method (last backfill

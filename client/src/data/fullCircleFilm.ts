@@ -19,7 +19,22 @@ export const fullCircleFilm: StoryVideoVersion = {
   posterWebp: `${BASE}/poster-landscape-1280.webp`,
   teaser: `${BASE}/full-circle-teaser.mp4`,
   captions: `${BASE}/full-circle.en.vtt`,
-  chapters: [],
+  storyboard: {
+    sprite: `${BASE}/full-circle-sprite.jpg`,
+    interval: 2,
+    columns: 10,
+    tileWidth: 192,
+    tileHeight: 108,
+    count: 67,
+  },
+  chapters: [
+    { start: 0, title: "Where it started" },
+    { start: 30, title: "A second family" },
+    { start: 44.8, title: "Friends on the journey" },
+    { start: 56.5, title: "Passing the torch" },
+    { start: 93, title: "Dr. Hamamoto’s blessing" },
+    { start: 109.5, title: "Keep on growing" },
+  ],
 };
 
 export const fullCircleShort: StoryVideoVersion = {
@@ -37,4 +52,12 @@ export const fullCircleShort: StoryVideoVersion = {
   teaser: `${BASE}/full-circle-teaser-vertical.mp4`,
   captions: `${BASE}/full-circle-vertical.en.vtt`,
   burnedInCaptions: true,
+  storyboard: {
+    sprite: `${BASE}/full-circle-vertical-sprite.jpg`,
+    interval: 2,
+    columns: 10,
+    tileWidth: 108,
+    tileHeight: 192,
+    count: 28,
+  },
 };

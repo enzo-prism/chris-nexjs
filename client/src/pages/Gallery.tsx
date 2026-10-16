@@ -2,21 +2,24 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { Volume2, VolumeOff, Camera, Pause, Play, LayoutGrid } from "lucide-react";
-import { motion, AnimatePresence } from "@/lib/motion-lite";
-import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
+import Link from "next/link";
+import { ArrowRight, CalendarDays, Clapperboard, Pause, Play, Volume2, VolumeOff } from "lucide-react";
+
 import StructuredData from "@/components/seo/StructuredData";
-import { buildVideoObjectSchemas } from "@/lib/structuredData";
-import ButtonLink from "@/components/common/ButtonLink";
-import { cn } from "@/lib/utils";
+import { CtaBand } from "@/components/ds/CtaBand";
+import { PageHero } from "@/components/ds/PageHero";
+import { Section } from "@/components/ds/Section";
+import { SectionHeading } from "@/components/ds/SectionHeading";
+import GalleryLightbox from "@/components/gallery/GalleryLightbox";
+import GalleryTile from "@/components/gallery/GalleryTile";
 import {
   galleryItems,
   heroVideo,
-  type GalleryMediaItem,
   type GalleryCategory,
+  type GalleryMediaItem,
 } from "@/data/galleryMedia";
-import GalleryTile from "@/components/gallery/GalleryTile";
-import GalleryLightbox from "@/components/gallery/GalleryLightbox";
+import { buildBreadcrumbSchema, buildVideoObjectSchemas, type StructuredDataNode } from "@/lib/structuredData";
+import { cn } from "@/lib/utils";
 
 const CATEGORIES: readonly (GalleryCategory | "All")[] = [
   "All",
@@ -25,6 +28,19 @@ const CATEGORIES: readonly (GalleryCategory | "All")[] = [
   "Technology",
   "Our Team",
 ];
+
+const breadcrumbItems = [
+  { name: "Home", path: "/" },
+  { name: "Photo & video gallery", path: "/gallery" },
+];
+
+// Bento cells: standard 1×1, tall 1×2, wide videos 2×1 on phones and 2×2 on
+// desktop. The grid packs densely, so tiles never leave holes.
+const cellClass: Record<GalleryMediaItem["layout"], string> = {
+  photoStandard: "",
+  photoTall: "row-span-2",
+  videoWide: "col-span-2 lg:row-span-2",
+};
 
 function GalleryHero({ video }: { video: GalleryMediaItem }): React.JSX.Element {
   const [isMuted, setIsMuted] = useState(true);
@@ -80,249 +96,236 @@ function GalleryHero({ video }: { video: GalleryMediaItem }): React.JSX.Element 
     });
   };
 
+  const control =
+    "inline-flex min-h-11 items-center gap-2 rounded-full border border-white/30 bg-evergreen-950/55 px-4 text-xs font-bold uppercase tracking-[0.14em] text-cream-50 outline-none backdrop-blur-md transition-colors hover:bg-evergreen-950/75 focus-visible:ring-4 focus-visible:ring-cream-50/80";
+
   return (
-    <section className="relative overflow-hidden bg-white pt-8 lg:pt-12">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="relative z-10 grid gap-12 lg:grid-cols-[1fr_1.2fr] lg:items-center">
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-            className="space-y-8"
+    <div className="relative mx-auto w-full max-w-xl lg:max-w-none">
+      <div
+        aria-hidden="true"
+        className="absolute -inset-4 -z-10 rounded-[2.75rem] bg-[conic-gradient(from_200deg,rgba(176,209,193,0.55),rgba(243,224,176,0.6),rgba(176,209,193,0.55))] opacity-60 blur-2xl"
+      />
+      <div className="relative aspect-[16/11] overflow-hidden rounded-[2.25rem] border border-white/70 bg-evergreen-950 shadow-lift">
+        <Image
+          src={video.poster ?? "/images/hero-office-1280.webp"}
+          alt=""
+          fill
+          sizes="(max-width: 1023px) calc(100vw - 2rem), (max-width: 1279px) 45vw, 36rem"
+          className="object-cover"
+          priority
+        />
+        {hasRequestedVideo && !videoErrored && (
+          <video
+            ref={heroVideoRef}
+            src={video.src}
+            poster={video.poster}
+            className="absolute inset-0 h-full w-full object-cover"
+            loop
+            muted={isMuted}
+            playsInline
+            preload="none"
+            controls={false}
+            aria-label={`${video.title}. ${video.description}`}
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            onEnded={() => setIsPlaying(false)}
+            onError={() => {
+              setVideoErrored(true);
+              setIsPlaying(false);
+            }}
+          />
+        )}
+        <div
+          aria-hidden="true"
+          className={cn(
+            "pointer-events-none absolute inset-0 bg-gradient-to-t from-evergreen-950/60 via-transparent to-transparent transition-opacity duration-500",
+            isPlaying && "opacity-40",
+          )}
+        />
+
+        {!hasRequestedVideo && !videoErrored && (
+          <button
+            ref={playbackControlRef}
+            type="button"
+            onClick={togglePlayback}
+            className="group/play absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-[2.25rem] text-cream-50 outline-none"
+            aria-label="Play office highlights video"
           >
-            <div className="space-y-4">
-              <span className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-blue-600 ring-1 ring-inset ring-blue-600/10">
-                <Camera className="h-3.5 w-3.5" />
-                Photo &amp; Video Gallery
+            <span className="relative flex h-20 w-20 items-center justify-center">
+              <span className="ring-ripple absolute inset-0 rounded-full border border-gold-300/70" aria-hidden="true" />
+              <span className="relative flex h-full w-full items-center justify-center rounded-full bg-gold-400 text-evergreen-950 shadow-[0_18px_50px_-12px_rgba(224,182,94,0.75)] transition-transform duration-300 group-hover/play:scale-105 group-focus-visible/play:ring-4 group-focus-visible/play:ring-cream-50/80">
+                <Play className="ml-1 h-8 w-8 fill-current" aria-hidden="true" />
               </span>
-              <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-6xl">
-                See Our Office, <br />
-                <span className="text-blue-600">Care &amp; Team</span>
-              </h1>
-              <p className="max-w-xl text-lg leading-relaxed text-slate-600">
-                Browse real photos and short clips of our Palo Alto practice,
-                from serene garden views to the people and technology behind
-                your care.
-              </p>
-            </div>
-            
-            <div className="flex flex-wrap gap-4">
-              <ButtonLink href="/schedule?source=gallery#appointment" className="ui-btn-primary h-12 rounded-full px-8 text-base font-semibold">
-                Request Appointment
-              </ButtonLink>
-              <ButtonLink
-                href="/office-tour"
-                variant="outline"
-                className="h-12 rounded-full px-7 text-base font-semibold"
-              >
-                Take the Guided Office Tour
-              </ButtonLink>
-            </div>
-          </motion.div>
+            </span>
+            <span className="rounded-full bg-evergreen-950/55 px-4 py-1.5 text-sm font-semibold backdrop-blur-md">
+              Play office highlights
+            </span>
+          </button>
+        )}
 
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="relative"
+        {hasRequestedVideo && !videoErrored && (
+          <div className="absolute bottom-4 left-4 z-10 flex flex-wrap gap-2 sm:bottom-5 sm:left-5">
+            <button
+              ref={playbackControlRef}
+              type="button"
+              onClick={togglePlayback}
+              className={control}
+              aria-label={isPlaying ? "Pause gallery highlights" : "Play gallery highlights"}
+            >
+              {isPlaying ? (
+                <>
+                  <Pause className="h-4 w-4" aria-hidden="true" /> Pause
+                </>
+              ) : (
+                <>
+                  <Play className="h-4 w-4" aria-hidden="true" /> Play
+                </>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={toggleSound}
+              className={control}
+              aria-label={isMuted ? "Unmute gallery highlights" : "Mute gallery highlights"}
+            >
+              {isMuted ? (
+                <>
+                  <VolumeOff className="h-4 w-4" aria-hidden="true" /> Sound off
+                </>
+              ) : (
+                <>
+                  <Volume2 className="h-4 w-4" aria-hidden="true" /> Sound on
+                </>
+              )}
+            </button>
+          </div>
+        )}
+
+        {videoErrored && (
+          <p
+            className="absolute bottom-5 left-5 right-5 z-10 rounded-xl bg-evergreen-950/75 px-4 py-3 text-sm font-medium text-cream-50 backdrop-blur-sm"
+            role="status"
           >
-            <div className="aspect-[16/10] relative overflow-hidden rounded-[32px] bg-slate-900 shadow-[0_40px_100px_-30px_rgba(15,23,42,0.3)] ring-1 ring-slate-900/10">
-              <Image
-                src={video.poster ?? "/images/hero-office-1280.webp"}
-                alt=""
-                fill
-                sizes="(max-width: 1023px) calc(100vw - 2rem), (max-width: 1279px) 55vw, 48rem"
-                className="object-cover"
-                priority
-              />
-              {hasRequestedVideo && !videoErrored && (
-                <video
-                  ref={heroVideoRef}
-                  src={video.src}
-                  poster={video.poster}
-                  className="absolute inset-0 h-full w-full object-cover"
-                  loop
-                  muted={isMuted}
-                  playsInline
-                  preload="none"
-                  controls={false}
-                  aria-label={`${video.title}. ${video.description}`}
-                  onPlay={() => setIsPlaying(true)}
-                  onPause={() => setIsPlaying(false)}
-                  onEnded={() => setIsPlaying(false)}
-                  onError={() => {
-                    setVideoErrored(true);
-                    setIsPlaying(false);
-                  }}
-                />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-
-              {!hasRequestedVideo && !videoErrored && (
-                <button
-                  ref={playbackControlRef}
-                  type="button"
-                  onClick={togglePlayback}
-                  className="ui-focus-premium group absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-[32px] text-white"
-                  aria-label="Play office highlights video"
-                >
-                  <span className="flex h-16 w-16 items-center justify-center rounded-full border border-white/55 bg-black/45 shadow-xl backdrop-blur-sm transition-[background-color,border-color,transform] group-hover:scale-105 group-hover:border-white/80 group-hover:bg-black/60 motion-reduce:transition-none motion-reduce:group-hover:scale-100">
-                    <Play className="ml-1 h-7 w-7 fill-current" aria-hidden="true" />
-                  </span>
-                  <span className="rounded-full bg-black/45 px-4 py-2 text-sm font-semibold backdrop-blur-sm">
-                    Play Office Highlights
-                  </span>
-                </button>
-              )}
-
-              {hasRequestedVideo && !videoErrored && (
-                <div className="absolute bottom-5 left-5 z-10 flex flex-wrap gap-2">
-                  <button
-                    ref={playbackControlRef}
-                    type="button"
-                    onClick={togglePlayback}
-                    className="ui-focus-premium inline-flex min-h-11 items-center gap-2 rounded-full border border-white/30 bg-black/45 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-white backdrop-blur-md transition-[background-color,border-color,transform] hover:border-white/55 hover:bg-black/60 active:translate-y-[0.5px]"
-                    aria-label={isPlaying ? "Pause gallery highlights" : "Play gallery highlights"}
-                  >
-                    {isPlaying ? (
-                      <><Pause className="h-4 w-4" aria-hidden="true" /> Pause</>
-                    ) : (
-                      <><Play className="h-4 w-4" aria-hidden="true" /> Play</>
-                    )}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={toggleSound}
-                    className="ui-focus-premium inline-flex min-h-11 items-center gap-2 rounded-full border border-white/30 bg-black/45 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-white backdrop-blur-md transition-[background-color,border-color,transform] hover:border-white/55 hover:bg-black/60 active:translate-y-[0.5px]"
-                    aria-label={isMuted ? "Unmute gallery highlights" : "Mute gallery highlights"}
-                  >
-                    {isMuted ? (
-                      <><VolumeOff className="h-4 w-4" aria-hidden="true" /> Sound Off</>
-                    ) : (
-                      <><Volume2 className="h-4 w-4" aria-hidden="true" /> Sound On</>
-                    )}
-                  </button>
-                </div>
-              )}
-
-              {videoErrored && (
-                <p className="absolute bottom-5 left-5 right-5 z-10 rounded-xl bg-black/60 px-4 py-3 text-sm font-medium text-white backdrop-blur-sm" role="status">
-                  The video is unavailable right now. Browse the office photos below.
-                </p>
-              )}
-            </div>
-          </motion.div>
-        </div>
+            The video is unavailable right now. Browse the office photos below.
+          </p>
+        )}
       </div>
-    </section>
+    </div>
   );
 }
 
 export default function Gallery(): React.JSX.Element {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const [activeCategory, setActiveCategory] = useState<(GalleryCategory | "All")>("All");
+  const [activeCategory, setActiveCategory] = useState<GalleryCategory | "All">("All");
 
   const filteredItems = galleryItems.filter(
-    (item) => activeCategory === "All" || item.category === activeCategory
+    (item) => activeCategory === "All" || item.category === activeCategory,
   );
+  const countFor = (category: GalleryCategory | "All") =>
+    category === "All" ? galleryItems.length : galleryItems.filter((item) => item.category === category).length;
 
-  const videoSchemas = buildVideoObjectSchemas(
-    [heroVideo, ...galleryItems.filter((item) => item.kind === "video")],
-    "/gallery",
+  const schema: StructuredDataNode[] = [];
+  const breadcrumb = buildBreadcrumbSchema(breadcrumbItems);
+  if (breadcrumb) schema.push(breadcrumb);
+  schema.push(
+    ...buildVideoObjectSchemas([heroVideo, ...galleryItems.filter((item) => item.kind === "video")], "/gallery"),
   );
 
   return (
-    <div className="bg-white">
-      {videoSchemas.length > 0 && (
-        <StructuredData data={videoSchemas} id="gallery-video-schema" />
-      )}
-      <PageBreadcrumbs
-        items={[
-          { name: "Home", path: "/" },
-          { name: "Gallery", path: "/gallery" },
+    <>
+      <StructuredData data={schema} id="gallery-video-schema" />
+
+      <PageHero
+        crumbs={breadcrumbItems}
+        eyebrow="Photo & video gallery"
+        title={
+          <>
+            See our office, care <em>&amp; team</em>
+          </>
+        }
+        lead="Real photos and short clips of the Palo Alto practice: the garden courtyard, the treatment rooms, and the people who’ll take care of you."
+        analyticsContext="gallery-hero"
+        showReviews={false}
+        actions={[
+          <Link
+            key="request"
+            href="/schedule?source=gallery#appointment"
+            className="btn btn-primary btn-lg"
+            data-analytics-context="gallery-hero-request"
+          >
+            <CalendarDays aria-hidden="true" />
+            Request a visit
+          </Link>,
+          <Link key="tour" href="/office-tour" className="btn btn-outline btn-lg" data-analytics-context="gallery-hero-tour">
+            <Clapperboard aria-hidden="true" />
+            Take the guided office tour
+          </Link>,
         ]}
+        media={<GalleryHero video={heroVideo} />}
       />
 
-      <GalleryHero video={heroVideo} />
-
-      <section className="py-16 sm:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          {/* Category Filter */}
-          <div className="mb-12 flex flex-col items-center justify-between gap-8 md:flex-row">
-            <div className="space-y-1 text-center md:text-left">
-              <h2 className="text-3xl font-bold tracking-tight text-slate-900">Browse the Gallery</h2>
-              <p className="text-slate-500 font-medium">Choose a category, then open any photo or clip</p>
-            </div>
-            
-            <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl bg-slate-50 p-1.5 ring-1 ring-slate-200/60">
-              {CATEGORIES.map((category) => (
-                <button
-                  key={category}
-                  type="button"
-                  onClick={() => {
-                    setActiveCategory(category);
-                    setActiveIndex(null);
-                  }}
-                  data-selected={activeCategory === category ? "true" : "false"}
-                  aria-pressed={activeCategory === category}
-                  className={cn(
-                    "ui-chip-interactive relative min-h-11 rounded-xl px-5 py-2.5 text-sm font-semibold",
-                    activeCategory === category ? "text-primary" : "text-slate-600"
-                  )}
-                >
-                  {category}
-                  {activeCategory === category && (
-                    <motion.div
-                      layoutId="activeCategory"
-                      className="absolute inset-0 rounded-xl ring-2 ring-blue-600/10"
-                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                    />
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Grid Layout */}
-          <motion.div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            <AnimatePresence mode="popLayout">
-              {filteredItems.map((item, index) => {
-                const isWide = item.layout === "videoWide" && activeCategory === "All";
-                
+      <Section id="browse" tone="white" labelledBy="browse-title">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <SectionHeading
+            id="browse-title"
+            eyebrow="Browse"
+            title={
+              <>
+                Every corner, <em>every face</em>
+              </>
+            }
+            lead="Choose a category, then open any photo or clip for a closer look."
+          />
+          <div role="group" aria-label="Filter the gallery" className="-mx-4 overflow-x-auto px-4 lg:mx-0 lg:px-0">
+            <div className="flex w-max gap-2 lg:w-auto lg:flex-wrap lg:justify-end">
+              {CATEGORIES.map((category) => {
+                const selected = activeCategory === category;
                 return (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.4, delay: index * 0.05 }}
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() => {
+                      setActiveCategory(category);
+                      setActiveIndex(null);
+                    }}
+                    data-selected={selected ? "true" : "false"}
+                    aria-pressed={selected}
                     className={cn(
-                      "group relative",
-                      isWide ? "sm:col-span-2 lg:col-span-2" : "col-span-1"
+                      "inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-evergreen-200",
+                      selected
+                        ? "border-evergreen-800 bg-evergreen-800 text-cream-50"
+                        : "border-cream-300 bg-white text-ink-soft hover:border-evergreen-300 hover:text-ink",
                     )}
                   >
-                    <GalleryTile
-                      item={item}
-                      onOpen={() => setActiveIndex(index)}
-                      className="w-full"
-                    />
-                  </motion.div>
+                    {category}
+                    <span className={cn("text-xs font-medium", selected ? "text-gold-300" : "text-ink-muted")}>
+                      {countFor(category)}
+                    </span>
+                  </button>
                 );
               })}
-            </AnimatePresence>
-          </motion.div>
-
-          {filteredItems.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="rounded-full bg-slate-50 p-6 ring-1 ring-slate-200">
-                <LayoutGrid className="h-10 w-10 text-slate-300" />
-              </div>
-              <h3 className="mt-4 text-lg font-semibold text-slate-900">No Items Found</h3>
-              <p className="text-slate-500">Try selecting a different category.</p>
             </div>
-          )}
+          </div>
         </div>
-      </section>
+
+        <ul className="mt-10 grid auto-rows-[10.5rem] grid-flow-row-dense grid-cols-2 gap-3 sm:auto-rows-[13rem] sm:gap-4 lg:auto-rows-[12.5rem] lg:grid-cols-4">
+          {filteredItems.map((item, index) => (
+            <li key={item.id} className={cellClass[item.layout]}>
+              <GalleryTile item={item} onOpen={() => setActiveIndex(index)} />
+            </li>
+          ))}
+        </ul>
+
+        <div className="mt-12 flex flex-col items-start gap-4 rounded-[1.75rem] border border-cream-300/80 bg-cream-50 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[15px] leading-7 text-ink-soft">
+            Want the story behind the office? Watch <em className="font-heading">Full Circle</em>, Dr. Wong’s two-minute film.
+          </p>
+          <Link href="/office-tour#film" className="btn btn-outline btn-sm shrink-0">
+            Watch the film
+            <ArrowRight aria-hidden="true" />
+          </Link>
+        </div>
+      </Section>
 
       <GalleryLightbox
         items={filteredItems}
@@ -331,25 +334,15 @@ export default function Gallery(): React.JSX.Element {
         onChange={setActiveIndex}
       />
 
-      {/* Footer CTA */}
-      <section className="bg-slate-50 py-20">
-        <div className="mx-auto max-w-4xl px-4 text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-            Ready to See It in Person?
-          </h2>
-          <p className="mt-4 text-lg text-slate-600">
-            Visit our Palo Alto practice and experience the garden-view treatment spaces firsthand.
-          </p>
-          <div className="mt-10 flex flex-wrap justify-center gap-4">
-            <ButtonLink href="/schedule?source=gallery#appointment" className="rounded-full px-10 h-14 text-lg">
-              Request Appointment
-            </ButtonLink>
-            <ButtonLink href="/contact" variant="outline" className="rounded-full px-10 h-14 text-lg">
-              Contact Us
-            </ButtonLink>
-          </div>
-        </div>
-      </section>
-    </div>
+      <CtaBand
+        analyticsContext="gallery-cta"
+        title={
+          <>
+            Ready to see it <em>in person?</em>
+          </>
+        }
+        lead="New patients are always welcome. Request a visit online in about a minute, or call and talk with the front desk."
+      />
+    </>
   );
 }

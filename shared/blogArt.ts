@@ -159,11 +159,14 @@ export type BlogImageSource = Readonly<{
   image?: string | null;
 }>;
 
+// The AI-generated post images under GENERATED_BLOG_IMAGE_PREFIX were retired
+// in the 2026-10-16 redesign (real photos only on the practice site), so every
+// post now shares its generated title card. The prefix stays exported so old
+// seed `image` values are recognised and ignored rather than served.
 export function getCustomBlogImagePath(
-  source?: BlogImageSource | null,
+  _source?: BlogImageSource | null,
 ): string | null {
-  const image = source?.image?.trim();
-  return image?.startsWith(GENERATED_BLOG_IMAGE_PREFIX) ? image : null;
+  return null;
 }
 
 export function resolveBlogImagePath(

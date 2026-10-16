@@ -4,7 +4,7 @@ import { gotoAndHydrate } from "./_helpers";
 /**
  * (C) Touch targets are at least 44x44px (Apple HIG / WCAG 2.5.5 minimum).
  *
- * - The patient-stories link on the home page.
+ * - The review-ribbon link on the home page.
  * - The three links inside the fixed MobileActionBar.
  * - Footer social links (kept lenient: only checked, not required to be huge).
  */
@@ -14,7 +14,7 @@ const MIN = 44;
 test("home reviews link is >= 44px tall", async ({ page }) => {
   await gotoAndHydrate(page, "/");
 
-  const link = page.getByRole("link", { name: /read more reviews/i });
+  const link = page.getByRole("link", { name: /read the reviews/i });
   await expect(link).toBeVisible({ timeout: 20_000 });
   const box = await link.boundingBox();
   expect(box, "patient-stories link has no bounding box").not.toBeNull();
@@ -24,6 +24,7 @@ test("home reviews link is >= 44px tall", async ({ page }) => {
 test("MobileActionBar links are >= 44px tall", async ({ page }) => {
   await gotoAndHydrate(page, "/");
 
+  await page.mouse.wheel(0, 900);
   const bar = page.locator('[data-testid="mobile-action-bar"]');
   await expect(bar).toBeVisible({ timeout: 20_000 });
 

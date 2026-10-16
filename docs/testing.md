@@ -47,6 +47,11 @@ Command reference for contract, UI, SEO, and performance checks.
     Graph metadata and images.
 
 - `pnpm run test:gallery`
+- `pnpm run test:blog-index`
+  - `client/src/data/blogIndex.ts` (the static index behind service-page
+    "guides" and related posts) must match the blog seed in
+    `server/storage.ts`. After editing a post, run
+    `pnpm run blog-index:generate`.
   - Validates gallery media contract:
     - unique ids and URLs
     - HTTPS media paths
@@ -64,9 +69,10 @@ Command reference for contract, UI, SEO, and performance checks.
     - rating distribution matches source
     - no-text placeholder conversion counts match source
     - minimum count floor (`>=300`) is maintained
-  - Also runs `scripts/homepage-proof.test.ts`: every homepage review quote in
-    `client/src/data/homeProof.ts` must be a verbatim excerpt of a 5-star
-    Google review by the named reviewer.
+  - Also runs `scripts/homepage-proof.test.ts`: every patient quote in
+    `client/src/data/reviewHighlights.ts`, `serviceReviews.ts`, and `team.ts`
+    must be a verbatim excerpt of a 5-star Google review by the named
+    reviewer, and "named in N+ reviews" counts must not overstate.
 
 ### SEO checks
 
@@ -175,6 +181,7 @@ node scripts/mobile-ux-source.test.mjs
 pnpm exec tsx scripts/contact-form-ux.test.ts
 pnpm exec tsx scripts/og-meta-check.ts
 pnpm run test:gallery
+pnpm run test:blog-index
 pnpm run test:reviews
 pnpm run build:perf
 NEXT_DIST_DIR=.next-perf pnpm run test:bundle

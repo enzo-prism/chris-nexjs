@@ -11,7 +11,7 @@ Operational guide for importing, auditing, and publishing review content used on
 - Published review counts: `shared/reviewStats.ts` (`GOOGLE_REVIEW_COUNT` and `PUBLISHED_REVIEW_COUNT`)
 - Public testimonial seed source: `shared/testimonialsData.ts`
 - Client-featured subset: `client/src/data/featuredTestimonials.ts`
-- Homepage quotes: `client/src/data/homeProof.ts` (verbatim-checked by `pnpm run test:reviews`)
+- Site quotes: `client/src/data/reviewHighlights.ts` (homepage), `serviceReviews.ts` (service/location pages), `team.ts` (team cards); all verbatim-checked by `pnpm run test:reviews`
 
 `shared/testimonialsData.ts` merges the Yelp seed (`yelpReviewSeedData`, listed first so it surfaces on page 1 of `/testimonials`) with the generated Google seed (`googleReviewSeedData`) and publishes only 5-star entries. The Google export remains the source of truth for the Google pipeline (count/audit); Yelp reviews are maintained by hand.
 
@@ -38,7 +38,7 @@ Operational guide for importing, auditing, and publishing review content used on
 - Self-serving `Review` and `aggregateRating` JSON-LD are intentionally not emitted. Visible reviews remain source-labelled conversion content.
 - Review counts split by visible surface: Google-branded surfaces use `GOOGLE_REVIEW_COUNT` (382), while the `/testimonials` total uses `PUBLISHED_REVIEW_COUNT` (392). Never use the raw import total. A build-time guard in `shared/testimonialsData.ts` throws if the published count drifts from `PUBLISHED_REVIEW_COUNT`, so bump it when adding reviews.
 - The homepage no longer has a review carousel. `PatientProofSection` shows three
-  static quotes from `client/src/data/homeProof.ts`. `pnpm run test:reviews`
+  static quotes from `client/src/data/reviewHighlights.ts`, `serviceReviews.ts`, and `team.ts`. `pnpm run test:reviews`
   (`scripts/homepage-proof.test.ts`) requires each to be a verbatim excerpt of a
   5-star review by the named reviewer in `shared/googleReviewsData.ts`, so
   update both together if a review is ever removed.

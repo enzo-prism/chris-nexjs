@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="#8A7F6A" stroke-width="1" stroke-linecap="round">
+  <!-- Corner cobweb (top-right anchored) for October review/team cards. -->
+  <path d="M64 0 18 46M64 0 34 58M64 0 8 26M64 0 52 63M64 0 2 8"/>
+  <path d="M51 13c-2-3-5-5-8-5M45 24c-3-5-9-9-15-9M39 37c-5-8-15-14-25-14M33 50c-7-11-20-19-31-19"/>
+  <path d="M55 17c-3 1-5 3-6 7M50 30c-5 1-9 4-11 9M45 43c-6 2-12 6-15 12M39 56c-8 2-13 5-16 8"/>
+</svg>

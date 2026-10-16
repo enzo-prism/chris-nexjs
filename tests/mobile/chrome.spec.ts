@@ -20,7 +20,9 @@ test("analytics consent pop-up is gone (does not appear on a fresh visit)", asyn
 }) => {
   await gotoAndHydrate(page, "/");
 
-  // Give any deferred client chrome time to mount, then assert no banner.
+  // Give any deferred client chrome time to mount (the floating bar slides
+  // in after the visitor scrolls past the hero), then assert no banner.
+  await page.mouse.wheel(0, 900);
   const actionBar = page.locator('[data-testid="mobile-action-bar"]');
   await expect(actionBar).toBeVisible({ timeout: 20_000 });
 
