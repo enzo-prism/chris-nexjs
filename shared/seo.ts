@@ -473,7 +473,7 @@ const LASTMOD_OVERRIDES: Partial<Record<string, string>> = {
   "/dentist-atherton": "2026-08-31",
   "/dentist-redwood-shores": "2026-08-31",
   "/locations": "2026-08-30",
-  "/patient-resources": "2026-09-02",
+  "/patient-resources": "2026-10-16",
 };
 
 function resolveIndexable(entry: SeoDefinitionInput): boolean {

@@ -134,14 +134,19 @@ export const faqItems = [
 export const patientResources = {
   forms: [
     {
-      name: "New Patient Registration",
-      type: "PDF",
-      url: "https://drive.google.com/file/d/13T6fZKNgGt9xbs3yD22I07r4frlUBy6j/view",
+      name: "Adult New Patient Registration",
+      type: "Fillable PDF",
+      url: "/forms/adult-new-patient-registration-2026-10-15.pdf",
+    },
+    {
+      name: "Child New Patient Registration",
+      type: "Fillable PDF",
+      url: "/forms/child-new-patient-registration-2026-10-15.pdf",
     },
     {
       name: "Medical History Update",
-      type: "PDF",
-      url: "https://drive.google.com/file/d/14-K78UPzZv9047p-gGWtN6hr1_iy-_d2/view",
+      type: "Fillable PDF",
+      url: "/forms/medical-history-update-2026-10-15.pdf",
     },
   ],
   prepareForVisit: [
