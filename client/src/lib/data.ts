@@ -146,7 +146,7 @@ export const patientResources = {
     {
       name: "Medical History Update",
       type: "Fillable PDF",
-      url: "/forms/medical-history-update-2026-10-15.pdf",
+      url: "/forms/medical-history-update-2026-10-20.pdf",
     },
   ],
   prepareForVisit: [
