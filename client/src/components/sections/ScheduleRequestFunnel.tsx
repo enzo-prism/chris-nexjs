@@ -19,6 +19,7 @@ type ScheduleRequestFunnelProps = {
   readonly defaultAppointmentType?: AppointmentType;
   readonly leadFormName?: string;
   readonly requestSource?: string;
+  readonly collapseAppointmentTypes?: boolean;
   readonly showReviews?: boolean;
   readonly showHelpLinks?: boolean;
 };
@@ -75,6 +76,7 @@ const ScheduleRequestFunnel = ({
   defaultAppointmentType,
   leadFormName = DEFAULT_APPOINTMENT_LEAD_FORM_NAME,
   requestSource = "schedule_page_form_v2",
+  collapseAppointmentTypes = false,
   showReviews = true,
   showHelpLinks = true,
 }: ScheduleRequestFunnelProps) => {
@@ -146,6 +148,7 @@ const ScheduleRequestFunnel = ({
             defaultAppointmentType={defaultAppointmentType}
             leadFormName={leadFormName}
             requestSource={requestSource}
+            collapseAppointmentTypes={collapseAppointmentTypes}
           />
         </div>
       </div>

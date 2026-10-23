@@ -76,6 +76,12 @@ function testAdsPageKeepsHeldOutCopyOut() {
   assert.match(page, /Request an Invisalign consult/);
   assert.match(page, /requestSource="invisalign-ads"/);
   assert.match(page, /getAppointmentTypeForIntent\("invisalign"\)/);
+  assert.match(page, /collapseAppointmentTypes/);
+  assert.match(page, /className="bg-white"/);
+  assert.match(page, /aspect-\[4\/3\]/);
+  assert.match(page, /Change visit type|collapseAppointmentTypes/);
+  assert.match(costPanel, /whitespace-normal/);
+  assert.match(form, /Change visit type/);
   assert.doesNotMatch(page, /\bfree\b/i, "ads page must not claim a free consult until confirmed");
   assert.doesNotMatch(page, /ServiceReviews|ReviewCard/, "review cards stay out until verbatim Invisalign quotes exist");
   assert.doesNotMatch(

@@ -131,11 +131,14 @@ const InvisalignConsult = () => {
         lead="Clear aligner treatment for adults and teens, planned by Dr. Christopher B. Wong from a 3D digital scan, with check-ins built for busy schedules and retainers to keep your result."
         analyticsContext="invisalign-ads-hero"
         chips={["PPO ortho benefits checked first"]}
+        className="[&_.btn]:h-auto [&_.btn]:max-w-full [&_.btn]:whitespace-normal [&_.btn]:py-3 [&_.btn]:leading-snug xl:[&_.btn]:whitespace-nowrap xl:[&_.btn]:py-0 xl:[&_.btn]:leading-none"
+        actionsClassName="lg:flex-nowrap"
+        reviewLinkClassName="min-h-11 max-w-full shrink-0 whitespace-nowrap text-xs sm:text-sm"
         actions={
           <>
             <a
               href={CONSULT_HREF}
-              className="btn btn-lg btn-primary"
+              className="btn btn-lg btn-primary w-full sm:w-auto"
               data-analytics-context="invisalign-ads-hero-consult"
             >
               <CalendarDays aria-hidden="true" />
@@ -143,12 +146,13 @@ const InvisalignConsult = () => {
             </a>
             <a
               href={`tel:${officeInfo.phoneE164}`}
-              className="btn btn-lg btn-outline"
+              className="btn btn-lg btn-outline w-full sm:w-auto"
               data-analytics-context="invisalign-ads-hero-call"
               aria-label={`Call Dr. Wong's office at ${officeInfo.phone}`}
             >
               <Phone aria-hidden="true" />
-              {officeInfo.phone}
+              <span className="lg:hidden xl:inline">{officeInfo.phone}</span>
+              <span className="hidden lg:inline xl:hidden">Call</span>
             </a>
           </>
         }
@@ -157,7 +161,7 @@ const InvisalignConsult = () => {
             src={HERO_IMAGE}
             alt="Jamal, registered dental assistant, reviewing a digital scan on the iTero screen"
             focus="35% 40%"
-            aspect="aspect-[16/10] sm:aspect-[16/11] lg:aspect-[4/3]"
+            aspect="aspect-[4/3] sm:aspect-[16/11] lg:aspect-[4/3]"
             sizes="(max-width: 1024px) 100vw, 46vw"
             badge={
               <PhotoBadge icon="aligner" title="Planned by Dr. Wong">
@@ -216,6 +220,7 @@ const InvisalignConsult = () => {
         title="Invisalign FAQ"
         subtitle="Straight answers about time, comfort, cost, and what happens after aligners."
         items={faqs}
+        className="bg-white"
       />
 
       <ScheduleRequestFunnel
@@ -225,6 +230,7 @@ const InvisalignConsult = () => {
         defaultAppointmentType={getAppointmentTypeForIntent("invisalign")}
         leadFormName={INVISALIGN_CONSULT_FORM_NAME}
         requestSource="invisalign-ads"
+        collapseAppointmentTypes
         showReviews={false}
         showHelpLinks={false}
       />

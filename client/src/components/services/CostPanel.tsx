@@ -63,7 +63,7 @@ export function CostPanel({
   return (
     <Section id={id} tone={tone} labelledBy={`${id}-title`}>
       <div className="grid gap-8 lg:grid-cols-[1fr_1fr] lg:gap-16">
-        <div>
+        <div className="min-w-0">
           <SectionHeading id={`${id}-title`} eyebrow="Cost, insurance & payment" title={title} lead={lead} />
           <div className="card mt-6 p-5 sm:mt-8 sm:p-7">
             <h3 className="flex items-center gap-3 font-heading text-[1.25rem] font-medium text-ink">
@@ -81,7 +81,7 @@ export function CostPanel({
           </div>
           {children}
         </div>
-        <div className="grid content-start gap-4">
+        <div className="grid min-w-0 content-start gap-4">
           <ul className="reveal-stagger grid divide-y divide-cream-300/70 overflow-hidden rounded-[1.75rem] border border-cream-300/70 bg-white shadow-soft sm:gap-4 sm:divide-y-0 sm:overflow-visible sm:rounded-none sm:border-0 sm:bg-transparent sm:shadow-none">
             {cards.map((card) => {
               const Icon = card.icon;
@@ -101,16 +101,20 @@ export function CostPanel({
               );
             })}
           </ul>
-          <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <div className="mt-2 flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Link
               href={scheduleHref}
-              className="btn btn-primary"
+              className="btn btn-primary h-auto max-w-full whitespace-normal py-3 leading-snug sm:whitespace-nowrap sm:py-0 sm:leading-none"
               data-analytics-context={`${analyticsContext}-request`}
             >
               <CalendarDays aria-hidden="true" />
               {buttonLabel}
             </Link>
-            <Link href="/insurance" className="btn btn-outline" data-analytics-context={`${analyticsContext}-insurance`}>
+            <Link
+              href="/insurance"
+              className="btn btn-outline h-auto max-w-full whitespace-normal py-3 leading-snug sm:whitespace-nowrap sm:py-0 sm:leading-none"
+              data-analytics-context={`${analyticsContext}-insurance`}
+            >
               How out-of-network coverage works
               <ArrowRight aria-hidden="true" />
             </Link>

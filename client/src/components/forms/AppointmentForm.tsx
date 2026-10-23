@@ -244,6 +244,8 @@ type AppointmentFormProps = {
   readonly defaultAppointmentType?: AppointmentType;
   /** Wire `source` on the schedule-request payload. */
   readonly requestSource?: string;
+  /** Ads landing: keep the preselected type visible and hide the rest. */
+  readonly collapseAppointmentTypes?: boolean;
 };
 
 const visitNeedsFields: FieldPath<ScheduleFormValues>[] = [
@@ -483,15 +485,28 @@ const OptionalDetailsFields = ({
 type StepProps = {
   control: Control<ScheduleFormValues>;
   presentation: FormPresentation;
+  collapseAppointmentTypes?: boolean;
 };
 
-const VisitNeedsStep = ({ control, presentation }: StepProps) => {
+const VisitNeedsStep = ({
+  control,
+  presentation,
+  collapseAppointmentTypes = false,
+}: StepProps) => {
+  const [showAllTypes, setShowAllTypes] = useState(false);
+
   return (
     <div className={cn(presentation === "funnel" ? "space-y-7" : "space-y-6")}>
       <FormField
         control={control}
         name="appointmentType"
-        render={({ field }) => (
+        render={({ field }) => {
+          const collapsed = Boolean(collapseAppointmentTypes && field.value && !showAllTypes);
+          const visibleOptions = collapsed
+            ? appointmentTypeOptions.filter((option) => option === field.value)
+            : appointmentTypeOptions;
+
+          return (
           <FormItem>
             <FormLabel>Appointment type</FormLabel>
             <FormControl>
@@ -501,7 +516,7 @@ const VisitNeedsStep = ({ control, presentation }: StepProps) => {
                 onValueChange={field.onChange}
                 aria-label="Appointment type"
               >
-                {appointmentTypeOptions.map((option) => {
+                {visibleOptions.map((option) => {
                   const isSelected = field.value === option;
                   const isEmergencyOption = option === EMERGENCY_APPOINTMENT_TYPE;
                   return (
@@ -567,9 +582,20 @@ const VisitNeedsStep = ({ control, presentation }: StepProps) => {
                 </span>
               </p>
             ) : null}
+            {collapseAppointmentTypes && field.value ? (
+              <Button
+                type="button"
+                variant="ghost"
+                className="mt-1 h-11 px-2 text-sm font-semibold text-evergreen-800"
+                onClick={() => setShowAllTypes((open) => !open)}
+              >
+                {collapsed ? "Change visit type" : "Hide other visit types"}
+              </Button>
+            ) : null}
             <FormMessage />
           </FormItem>
-        )}
+          );
+        }}
       />
 
       <FormField
@@ -958,6 +984,7 @@ const AppointmentForm = ({
   leadFormName = DEFAULT_APPOINTMENT_LEAD_FORM_NAME,
   defaultAppointmentType,
   requestSource = "schedule_page_form_v2",
+  collapseAppointmentTypes = false,
 }: AppointmentFormProps) => {
   const searchParams = useSearchParams();
   const scheduleIntent = searchParams?.get("intent") ?? null;
@@ -1648,7 +1675,11 @@ const AppointmentForm = ({
         )}
 
         {currentStep.name === "visit_needs" ? (
-          <VisitNeedsStep control={control} presentation={presentation} />
+          <VisitNeedsStep
+            control={control}
+            presentation={presentation}
+            collapseAppointmentTypes={collapseAppointmentTypes}
+          />
         ) : null}
         {currentStep.name === "scheduling_preferences" ? (
           <PreferenceStep control={control} presentation={presentation} />
