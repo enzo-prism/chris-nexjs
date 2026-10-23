@@ -6,6 +6,11 @@ import {
   resetScheduleRequestRateLimitForTests,
   SCHEDULE_REQUEST_RATE_LIMIT,
 } from "../server/scheduleRateLimit";
+import {
+  startCapturingVercelServerEventsForTests,
+  takeVercelServerEventsForTests,
+} from "../server/vercelAnalytics";
+import { ANALYTICS_EVENTS } from "../shared/analytics";
 import { HONEYPOT_FIELD } from "../shared/formspree";
 
 type RecordedCall = {
@@ -761,6 +766,29 @@ async function testBlankEnvironmentFallsBackToDefaultFormspreeEndpoint() {
   }
 }
 
+async function testProductionServerEventOmitsSourceHostKind() {
+  startCapturingVercelServerEventsForTests();
+  try {
+    await withMockedFetch(async () => {
+      const response = await postScheduleRequest(requestWithBody(validV2Payload));
+      assert.equal(response.status, 201);
+    });
+
+    const events = takeVercelServerEventsForTests();
+    const submitEvents = events.filter(
+      (event) => event.name === ANALYTICS_EVENTS.appointmentRequestSubmit,
+    );
+    assert.equal(submitEvents.length, 1, "real-site submit must emit one server event");
+    assert.equal(
+      Object.hasOwn(submitEvents[0].properties, "source_host_kind"),
+      false,
+      "server event must stay untagged for real-site leads",
+    );
+  } finally {
+    takeVercelServerEventsForTests();
+  }
+}
+
 async function testOptionalForwardingFailureIsSanitized() {
   const originalFetch = globalThis.fetch;
   const originalConsoleError = console.error;
@@ -859,6 +887,7 @@ async function testOptionalForwardingFailureIsSanitized() {
   await testFormspreeNonJsonIsFailure();
   await testFormspreeSuccessFalseIsFailure();
   await testSourceAllowlist();
+  await testProductionServerEventOmitsSourceHostKind();
   await testProductionRejectsLocalhostAndUserinfo();
   await testPerIpRateLimit();
   await testRateLimitIgnoresHoneypotInvalidAndSpoofedXff();

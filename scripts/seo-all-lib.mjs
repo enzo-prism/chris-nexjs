@@ -10,6 +10,7 @@ export const RUNTIME_SCRIPTS = ["test:seo:onpage", "test:seo:links", "test:seo:s
 export const SEO_BIND_HOST = "127.0.0.1";
 export const NEXT_BIN = resolve("node_modules/next/dist/bin/next");
 export const NEXT_START_ARGS = ["start", "-H", SEO_BIND_HOST];
+export const SEO_AUDIT_INTERRUPTED = "SEO audit interrupted";
 
 export function runPnpmScript(script, extraEnv = {}) {
   const result = spawnSync("pnpm", ["run", script], {
@@ -44,22 +45,37 @@ export function getFreePort() {
   });
 }
 
-export async function waitForServer(url, timeoutMs = 90_000) {
+function throwIfAborted(signal) {
+  if (signal?.aborted) {
+    throw new Error(SEO_AUDIT_INTERRUPTED);
+  }
+}
+
+export async function waitForServer(url, timeoutMs = 90_000, signal) {
   const started = Date.now();
 
   while (Date.now() - started < timeoutMs) {
+    throwIfAborted(signal);
     try {
       const response = await fetch(url, {
         method: "GET",
         redirect: "follow",
-        signal: AbortSignal.timeout(5_000),
+        signal: signal ? AbortSignal.any([AbortSignal.timeout(5_000), signal]) : AbortSignal.timeout(5_000),
       });
       if (response.ok) return;
-    } catch {
+    } catch (error) {
+      throwIfAborted(signal);
+      if (error instanceof Error && error.message === SEO_AUDIT_INTERRUPTED) {
+        throw error;
+      }
       // keep polling until timeout
     }
 
-    await delay(500);
+    try {
+      await delay(500, undefined, { signal });
+    } catch {
+      throwIfAborted(signal);
+    }
   }
 
   throw new Error(`Timed out waiting for SEO audit server at ${url}`);
@@ -83,34 +99,78 @@ export function descendantPids(pid) {
   return pids;
 }
 
-export async function stopSeoServer(server) {
-  if (!server || server.pid == null) return;
+export function isPidAlive(pid) {
+  if (pid == null) return false;
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
-  const pids = descendantPids(server.pid);
-  for (const pid of [...pids].reverse()) {
+export function killProcessTree(child, signal = "SIGTERM") {
+  if (!child || child.pid == null) return;
+  const pid = child.pid;
+  try {
+    process.kill(-pid, signal);
+  } catch {
     try {
-      process.kill(pid, "SIGTERM");
+      process.kill(pid, signal);
     } catch {
       // already gone
     }
   }
-
-  const deadline = Date.now() + 10_000;
-  while (server.exitCode === null && Date.now() < deadline) {
-    await delay(200);
-  }
-
-  for (const pid of [...pids].reverse()) {
+  for (const descendant of [...descendantPids(pid)].reverse()) {
     try {
-      process.kill(pid, "SIGKILL");
+      process.kill(descendant, signal);
     } catch {
       // already gone
     }
   }
 }
 
-export function ensureFreshSeoBuild(runBuild = () => runPnpmScript("build")) {
-  runBuild();
+export async function stopSeoServer(server) {
+  if (!server || server.pid == null) return;
+  if (server.exitCode !== null || server.signalCode) return;
+
+  killProcessTree(server, "SIGTERM");
+
+  await Promise.race([
+    new Promise((resolve) => {
+      if (server.exitCode !== null || server.signalCode) {
+        resolve();
+        return;
+      }
+      server.once("exit", resolve);
+    }),
+    delay(10_000),
+  ]);
+
+  if (server.exitCode === null && !server.signalCode) {
+    killProcessTree(server, "SIGKILL");
+    await Promise.race([
+      new Promise((resolve) => server.once("exit", resolve)),
+      delay(1_000),
+    ]);
+  }
+}
+
+export function createSeoProcessTracker() {
+  const children = [];
+  return {
+    track(child) {
+      if (child) children.push(child);
+      return child;
+    },
+    list() {
+      return children.slice();
+    },
+    async stopAll() {
+      const snapshot = children.splice(0, children.length);
+      await Promise.all(snapshot.map((child) => stopSeoServer(child)));
+    },
+  };
 }
 
 export function createSeoAuditShutdown({
@@ -128,26 +188,42 @@ export function createSeoAuditShutdown({
   };
 }
 
-export function runPnpmScriptAsync(script, extraEnv = {}, signal) {
+export function spawnSeoChild(command, args, options = {}, spawnImpl = spawn) {
+  return spawnImpl(command, args, {
+    ...options,
+    env: options.env ?? process.env,
+    stdio: options.stdio ?? "inherit",
+    detached: true,
+  });
+}
+
+export function runPnpmScriptAsync(script, extraEnv = {}, signal, deps = {}) {
+  const spawnImpl = deps.spawn ?? spawn;
+  const track = deps.track ?? ((child) => child);
+
   return new Promise((resolvePromise, reject) => {
-    const child = spawn("pnpm", ["run", script], {
-      stdio: "inherit",
-      env: {
-        ...process.env,
-        ...extraEnv,
-      },
-    });
+    if (signal?.aborted) {
+      reject(new Error(SEO_AUDIT_INTERRUPTED));
+      return;
+    }
+
+    const child = track(
+      spawnSeoChild(
+        "pnpm",
+        ["run", script],
+        {
+          stdio: "inherit",
+          env: {
+            ...process.env,
+            ...extraEnv,
+          },
+        },
+        spawnImpl,
+      ),
+    );
 
     const onAbort = () => {
-      if (!child.pid) return;
-      const pids = descendantPids(child.pid);
-      for (const pid of [...pids].reverse()) {
-        try {
-          process.kill(pid, "SIGTERM");
-        } catch {
-          // already gone
-        }
-      }
+      void stopSeoServer(child);
     };
 
     if (signal?.aborted) {
@@ -159,7 +235,7 @@ export function runPnpmScriptAsync(script, extraEnv = {}, signal) {
     child.on("exit", (code) => {
       signal?.removeEventListener("abort", onAbort);
       if (signal?.aborted) {
-        reject(new Error("SEO audit interrupted"));
+        reject(new Error(SEO_AUDIT_INTERRUPTED));
         return;
       }
       if (code !== 0) {
@@ -171,44 +247,81 @@ export function runPnpmScriptAsync(script, extraEnv = {}, signal) {
   });
 }
 
-export async function startLocalSeoServer() {
-  ensureFreshSeoBuild();
+export async function startLocalSeoServer(deps = {}) {
+  const spawnImpl = deps.spawn ?? spawn;
+  const track = deps.track ?? ((child) => child);
+  const wait = deps.wait ?? waitForServer;
+  const getPort = deps.getPort ?? getFreePort;
+  const signal = deps.signal;
 
-  const port = await getFreePort();
+  throwIfAborted(signal);
+
+  if (deps.runBuild) {
+    await deps.runBuild();
+  } else {
+    await runPnpmScriptAsync("build", {}, signal, { spawn: spawnImpl, track });
+  }
+
+  throwIfAborted(signal);
+
+  const port = await getPort();
   const baseUrl = `http://${SEO_BIND_HOST}:${port}`;
-  const server = spawn(
-    process.execPath,
-    [NEXT_BIN, ...NEXT_START_ARGS, "-p", String(port)],
-    {
-      stdio: ["ignore", "inherit", "inherit"],
-      env: {
-        ...process.env,
-        PORT: String(port),
-        HOSTNAME: SEO_BIND_HOST,
+  const server = track(
+    spawnSeoChild(
+      process.execPath,
+      [NEXT_BIN, ...NEXT_START_ARGS, "-p", String(port)],
+      {
+        stdio: ["ignore", "inherit", "inherit"],
+        env: {
+          ...process.env,
+          PORT: String(port),
+          HOSTNAME: SEO_BIND_HOST,
+        },
       },
-    },
+      spawnImpl,
+    ),
   );
 
+  if (signal?.aborted) {
+    await stopSeoServer(server);
+    throw new Error(SEO_AUDIT_INTERRUPTED);
+  }
+
   try {
-    await waitForServer(baseUrl);
+    await wait(baseUrl, 90_000, signal);
   } catch (error) {
     await stopSeoServer(server);
     throw error;
   }
 
+  if (signal?.aborted) {
+    await stopSeoServer(server);
+    throw new Error(SEO_AUDIT_INTERRUPTED);
+  }
+
   return { server, baseUrl };
 }
 
-export async function runSeoAll(env = process.env) {
-  const abortController = new AbortController();
-  let server = null;
+export async function runSeoAll(env = process.env, deps = {}) {
+  const abortController = deps.abortController ?? new AbortController();
+  const tracker = deps.tracker ?? createSeoProcessTracker();
+  const on = deps.on ?? ((event, handler) => process.on(event, handler));
+  const off = deps.off ?? ((event, handler) => process.off(event, handler));
+  const exit = deps.exit ?? ((code) => process.exit(code));
+  const spawnImpl = deps.spawn ?? spawn;
+  const spawnDeps = {
+    spawn: spawnImpl,
+    track: (child) => tracker.track(child),
+  };
+
   const shutdown = createSeoAuditShutdown({
     abortController,
-    stopServer: () => stopSeoServer(server),
+    stopServer: () => tracker.stopAll(),
+    exit,
   });
 
-  process.on("SIGINT", shutdown);
-  process.on("SIGTERM", shutdown);
+  on("SIGINT", shutdown);
+  on("SIGTERM", shutdown);
 
   try {
     const providedBaseUrl = env.SEO_AUDIT_BASE_URL?.trim();
@@ -218,31 +331,39 @@ export async function runSeoAll(env = process.env) {
           script,
           { SEO_AUDIT_BASE_URL: providedBaseUrl },
           abortController.signal,
+          spawnDeps,
         );
       }
       return;
     }
 
     for (const script of STATIC_SCRIPTS) {
-      await runPnpmScriptAsync(script, {}, abortController.signal);
+      await runPnpmScriptAsync(script, {}, abortController.signal, spawnDeps);
     }
 
     if (!existsSync(NEXT_BIN)) {
       throw new Error("next binary is missing; run pnpm install first");
     }
 
-    const started = await startLocalSeoServer();
-    server = started.server;
+    const started = await startLocalSeoServer({
+      signal: abortController.signal,
+      spawn: spawnImpl,
+      track: spawnDeps.track,
+      wait: deps.wait,
+      getPort: deps.getPort,
+    });
+
     for (const script of RUNTIME_SCRIPTS) {
       await runPnpmScriptAsync(
         script,
         { SEO_AUDIT_BASE_URL: started.baseUrl },
         abortController.signal,
+        spawnDeps,
       );
     }
   } finally {
-    process.off("SIGINT", shutdown);
-    process.off("SIGTERM", shutdown);
-    await stopSeoServer(server);
+    off("SIGINT", shutdown);
+    off("SIGTERM", shutdown);
+    await tracker.stopAll();
   }
 }

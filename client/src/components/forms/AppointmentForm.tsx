@@ -1244,7 +1244,7 @@ const AppointmentForm = ({
     if (errorSummary.length > 0) {
       setErrorSummary([]);
     }
-    if (status === "error") {
+    if (status === "error" && !rateLimited) {
       setStatus("idle");
       setErrorMessage("");
     }
@@ -1875,7 +1875,7 @@ const AppointmentForm = ({
           </div>
         ) : null}
 
-        {status === "error" && errorMessage ? (
+        {(status === "error" || rateLimited) && errorMessage ? (
           <div
             ref={errorAlertRef}
             tabIndex={-1}

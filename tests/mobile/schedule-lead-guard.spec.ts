@@ -270,11 +270,13 @@ test.describe("schedule lead guard", () => {
     page,
   }) => {
     await installGtagProbe(page);
+    let requestCount = 0;
     await mockScheduleApi(page, async (route) => {
+      requestCount += 1;
       await route.fulfill({
         status: 429,
         contentType: "application/json",
-        headers: { "Retry-After": "2" },
+        headers: { "Retry-After": "600" },
         body: JSON.stringify({
           message:
             "Too many requests. Please wait a few minutes and try again, or call the office.",
@@ -283,6 +285,7 @@ test.describe("schedule lead guard", () => {
     });
 
     await openContactStep(page, "/schedule");
+    await page.clock.install();
     await page
       .getByRole("button", { name: "Send Appointment Request", exact: true })
       .click();
@@ -291,19 +294,29 @@ test.describe("schedule lead guard", () => {
     const retry = page.getByRole("button", { name: "Try Sending Again", exact: true });
     await expect(retry).toBeDisabled();
     await expect(page.getByRole("button", { name: /^back$/i })).toBeEnabled();
+
+    await retry.evaluate((button) => {
+      (button as HTMLButtonElement).form?.requestSubmit();
+    });
+    await page.getByLabel("First name").press("Enter");
+    expect(requestCount, "rateLimited guard must drop requestSubmit/Enter").toBe(1);
+
     await page.getByLabel("First name").fill("Jordan");
     await expect(page.getByLabel("First name")).toHaveValue("Jordan");
-    // Editing a field clears the error status, so the idle submit label returns
-    // while the 429 window still keeps Submit disabled.
-    const submit = page.getByRole("button", { name: "Send Appointment Request", exact: true });
-    await expect(submit).toBeDisabled();
+    await expect(page.getByText("Too many requests.")).toBeVisible();
+    await expect(retry).toBeDisabled();
+
     await page.getByRole("button", { name: /^back$/i }).click();
     await expect(
       page.getByRole("button", { name: /continue to contact details/i }),
     ).toBeEnabled();
     expect(await countGtagEvents(page, "generate_lead")).toBe(0);
     await page.getByRole("button", { name: /continue to contact details/i }).click();
-    await expect(submit).toBeEnabled({ timeout: 5_000 });
+    await expect(retry).toBeDisabled();
+
+    await page.clock.fastForward(600_000);
+    await expect(retry).toBeEnabled();
+    expect(requestCount).toBe(1);
   });
 
   test("form posts source and sourceUrl on /schedule", async ({ page }) => {
