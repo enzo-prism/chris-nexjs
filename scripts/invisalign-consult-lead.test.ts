@@ -93,7 +93,8 @@ function testAdsPageKeepsHeldOutCopyOut() {
   const form = readFileSync("client/src/components/forms/AppointmentForm.tsx", "utf8");
 
   assert.match(page, /Request an Invisalign consult/);
-  assert.match(page, /requestSource="invisalign-ads"/);
+  assert.match(page, /requestSource=\{INVISALIGN_CONSULT_FORM_NAME\}/);
+  assert.doesNotMatch(page, /requestSource="invisalign-ads"/);
   assert.match(page, /getAppointmentTypeForIntent\("invisalign"\)/);
   assert.match(page, /collapseAppointmentTypes/);
   assert.match(page, /className="bg-white"/);
@@ -113,6 +114,16 @@ function testAdsPageKeepsHeldOutCopyOut() {
   assert.doesNotMatch(form, /rgba\(37,\s*99,\s*235/);
 }
 
+function testSubmitUsesTimeoutAndRealSuccessFlag() {
+  const form = readFileSync("client/src/components/forms/AppointmentForm.tsx", "utf8");
+  assert.match(form, /AbortController/);
+  assert.match(form, /SCHEDULE_REQUEST_TIMEOUT_MS/);
+  assert.match(form, /readScheduleRequestResult/);
+  assert.match(form, /planScheduleSubmitAnalytics/);
+  assert.match(form, /plan\.emitLead/);
+  assert.match(form, /plan\.emitSuccessEvents/);
+}
+
 testLeadFiresOnlyOnSuccess();
 testLeadDoesNotFireOnFailure();
 testScheduleFormNameUnchanged();
@@ -120,5 +131,6 @@ testIntentPrefillsInvisalignConsultation();
 testVisitTypeToggleHasDisclosureSemantics();
 testHeroReviewChipStaysFourteenPxOnNarrowViewports();
 testAdsPageKeepsHeldOutCopyOut();
+testSubmitUsesTimeoutAndRealSuccessFlag();
 
 console.log("invisalign consult lead tests passed");

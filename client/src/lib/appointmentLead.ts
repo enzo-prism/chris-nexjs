@@ -16,6 +16,13 @@ export type AppointmentLeadInput = {
   readonly pageCategory: AnalyticsPageCategory | string;
 };
 
+export type ScheduleOutcome = {
+  readonly submitted: boolean;
+  readonly success: boolean;
+  readonly leadFired: boolean;
+  readonly formName: string;
+};
+
 export type AppointmentLeadEvent = {
   readonly eventName: typeof ANALYTICS_EVENTS.appointmentRequestSubmit;
   readonly generateLead: typeof ANALYTICS_EVENTS.generateLead;
@@ -32,6 +39,26 @@ export type AppointmentLeadEvent = {
     readonly page_category: string;
   };
 };
+
+/**
+ * Test/observability seam for schedule outcomes. Production only records
+ * when a test (or debug) pre-created `window.__cwScheduleOutcomes`.
+ */
+export function publishScheduleOutcome(outcome: ScheduleOutcome): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  if (Array.isArray(window.__cwScheduleOutcomes)) {
+    window.__cwScheduleOutcomes.push(outcome);
+  }
+
+  window.dispatchEvent(
+    new CustomEvent("cw:schedule-outcome", {
+      detail: outcome,
+    }),
+  );
+}
 
 /**
  * Build the appointment-request lead payload. Returns null unless the

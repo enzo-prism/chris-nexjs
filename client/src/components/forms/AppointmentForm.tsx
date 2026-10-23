@@ -55,6 +55,14 @@ import {
   DEFAULT_APPOINTMENT_LEAD_FORM_NAME,
   resolveAppointmentLeadEvent,
 } from "@/lib/appointmentLead";
+import {
+  SCHEDULE_REQUEST_TIMEOUT_MS,
+  ScheduleSubmitError,
+  parseJsonBody,
+  parseRetryAfterSeconds,
+  planScheduleSubmitAnalytics,
+  readScheduleRequestResult,
+} from "@shared/scheduleRequestPolicy";
 import { FeatureIcon } from "@/components/common/FeatureIcon";
 import { cn } from "@/lib/utils";
 
@@ -305,6 +313,10 @@ const getDeviceType = (): "mobile" | "tablet" | "desktop" | "unknown" => {
 };
 
 const getScheduleFailureReason = (error: unknown): string => {
+  if (error instanceof ScheduleSubmitError && error.status === 429) {
+    return "rate_limited";
+  }
+
   if (!(error instanceof Error)) {
     return "unknown_error";
   }
@@ -313,13 +325,23 @@ const getScheduleFailureReason = (error: unknown): string => {
   if (message.includes("phone") || message.includes("valid")) {
     return "validation_error";
   }
-  if (message.includes("fetch") || message.includes("network")) {
+  if (
+    error.name === "AbortError" ||
+    message.includes("abort") ||
+    message.includes("timeout") ||
+    message.includes("fetch") ||
+    message.includes("network")
+  ) {
     return "network_error";
   }
   return "server_error";
 };
 
 const getScheduleErrorMessage = (error: unknown): string => {
+  if (error instanceof ScheduleSubmitError && error.status === 429) {
+    return error.message;
+  }
+
   const reason = getScheduleFailureReason(error);
   if (reason === "network_error") {
     return "We couldn’t connect. Check your internet connection and try again.";
@@ -998,6 +1020,7 @@ const AppointmentForm = ({
     (scheduleIntent ? getAppointmentTypeForIntent(scheduleIntent) : "");
   const [step, setStep] = useState<number>(1);
   const [status, setStatus] = useState<SubmitStatus>("idle");
+  const [rateLimited, setRateLimited] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [errorSummary, setErrorSummary] = useState<FieldErrorSummary[]>([]);
   const [confirmationDetails, setConfirmationDetails] =
@@ -1012,6 +1035,9 @@ const AppointmentForm = ({
   const honeypotRef = useRef<HTMLInputElement>(null);
   const shouldFocusHeadingRef = useRef(false);
   const pendingFocusFieldRef = useRef<FieldPath<ScheduleFormValues> | null>(null);
+  const submitInFlightRef = useRef(false);
+  const leadEmittedRef = useRef(false);
+  const rateLimitTimerRef = useRef<number | null>(null);
   const stepTrackingRef = useRef<{ index: number; name: StepName }>({
     index: 1,
     name: "visit_needs",
@@ -1174,6 +1200,14 @@ const AppointmentForm = ({
     pendingFocusFieldRef.current = null;
     window.requestAnimationFrame(() => setFocus(field));
   }, [activeStep, setFocus]);
+
+  useEffect(() => {
+    return () => {
+      if (rateLimitTimerRef.current !== null) {
+        window.clearTimeout(rateLimitTimerRef.current);
+      }
+    };
+  }, []);
 
   const markScheduleStarted = () => {
     if (hasTrackedStart.current || typeof window === "undefined") return;
@@ -1375,6 +1409,10 @@ const AppointmentForm = ({
 
     const payload = parsedPayload.data as ScheduleRequestV2;
 
+    if (submitInFlightRef.current || rateLimited) {
+      return;
+    }
+
     trackGAEvent("schedule_submit_attempt", {
       source: "schedule_page_form",
       step_index: activeStep,
@@ -1386,6 +1424,12 @@ const AppointmentForm = ({
     setStatus("submitting");
     setErrorMessage("");
     setErrorSummary([]);
+    submitInFlightRef.current = true;
+
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => {
+      controller.abort();
+    }, SCHEDULE_REQUEST_TIMEOUT_MS);
 
     try {
       const response = await fetch("/api/schedule-request", {
@@ -1397,79 +1441,107 @@ const AppointmentForm = ({
           ...payload,
           [HONEYPOT_FIELD]: honeypotRef.current?.value ?? "",
         }),
+        signal: controller.signal,
       });
 
-      if (!response.ok) {
-        const parsed = await response
-          .json()
-          .catch(() => ({ message: "Something went wrong. Please try again." }));
-        throw new Error(parsed?.message ?? "Something went wrong. Please try again.");
+      const parsedBody = parseJsonBody(await response.text());
+      const result = readScheduleRequestResult(response.status, parsedBody);
+      const plan = planScheduleSubmitAnalytics(result);
+
+      if (plan.showError && !result.accepted && !result.neutral) {
+        throw new ScheduleSubmitError(result.message, {
+          status: response.status,
+          retryAfterSeconds:
+            response.status === 429
+              ? parseRetryAfterSeconds(response.headers.get("Retry-After"))
+              : null,
+        });
       }
 
-      trackGAEvent("schedule_submit_success", {
-        source: "schedule_page_form",
-        contact_preference: rawData.contactPreference,
-        ...analyticsContext,
-      });
+      if (plan.emitSuccessEvents) {
+        trackGAEvent("schedule_submit_success", {
+          source: "schedule_page_form",
+          contact_preference: rawData.contactPreference,
+          ...analyticsContext,
+        });
+      }
 
-      const leadEvent = resolveAppointmentLeadEvent({
-        submitted: true,
-        success: true,
-        formName: leadFormName,
-        appointmentType: rawData.appointmentType,
-        schedulingMode: rawData.schedulingMode,
-        urgentFlag: rawData.isEmergency,
-        contactPreference: rawData.contactPreference,
-        leadChannel: leadAttribution?.attribution.channel ?? "unknown",
-        pagePath: pageContext.page_path,
-        pageCategory: pageContext.page_category,
-      });
-      if (leadEvent) {
+      const leadEvent = plan.emitLead
+        ? resolveAppointmentLeadEvent({
+            submitted: true,
+            success: true,
+            formName: leadFormName,
+            appointmentType: rawData.appointmentType,
+            schedulingMode: rawData.schedulingMode,
+            urgentFlag: rawData.isEmergency,
+            contactPreference: rawData.contactPreference,
+            leadChannel: leadAttribution?.attribution.channel ?? "unknown",
+            pagePath: pageContext.page_path,
+            pageCategory: pageContext.page_category,
+          })
+        : null;
+      if (leadEvent && !leadEmittedRef.current) {
+        leadEmittedRef.current = true;
         trackLeadConversion(leadEvent.eventName, leadEvent.properties);
       }
 
-      trackGAEvent("schedule_submit", {
-        appointment_type: rawData.appointmentType,
-        insurance_status: rawData.insuranceProvider ? "provided" : "not_provided",
-        urgent_flag: rawData.isEmergency ? "true" : "false",
-      });
-
-      if (rawData.isEmergency) {
-        trackGAEvent("schedule_submit_emergency", {
-          appointment_type: rawData.appointmentType,
-          insurance_status: rawData.insuranceProvider ? "provided" : "not_provided",
-          urgent_flag: "true",
-        });
-      }
-
-      if (rawData.appointmentType === "New Patient Exam & Cleaning") {
-        trackGAEvent("schedule_submit_new_patient", {
+      if (plan.emitSuccessEvents) {
+        trackGAEvent("schedule_submit", {
           appointment_type: rawData.appointmentType,
           insurance_status: rawData.insuranceProvider ? "provided" : "not_provided",
           urgent_flag: rawData.isEmergency ? "true" : "false",
         });
+
+        if (rawData.isEmergency) {
+          trackGAEvent("schedule_submit_emergency", {
+            appointment_type: rawData.appointmentType,
+            insurance_status: rawData.insuranceProvider ? "provided" : "not_provided",
+            urgent_flag: "true",
+          });
+        }
+
+        if (rawData.appointmentType === "New Patient Exam & Cleaning") {
+          trackGAEvent("schedule_submit_new_patient", {
+            appointment_type: rawData.appointmentType,
+            insurance_status: rawData.insuranceProvider ? "provided" : "not_provided",
+            urgent_flag: rawData.isEmergency ? "true" : "false",
+          });
+        }
+
+        if (rawData.appointmentType === "Invisalign Consultation") {
+          trackGAEvent("schedule_submit_invisalign", {
+            appointment_type: rawData.appointmentType,
+            insurance_status: rawData.insuranceProvider ? "provided" : "not_provided",
+            urgent_flag: rawData.isEmergency ? "true" : "false",
+          });
+        }
       }
 
-      if (rawData.appointmentType === "Invisalign Consultation") {
-        trackGAEvent("schedule_submit_invisalign", {
-          appointment_type: rawData.appointmentType,
-          insurance_status: rawData.insuranceProvider ? "provided" : "not_provided",
-          urgent_flag: rawData.isEmergency ? "true" : "false",
+      if (plan.showConfirmation) {
+        completionStateRef.current = true;
+        setConfirmationDetails({
+          method: rawData.contactPreference,
+          destination:
+            rawData.contactPreference === "phone"
+              ? normalizedPhone
+              : normalizedEmail,
         });
+        setStatus("success");
+        setStep(1);
+        reset();
       }
-
-      completionStateRef.current = true;
-      setConfirmationDetails({
-        method: rawData.contactPreference,
-        destination:
-          rawData.contactPreference === "phone"
-            ? normalizedPhone
-            : normalizedEmail,
-      });
-      setStatus("success");
-      setStep(1);
-      reset();
     } catch (error) {
+      if (error instanceof ScheduleSubmitError && error.status === 429) {
+        setRateLimited(true);
+        if (rateLimitTimerRef.current !== null) {
+          window.clearTimeout(rateLimitTimerRef.current);
+        }
+        const waitMs = (error.retryAfterSeconds ?? 600) * 1000;
+        rateLimitTimerRef.current = window.setTimeout(() => {
+          setRateLimited(false);
+          rateLimitTimerRef.current = null;
+        }, waitMs);
+      }
       setErrorMessage(getScheduleErrorMessage(error));
       trackAnalyticsEvent(ANALYTICS_EVENTS.scheduleSubmitFailure, {
         source: "schedule_page_form",
@@ -1478,6 +1550,9 @@ const AppointmentForm = ({
       });
       setStatus("error");
       window.requestAnimationFrame(() => errorAlertRef.current?.focus());
+    } finally {
+      window.clearTimeout(timeoutId);
+      submitInFlightRef.current = false;
     }
   };
 
@@ -1575,6 +1650,7 @@ const AppointmentForm = ({
     );
   }
 
+  const submitLocked = isSubmitting || status === "submitting" || rateLimited;
   const progressPercent = Math.round((activeStep / totalSteps) * 100);
   const formClasses = cn(
     presentation === "funnel" ? "space-y-7" : "space-y-6",
@@ -1598,7 +1674,7 @@ const AppointmentForm = ({
         className={formClasses}
         autoComplete="on"
         noValidate
-        aria-busy={isSubmitting || status === "submitting"}
+        aria-busy={submitLocked}
         data-hj-suppress
       >
         {/* Honeypot — hidden from real users; bots that fill it are dropped. */}
@@ -1834,7 +1910,7 @@ const AppointmentForm = ({
                   variant="outline"
                   className="ui-focus-premium min-h-11 flex-1 sm:flex-none"
                   onClick={goToPreviousStep}
-                  disabled={isSubmitting || status === "submitting"}
+                  disabled={submitLocked}
                 >
                   <ChevronLeft className="mr-1 h-4 w-4" aria-hidden="true" />
                   Back
@@ -1844,7 +1920,7 @@ const AppointmentForm = ({
                 <Button
                   type="submit"
                   className="ui-btn-primary min-h-11 flex-1 text-base font-semibold sm:min-w-[200px]"
-                  disabled={isSubmitting || status === "submitting"}
+                  disabled={submitLocked}
                 >
                   {isSubmitting || status === "submitting"
                     ? "Sending request..."
@@ -1860,7 +1936,7 @@ const AppointmentForm = ({
                     event.preventDefault();
                     goToNextStep();
                   }}
-                  disabled={isSubmitting || status === "submitting"}
+                  disabled={submitLocked}
                 >
                   {nextButtonLabel}
                   <ChevronRight className="ml-1 h-4 w-4" aria-hidden="true" />
@@ -1893,7 +1969,7 @@ const AppointmentForm = ({
                 variant="outline"
                 className="ui-focus-premium min-h-11 flex-1"
                 onClick={goToPreviousStep}
-                disabled={activeStep === 1 || isSubmitting || status === "submitting"}
+                disabled={activeStep === 1 || submitLocked}
               >
                 <ChevronLeft className="mr-1 h-4 w-4" aria-hidden="true" />
                 Back
@@ -1902,7 +1978,7 @@ const AppointmentForm = ({
                 <Button
                   type="submit"
                   className="ui-btn-primary min-h-11 flex-1 text-base font-semibold"
-                  disabled={isSubmitting || status === "submitting"}
+                  disabled={submitLocked}
                 >
                   {isSubmitting || status === "submitting"
                     ? "Sending request..."
@@ -1918,7 +1994,7 @@ const AppointmentForm = ({
                     event.preventDefault();
                     goToNextStep();
                   }}
-                  disabled={isSubmitting || status === "submitting"}
+                  disabled={submitLocked}
                 >
                   {nextButtonLabel}
                   <ChevronRight className="ml-1 h-4 w-4" aria-hidden="true" />
