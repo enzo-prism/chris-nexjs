@@ -1,7 +1,20 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { isAllowedAnalyticsHost } from "@shared/analyticsHosts";
+import {
+  ANALYTICS_IMMEDIATE_LOAD_FLAG,
+  isAllowedAnalyticsHost,
+} from "@shared/analyticsHosts";
 import { hasAnalyticsConsent } from "@/lib/analytics";
+
+const HOTJAR_LOAD_DELAY_MS = 8000;
+const HOTJAR_IDLE_TIMEOUT_MS = 8000;
+
+function shouldLoadHotjarImmediately(): boolean {
+  return (
+    (window as unknown as Record<string, unknown>)[ANALYTICS_IMMEDIATE_LOAD_FLAG] ===
+    true
+  );
+}
 
 // Define types for Hotjar
 interface HotjarWindow extends Window {
@@ -55,13 +68,16 @@ const HotjarTracking = () => {
     let idleCallbackId: number | undefined;
 
     const scheduleHotjar = () => {
+      const delay = shouldLoadHotjarImmediately() ? 0 : HOTJAR_LOAD_DELAY_MS;
       idleTimer = setTimeout(() => {
-        if ("requestIdleCallback" in window) {
-          idleCallbackId = window.requestIdleCallback(loadHotjar, { timeout: 8000 });
-        } else {
+        if (shouldLoadHotjarImmediately() || !("requestIdleCallback" in window)) {
           loadHotjar();
+        } else {
+          idleCallbackId = window.requestIdleCallback(loadHotjar, {
+            timeout: HOTJAR_IDLE_TIMEOUT_MS,
+          });
         }
-      }, 8000);
+      }, delay);
     };
 
     if (document.readyState === "complete") {

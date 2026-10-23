@@ -7,7 +7,10 @@ import {
   ANALYTICS_CONSENT_EVENT,
   ANALYTICS_CONSENT_STORAGE_KEY,
 } from "@shared/analytics";
-import { analyticsHostAllowlistGuardSnippet } from "@shared/analyticsHosts";
+import {
+  ANALYTICS_IMMEDIATE_LOAD_FLAG,
+  analyticsHostAllowlistGuardSnippet,
+} from "@shared/analyticsHosts";
 import "./globals.css";
 
 // Self-hosted via next/font (subset, size-adjusted fallbacks, no third-party
@@ -106,6 +109,10 @@ ${GOOGLE_ADS_ID ? `  gtag('config', '${GOOGLE_ADS_ID}');` : ""}
     triggerEvents.forEach(function (eventName) {
       window.addEventListener(eventName, loadGtagScript, { once: true, passive: true });
     });
+    if (window.${ANALYTICS_IMMEDIATE_LOAD_FLAG}) {
+      loadGtagScript();
+      return;
+    }
     // Keep non-essential analytics outside the Core Web Vitals window when a
     // visitor has not interacted. Interaction still loads immediately so
     // conversion events are not lost.

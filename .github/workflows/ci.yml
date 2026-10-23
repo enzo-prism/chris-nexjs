@@ -72,6 +72,17 @@ jobs:
           SEO_AUDIT_BASE_URL=http://localhost:3200 pnpm run test:seo:onpage
           SEO_AUDIT_BASE_URL=http://localhost:3200 pnpm run test:seo:links
           SEO_AUDIT_BASE_URL=http://localhost:3200 pnpm run test:seo:schema
+
+      - name: Analytics host-silence network spec
+        run: |
+          pnpm exec next start -p 3200 &
+          SERVER_PID=$!
+          cleanup() {
+            kill $SERVER_PID >/dev/null 2>&1 || true
+            wait $SERVER_PID >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+          sleep 5
           PLAYWRIGHT_BASE_URL=http://localhost:3200 pnpm run test:analytics:network
 
   perf:

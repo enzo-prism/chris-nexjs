@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { describe, it } from "node:test";
 import {
   ANALYTICS_ALLOWED_HOSTS,
   analyticsHostAllowlistGuardSnippet,
+  canSendServerAnalytics,
+  hostnameFromRequestHeaders,
   isAllowedAnalyticsHost,
   normalizeAnalyticsHostname,
 } from "./analyticsHosts";
@@ -70,25 +70,36 @@ describe("analyticsHostAllowlistGuardSnippet", () => {
     assert.match(snippet, /indexOf/);
     assert.doesNotMatch(snippet, /endsWith|includes\(|indexOf\("/);
   });
+});
 
-  it("is wired into the root gtag bootstrap and the other tag loaders", () => {
-    const root = process.cwd();
-    const layout = readFileSync(join(root, "app/layout.tsx"), "utf8");
-    const hotjar = readFileSync(
-      join(root, "client/src/components/common/HotjarTracking.tsx"),
-      "utf8",
-    );
-    const vercel = readFileSync(
-      join(root, "client/src/components/common/VercelAnalytics.tsx"),
-      "utf8",
-    );
-    const runtime = readFileSync(join(root, "client/src/lib/analytics.ts"), "utf8");
-    const server = readFileSync(join(root, "server/vercelAnalytics.ts"), "utf8");
+describe("canSendServerAnalytics", () => {
+  it("ignores VERCEL_URL and lets the request host decide", () => {
+    const previewEnv = { VERCEL_URL: "chris-wong-dds-git-foo.vercel.app" };
 
-    assert.match(layout, /analyticsHostAllowlistGuardSnippet/);
-    assert.match(hotjar, /isAllowedAnalyticsHost/);
-    assert.match(vercel, /isAllowedAnalyticsHost/);
-    assert.match(runtime, /isAllowedAnalyticsHost/);
-    assert.match(server, /isAllowedAnalyticsHost/);
+    assert.equal(
+      canSendServerAnalytics("chris-wong-dds-git-foo.vercel.app", previewEnv),
+      false,
+    );
+    assert.equal(canSendServerAnalytics("localhost", previewEnv), false);
+    assert.equal(canSendServerAnalytics("www.chriswongdds.com", previewEnv), true);
+    assert.equal(canSendServerAnalytics("chriswongdds.com", previewEnv), true);
+    assert.equal(canSendServerAnalytics("www.chriswongdds.com", {}), false);
+  });
+
+  it("prefers Host over a spoofable x-forwarded-host", () => {
+    const headers = {
+      get(name: string): string | null {
+        if (name === "host") return "chris-wong-dds-git-foo.vercel.app";
+        if (name === "x-forwarded-host") return "www.chriswongdds.com";
+        return null;
+      },
+    };
+
+    const hostname = hostnameFromRequestHeaders(headers);
+    assert.equal(hostname, "chris-wong-dds-git-foo.vercel.app");
+    assert.equal(
+      canSendServerAnalytics(hostname, { VERCEL_URL: "chris-wong-dds-git-foo.vercel.app" }),
+      false,
+    );
   });
 });

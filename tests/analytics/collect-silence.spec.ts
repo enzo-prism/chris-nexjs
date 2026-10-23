@@ -1,6 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test, expect } from "@playwright/test";
+import { ANALYTICS_IMMEDIATE_LOAD_FLAG } from "../../shared/analyticsHosts";
 
 const TRACKING_HOSTS = ["google-analytics.com", "googletagmanager.com"] as const;
 
@@ -9,6 +10,21 @@ function isTrackingHost(hostname: string): boolean {
   return TRACKING_HOSTS.some(
     (root) => host === root || host.endsWith(`.${root}`),
   );
+}
+
+function isHotjarHost(hostname: string): boolean {
+  const host = hostname.toLowerCase();
+  return host === "hotjar.com" || host.endsWith(".hotjar.com") || host.endsWith(".hotjar.io");
+}
+
+function isVercelInsightsUrl(url: URL): boolean {
+  const host = url.hostname.toLowerCase();
+  const path = url.pathname;
+  if (path.includes("/_vercel/insights")) return true;
+  if (host === "va.vercel-scripts.com" || host.endsWith(".va.vercel-scripts.com")) {
+    return true;
+  }
+  return host.includes("vercel-insights");
 }
 
 function isCollectPath(pathname: string): boolean {
@@ -47,6 +63,12 @@ test("non-production hosts do not load or collect to GA4/GTM", async ({
   const allRequests: string[] = [];
   const trackingRequests: string[] = [];
   const collectRequests: string[] = [];
+  const hotjarRequests: string[] = [];
+  const vercelInsightsRequests: string[] = [];
+
+  await page.addInitScript((flag: string) => {
+    (window as Window & Record<string, unknown>)[flag] = true;
+  }, ANALYTICS_IMMEDIATE_LOAD_FLAG);
 
   page.on("request", (request) => {
     allRequests.push(request.url());
@@ -56,10 +78,17 @@ test("non-production hosts do not load or collect to GA4/GTM", async ({
     } catch {
       return;
     }
-    if (!isTrackingHost(parsed.hostname)) return;
-    trackingRequests.push(request.url());
-    if (isCollectPath(parsed.pathname)) {
-      collectRequests.push(request.url());
+    if (isTrackingHost(parsed.hostname)) {
+      trackingRequests.push(request.url());
+      if (isCollectPath(parsed.pathname)) {
+        collectRequests.push(request.url());
+      }
+    }
+    if (isHotjarHost(parsed.hostname)) {
+      hotjarRequests.push(request.url());
+    }
+    if (isVercelInsightsUrl(parsed)) {
+      vercelInsightsRequests.push(request.url());
     }
   });
 
@@ -67,11 +96,12 @@ test("non-production hosts do not load or collect to GA4/GTM", async ({
   await page.goto(startPath, { waitUntil: "networkidle" });
   await page.locator("body").click({ position: { x: 12, y: 12 } });
   await page.mouse.wheel(0, 600);
-  // The production bootstrap defers gtag.js by 4s + idle. Wait past that
-  // window so a missed guard would still show up in the request log.
-  await page.waitForTimeout(6500);
-  await page.goto("/about", { waitUntil: "networkidle" });
+  // Production Hotjar waits 8s + idle (HotjarTracking.tsx). The init script
+  // sets ANALYTICS_IMMEDIATE_LOAD_FLAG so a missing host guard loads now
+  // instead of after that window.
   await page.waitForTimeout(1500);
+  await page.goto("/about", { waitUntil: "networkidle" });
+  await page.waitForTimeout(800);
 
   const runtime = await page.evaluate(() => ({
     hostname: window.location.hostname,
@@ -82,6 +112,9 @@ test("non-production hosts do not load or collect to GA4/GTM", async ({
     ).length,
     hotjarScriptCount: document.querySelectorAll(
       'script[src*="static.hotjar.com"]',
+    ).length,
+    vercelInsightsScriptCount: document.querySelectorAll(
+      'script[src*="/_vercel/insights"], script[src*="va.vercel-scripts.com"]',
     ).length,
   }));
 
@@ -95,6 +128,8 @@ test("non-production hosts do not load or collect to GA4/GTM", async ({
     requestCount: allRequests.length,
     trackingRequests: trackingRequests.map(redactShareToken),
     collectRequests: collectRequests.map(redactShareToken),
+    hotjarRequests: hotjarRequests.map(redactShareToken),
+    vercelInsightsRequests: vercelInsightsRequests.map(redactShareToken),
     firstPartySample: allRequests
       .filter((url) => {
         try {
@@ -127,6 +162,22 @@ test("non-production hosts do not load or collect to GA4/GTM", async ({
   expect(allRequests.length, "request listener captured no traffic").toBeGreaterThan(0);
   expect(runtime.gtagType).toBe("undefined");
   expect(runtime.gtagScriptCount).toBe(0);
+  expect(
+    runtime.hotjarScriptCount,
+    "Hotjar script tags on a blocked host",
+  ).toBe(0);
+  expect(
+    hotjarRequests,
+    `Hotjar requests:\n${hotjarRequests.join("\n")}`,
+  ).toEqual([]);
+  expect(
+    runtime.vercelInsightsScriptCount,
+    "Vercel insights script tags on a blocked host",
+  ).toBe(0);
+  expect(
+    vercelInsightsRequests,
+    `Vercel insights requests:\n${vercelInsightsRequests.join("\n")}`,
+  ).toEqual([]);
   expect(
     collectRequests,
     `Collect hits:\n${collectRequests.join("\n")}`,

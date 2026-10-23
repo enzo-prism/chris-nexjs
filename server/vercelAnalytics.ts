@@ -4,20 +4,20 @@ import {
   sanitizeAnalyticsEventName,
   sanitizeVercelEventProperties,
 } from "@shared/analytics";
-import { isAllowedAnalyticsHost } from "@shared/analyticsHosts";
+import {
+  canSendServerAnalytics,
+  hostnameFromRequestHeaders,
+} from "@shared/analyticsHosts";
 
-function requestHostname(request: NextRequest): string {
-  const forwarded = request.headers.get("x-forwarded-host");
-  const host =
-    forwarded ?? request.headers.get("host") ?? request.nextUrl.hostname;
-  return host.split(",")[0]?.trim() ?? "";
+export function requestHostname(request: NextRequest): string {
+  return hostnameFromRequestHeaders(
+    request.headers,
+    request.nextUrl.hostname,
+  );
 }
 
-function canSendVercelServerAnalytics(request: NextRequest): boolean {
-  if (!isAllowedAnalyticsHost(requestHostname(request))) return false;
-  return Boolean(
-    process.env.VERCEL_URL || process.env.VERCEL_WEB_ANALYTICS_ENDPOINT,
-  );
+export function canSendVercelServerAnalytics(request: NextRequest): boolean {
+  return canSendServerAnalytics(requestHostname(request), process.env);
 }
 
 export async function trackVercelServerEvent(
