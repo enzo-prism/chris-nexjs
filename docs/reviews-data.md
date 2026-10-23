@@ -8,12 +8,29 @@ Operational guide for importing, auditing, and publishing review content used on
 - Google import script: `scripts/import-google-reviews.ts`
 - Generated Google dataset: `shared/googleReviewsData.ts` (machine-generated — do not hand-edit; `test:reviews` asserts it matches the export)
 - Hand-curated Yelp dataset: `shared/yelpReviewsData.ts`
-- Published review counts: `shared/reviewStats.ts` (`GOOGLE_REVIEW_COUNT` and `PUBLISHED_REVIEW_COUNT`)
+- Published review counts: `shared/reviewStats.ts` (`GOOGLE_REVIEW_COUNT`, `PUBLISHED_REVIEW_COUNT`, and `REVIEW_STATS_LAST_UPDATED`)
+- Live Google totals (optional): `shared/googlePlaceReviews.ts` + `server/googlePlaceReviews.ts`. Requires `GOOGLE_PLACES_API_KEY`. The public Place ID already lives on `officeInfo.googlePlaceId` and can be overridden with `GOOGLE_PLACE_ID`.
 - Public testimonial seed source: `shared/testimonialsData.ts`
 - Client-featured subset: `client/src/data/featuredTestimonials.ts`
 - Site quotes: `client/src/data/reviewHighlights.ts` (homepage), `serviceReviews.ts` (service/location pages), `team.ts` (team cards); all verbatim-checked by `pnpm run test:reviews`
 
 `shared/testimonialsData.ts` merges the Yelp seed (`yelpReviewSeedData`, listed first so it surfaces on page 1 of `/testimonials`) with the generated Google seed (`googleReviewSeedData`) and publishes only 5-star entries. The Google export remains the source of truth for the Google pipeline (count/audit); Yelp reviews are maintained by hand.
+
+## Live updates
+
+The visible Google count does **not** refresh by itself. There is no Places API
+key in this repo or `.env.example` by default. Counts stay on the committed
+literals in `shared/reviewStats.ts` (`REVIEW_STATS_LAST_UPDATED`) until someone:
+
+1. Re-imports the Google export (see Refresh workflow), or
+2. Sets `GOOGLE_PLACES_API_KEY` (and optionally `GOOGLE_PLACE_ID`) on the
+   server. `/testimonials` then fetches `rating` + `userRatingCount` with a
+   ~daily ISR revalidate and falls back to the last committed values on any
+   error — never 0 or blank.
+
+Do not create or bill a key from this change. Self-serving `aggregateRating`
+JSON-LD is still not emitted; if that ever changes, use
+`displayedAggregateRating()` so schema matches the number on the page.
 
 ## Current data profile (2026-09-23 published snapshot)
 
@@ -60,7 +77,7 @@ so read every digest. The emails show Google's own truncation; keep it.
    bump the header count, use the Pacific-time notification date, and write
    `[No text]` for rating-only reviews and `<excerpt>... [truncated]` for cut-off
    text. Then bump `expectedCount` in `scripts/import-google-reviews.ts` and
-   both counts in `shared/reviewStats.ts`.
+   both counts plus `REVIEW_STATS_LAST_UPDATED` in `shared/reviewStats.ts`.
 2. Regenerate `shared/googleReviewsData.ts`:
 
 ```bash
