@@ -21,6 +21,26 @@ function isCollectPath(pathname: string): boolean {
   );
 }
 
+function redactShareToken(url: string): string {
+  try {
+    const parsed = new URL(url);
+    if (parsed.searchParams.has("_vercel_share")) {
+      parsed.searchParams.set("_vercel_share", "[redacted]");
+    }
+    return parsed.toString();
+  } catch {
+    return url;
+  }
+}
+
+function isAppHost(hostname: string): boolean {
+  return (
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname.endsWith(".vercel.app")
+  );
+}
+
 test("non-production hosts do not load or collect to GA4/GTM", async ({
   page,
 }, testInfo) => {
@@ -43,7 +63,8 @@ test("non-production hosts do not load or collect to GA4/GTM", async ({
     }
   });
 
-  await page.goto("/", { waitUntil: "networkidle" });
+  const startPath = process.env.ANALYTICS_START_PATH?.trim() || "/";
+  await page.goto(startPath, { waitUntil: "networkidle" });
   await page.locator("body").click({ position: { x: 12, y: 12 } });
   await page.mouse.wheel(0, 600);
   // The production bootstrap defers gtag.js by 4s + idle. Wait past that
@@ -69,18 +90,21 @@ test("non-production hosts do not load or collect to GA4/GTM", async ({
   mkdirSync(artifactDir, { recursive: true });
   const report = {
     baseURL: testInfo.project.use.baseURL,
-    pageURL: page.url(),
+    pageURL: redactShareToken(page.url()),
     runtime,
     requestCount: allRequests.length,
-    trackingRequests,
-    collectRequests,
-    firstPartySample: allRequests.filter((url) => {
-      try {
-        return !isTrackingHost(new URL(url).hostname);
-      } catch {
-        return false;
-      }
-    }).slice(0, 12),
+    trackingRequests: trackingRequests.map(redactShareToken),
+    collectRequests: collectRequests.map(redactShareToken),
+    firstPartySample: allRequests
+      .filter((url) => {
+        try {
+          return !isTrackingHost(new URL(url).hostname);
+        } catch {
+          return false;
+        }
+      })
+      .slice(0, 12)
+      .map(redactShareToken),
   };
   writeFileSync(
     join(artifactDir, "ga-collect-silence.json"),
@@ -91,6 +115,10 @@ test("non-production hosts do not load or collect to GA4/GTM", async ({
     fullPage: true,
   });
 
+  expect(
+    isAppHost(runtime.hostname),
+    `Expected the app host (localhost or *.vercel.app), not a protection login. Got ${runtime.hostname} at ${redactShareToken(page.url())}`,
+  ).toBe(true);
   expect(
     runtime.hostname === "chriswongdds.com" ||
       runtime.hostname === "www.chriswongdds.com",
