@@ -482,6 +482,8 @@ const OptionalDetailsFields = ({
   );
 };
 
+export const APPOINTMENT_TYPE_OPTIONS_ID = "appointment-type-options";
+
 type StepProps = {
   control: Control<ScheduleFormValues>;
   presentation: FormPresentation;
@@ -511,6 +513,7 @@ const VisitNeedsStep = ({
             <FormLabel>Appointment type</FormLabel>
             <FormControl>
               <RadioGroup
+                id={APPOINTMENT_TYPE_OPTIONS_ID}
                 className={cn(presentation === "funnel" ? "grid gap-2.5" : "grid gap-2")}
                 value={field.value}
                 onValueChange={field.onChange}
@@ -587,6 +590,8 @@ const VisitNeedsStep = ({
                 type="button"
                 variant="ghost"
                 className="mt-1 h-11 px-2 text-sm font-semibold text-evergreen-800"
+                aria-expanded={showAllTypes}
+                aria-controls={APPOINTMENT_TYPE_OPTIONS_ID}
                 onClick={() => setShowAllTypes((open) => !open)}
               >
                 {collapsed ? "Change visit type" : "Hide other visit types"}

@@ -68,6 +68,25 @@ function testIntentPrefillsInvisalignConsultation() {
   assert.equal(getAppointmentTypeForIntent("invisalign"), "Invisalign Consultation");
 }
 
+function testVisitTypeToggleHasDisclosureSemantics() {
+  const form = readFileSync("client/src/components/forms/AppointmentForm.tsx", "utf8");
+  assert.match(
+    form,
+    /export const APPOINTMENT_TYPE_OPTIONS_ID = "appointment-type-options"/,
+  );
+  assert.match(form, /id=\{APPOINTMENT_TYPE_OPTIONS_ID\}/);
+  assert.match(form, /aria-controls=\{APPOINTMENT_TYPE_OPTIONS_ID\}/);
+  assert.match(form, /aria-expanded=\{showAllTypes\}/);
+}
+
+function testHeroReviewChipStaysFourteenPxOnNarrowViewports() {
+  const page = readFileSync("client/src/pages/InvisalignConsult.tsx", "utf8");
+  assert.match(page, /reviewLinkClassName="[^"]*text-sm/);
+  assert.match(page, /reviewLinkClassName="[^"]*min-h-11/);
+  assert.match(page, /reviewLinkClassName="[^"]*whitespace-nowrap/);
+  assert.doesNotMatch(page, /reviewLinkClassName="[^"]*text-xs/);
+}
+
 function testAdsPageKeepsHeldOutCopyOut() {
   const page = readFileSync("client/src/pages/InvisalignConsult.tsx", "utf8");
   const costPanel = readFileSync("client/src/components/services/CostPanel.tsx", "utf8");
@@ -98,6 +117,8 @@ testLeadFiresOnlyOnSuccess();
 testLeadDoesNotFireOnFailure();
 testScheduleFormNameUnchanged();
 testIntentPrefillsInvisalignConsultation();
+testVisitTypeToggleHasDisclosureSemantics();
+testHeroReviewChipStaysFourteenPxOnNarrowViewports();
 testAdsPageKeepsHeldOutCopyOut();
 
 console.log("invisalign consult lead tests passed");

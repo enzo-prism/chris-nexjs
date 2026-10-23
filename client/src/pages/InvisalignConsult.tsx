@@ -133,7 +133,7 @@ const InvisalignConsult = () => {
         chips={["PPO ortho benefits checked first"]}
         className="[&_.btn]:h-auto [&_.btn]:max-w-full [&_.btn]:whitespace-normal [&_.btn]:py-3 [&_.btn]:leading-snug xl:[&_.btn]:whitespace-nowrap xl:[&_.btn]:py-0 xl:[&_.btn]:leading-none"
         actionsClassName="lg:flex-nowrap"
-        reviewLinkClassName="min-h-11 max-w-full shrink-0 whitespace-nowrap text-xs sm:text-sm"
+        reviewLinkClassName="min-h-11 max-w-full shrink-0 whitespace-nowrap px-2.5 text-sm gap-1.5 [&_svg]:h-3 [&_svg]:w-3 sm:px-3.5 sm:gap-2 sm:[&_svg]:h-3.5 sm:[&_svg]:w-3.5"
         actions={
           <>
             <a
