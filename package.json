@@ -16,6 +16,8 @@
     "start:legacy": "NODE_ENV=production tsx server/index.ts",
     "check": "next typegen && tsx scripts/check-business-info.ts && tsc",
     "test:api": "tsx scripts/api-contract.test.ts && tsx scripts/schedule-request-contract.test.ts && tsx scripts/attribution.test.ts",
+    "test:analytics": "tsx --test shared/analyticsHosts.test.ts && tsx client/src/lib/analytics.test.ts",
+    "test:analytics:network": "playwright test -c playwright.analytics.config.ts",
     "test:seo": "tsx scripts/seo-regression.ts",
     "test:seo:onpage": "tsx scripts/seo-onpage-audit.ts",
     "test:seo:links": "tsx scripts/seo-links-audit.ts",

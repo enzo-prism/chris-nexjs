@@ -35,6 +35,7 @@ jobs:
           pnpm run llms:generate
           git diff --exit-code -- public/llms.txt client/public/llms.txt
           pnpm run test:api
+          pnpm run test:analytics
           pnpm run test:routes
           pnpm run test:seo
           pnpm run test:design-system
@@ -71,6 +72,7 @@ jobs:
           SEO_AUDIT_BASE_URL=http://localhost:3200 pnpm run test:seo:onpage
           SEO_AUDIT_BASE_URL=http://localhost:3200 pnpm run test:seo:links
           SEO_AUDIT_BASE_URL=http://localhost:3200 pnpm run test:seo:schema
+          PLAYWRIGHT_BASE_URL=http://localhost:3200 pnpm run test:analytics:network
 
   perf:
     runs-on: ubuntu-latest

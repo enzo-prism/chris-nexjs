@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { isAllowedAnalyticsHost } from "@shared/analyticsHosts";
 import { hasAnalyticsConsent } from "@/lib/analytics";
 
 // Define types for Hotjar
@@ -17,6 +18,7 @@ const HotjarTracking = () => {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (!isAllowedAnalyticsHost(window.location.hostname)) return;
 
     const sensitivePaths = new Set([
       "/schedule",

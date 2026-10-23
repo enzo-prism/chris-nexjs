@@ -7,6 +7,7 @@ import {
   ANALYTICS_CONSENT_EVENT,
   ANALYTICS_CONSENT_STORAGE_KEY,
 } from "@shared/analytics";
+import { analyticsHostAllowlistGuardSnippet } from "@shared/analyticsHosts";
 import "./globals.css";
 
 // Self-hosted via next/font (subset, size-adjusted fallbacks, no third-party
@@ -41,6 +42,8 @@ const googleTagBootstrap = `
   // Remember the entry URL and referrer before any client-side navigation so
   // lead attribution (client/src/lib/attribution.ts) sees the real landing page.
   window.__cwEntry = window.__cwEntry || { href: location.href, referrer: document.referrer };
+  (function () {
+    ${analyticsHostAllowlistGuardSnippet()}
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   window.gtag = window.gtag || gtag;
@@ -115,6 +118,7 @@ ${GOOGLE_ADS_ID ? `  gtag('config', '${GOOGLE_ADS_ID}');` : ""}
         }
       }, 4000);
     }, { once: true });
+  })();
   })();
 `;
 
