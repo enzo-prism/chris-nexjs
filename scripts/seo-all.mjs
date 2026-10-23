@@ -1,11 +1,13 @@
 import { spawn, spawnSync } from "node:child_process";
 import { createServer } from "node:net";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import process from "node:process";
 import { setTimeout as delay } from "node:timers/promises";
 
 const STATIC_SCRIPTS = ["test:seo", "test:seo:freshness"];
 const RUNTIME_SCRIPTS = ["test:seo:onpage", "test:seo:links", "test:seo:schema"];
+const NEXT_BIN = resolve("node_modules/next/dist/bin/next");
 
 function runPnpmScript(script, extraEnv = {}) {
   const result = spawnSync("pnpm", ["run", script], {
@@ -22,7 +24,7 @@ function runPnpmScript(script, extraEnv = {}) {
 }
 
 function getFreePort() {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolvePort, reject) => {
     const server = createServer();
     server.unref();
     server.on("error", reject);
@@ -34,7 +36,7 @@ function getFreePort() {
           reject(error);
           return;
         }
-        resolve(port);
+        resolvePort(port);
       });
     });
   });
@@ -61,37 +63,72 @@ async function waitForServer(url, timeoutMs = 90_000) {
   throw new Error(`Timed out waiting for SEO audit server at ${url}`);
 }
 
-async function stopServer(server) {
-  if (!server || server.exitCode !== null) return;
+function descendantPids(pid) {
+  const pids = [pid];
+  try {
+    const children = readFileSync(`/proc/${pid}/task/${pid}/children`, "utf8")
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((value) => Number.parseInt(value, 10))
+      .filter((value) => Number.isFinite(value));
+    for (const child of children) {
+      pids.push(...descendantPids(child));
+    }
+  } catch {
+    // process already exited or /proc is unavailable
+  }
+  return pids;
+}
 
-  server.kill("SIGTERM");
+async function stopSeoServer(server) {
+  if (!server || server.pid == null) return;
+
+  const pids = descendantPids(server.pid);
+  for (const pid of [...pids].reverse()) {
+    try {
+      process.kill(pid, "SIGTERM");
+    } catch {
+      // already gone
+    }
+  }
+
   const deadline = Date.now() + 10_000;
-
   while (server.exitCode === null && Date.now() < deadline) {
     await delay(200);
   }
 
-  if (server.exitCode === null) {
-    server.kill("SIGKILL");
+  for (const pid of [...pids].reverse()) {
+    try {
+      process.kill(pid, "SIGKILL");
+    } catch {
+      // already gone
+    }
   }
 }
 
 async function startLocalSeoServer() {
-  if (!existsSync(".next/BUILD_ID") && !existsSync(".next/build-manifest.json")) {
-    runPnpmScript("build");
-  }
+  // Always rebuild so this gate never audits a leftover .next from another branch.
+  runPnpmScript("build");
 
   const port = await getFreePort();
   const baseUrl = `http://127.0.0.1:${port}`;
-  const server = spawn("pnpm", ["exec", "next", "start", "-p", String(port)], {
-    stdio: "inherit",
+  const server = spawn(process.execPath, [NEXT_BIN, "start", "-H", "127.0.0.1", "-p", String(port)], {
+    stdio: ["ignore", "inherit", "inherit"],
     env: {
       ...process.env,
       PORT: String(port),
+      HOSTNAME: "127.0.0.1",
     },
   });
 
-  await waitForServer(baseUrl);
+  try {
+    await waitForServer(baseUrl);
+  } catch (error) {
+    await stopSeoServer(server);
+    throw error;
+  }
+
   return { server, baseUrl };
 }
 
@@ -108,9 +145,13 @@ async function main() {
     return;
   }
 
+  if (!existsSync(NEXT_BIN)) {
+    throw new Error("next binary is missing; run pnpm install first");
+  }
+
   const { server, baseUrl } = await startLocalSeoServer();
   const shutdown = async () => {
-    await stopServer(server);
+    await stopSeoServer(server);
   };
 
   process.on("SIGINT", shutdown);
@@ -123,7 +164,7 @@ async function main() {
   } finally {
     process.off("SIGINT", shutdown);
     process.off("SIGTERM", shutdown);
-    await stopServer(server);
+    await stopSeoServer(server);
   }
 }
 

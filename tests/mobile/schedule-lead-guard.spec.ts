@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Page, type Route } from "@playwright/test";
 import { advanceFunnelToContactStep, gotoAndHydrate } from "./_helpers";
 
 /**
@@ -7,8 +7,7 @@ import { advanceFunnelToContactStep, gotoAndHydrate } from "./_helpers";
  * Synthetic data only. The live /api/schedule-request (and Formspree) is
  * mocked for every test — never submit the production form.
  *
- * M1: a 500 must not fire generate_lead.
- * M3: a double submit must send only one request.
+ * Assertions count real window.gtag / dataLayer events, not a test-only flag.
  */
 
 const SYNTHETIC = {
@@ -17,9 +16,21 @@ const SYNTHETIC = {
   email: "jamie.example@example.com",
 } as const;
 
-async function installOutcomeProbe(page: Page): Promise<void> {
+const ROUTES = ["/schedule", "/invisalign-consult"] as const;
+
+async function installGtagProbe(page: Page): Promise<void> {
   await page.addInitScript(() => {
-    window.__cwScheduleOutcomes = [];
+    window.dataLayer = [];
+    window.__cwForceAnalytics = true;
+    window.gtag = (...args: unknown[]) => {
+      window.dataLayer = window.dataLayer ?? [];
+      window.dataLayer.push(args);
+    };
+    try {
+      window.localStorage.setItem("analytics_consent", "granted");
+    } catch {
+      // ignore
+    }
   });
 }
 
@@ -36,59 +47,86 @@ async function fillSyntheticEmailContact(page: Page): Promise<void> {
     .fill(SYNTHETIC.email);
 }
 
-async function readOutcomes(page: Page) {
-  return page.evaluate(() => window.__cwScheduleOutcomes ?? []);
+async function openContactStep(page: Page, path: string): Promise<void> {
+  await gotoAndHydrate(page, path);
+  await advanceFunnelToContactStep(page, { dismissConsent: false });
+  await fillSyntheticEmailContact(page);
+}
+
+async function countGtagEvents(page: Page, eventName: string): Promise<number> {
+  return page.evaluate((name) => {
+    const layer = window.dataLayer ?? [];
+    return layer.filter((entry) => {
+      const args = Array.isArray(entry) ? entry : Array.from(entry as ArrayLike<unknown>);
+      return args[0] === "event" && args[1] === name;
+    }).length;
+  }, eventName);
+}
+
+async function readGenerateLeadFormNames(page: Page): Promise<string[]> {
+  return page.evaluate(() => {
+    const layer = window.dataLayer ?? [];
+    const names: string[] = [];
+    for (const entry of layer) {
+      const args = Array.isArray(entry) ? entry : Array.from(entry as ArrayLike<unknown>);
+      if (args[0] !== "event" || args[1] !== "generate_lead") continue;
+      const props = args[2];
+      if (props && typeof props === "object" && "form_name" in props) {
+        names.push(String((props as { form_name: string }).form_name));
+      }
+    }
+    return names;
+  });
+}
+
+async function mockScheduleApi(
+  page: Page,
+  handler: (route: Route) => Promise<void>,
+): Promise<void> {
+  await page.route("**/api/schedule-request", handler);
 }
 
 test.describe("schedule lead guard", () => {
-  test("M1: a 500 error does not fire generate_lead and shows Try Sending Again", async ({
-    page,
-  }) => {
-    await installOutcomeProbe(page);
-
-    await page.route("**/api/schedule-request", async (route) => {
-      await route.fulfill({
-        status: 500,
-        contentType: "application/json",
-        body: JSON.stringify({
-          message:
-            "We couldn't send your request. Please call the office or try again.",
-        }),
+  for (const path of ROUTES) {
+    test(`M1: 500 on ${path} does not fire generate_lead`, async ({ page }) => {
+      await installGtagProbe(page);
+      await mockScheduleApi(page, async (route) => {
+        await route.fulfill({
+          status: 500,
+          contentType: "application/json",
+          body: JSON.stringify({
+            message:
+              "We couldn't send your request. Please call the office or try again.",
+          }),
+        });
       });
+
+      await openContactStep(page, path);
+      await page
+        .getByRole("button", { name: "Send Appointment Request", exact: true })
+        .click();
+
+      await expect(page.getByText("Your request wasn't sent")).toBeVisible();
+      await expect(
+        page.getByRole("button", { name: "Try Sending Again", exact: true }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("heading", { name: "We'll confirm your appointment shortly." }),
+      ).toHaveCount(0);
+
+      expect(
+        await countGtagEvents(page, "generate_lead"),
+        "M1: generate_lead must not fire on a 500",
+      ).toBe(0);
     });
+  }
 
-    await gotoAndHydrate(page, "/schedule");
-    await advanceFunnelToContactStep(page);
-    await fillSyntheticEmailContact(page);
-
-    await page
-      .getByRole("button", { name: "Send Appointment Request", exact: true })
-      .click();
-
-    await expect(page.getByText("Your request wasn't sent")).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: "Try Sending Again", exact: true }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("heading", { name: "We'll confirm your appointment shortly." }),
-    ).toHaveCount(0);
-
-    const outcomes = await readOutcomes(page);
-    expect(outcomes.length, "submit must publish an outcome").toBeGreaterThan(0);
-    expect(
-      outcomes.some((entry) => entry.leadFired),
-      "M1: generate_lead must not fire on a 500",
-    ).toBe(false);
-    expect(outcomes.every((entry) => entry.success === false)).toBe(true);
-  });
-
-  test("accepted JSON success publishes a lead; HTML 200 does not", async ({
+  test("accepted JSON success fires generate_lead once; HTML 200 does not", async ({
     page,
   }) => {
-    await installOutcomeProbe(page);
-
+    await installGtagProbe(page);
     let mode: "html" | "ok" = "html";
-    await page.route("**/api/schedule-request", async (route) => {
+    await mockScheduleApi(page, async (route) => {
       if (mode === "html") {
         await route.fulfill({
           status: 200,
@@ -97,7 +135,6 @@ test.describe("schedule lead guard", () => {
         });
         return;
       }
-
       await route.fulfill({
         status: 201,
         contentType: "application/json",
@@ -105,36 +142,29 @@ test.describe("schedule lead guard", () => {
       });
     });
 
-    await gotoAndHydrate(page, "/schedule");
-    await advanceFunnelToContactStep(page);
-    await fillSyntheticEmailContact(page);
-
+    await openContactStep(page, "/schedule");
     await page
       .getByRole("button", { name: "Send Appointment Request", exact: true })
       .click();
-
     await expect(
       page.getByRole("button", { name: "Try Sending Again", exact: true }),
     ).toBeVisible();
-    expect((await readOutcomes(page)).some((entry) => entry.leadFired)).toBe(false);
+    expect(await countGtagEvents(page, "generate_lead")).toBe(0);
 
     mode = "ok";
     await page.getByRole("button", { name: "Try Sending Again", exact: true }).click();
-
     await expect(
       page.getByRole("heading", { name: "We'll confirm your appointment shortly." }),
     ).toBeVisible();
-
-    const outcomes = await readOutcomes(page);
     expect(
-      outcomes.some((entry) => entry.leadFired && entry.success),
-      "explicit success:true must fire a lead so the M1 probe is not vacuous",
-    ).toBe(true);
+      await countGtagEvents(page, "generate_lead"),
+      "explicit success:true must fire generate_lead once",
+    ).toBe(1);
   });
 
   test("M3: double-submit sends one request", async ({ page }) => {
     let requestCount = 0;
-    await page.route("**/api/schedule-request", async (route) => {
+    await mockScheduleApi(page, async (route) => {
       requestCount += 1;
       await new Promise((resolve) => {
         setTimeout(resolve, 750);
@@ -146,10 +176,7 @@ test.describe("schedule lead guard", () => {
       });
     });
 
-    await gotoAndHydrate(page, "/schedule");
-    await advanceFunnelToContactStep(page);
-    await fillSyntheticEmailContact(page);
-
+    await openContactStep(page, "/schedule");
     await page
       .getByRole("button", { name: "Send Appointment Request", exact: true })
       .evaluate((button) => {
@@ -162,5 +189,109 @@ test.describe("schedule lead guard", () => {
       page.getByRole("heading", { name: "We'll confirm your appointment shortly." }),
     ).toBeVisible();
     expect(requestCount, "M3: double-submit must not send two requests").toBe(1);
+  });
+
+  test("S1: hung request aborts and leaves Try Sending Again, not a stuck spinner", async ({
+    page,
+  }) => {
+    test.setTimeout(45_000);
+    await installGtagProbe(page);
+    await mockScheduleApi(page, async () => {
+      await new Promise(() => {
+        /* never fulfill — abort must unstick the spinner */
+      });
+    });
+
+    await openContactStep(page, "/schedule");
+    await page
+      .getByRole("button", { name: "Send Appointment Request", exact: true })
+      .click();
+    await expect(page.getByText("Sending request...")).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Try Sending Again", exact: true }),
+    ).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText("Sending request...")).toHaveCount(0);
+    expect(await countGtagEvents(page, "generate_lead")).toBe(0);
+  });
+
+  test("S3/SF2: honeypot ack is confirmation without lead or success events", async ({
+    page,
+  }) => {
+    await installGtagProbe(page);
+    await mockScheduleApi(page, async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ ok: true, accepted: false }),
+      });
+    });
+
+    await openContactStep(page, "/invisalign-consult");
+    await page
+      .getByRole("button", { name: "Send Appointment Request", exact: true })
+      .click();
+
+    await expect(
+      page.getByRole("heading", { name: "We'll confirm your appointment shortly." }),
+    ).toBeVisible();
+    expect(await countGtagEvents(page, "generate_lead")).toBe(0);
+    expect(await countGtagEvents(page, "schedule_submit_success")).toBe(0);
+    expect(await countGtagEvents(page, "schedule_submit")).toBe(0);
+    expect(await countGtagEvents(page, "schedule_submit_invisalign")).toBe(0);
+  });
+
+  test("S6: /invisalign-consult posts invisalign_consult and names the lead the same", async ({
+    page,
+  }) => {
+    await installGtagProbe(page);
+    let postedSource = "";
+    await mockScheduleApi(page, async (route) => {
+      const payload = route.request().postDataJSON() as { source?: string };
+      postedSource = payload.source ?? "";
+      await route.fulfill({
+        status: 201,
+        contentType: "application/json",
+        body: JSON.stringify({ success: true }),
+      });
+    });
+
+    await openContactStep(page, "/invisalign-consult");
+    await page
+      .getByRole("button", { name: "Send Appointment Request", exact: true })
+      .click();
+    await expect(
+      page.getByRole("heading", { name: "We'll confirm your appointment shortly." }),
+    ).toBeVisible();
+
+    expect(postedSource).toBe("invisalign_consult");
+    expect(await readGenerateLeadFormNames(page)).toEqual(["invisalign_consult"]);
+  });
+
+  test("SF4: 429 shows the server message and disables retry until Retry-After", async ({
+    page,
+  }) => {
+    await installGtagProbe(page);
+    await mockScheduleApi(page, async (route) => {
+      await route.fulfill({
+        status: 429,
+        contentType: "application/json",
+        headers: { "Retry-After": "2" },
+        body: JSON.stringify({
+          message:
+            "Too many requests. Please wait a few minutes and try again, or call the office.",
+        }),
+      });
+    });
+
+    await openContactStep(page, "/schedule");
+    await page
+      .getByRole("button", { name: "Send Appointment Request", exact: true })
+      .click();
+
+    await expect(page.getByText("Too many requests.")).toBeVisible();
+    const retry = page.getByRole("button", { name: "Try Sending Again", exact: true });
+    await expect(retry).toBeDisabled();
+    expect(await countGtagEvents(page, "generate_lead")).toBe(0);
+    await expect(retry).toBeEnabled({ timeout: 5_000 });
   });
 });

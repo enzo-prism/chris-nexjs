@@ -22,7 +22,7 @@ const requestWithBody = (
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-forwarded-for": ip,
+      "x-real-ip": ip,
     },
     body: JSON.stringify(payload),
   });
@@ -428,6 +428,83 @@ async function testSourceAllowlist() {
     assert.equal(accepted.status, 201);
     assert.equal(calls.length, 1);
   });
+
+  await withMockedFetch(async (calls) => {
+    const liveVercel = await postScheduleRequest(
+      requestWithBody({
+        ...validV2Payload,
+        sourceUrl: "https://chris-wong-dds.vercel.app/schedule",
+      }),
+    );
+    assert.equal(liveVercel.status, 201);
+    assert.equal(calls[0]?.body.source_host_kind, "production");
+  });
+
+  await withMockedFetch(async (calls) => {
+    const preview = await postScheduleRequest(
+      requestWithBody({
+        ...validV2Payload,
+        sourceUrl:
+          "https://chris-wong-dds-git-demo-enzo-design-prisms-projects.vercel.app/invisalign-consult",
+      }),
+    );
+    assert.equal(preview.status, 201);
+    assert.equal(calls[0]?.body.source_host_kind, "preview");
+  });
+
+  await withMockedFetch(async (calls) => {
+    const otherVercel = await postScheduleRequest(
+      requestWithBody({
+        ...validV2Payload,
+        sourceUrl: "https://unrelated-app.vercel.app/schedule",
+      }),
+    );
+    assert.equal(otherVercel.status, 400);
+    assert.equal(calls.length, 0);
+  });
+}
+
+async function testProductionRejectsLocalhostAndUserinfo() {
+  const previous = process.env.VERCEL_ENV;
+  process.env.VERCEL_ENV = "production";
+  try {
+    await withMockedFetch(async (calls) => {
+      const localhost = await postScheduleRequest(
+        requestWithBody({
+          ...validV2Payload,
+          sourceUrl: "http://localhost:3210/schedule",
+        }),
+      );
+      assert.equal(localhost.status, 400);
+      assert.equal(calls.length, 0);
+    });
+
+    await withMockedFetch(async (calls) => {
+      const userinfo = await postScheduleRequest(
+        requestWithBody({
+          ...validV2Payload,
+          sourceUrl: "https://user:secret@www.chriswongdds.com/schedule",
+        }),
+      );
+      assert.equal(userinfo.status, 400);
+      assert.equal(calls.length, 0);
+    });
+
+    await withMockedFetch(async (calls) => {
+      const missing = await postScheduleRequest(
+        requestWithBody({
+          ...validV2Payload,
+          source: undefined,
+          sourceUrl: undefined,
+        }),
+      );
+      assert.equal(missing.status, 400);
+      assert.equal(calls.length, 0);
+    });
+  } finally {
+    if (previous === undefined) delete process.env.VERCEL_ENV;
+    else process.env.VERCEL_ENV = previous;
+  }
 }
 
 async function testPerIpRateLimit() {
@@ -444,7 +521,82 @@ async function testPerIpRateLimit() {
       requestWithBody(validV2Payload, ip),
     );
     assert.equal(blocked.status, 429);
+    assert.equal(blocked.headers.get("Retry-After") !== null, true);
+    const body = (await blocked.json()) as { message?: string };
+    assert.match(String(body.message), /Too many requests/);
     assert.equal(calls.length, SCHEDULE_REQUEST_RATE_LIMIT.maxHits);
+  });
+}
+
+async function testRateLimitIgnoresHoneypotInvalidAndSpoofedXff() {
+  await withMockedFetch(async (calls) => {
+    const ip = "198.51.100.88";
+    for (let i = 0; i < SCHEDULE_REQUEST_RATE_LIMIT.maxHits; i += 1) {
+      const honeypot = await postScheduleRequest(
+        requestWithBody({ ...validV2Payload, company: "bot" }, ip),
+      );
+      assert.equal(honeypot.status, 200);
+    }
+
+    const invalid = await postScheduleRequest(
+      requestWithBody({ ...validV2Payload, source: "not-allowed" }, ip),
+    );
+    assert.equal(invalid.status, 400);
+
+    const accepted = await postScheduleRequest(requestWithBody(validV2Payload, ip));
+    assert.equal(accepted.status, 201);
+    assert.equal(calls.length, 1, "honeypot/invalid posts must not consume the slot");
+  });
+
+  await withMockedFetch(async (calls) => {
+    const spoofed = "203.0.113.200";
+    const trusted = "198.51.100.99";
+    for (let i = 0; i < SCHEDULE_REQUEST_RATE_LIMIT.maxHits; i += 1) {
+      const request = new NextRequest(
+        "https://www.chriswongdds.com/api/schedule-request",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-forwarded-for": spoofed,
+            "x-real-ip": trusted,
+          },
+          body: JSON.stringify(validV2Payload),
+        },
+      );
+      const response = await postScheduleRequest(request);
+      assert.equal(response.status, 201);
+    }
+
+    const blockedTrusted = await postScheduleRequest(
+      new NextRequest("https://www.chriswongdds.com/api/schedule-request", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-forwarded-for": spoofed,
+          "x-real-ip": trusted,
+        },
+        body: JSON.stringify(validV2Payload),
+      }),
+    );
+    assert.equal(blockedTrusted.status, 429);
+
+    const spoofOnly = await postScheduleRequest(
+      new NextRequest("https://www.chriswongdds.com/api/schedule-request", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-forwarded-for": spoofed,
+        },
+        body: JSON.stringify(validV2Payload),
+      }),
+    );
+    assert.equal(
+      spoofOnly.status,
+      201,
+      "first XFF hop must not be the rate-limit key",
+    );
+    assert.equal(calls.length, SCHEDULE_REQUEST_RATE_LIMIT.maxHits + 1);
   });
 }
 
@@ -676,7 +828,9 @@ async function testOptionalForwardingFailureIsSanitized() {
   await testFormspreeNonJsonIsFailure();
   await testFormspreeSuccessFalseIsFailure();
   await testSourceAllowlist();
+  await testProductionRejectsLocalhostAndUserinfo();
   await testPerIpRateLimit();
+  await testRateLimitIgnoresHoneypotInvalidAndSpoofedXff();
   await testDefaultFormspreeFallback();
   await testBlankEnvironmentFallsBackToDefaultFormspreeEndpoint();
   await testOptionalForwardingFailureIsSanitized();

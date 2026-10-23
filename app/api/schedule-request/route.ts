@@ -17,16 +17,19 @@ import {
 } from "@shared/scheduleRequest";
 import { describeLeadAttribution } from "@shared/attribution";
 import {
+  classifySourceHostKind,
   isAllowedScheduleSource,
   isAllowedScheduleSourceUrl,
   isExplicitSuccessBody,
   parseJsonBody,
+  resolveScheduleSourcePolicy,
+  type ScheduleSourceHostKind,
 } from "@shared/scheduleRequestPolicy";
 import { trackVercelServerEvent } from "../../../server/vercelAnalytics";
 import { validateJsonRequest } from "../../../server/requestPolicy";
 import {
   consumeScheduleRequestSlot,
-  getClientIp,
+  getTrustedClientIp,
 } from "../../../server/scheduleRateLimit";
 
 type ForwardingResult = {
@@ -38,6 +41,7 @@ type ScheduleDispatchPayload = Omit<ScheduleRequestV2, "phone" | "email"> & {
   phone?: string;
   email?: string;
   sourceUrl: string;
+  sourceHostKind: ScheduleSourceHostKind;
   utm: Record<string, string>;
   timestamp: string;
 };
@@ -180,6 +184,7 @@ const buildInboxMessage = (data: ScheduleDispatchPayload) => {
     `Insurance provider: ${data.insuranceProvider ?? "Not provided"}`,
     `Source URL: ${data.sourceUrl ?? "Unknown"}`,
     `Source: ${data.source ?? "Not provided"}`,
+    `Source host: ${data.sourceHostKind}`,
     `Lead channel: ${describeLeadAttribution(data.attribution)}`,
     `UTM: ${JSON.stringify(data.utm || {})}`,
     `Submitted: ${data.timestamp}`,
@@ -228,6 +233,7 @@ const postToFormspree = async (
     insurance_status: payload.insuranceProvider ?? "Not provided",
     source_url: payload.sourceUrl,
     source: payload.source ?? "schedule_page_form",
+    source_host_kind: payload.sourceHostKind,
     timestamp: payload.timestamp,
     utm_source: payload.utm.utm_source,
     utm_medium: payload.utm.utm_medium,
@@ -284,18 +290,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!consumeScheduleRequestSlot(getClientIp(request.headers))) {
-      return NextResponse.json(
-        {
-          message:
-            "Too many requests. Please wait a few minutes and try again, or call the office.",
-        },
-        { status: 429 },
-      );
-    }
-
     // Neutral ack for bots: 2xx so the UI stays quiet, but `accepted: false`
     // so the client must not fire generate_lead and nothing reaches the inbox.
+    // Honeypot and invalid bodies do not consume a rate-limit slot.
     if (isHoneypotTripped(body)) {
       return NextResponse.json({ ok: true, accepted: false }, { status: 200 });
     }
@@ -311,22 +308,40 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const sourceUrl =
-      parsedBody.sourceUrl ??
-      request.headers.get("referer") ??
-      null;
+    const sourcePolicy = resolveScheduleSourcePolicy();
+    const sourceUrl = parsedBody.sourceUrl ?? null;
+    const sourceHostKind = sourceUrl
+      ? classifySourceHostKind(sourceUrl)
+      : null;
 
-    if (!isAllowedScheduleSource(parsedBody.source)) {
+    if (!isAllowedScheduleSource(parsedBody.source, sourcePolicy)) {
       return NextResponse.json(
         { message: "Request source is not allowed." },
         { status: 400 },
       );
     }
 
-    if (!isAllowedScheduleSourceUrl(sourceUrl)) {
+    if (
+      !isAllowedScheduleSourceUrl(sourceUrl, sourcePolicy) ||
+      (sourcePolicy.requireSourceUrl && !sourceHostKind)
+    ) {
       return NextResponse.json(
         { message: "Request source URL is not allowed." },
         { status: 400 },
+      );
+    }
+
+    const rateLimit = consumeScheduleRequestSlot(getTrustedClientIp(request.headers));
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        {
+          message:
+            "Too many requests. Please wait a few minutes and try again, or call the office.",
+        },
+        {
+          status: 429,
+          headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
+        },
       );
     }
 
@@ -340,6 +355,7 @@ export async function POST(request: NextRequest) {
       message: sanitizeOptionalText(parsedBody.message),
       source: sanitizeOptionalText(parsedBody.source),
       sourceUrl: sourceUrl ?? "",
+      sourceHostKind: sourceHostKind ?? "production",
       utm,
       timestamp: new Date().toISOString(),
     };
@@ -366,6 +382,7 @@ export async function POST(request: NextRequest) {
         lead_channel: payload.attribution?.channel ?? "unknown",
         page_path: getAnalyticsPathFromUrl(sourceUrl) ?? "/schedule",
         source: payload.source ?? "schedule_page_form",
+        source_host_kind: payload.sourceHostKind,
       },
     );
 

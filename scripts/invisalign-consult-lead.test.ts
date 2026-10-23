@@ -119,16 +119,9 @@ function testSubmitUsesTimeoutAndRealSuccessFlag() {
   assert.match(form, /AbortController/);
   assert.match(form, /SCHEDULE_REQUEST_TIMEOUT_MS/);
   assert.match(form, /readScheduleRequestResult/);
-  assert.match(
-    form,
-    /const success = result\.accepted/,
-    "lead guard must use the parsed success flag, not a hardcoded true",
-  );
-  assert.doesNotMatch(
-    form,
-    /resolveAppointmentLeadEvent\(\{[\s\S]{0,240}success:\s*true/,
-    "hardcoded success:true would fire generate_lead on any 2xx",
-  );
+  assert.match(form, /planScheduleSubmitAnalytics/);
+  assert.match(form, /plan\.emitLead/);
+  assert.match(form, /plan\.emitSuccessEvents/);
 }
 
 testLeadFiresOnlyOnSuccess();
