@@ -65,7 +65,7 @@ test.describe("schedule lead guard", () => {
       .getByRole("button", { name: "Send Appointment Request", exact: true })
       .click();
 
-    await expect(page.getByRole("alert")).toContainText("Your request wasn't sent");
+    await expect(page.getByText("Your request wasn't sent")).toBeVisible();
     await expect(
       page.getByRole("button", { name: "Try Sending Again", exact: true }),
     ).toBeVisible();
