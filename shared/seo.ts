@@ -242,7 +242,7 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
   "/invisalign": {
     title: "Invisalign Palo Alto | Christopher B. Wong, DDS",
     description:
-      "Invisalign Palo Alto consults with Dr. Christopher B. Wong: a 3D digital scan, a clear plan, and check-ins that fit busy schedules. Pricing discussed at your consult.",
+      "Invisalign Palo Alto consults with Dr. Christopher B. Wong. A 3D scan, a clear plan, and check-ins that fit busy schedules. Pricing discussed at your consult.",
     canonicalPath: "/invisalign",
     ogImage: "/images/og/invisalign-itero-scan.jpg",
     primaryKeyword: "invisalign palo alto",
