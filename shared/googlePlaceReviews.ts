@@ -1,7 +1,8 @@
-import { officeInfo } from "./officeInfo";
+import { getOfficeTodayISO, officeInfo } from "./officeInfo";
 import {
   fallbackGoogleReviewStats,
   GOOGLE_REVIEW_COUNT,
+  MAX_GOOGLE_REVIEW_COUNT,
   PUBLISHED_REVIEW_COUNT,
   PUBLISHED_REVIEW_RATING,
   REVIEW_STATS_LAST_UPDATED,
@@ -14,8 +15,15 @@ export type { GoogleReviewStats, PublishedReviewStats, ReviewStatsSource } from 
 export const GOOGLE_PLACES_API_KEY_ENV = "GOOGLE_PLACES_API_KEY";
 export const GOOGLE_PLACE_ID_ENV = "GOOGLE_PLACE_ID";
 
-/** Daily ISR window for a live Places read. */
+/** Daily window for a successful live Places read. */
 export const GOOGLE_REVIEW_STATS_REVALIDATE_SECONDS = 86_400;
+
+/** Abort a hung Places request so SSR/build cannot stall. */
+export const GOOGLE_PLACES_FETCH_TIMEOUT_MS = 4_000;
+
+export function googleReviewStatsCacheKey(placeId: string): readonly string[] {
+  return ["google-place-review-stats", placeId];
+}
 
 type PlacesLiveFields = {
   readonly ratingValue: unknown;
@@ -36,7 +44,13 @@ export function readGooglePlacesApiKey(
 }
 
 export function isUsableReviewCount(value: unknown): value is number {
-  return typeof value === "number" && Number.isFinite(value) && Number.isInteger(value) && value > 0;
+  return (
+    typeof value === "number" &&
+    Number.isFinite(value) &&
+    Number.isInteger(value) &&
+    value >= GOOGLE_REVIEW_COUNT &&
+    value <= MAX_GOOGLE_REVIEW_COUNT
+  );
 }
 
 export function isUsableRating(value: unknown): value is number {
@@ -45,10 +59,6 @@ export function isUsableRating(value: unknown): value is number {
 
 function asFiniteNumber(value: unknown): number | null {
   if (typeof value === "number" && Number.isFinite(value)) return value;
-  if (typeof value === "string" && value.trim() !== "") {
-    const parsed = Number(value);
-    return Number.isFinite(parsed) ? parsed : null;
-  }
   return null;
 }
 
@@ -64,12 +74,11 @@ export function parsePlacesReviewFields(payload: unknown): PlacesLiveFields | nu
       ? (record.result as Record<string, unknown>)
       : null;
 
-  const ratingValue = asFiniteNumber(record.rating ?? result?.rating);
-  const reviewCount = asFiniteNumber(
-    record.userRatingCount ?? result?.user_ratings_total ?? record.user_ratings_total,
-  );
+  const ratingValue = record.rating ?? result?.rating;
+  const reviewCount =
+    record.userRatingCount ?? result?.user_ratings_total ?? record.user_ratings_total;
 
-  if (ratingValue === null && reviewCount === null) return null;
+  if (ratingValue === undefined && reviewCount === undefined) return null;
   return { ratingValue, reviewCount };
 }
 
@@ -93,16 +102,15 @@ export function resolveGoogleReviewStats(input: {
   if (!live) return fallback;
 
   const ratingValue = asFiniteNumber(live.ratingValue);
-  const reviewCount = asFiniteNumber(live.reviewCount);
-  if (!isUsableRating(ratingValue) || !isUsableReviewCount(reviewCount)) {
+  if (!isUsableRating(ratingValue) || !isUsableReviewCount(live.reviewCount)) {
     return fallback;
   }
 
   const now = input.now ?? new Date();
   return {
     ratingValue,
-    reviewCount,
-    lastUpdated: now.toISOString().slice(0, 10),
+    reviewCount: live.reviewCount,
+    lastUpdated: getOfficeTodayISO(now),
     source: "live",
   };
 }
@@ -133,12 +141,13 @@ export type LoadGoogleReviewStatsOptions = {
   readonly placeId?: string | null;
   readonly fetchImpl?: typeof fetch;
   readonly now?: Date;
+  readonly timeoutMs?: number;
 };
 
 /**
- * Server-safe loader. Missing credentials, network errors, non-OK responses,
- * and unusable payloads (0, blank, out of range) all return the committed
- * fallback. Never returns a 0 or empty count.
+ * Server-safe loader. Missing credentials, timeouts, network errors, non-OK
+ * responses, and unusable payloads (0, blank, out of range) all return the
+ * committed fallback. Never returns a 0 or empty count.
  */
 export async function loadGoogleReviewStats(
   options: LoadGoogleReviewStatsOptions = {},
@@ -150,15 +159,41 @@ export async function loadGoogleReviewStats(
   }
 
   const fetchImpl = options.fetchImpl ?? fetch;
+  const timeoutMs = options.timeoutMs ?? GOOGLE_PLACES_FETCH_TIMEOUT_MS;
+  const signal = AbortSignal.timeout(timeoutMs);
   try {
-    const response = await fetchImpl(placesDetailsUrl(placeId), {
-      method: "GET",
-      headers: {
-        "X-Goog-Api-Key": apiKey,
-        "X-Goog-FieldMask": "rating,userRatingCount",
-        Accept: "application/json",
-      },
-    });
+    const response = await Promise.race([
+      fetchImpl(placesDetailsUrl(placeId), {
+        method: "GET",
+        headers: {
+          "X-Goog-Api-Key": apiKey,
+          "X-Goog-FieldMask": "rating,userRatingCount",
+          Accept: "application/json",
+        },
+        signal,
+      }),
+      new Promise<Response>((_, reject) => {
+        const fail = () => {
+          const error = new Error("Places request timed out");
+          error.name = "TimeoutError";
+          reject(error);
+        };
+        const timer = setTimeout(fail, timeoutMs);
+        if (signal.aborted) {
+          clearTimeout(timer);
+          fail();
+          return;
+        }
+        signal.addEventListener(
+          "abort",
+          () => {
+            clearTimeout(timer);
+            fail();
+          },
+          { once: true },
+        );
+      }),
+    ]);
     if (!response.ok) {
       return fallbackGoogleReviewSnapshot();
     }
@@ -177,6 +212,44 @@ export function assertUsableGoogleReviewStats(stats: GoogleReviewStats): GoogleR
     return fallbackGoogleReviewSnapshot();
   }
   return stats;
+}
+
+export type ResolveGoogleReviewStatsDeps = {
+  readonly apiKey?: string | null;
+  readonly placeId?: string;
+  readonly load?: (options: LoadGoogleReviewStatsOptions) => Promise<GoogleReviewStats>;
+  readonly readLiveCache?: (placeId: string) => Promise<GoogleReviewStats | null>;
+  readonly writeLiveCache?: (placeId: string, stats: GoogleReviewStats) => Promise<void> | void;
+  readonly now?: Date;
+};
+
+/**
+ * Resolve live-or-fallback stats. Only successful live snapshots are written
+ * to cache; fallbacks are returned immediately and never pinned.
+ */
+export async function getResolvedGoogleReviewStats(
+  deps: ResolveGoogleReviewStatsDeps = {},
+): Promise<PublishedReviewStats> {
+  const placeId = (deps.placeId ?? defaultGooglePlaceId()).trim();
+  const apiKey = deps.apiKey === undefined ? readGooglePlacesApiKey() : deps.apiKey;
+  const load = deps.load ?? loadGoogleReviewStats;
+
+  if (!apiKey || !placeId) {
+    return withPublishedReviewCount(fallbackGoogleReviewSnapshot());
+  }
+
+  const cached = deps.readLiveCache ? await deps.readLiveCache(placeId) : null;
+  if (cached?.source === "live") {
+    return withPublishedReviewCount(assertUsableGoogleReviewStats(cached));
+  }
+
+  const stats = assertUsableGoogleReviewStats(
+    await load({ apiKey, placeId, now: deps.now }),
+  );
+  if (stats.source === "live" && deps.writeLiveCache) {
+    await deps.writeLiveCache(placeId, stats);
+  }
+  return withPublishedReviewCount(stats);
 }
 
 export const committedGoogleReviewCopy = {

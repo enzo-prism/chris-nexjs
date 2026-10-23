@@ -4,6 +4,8 @@ import { describe, it } from "node:test";
 import {
   displayedAggregateRating,
   fallbackGoogleReviewSnapshot,
+  getResolvedGoogleReviewStats,
+  googleReviewStatsCacheKey,
   isUsableRating,
   isUsableReviewCount,
   loadGoogleReviewStats,
@@ -12,8 +14,10 @@ import {
   resolveGoogleReviewStats,
   withPublishedReviewCount,
 } from "../shared/googlePlaceReviews";
+import { getGoogleReviewStats } from "../server/googlePlaceReviews";
 import {
   GOOGLE_REVIEW_COUNT,
+  MAX_GOOGLE_REVIEW_COUNT,
   PUBLISHED_REVIEW_COUNT,
   PUBLISHED_REVIEW_RATING,
   REVIEW_STATS_LAST_UPDATED,
@@ -30,6 +34,31 @@ function jsonResponse(body: unknown, status = 200): Response {
   });
 }
 
+function hangingPlacesFetch(_input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  return new Promise((_resolve, reject) => {
+    const fail = () => {
+      const error = new Error("The operation was aborted");
+      error.name = "TimeoutError";
+      reject(error);
+    };
+    const timer = setTimeout(fail, 250);
+    const signal = init?.signal;
+    if (!signal || signal.aborted) {
+      clearTimeout(timer);
+      fail();
+      return;
+    }
+    signal.addEventListener(
+      "abort",
+      () => {
+        clearTimeout(timer);
+        fail();
+      },
+      { once: true },
+    );
+  });
+}
+
 describe("committed review stats", () => {
   it("keeps the published aggregate aligned with the displayed constants", () => {
     assert.equal(publishedTestimonialAggregateRating.ratingValue, PUBLISHED_REVIEW_RATING);
@@ -37,6 +66,21 @@ describe("committed review stats", () => {
     assert.equal(REVIEW_STATS_LAST_UPDATED, "2026-09-23");
     assert.ok(GOOGLE_REVIEW_COUNT > 0);
     assert.ok(PUBLISHED_REVIEW_COUNT >= GOOGLE_REVIEW_COUNT);
+  });
+});
+
+describe("isUsableReviewCount", () => {
+  it("accepts only finite integers between the fallback and fallback*3", () => {
+    assert.equal(isUsableReviewCount(GOOGLE_REVIEW_COUNT), true);
+    assert.equal(isUsableReviewCount(401), true);
+    assert.equal(isUsableReviewCount(MAX_GOOGLE_REVIEW_COUNT), true);
+    assert.equal(isUsableReviewCount(GOOGLE_REVIEW_COUNT - 1), false);
+    assert.equal(isUsableReviewCount(MAX_GOOGLE_REVIEW_COUNT + 1), false);
+    assert.equal(isUsableReviewCount(0), false);
+    assert.equal(isUsableReviewCount(12.5), false);
+    assert.equal(isUsableReviewCount("400"), false);
+    assert.equal(isUsableReviewCount("382"), false);
+    assert.equal(isUsableReviewCount(null), false);
   });
 });
 
@@ -71,13 +115,16 @@ describe("resolveGoogleReviewStats fallback path", () => {
     assert.ok(stats.reviewCount > 0);
   });
 
-  it("falls back when the live count is 0, blank, or negative", () => {
+  it("falls back when the live count is 0, blank, a string, or out of bounds", () => {
     const zeros = [
       { ratingValue: 5, reviewCount: 0 },
       { ratingValue: 5, reviewCount: null },
       { ratingValue: 5, reviewCount: "" },
+      { ratingValue: 5, reviewCount: "400" },
       { ratingValue: 5, reviewCount: -1 },
       { ratingValue: 5, reviewCount: 12.5 },
+      { ratingValue: 5, reviewCount: GOOGLE_REVIEW_COUNT - 1 },
+      { ratingValue: 5, reviewCount: MAX_GOOGLE_REVIEW_COUNT + 1 },
     ];
     for (const live of zeros) {
       const stats = resolveGoogleReviewStats({ live });
@@ -102,7 +149,7 @@ describe("resolveGoogleReviewStats fallback path", () => {
     }
   });
 
-  it("accepts a usable live payload and keeps aggregateRating in lockstep", () => {
+  it("accepts a usable live payload, uses Pacific lastUpdated, and keeps aggregateRating in lockstep", () => {
     const stats = resolveGoogleReviewStats({
       live: { ratingValue: 4.9, reviewCount: 401 },
       now: NOW,
@@ -115,6 +162,15 @@ describe("resolveGoogleReviewStats fallback path", () => {
       ratingValue: 4.9,
       reviewCount: 401,
     });
+  });
+
+  it("computes lastUpdated in America/Los_Angeles, not UTC", () => {
+    // 06:30 UTC on Oct 24 is still Oct 23 in Pacific Daylight Time.
+    const stats = resolveGoogleReviewStats({
+      live: { ratingValue: 4.9, reviewCount: 401 },
+      now: new Date("2026-10-24T06:30:00.000Z"),
+    });
+    assert.equal(stats.lastUpdated, "2026-10-23");
   });
 });
 
@@ -178,6 +234,19 @@ describe("loadGoogleReviewStats fallback path", () => {
     assert.ok(isUsableRating(stats.ratingValue));
   });
 
+  it("falls back when a hanging Places fetch times out or aborts", async () => {
+    const started = Date.now();
+    const stats = await loadGoogleReviewStats({
+      apiKey: "test-key",
+      placeId: officeInfo.googlePlaceId,
+      timeoutMs: 40,
+      fetchImpl: hangingPlacesFetch,
+    });
+    assert.ok(Date.now() - started < 1000, "hanging fetch must not stall the render");
+    assert.equal(stats.source, "fallback");
+    assert.equal(stats.reviewCount, GOOGLE_REVIEW_COUNT);
+  });
+
   it("uses the live count when Places returns a usable payload", async () => {
     const stats = await loadGoogleReviewStats({
       apiKey: "test-key",
@@ -197,5 +266,65 @@ describe("loadGoogleReviewStats fallback path", () => {
       ratingValue: 5,
       reviewCount: 405,
     });
+  });
+});
+
+describe("server wrapper cache policy", () => {
+  it("includes the place ID in the live cache key", () => {
+    assert.deepEqual(googleReviewStatsCacheKey("ChIJ-test"), [
+      "google-place-review-stats",
+      "ChIJ-test",
+    ]);
+  });
+
+  it("does not write a fallback into the live cache", async () => {
+    const writes: string[] = [];
+    const stats = await getGoogleReviewStats({
+      apiKey: "test-key",
+      placeId: officeInfo.googlePlaceId,
+      load: async () => fallbackGoogleReviewSnapshot(),
+      writeLiveCache: (placeId) => {
+        writes.push(placeId);
+      },
+    });
+    assert.equal(stats.source, "fallback");
+    assert.equal(stats.reviewCount, GOOGLE_REVIEW_COUNT);
+    assert.deepEqual(writes, []);
+  });
+
+  it("caches only a successful live snapshot, keyed by place ID", async () => {
+    const cache = new Map<string, ReturnType<typeof fallbackGoogleReviewSnapshot>>();
+    const live = {
+      ratingValue: 4.9,
+      reviewCount: 401,
+      lastUpdated: "2026-10-23",
+      source: "live" as const,
+    };
+    const first = await getGoogleReviewStats({
+      apiKey: "test-key",
+      placeId: officeInfo.googlePlaceId,
+      load: async () => live,
+      readLiveCache: async (placeId) => cache.get(placeId) ?? null,
+      writeLiveCache: (placeId, stats) => {
+        cache.set(placeId, stats);
+      },
+    });
+    assert.equal(first.source, "live");
+    assert.equal(first.reviewCount, 401);
+    assert.equal(cache.get(officeInfo.googlePlaceId)?.source, "live");
+
+    let loaded = 0;
+    const second = await getGoogleReviewStats({
+      apiKey: "test-key",
+      placeId: officeInfo.googlePlaceId,
+      load: async () => {
+        loaded += 1;
+        return fallbackGoogleReviewSnapshot();
+      },
+      readLiveCache: async (placeId) => cache.get(placeId) ?? null,
+    });
+    assert.equal(loaded, 0);
+    assert.equal(second.reviewCount, 401);
+    assert.equal(second.source, "live");
   });
 });

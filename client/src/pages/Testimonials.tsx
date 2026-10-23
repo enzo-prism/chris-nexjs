@@ -13,6 +13,8 @@ import { PageHero } from "@/components/ds/PageHero";
 import { StarRow } from "@/components/ds/Reviews";
 import { Section } from "@/components/ds/Section";
 import { SectionHeading } from "@/components/ds/SectionHeading";
+import { GoogleReviewProof } from "@/components/reviews/GoogleReviewProof";
+import { useReviewStats } from "@/components/reviews/ReviewStatsProvider";
 import { HandwrittenNote } from "@/components/trust/HandwrittenNote";
 import { drWong, team } from "@/data/team";
 import { officeInfo } from "@/lib/data";
@@ -20,17 +22,10 @@ import { buildBreadcrumbSchema } from "@/lib/structuredData";
 import { isNoAdditionalCommentPlaceholder } from "@/lib/testimonialText";
 import { cn } from "@/lib/utils";
 import type { Testimonial } from "@shared/schema";
-import {
-  GOOGLE_REVIEW_COUNT,
-  PUBLISHED_REVIEW_COUNT,
-  type PublishedReviewStats,
-} from "@shared/reviewStats";
 
 type TestimonialsProps = {
   /** Server-rendered published reviews (app/testimonials/page.tsx). */
   readonly initialTestimonials?: Testimonial[];
-  /** Live-or-fallback Google totals from the server loader. */
-  readonly reviewStats?: PublishedReviewStats;
   /** Present when mounted by the legacy wouter router (unused). */
   readonly params?: unknown;
 };
@@ -116,7 +111,7 @@ function sourceOf(review: Testimonial): "Google" | "Yelp" {
   return review.location?.toLowerCase().includes("yelp") ? "Yelp" : "Google";
 }
 
-const Testimonials = ({ initialTestimonials, reviewStats }: TestimonialsProps) => {
+const Testimonials = ({ initialTestimonials }: TestimonialsProps) => {
   const {
     data,
     isLoading,
@@ -159,10 +154,7 @@ const Testimonials = ({ initialTestimonials, reviewStats }: TestimonialsProps) =
 
   const breadcrumb = buildBreadcrumbSchema(breadcrumbItems);
   const showSkeleton = isLoading && reviews.length === 0;
-  const googleReviewCount = reviewStats?.reviewCount ?? GOOGLE_REVIEW_COUNT;
-  const publishedReviewCount = reviewStats?.publishedReviewCount ?? PUBLISHED_REVIEW_COUNT;
-  const googleReviewLabel =
-    reviewStats?.source === "live" ? "Google reviews" : "five-star Google reviews";
+  const { publishedReviewCount } = useReviewStats();
 
   return (
     <>
@@ -202,8 +194,8 @@ const Testimonials = ({ initialTestimonials, reviewStats }: TestimonialsProps) =
               <Image
                 src="/images/redesign/dr-wong-atrium-smile-portrait.webp"
                 alt="Dr. Christopher B. Wong smiling in the office atrium"
-                width={1280}
-                height={720}
+                width={800}
+                height={1000}
                 priority
                 fetchPriority="high"
                 sizes="(max-width: 1024px) 100vw, 42vw"
@@ -211,11 +203,7 @@ const Testimonials = ({ initialTestimonials, reviewStats }: TestimonialsProps) =
               />
               <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-evergreen-950/85 via-evergreen-950/20 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-5 text-cream-50 sm:p-7">
-                <StarRow size="h-5 w-5" label="Five stars" />
-                <p className="mt-2 flex items-baseline gap-3">
-                  <span className="font-heading text-[3.6rem] font-medium leading-none sm:text-[4.6rem]">{googleReviewCount}</span>
-                  <span className="max-w-[11rem] text-[15px] font-semibold leading-snug text-cream-100">{googleReviewLabel}</span>
-                </p>
+                <GoogleReviewProof surface="testimonials-hero" variant="hero" />
                 <p className="mt-3 text-sm leading-6 text-cream-100/85">
                   {publishedReviewCount} published five-star reviews in all, including Yelp. Read every one below.
                 </p>

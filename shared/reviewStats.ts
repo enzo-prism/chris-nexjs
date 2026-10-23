@@ -52,3 +52,38 @@ export const fallbackGoogleReviewStats: GoogleReviewStats = {
   lastUpdated: REVIEW_STATS_LAST_UPDATED,
   source: "fallback",
 };
+
+export const fallbackPublishedReviewStats: PublishedReviewStats = {
+  ...fallbackGoogleReviewStats,
+  publishedReviewCount: PUBLISHED_REVIEW_COUNT,
+};
+
+/** Live counts this high above the committed snapshot are treated as unusable. */
+export const MAX_GOOGLE_REVIEW_COUNT = GOOGLE_REVIEW_COUNT * 3;
+
+export function formatGoogleRating(rating: number): string {
+  return (Math.round(rating * 10) / 10).toFixed(1);
+}
+
+/**
+ * Visible Google-count copy. Fallback stats are the committed five-star
+ * snapshot; live Places totals are all ratings, so those never say "five-star".
+ */
+export function googleReviewProofLabel(stats: GoogleReviewStats): string {
+  if (stats.source === "fallback") {
+    return `${stats.reviewCount} five-star Google reviews`;
+  }
+  return `${formatGoogleRating(stats.ratingValue)} from ${stats.reviewCount} Google reviews`;
+}
+
+export function googleReviewHeadingLabel(stats: GoogleReviewStats): string {
+  if (stats.source === "fallback") {
+    return `${stats.reviewCount} five-star reviews`;
+  }
+  return `${formatGoogleRating(stats.ratingValue)} from ${stats.reviewCount} Google reviews`;
+}
+
+export function googleReviewStarLabel(stats: GoogleReviewStats): string {
+  if (stats.source === "fallback") return "Five stars";
+  return `${formatGoogleRating(stats.ratingValue)} Google rating`;
+}
