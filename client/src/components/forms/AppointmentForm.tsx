@@ -53,8 +53,14 @@ import {
 import { ANALYTICS_EVENTS, getAnalyticsPageContext } from "@shared/analytics";
 import {
   DEFAULT_APPOINTMENT_LEAD_FORM_NAME,
+  publishScheduleOutcome,
   resolveAppointmentLeadEvent,
 } from "@/lib/appointmentLead";
+import {
+  SCHEDULE_REQUEST_TIMEOUT_MS,
+  parseJsonBody,
+  readScheduleRequestResult,
+} from "@shared/scheduleRequestPolicy";
 import { FeatureIcon } from "@/components/common/FeatureIcon";
 import { cn } from "@/lib/utils";
 
@@ -313,7 +319,13 @@ const getScheduleFailureReason = (error: unknown): string => {
   if (message.includes("phone") || message.includes("valid")) {
     return "validation_error";
   }
-  if (message.includes("fetch") || message.includes("network")) {
+  if (
+    error.name === "AbortError" ||
+    message.includes("abort") ||
+    message.includes("timeout") ||
+    message.includes("fetch") ||
+    message.includes("network")
+  ) {
     return "network_error";
   }
   return "server_error";
@@ -1012,6 +1024,7 @@ const AppointmentForm = ({
   const honeypotRef = useRef<HTMLInputElement>(null);
   const shouldFocusHeadingRef = useRef(false);
   const pendingFocusFieldRef = useRef<FieldPath<ScheduleFormValues> | null>(null);
+  const submitInFlightRef = useRef(false);
   const stepTrackingRef = useRef<{ index: number; name: StepName }>({
     index: 1,
     name: "visit_needs",
@@ -1375,6 +1388,10 @@ const AppointmentForm = ({
 
     const payload = parsedPayload.data as ScheduleRequestV2;
 
+    if (submitInFlightRef.current) {
+      return;
+    }
+
     trackGAEvent("schedule_submit_attempt", {
       source: "schedule_page_form",
       step_index: activeStep,
@@ -1386,6 +1403,12 @@ const AppointmentForm = ({
     setStatus("submitting");
     setErrorMessage("");
     setErrorSummary([]);
+    submitInFlightRef.current = true;
+
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => {
+      controller.abort();
+    }, SCHEDULE_REQUEST_TIMEOUT_MS);
 
     try {
       const response = await fetch("/api/schedule-request", {
@@ -1397,13 +1420,16 @@ const AppointmentForm = ({
           ...payload,
           [HONEYPOT_FIELD]: honeypotRef.current?.value ?? "",
         }),
+        signal: controller.signal,
       });
 
-      if (!response.ok) {
-        const parsed = await response
-          .json()
-          .catch(() => ({ message: "Something went wrong. Please try again." }));
-        throw new Error(parsed?.message ?? "Something went wrong. Please try again.");
+      const parsedBody = parseJsonBody(await response.text());
+      const result = readScheduleRequestResult(response.status, parsedBody);
+      const submitted = true;
+      const success = result.accepted;
+
+      if (!result.accepted && !result.neutral) {
+        throw new Error(result.message);
       }
 
       trackGAEvent("schedule_submit_success", {
@@ -1413,8 +1439,8 @@ const AppointmentForm = ({
       });
 
       const leadEvent = resolveAppointmentLeadEvent({
-        submitted: true,
-        success: true,
+        submitted,
+        success,
         formName: leadFormName,
         appointmentType: rawData.appointmentType,
         schedulingMode: rawData.schedulingMode,
@@ -1423,6 +1449,12 @@ const AppointmentForm = ({
         leadChannel: leadAttribution?.attribution.channel ?? "unknown",
         pagePath: pageContext.page_path,
         pageCategory: pageContext.page_category,
+      });
+      publishScheduleOutcome({
+        submitted,
+        success,
+        leadFired: Boolean(leadEvent),
+        formName: leadFormName,
       });
       if (leadEvent) {
         trackLeadConversion(leadEvent.eventName, leadEvent.properties);
@@ -1470,6 +1502,12 @@ const AppointmentForm = ({
       setStep(1);
       reset();
     } catch (error) {
+      publishScheduleOutcome({
+        submitted: true,
+        success: false,
+        leadFired: false,
+        formName: leadFormName,
+      });
       setErrorMessage(getScheduleErrorMessage(error));
       trackAnalyticsEvent(ANALYTICS_EVENTS.scheduleSubmitFailure, {
         source: "schedule_page_form",
@@ -1478,6 +1516,9 @@ const AppointmentForm = ({
       });
       setStatus("error");
       window.requestAnimationFrame(() => errorAlertRef.current?.focus());
+    } finally {
+      window.clearTimeout(timeoutId);
+      submitInFlightRef.current = false;
     }
   };
 

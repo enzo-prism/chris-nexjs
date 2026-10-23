@@ -16,8 +16,18 @@ import {
   type ScheduleRequestV2,
 } from "@shared/scheduleRequest";
 import { describeLeadAttribution } from "@shared/attribution";
+import {
+  isAllowedScheduleSource,
+  isAllowedScheduleSourceUrl,
+  isExplicitSuccessBody,
+  parseJsonBody,
+} from "@shared/scheduleRequestPolicy";
 import { trackVercelServerEvent } from "../../../server/vercelAnalytics";
 import { validateJsonRequest } from "../../../server/requestPolicy";
+import {
+  consumeScheduleRequestSlot,
+  getClientIp,
+} from "../../../server/scheduleRateLimit";
 
 type ForwardingResult = {
   enabled: boolean;
@@ -249,8 +259,10 @@ const postToFormspree = async (
     signal: AbortSignal.timeout(8_000),
   });
 
-  if (!response.ok) {
-    const details = await response.text().catch(() => "No response body");
+  const details = await response.text().catch(() => "");
+  const parsed = parseJsonBody(details);
+
+  if (!response.ok || !isExplicitSuccessBody(parsed)) {
     throw new Error(
       `Office inbox request failed with ${response.status}: ${details.slice(0, 400)}`,
     );
@@ -272,10 +284,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Silently accept honeypot-tripped submissions: bots see success, but the
-    // request is never forwarded to the office inbox.
+    if (!consumeScheduleRequestSlot(getClientIp(request.headers))) {
+      return NextResponse.json(
+        {
+          message:
+            "Too many requests. Please wait a few minutes and try again, or call the office.",
+        },
+        { status: 429 },
+      );
+    }
+
+    // Neutral ack for bots: 2xx so the UI stays quiet, but `accepted: false`
+    // so the client must not fire generate_lead and nothing reaches the inbox.
     if (isHoneypotTripped(body)) {
-      return NextResponse.json({ ok: true }, { status: 201 });
+      return NextResponse.json({ ok: true, accepted: false }, { status: 200 });
     }
 
     const parsedBody = normalizeIncomingScheduleRequest(body);
@@ -293,6 +315,21 @@ export async function POST(request: NextRequest) {
       parsedBody.sourceUrl ??
       request.headers.get("referer") ??
       null;
+
+    if (!isAllowedScheduleSource(parsedBody.source)) {
+      return NextResponse.json(
+        { message: "Request source is not allowed." },
+        { status: 400 },
+      );
+    }
+
+    if (!isAllowedScheduleSourceUrl(sourceUrl)) {
+      return NextResponse.json(
+        { message: "Request source URL is not allowed." },
+        { status: 400 },
+      );
+    }
+
     const utm = mergeUtmParams(sourceUrl, parsedBody.utmParams);
 
     const payload: ScheduleDispatchPayload = {

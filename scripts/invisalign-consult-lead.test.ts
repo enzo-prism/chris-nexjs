@@ -93,7 +93,8 @@ function testAdsPageKeepsHeldOutCopyOut() {
   const form = readFileSync("client/src/components/forms/AppointmentForm.tsx", "utf8");
 
   assert.match(page, /Request an Invisalign consult/);
-  assert.match(page, /requestSource="invisalign-ads"/);
+  assert.match(page, /requestSource=\{INVISALIGN_CONSULT_FORM_NAME\}/);
+  assert.doesNotMatch(page, /requestSource="invisalign-ads"/);
   assert.match(page, /getAppointmentTypeForIntent\("invisalign"\)/);
   assert.match(page, /collapseAppointmentTypes/);
   assert.match(page, /className="bg-white"/);
@@ -113,6 +114,23 @@ function testAdsPageKeepsHeldOutCopyOut() {
   assert.doesNotMatch(form, /rgba\(37,\s*99,\s*235/);
 }
 
+function testSubmitUsesTimeoutAndRealSuccessFlag() {
+  const form = readFileSync("client/src/components/forms/AppointmentForm.tsx", "utf8");
+  assert.match(form, /AbortController/);
+  assert.match(form, /SCHEDULE_REQUEST_TIMEOUT_MS/);
+  assert.match(form, /readScheduleRequestResult/);
+  assert.match(
+    form,
+    /const success = result\.accepted/,
+    "lead guard must use the parsed success flag, not a hardcoded true",
+  );
+  assert.doesNotMatch(
+    form,
+    /resolveAppointmentLeadEvent\(\{[\s\S]{0,240}success:\s*true/,
+    "hardcoded success:true would fire generate_lead on any 2xx",
+  );
+}
+
 testLeadFiresOnlyOnSuccess();
 testLeadDoesNotFireOnFailure();
 testScheduleFormNameUnchanged();
@@ -120,5 +138,6 @@ testIntentPrefillsInvisalignConsultation();
 testVisitTypeToggleHasDisclosureSemantics();
 testHeroReviewChipStaysFourteenPxOnNarrowViewports();
 testAdsPageKeepsHeldOutCopyOut();
+testSubmitUsesTimeoutAndRealSuccessFlag();
 
 console.log("invisalign consult lead tests passed");
