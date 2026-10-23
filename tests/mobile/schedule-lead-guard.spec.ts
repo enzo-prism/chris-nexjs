@@ -293,13 +293,17 @@ test.describe("schedule lead guard", () => {
     await expect(page.getByRole("button", { name: /^back$/i })).toBeEnabled();
     await page.getByLabel("First name").fill("Jordan");
     await expect(page.getByLabel("First name")).toHaveValue("Jordan");
+    // Editing a field clears the error status, so the idle submit label returns
+    // while the 429 window still keeps Submit disabled.
+    const submit = page.getByRole("button", { name: "Send Appointment Request", exact: true });
+    await expect(submit).toBeDisabled();
     await page.getByRole("button", { name: /^back$/i }).click();
     await expect(
       page.getByRole("button", { name: /continue to contact details/i }),
     ).toBeEnabled();
     expect(await countGtagEvents(page, "generate_lead")).toBe(0);
     await page.getByRole("button", { name: /continue to contact details/i }).click();
-    await expect(retry).toBeEnabled({ timeout: 5_000 });
+    await expect(submit).toBeEnabled({ timeout: 5_000 });
   });
 
   test("form posts source and sourceUrl on /schedule", async ({ page }) => {
