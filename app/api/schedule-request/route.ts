@@ -22,8 +22,8 @@ import {
   isAllowedScheduleSourceUrl,
   isExplicitSuccessBody,
   parseJsonBody,
+  previewSourceHostTag,
   resolveScheduleSourcePolicy,
-  type ScheduleSourceHostKind,
 } from "@shared/scheduleRequestPolicy";
 import { trackVercelServerEvent } from "../../../server/vercelAnalytics";
 import { validateJsonRequest } from "../../../server/requestPolicy";
@@ -41,7 +41,7 @@ type ScheduleDispatchPayload = Omit<ScheduleRequestV2, "phone" | "email"> & {
   phone?: string;
   email?: string;
   sourceUrl: string;
-  sourceHostKind: ScheduleSourceHostKind;
+  sourceHostKind?: "preview";
   utm: Record<string, string>;
   timestamp: string;
 };
@@ -184,7 +184,7 @@ const buildInboxMessage = (data: ScheduleDispatchPayload) => {
     `Insurance provider: ${data.insuranceProvider ?? "Not provided"}`,
     `Source URL: ${data.sourceUrl ?? "Unknown"}`,
     `Source: ${data.source ?? "Not provided"}`,
-    `Source host: ${data.sourceHostKind}`,
+    ...(data.sourceHostKind === "preview" ? (["Source host: preview"] as const) : []),
     `Lead channel: ${describeLeadAttribution(data.attribution)}`,
     `UTM: ${JSON.stringify(data.utm || {})}`,
     `Submitted: ${data.timestamp}`,
@@ -233,7 +233,9 @@ const postToFormspree = async (
     insurance_status: payload.insuranceProvider ?? "Not provided",
     source_url: payload.sourceUrl,
     source: payload.source ?? "schedule_page_form",
-    source_host_kind: payload.sourceHostKind,
+    ...(payload.sourceHostKind === "preview"
+      ? { source_host_kind: "preview" as const }
+      : {}),
     timestamp: payload.timestamp,
     utm_source: payload.utm.utm_source,
     utm_medium: payload.utm.utm_medium,
@@ -310,9 +312,9 @@ export async function POST(request: NextRequest) {
 
     const sourcePolicy = resolveScheduleSourcePolicy();
     const sourceUrl = parsedBody.sourceUrl ?? null;
-    const sourceHostKind = sourceUrl
-      ? classifySourceHostKind(sourceUrl)
-      : null;
+    const sourceHostKind = previewSourceHostTag(
+      sourceUrl ? classifySourceHostKind(sourceUrl) : null,
+    );
 
     if (!isAllowedScheduleSource(parsedBody.source, sourcePolicy)) {
       return NextResponse.json(
@@ -321,10 +323,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (
-      !isAllowedScheduleSourceUrl(sourceUrl, sourcePolicy) ||
-      (sourcePolicy.requireSourceUrl && !sourceHostKind)
-    ) {
+    if (!isAllowedScheduleSourceUrl(sourceUrl, sourcePolicy)) {
       return NextResponse.json(
         { message: "Request source URL is not allowed." },
         { status: 400 },
@@ -355,7 +354,7 @@ export async function POST(request: NextRequest) {
       message: sanitizeOptionalText(parsedBody.message),
       source: sanitizeOptionalText(parsedBody.source),
       sourceUrl: sourceUrl ?? "",
-      sourceHostKind: sourceHostKind ?? "production",
+      ...(sourceHostKind ? { sourceHostKind } : {}),
       utm,
       timestamp: new Date().toISOString(),
     };
@@ -382,7 +381,9 @@ export async function POST(request: NextRequest) {
         lead_channel: payload.attribution?.channel ?? "unknown",
         page_path: getAnalyticsPathFromUrl(sourceUrl) ?? "/schedule",
         source: payload.source ?? "schedule_page_form",
-        source_host_kind: payload.sourceHostKind,
+        ...(payload.sourceHostKind === "preview"
+          ? { source_host_kind: "preview" }
+          : {}),
       },
     );
 

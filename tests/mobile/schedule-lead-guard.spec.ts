@@ -21,7 +21,6 @@ const ROUTES = ["/schedule", "/invisalign-consult"] as const;
 async function installGtagProbe(page: Page): Promise<void> {
   await page.addInitScript(() => {
     window.dataLayer = [];
-    window.__cwForceAnalytics = true;
     window.gtag = (...args: unknown[]) => {
       window.dataLayer = window.dataLayer ?? [];
       window.dataLayer.push(args);
@@ -291,7 +290,37 @@ test.describe("schedule lead guard", () => {
     await expect(page.getByText("Too many requests.")).toBeVisible();
     const retry = page.getByRole("button", { name: "Try Sending Again", exact: true });
     await expect(retry).toBeDisabled();
+    await expect(page.getByRole("button", { name: /^back$/i })).toBeEnabled();
+    await page.getByLabel("First name").fill("Jordan");
+    await expect(page.getByLabel("First name")).toHaveValue("Jordan");
+    await page.getByRole("button", { name: /^back$/i }).click();
+    await expect(
+      page.getByRole("button", { name: /continue to contact details/i }),
+    ).toBeEnabled();
     expect(await countGtagEvents(page, "generate_lead")).toBe(0);
+    await page.getByRole("button", { name: /continue to contact details/i }).click();
     await expect(retry).toBeEnabled({ timeout: 5_000 });
+  });
+
+  test("form posts source and sourceUrl on /schedule", async ({ page }) => {
+    let posted: { source?: string; sourceUrl?: string } = {};
+    await mockScheduleApi(page, async (route) => {
+      posted = route.request().postDataJSON() as typeof posted;
+      await route.fulfill({
+        status: 201,
+        contentType: "application/json",
+        body: JSON.stringify({ success: true }),
+      });
+    });
+
+    await openContactStep(page, "/schedule");
+    await page
+      .getByRole("button", { name: "Send Appointment Request", exact: true })
+      .click();
+    await expect(
+      page.getByRole("heading", { name: "We'll confirm your appointment shortly." }),
+    ).toBeVisible();
+    expect(posted.source).toBe("schedule_page_form_v2");
+    expect(posted.sourceUrl).toMatch(/\/schedule/);
   });
 });

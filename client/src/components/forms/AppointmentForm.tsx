@@ -1650,7 +1650,8 @@ const AppointmentForm = ({
     );
   }
 
-  const submitLocked = isSubmitting || status === "submitting" || rateLimited;
+  const submitInFlight = isSubmitting || status === "submitting";
+  const submitDisabled = submitInFlight || rateLimited;
   const progressPercent = Math.round((activeStep / totalSteps) * 100);
   const formClasses = cn(
     presentation === "funnel" ? "space-y-7" : "space-y-6",
@@ -1674,7 +1675,7 @@ const AppointmentForm = ({
         className={formClasses}
         autoComplete="on"
         noValidate
-        aria-busy={submitLocked}
+        aria-busy={submitInFlight}
         data-hj-suppress
       >
         {/* Honeypot — hidden from real users; bots that fill it are dropped. */}
@@ -1910,7 +1911,7 @@ const AppointmentForm = ({
                   variant="outline"
                   className="ui-focus-premium min-h-11 flex-1 sm:flex-none"
                   onClick={goToPreviousStep}
-                  disabled={submitLocked}
+                  disabled={submitInFlight}
                 >
                   <ChevronLeft className="mr-1 h-4 w-4" aria-hidden="true" />
                   Back
@@ -1920,7 +1921,7 @@ const AppointmentForm = ({
                 <Button
                   type="submit"
                   className="ui-btn-primary min-h-11 flex-1 text-base font-semibold sm:min-w-[200px]"
-                  disabled={submitLocked}
+                  disabled={submitDisabled}
                 >
                   {isSubmitting || status === "submitting"
                     ? "Sending request..."
@@ -1936,7 +1937,7 @@ const AppointmentForm = ({
                     event.preventDefault();
                     goToNextStep();
                   }}
-                  disabled={submitLocked}
+                  disabled={submitInFlight}
                 >
                   {nextButtonLabel}
                   <ChevronRight className="ml-1 h-4 w-4" aria-hidden="true" />
@@ -1969,7 +1970,7 @@ const AppointmentForm = ({
                 variant="outline"
                 className="ui-focus-premium min-h-11 flex-1"
                 onClick={goToPreviousStep}
-                disabled={activeStep === 1 || submitLocked}
+                disabled={activeStep === 1 || submitInFlight}
               >
                 <ChevronLeft className="mr-1 h-4 w-4" aria-hidden="true" />
                 Back
@@ -1978,7 +1979,7 @@ const AppointmentForm = ({
                 <Button
                   type="submit"
                   className="ui-btn-primary min-h-11 flex-1 text-base font-semibold"
-                  disabled={submitLocked}
+                  disabled={submitDisabled}
                 >
                   {isSubmitting || status === "submitting"
                     ? "Sending request..."
@@ -1994,7 +1995,7 @@ const AppointmentForm = ({
                     event.preventDefault();
                     goToNextStep();
                   }}
-                  disabled={submitLocked}
+                  disabled={submitInFlight}
                 >
                   {nextButtonLabel}
                   <ChevronRight className="ml-1 h-4 w-4" aria-hidden="true" />

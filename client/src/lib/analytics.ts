@@ -26,9 +26,21 @@ const GOOGLE_ADS_CONVERSION_LABEL =
 let vercelAnalyticsModulePromise: Promise<typeof import("@vercel/analytics")> | null =
   null;
 
+export function isAnalyticsTestHookEnabled(): boolean {
+  return process.env.NODE_ENV !== "production";
+}
+
+function isAnalyticsTestHookActive(): boolean {
+  return (
+    isAnalyticsTestHookEnabled() &&
+    typeof window !== "undefined" &&
+    window.__cwForceAnalytics === true
+  );
+}
+
 export function isAnalyticsRuntimeEnabled(): boolean {
   if (typeof window === "undefined") return false;
-  if (window.__cwForceAnalytics === true) return true;
+  if (isAnalyticsTestHookActive()) return true;
 
   const explicitMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim();
   if (explicitMeasurementId) return true;
@@ -48,7 +60,7 @@ export function getAnalyticsConsentState(): AnalyticsConsentState | null {
 }
 
 export function hasAnalyticsConsent(): boolean {
-  if (typeof window !== "undefined" && window.__cwForceAnalytics === true) {
+  if (isAnalyticsTestHookActive()) {
     return true;
   }
   return getAnalyticsConsentState() !== "denied";

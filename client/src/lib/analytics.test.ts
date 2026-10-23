@@ -3,6 +3,7 @@ import {
   getAnalyticsConsentState,
   hasAnalyticsConsent,
   isAnalyticsRuntimeEnabled,
+  isAnalyticsTestHookEnabled,
   trackGAEvent,
   trackVercelEvent,
 } from "./analytics";
@@ -152,5 +153,27 @@ trackVercelEvent("excluded_route_event", {
 });
 await waitForAnalyticsFlush();
 assert.strictEqual(vercelCalled, null);
+
+const previousNodeEnv = process.env.NODE_ENV;
+(globalThis as any).window.__cwForceAnalytics = true;
+(globalThis as any).window.localStorage.value = "denied";
+(globalThis as any).window.location.hostname = "localhost";
+process.env.NODE_ENV = "test";
+assert.equal(isAnalyticsTestHookEnabled(), true);
+assert.equal(hasAnalyticsConsent(), true, "non-prod hook may override denied consent");
+assert.equal(isAnalyticsRuntimeEnabled(), true);
+
+process.env.NODE_ENV = "production";
+assert.equal(isAnalyticsTestHookEnabled(), false);
+assert.equal(
+  hasAnalyticsConsent(),
+  false,
+  "production builds must not let __cwForceAnalytics override consent",
+);
+assert.equal(isAnalyticsRuntimeEnabled(), false);
+
+process.env.NODE_ENV = previousNodeEnv;
+delete (globalThis as any).window.__cwForceAnalytics;
+(globalThis as any).window.localStorage.value = "granted";
 
 console.log("analytics tests passed");

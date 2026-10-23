@@ -155,6 +155,16 @@ async function testV2PayloadCompatibility() {
     assert.equal(formspree.body.insurance_status, "Delta Dental");
     assert.equal(formspree.body.urgent, "Yes");
     assert.equal(formspree.body.preferred_time_of_day, "Afternoon (2pm-close)");
+    assert.equal(
+      Object.hasOwn(formspree.body, "source_host_kind"),
+      false,
+      "canonical production leads must not carry source_host_kind",
+    );
+    assert.equal(
+      String(formspree.body.message ?? "").includes("Source host:"),
+      false,
+      "clinic email must stay untagged for chriswongdds.com leads",
+    );
   });
 }
 
@@ -437,7 +447,16 @@ async function testSourceAllowlist() {
       }),
     );
     assert.equal(liveVercel.status, 201);
-    assert.equal(calls[0]?.body.source_host_kind, "production");
+    assert.equal(
+      Object.hasOwn(calls[0]?.body ?? {}, "source_host_kind"),
+      false,
+      "real-site leads must not carry source_host_kind",
+    );
+    assert.equal(
+      String(calls[0]?.body.message ?? "").includes("Source host:"),
+      false,
+      "clinic email must stay untagged for real-site leads",
+    );
   });
 
   await withMockedFetch(async (calls) => {
@@ -450,6 +469,8 @@ async function testSourceAllowlist() {
     );
     assert.equal(preview.status, 201);
     assert.equal(calls[0]?.body.source_host_kind, "preview");
+    assert.match(String(calls[0]?.body.message ?? ""), /Source host: preview/);
+    assert.equal(String(calls[0]?.body.message ?? "").includes("production"), false);
   });
 
   await withMockedFetch(async (calls) => {
@@ -491,14 +512,24 @@ async function testProductionRejectsLocalhostAndUserinfo() {
     });
 
     await withMockedFetch(async (calls) => {
-      const missing = await postScheduleRequest(
+      const missingSource = await postScheduleRequest(
         requestWithBody({
           ...validV2Payload,
           source: undefined,
+        }),
+      );
+      assert.equal(missingSource.status, 400);
+      assert.equal(calls.length, 0);
+    });
+
+    await withMockedFetch(async (calls) => {
+      const missingSourceUrl = await postScheduleRequest(
+        requestWithBody({
+          ...validV2Payload,
           sourceUrl: undefined,
         }),
       );
-      assert.equal(missing.status, 400);
+      assert.equal(missingSourceUrl.status, 400);
       assert.equal(calls.length, 0);
     });
   } finally {

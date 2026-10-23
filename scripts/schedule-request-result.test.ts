@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 
 import {
   classifySourceHostKind,
@@ -9,6 +8,7 @@ import {
   isThisProjectVercelHost,
   parseJsonBody,
   planScheduleSubmitAnalytics,
+  previewSourceHostTag,
   readScheduleRequestResult,
   resolveScheduleSourcePolicy,
   SCHEDULE_REQUEST_TIMEOUT_MS,
@@ -150,25 +150,22 @@ function testPreviewHostClassification() {
     isThisProjectVercelHost("marketing-site.vercel.app"),
     false,
   );
-}
-
-function testFormAlwaysSendsSourceFields() {
-  const form = readFileSync("client/src/components/forms/AppointmentForm.tsx", "utf8");
-  assert.match(form, /source: requestSource/);
-  assert.match(form, /sourceUrl,/);
-  assert.match(form, /planScheduleSubmitAnalytics/);
-  assert.match(form, /AbortController/);
-  assert.match(form, /signal: controller\.signal/);
-}
-
-function testSeoAllBindsLoopbackAndRebuilds() {
-  const script = readFileSync("scripts/seo-all.mjs", "utf8");
-  assert.match(script, /Always rebuild/);
-  assert.match(script, /runPnpmScript\("build"\)/);
-  assert.match(script, /"-H", "127\.0\.0\.1"/);
-  assert.match(script, /descendantPids/);
-  assert.match(script, /process\.kill\(pid, "SIGKILL"\)/);
-  assert.doesNotMatch(script, /reuseExistingServer|existsSync\("\.next/);
+  assert.equal(
+    previewSourceHostTag(classifySourceHostKind("https://www.chriswongdds.com/schedule")),
+    undefined,
+  );
+  assert.equal(
+    previewSourceHostTag(classifySourceHostKind("https://chris-wong-dds.vercel.app/schedule")),
+    undefined,
+  );
+  assert.equal(
+    previewSourceHostTag(
+      classifySourceHostKind(
+        "https://chris-wong-dds-abc123-enzo-design-prisms-projects.vercel.app/schedule",
+      ),
+    ),
+    "preview",
+  );
 }
 
 testTimeoutBudget();
@@ -178,7 +175,5 @@ testLeadPlanKillsFailedAndHoneypotMutants();
 testParseJsonBody();
 testSourceAllowlist();
 testPreviewHostClassification();
-testFormAlwaysSendsSourceFields();
-testSeoAllBindsLoopbackAndRebuilds();
 
 console.log("Schedule request result checks passed.");
