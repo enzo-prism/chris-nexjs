@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 
 import { ANALYTICS_EVENTS } from "../shared/analytics";
+import { getAppointmentTypeForIntent } from "../shared/scheduleRequest";
 import {
   INVISALIGN_CONSULT_FORM_NAME,
   resolveAppointmentLeadEvent,
@@ -13,7 +15,7 @@ const baseInput = {
   urgentFlag: false,
   contactPreference: "phone",
   leadChannel: "paid_search",
-  pagePath: "/invisalign",
+  pagePath: "/invisalign-consult",
   pageCategory: "service",
 } as const;
 
@@ -30,7 +32,7 @@ function testLeadFiresOnlyOnSuccess() {
   assert.equal(success.properties.form_name, "invisalign_consult");
   assert.equal(success.properties.lead_source, "invisalign_consult");
   assert.equal(success.properties.appointment_type, "Invisalign Consultation");
-  assert.equal(success.properties.page_path, "/invisalign");
+  assert.equal(success.properties.page_path, "/invisalign-consult");
 }
 
 function testLeadDoesNotFireOnFailure() {
@@ -62,8 +64,34 @@ function testScheduleFormNameUnchanged() {
   assert.notEqual(scheduleLead.properties.form_name, "invisalign_consult");
 }
 
+function testIntentPrefillsInvisalignConsultation() {
+  assert.equal(getAppointmentTypeForIntent("invisalign"), "Invisalign Consultation");
+}
+
+function testAdsPageKeepsHeldOutCopyOut() {
+  const page = readFileSync("client/src/pages/InvisalignConsult.tsx", "utf8");
+  const costPanel = readFileSync("client/src/components/services/CostPanel.tsx", "utf8");
+  const form = readFileSync("client/src/components/forms/AppointmentForm.tsx", "utf8");
+
+  assert.match(page, /Request an Invisalign consult/);
+  assert.match(page, /requestSource="invisalign-ads"/);
+  assert.match(page, /getAppointmentTypeForIntent\("invisalign"\)/);
+  assert.doesNotMatch(page, /\bfree\b/i, "ads page must not claim a free consult until confirmed");
+  assert.doesNotMatch(page, /ServiceReviews|ReviewCard/, "review cards stay out until verbatim Invisalign quotes exist");
+  assert.doesNotMatch(
+    page,
+    /PLACEHOLDER|official Invisalign video|financing/i,
+    "price, financing, and official-asset slots stay out",
+  );
+  assert.match(costPanel, /buttonLabel = "Request a visit"/);
+  assert.match(form, /shadow-soft/);
+  assert.doesNotMatch(form, /rgba\(37,\s*99,\s*235/);
+}
+
 testLeadFiresOnlyOnSuccess();
 testLeadDoesNotFireOnFailure();
 testScheduleFormNameUnchanged();
+testIntentPrefillsInvisalignConsultation();
+testAdsPageKeepsHeldOutCopyOut();
 
 console.log("invisalign consult lead tests passed");

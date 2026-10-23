@@ -17,6 +17,8 @@ type CostPanelProps = {
   /** Extra content under the cost drivers (checklists, disclosures). */
   readonly children?: ReactNode;
   readonly scheduleHref?: string;
+  /** Defaults to the shared “Request a visit” label. */
+  readonly buttonLabel?: string;
   readonly analyticsContext: string;
 };
 
@@ -35,6 +37,7 @@ export function CostPanel({
   coverage,
   children,
   scheduleHref = "/schedule#appointment",
+  buttonLabel = "Request a visit",
   analyticsContext,
 }: CostPanelProps) {
   const cards = [
@@ -105,7 +108,7 @@ export function CostPanel({
               data-analytics-context={`${analyticsContext}-request`}
             >
               <CalendarDays aria-hidden="true" />
-              Request a visit
+              {buttonLabel}
             </Link>
             <Link href="/insurance" className="btn btn-outline" data-analytics-context={`${analyticsContext}-insurance`}>
               How out-of-network coverage works

@@ -240,9 +240,9 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     ogImage: "/images/og/operatory-room.jpg",
   },
   "/invisalign": {
-    title: "Invisalign Palo Alto | Christopher B. Wong, DDS",
+    title: "Invisalign in Palo Alto, CA | Christopher B. Wong, DDS",
     description:
-      "Invisalign Palo Alto consults with Dr. Christopher B. Wong. A 3D scan, a clear plan, and check-ins that fit busy schedules. Pricing discussed at your consult.",
+      "Invisalign clear aligners for teens and adults in Palo Alto: 3D scan, a clear plan, and checkups that fit busy schedules. Ask how PPO ortho benefits apply.",
     canonicalPath: "/invisalign",
     ogImage: "/images/og/invisalign-itero-scan.jpg",
     primaryKeyword: "invisalign palo alto",
@@ -252,6 +252,14 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
       "invisalign cost palo alto",
       "invisalign for teens",
     ],
+  },
+  "/invisalign-consult": {
+    title: "Invisalign Consult | Christopher B. Wong, DDS",
+    description:
+      "Request an Invisalign consult with Dr. Christopher B. Wong in Palo Alto. A 3D scan, a clear plan, and check-ins that fit busy schedules.",
+    canonicalPath: "/invisalign-consult",
+    ogImage: "/images/og/invisalign-itero-scan.jpg",
+    robots: NOINDEX_ROBOTS,
   },
   "/invisalign/resources": {
     title: "Invisalign Resources in Palo Alto | Christopher B. Wong, DDS",
@@ -575,7 +583,7 @@ const LASTMOD_OVERRIDES: Partial<Record<string, string>> = {
   "/office-tour": REDESIGN_LAUNCH_DATE,
   "/contact": REDESIGN_LAUNCH_DATE,
   "/schedule": REDESIGN_LAUNCH_DATE,
-  "/invisalign": "2026-10-23",
+  "/invisalign": REDESIGN_LAUNCH_DATE,
   "/emergency-dental": REDESIGN_LAUNCH_DATE,
   "/teeth-whitening-palo-alto": REDESIGN_LAUNCH_DATE,
   "/dental-cleaning-palo-alto": REDESIGN_LAUNCH_DATE,

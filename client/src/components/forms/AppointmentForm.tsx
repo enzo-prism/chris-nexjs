@@ -242,6 +242,8 @@ type AppointmentFormProps = {
   readonly leadFormName?: string;
   /** Prefills visit type when the form is embedded off /schedule. */
   readonly defaultAppointmentType?: AppointmentType;
+  /** Wire `source` on the schedule-request payload. */
+  readonly requestSource?: string;
 };
 
 const visitNeedsFields: FieldPath<ScheduleFormValues>[] = [
@@ -356,7 +358,7 @@ const getChoiceCardClasses = (
             ? "flex-col items-start text-left sm:items-center sm:text-center"
             : "items-center justify-start text-left",
           selected
-            ? "border-primary/45 bg-primary/[0.07] shadow-[0_14px_30px_-26px_rgba(37,99,235,0.6)]"
+            ? "border-primary/45 bg-primary/[0.07] shadow-soft"
             : "border-cream-300 bg-white hover:border-primary/30 hover:bg-primary/[0.02]",
         ]
       : [
@@ -955,6 +957,7 @@ const AppointmentForm = ({
   presentation = "default",
   leadFormName = DEFAULT_APPOINTMENT_LEAD_FORM_NAME,
   defaultAppointmentType,
+  requestSource = "schedule_page_form_v2",
 }: AppointmentFormProps) => {
   const searchParams = useSearchParams();
   const scheduleIntent = searchParams?.get("intent") ?? null;
@@ -1312,7 +1315,7 @@ const AppointmentForm = ({
       contactPreference: rawData.contactPreference,
       insuranceProvider: rawData.insuranceProvider?.trim() || undefined,
       message: rawData.message?.trim() || undefined,
-      source: "schedule_page_form_v2",
+      source: requestSource,
       sourceUrl,
       // Tags on this URL win; otherwise fall back to the tags from the visit
       // that brought the patient to the site (e.g. a Google Business Profile
