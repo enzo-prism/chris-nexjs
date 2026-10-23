@@ -47,9 +47,14 @@ import {
   preferredDayOptions,
   preferredTimeOptions,
   scheduleRequestV2Schema,
+  type AppointmentType,
   type ScheduleRequestV2,
 } from "@shared/scheduleRequest";
 import { ANALYTICS_EVENTS, getAnalyticsPageContext } from "@shared/analytics";
+import {
+  DEFAULT_APPOINTMENT_LEAD_FORM_NAME,
+  resolveAppointmentLeadEvent,
+} from "@/lib/appointmentLead";
 import { FeatureIcon } from "@/components/common/FeatureIcon";
 import { cn } from "@/lib/utils";
 
@@ -233,6 +238,10 @@ const extractUtmParams = (url: string): Record<string, string> => {
 type AppointmentFormProps = {
   readonly className?: string;
   readonly presentation?: FormPresentation;
+  /** Overrides generate_lead form_name. Schedule page keeps the default. */
+  readonly leadFormName?: string;
+  /** Prefills visit type when the form is embedded off /schedule. */
+  readonly defaultAppointmentType?: AppointmentType;
 };
 
 const visitNeedsFields: FieldPath<ScheduleFormValues>[] = [
@@ -944,12 +953,14 @@ const ContactStep = ({
 const AppointmentForm = ({
   className = "",
   presentation = "default",
+  leadFormName = DEFAULT_APPOINTMENT_LEAD_FORM_NAME,
+  defaultAppointmentType,
 }: AppointmentFormProps) => {
   const searchParams = useSearchParams();
   const scheduleIntent = searchParams?.get("intent") ?? null;
-  const initialAppointmentType = scheduleIntent
-    ? getAppointmentTypeForIntent(scheduleIntent)
-    : "";
+  const initialAppointmentType =
+    defaultAppointmentType ??
+    (scheduleIntent ? getAppointmentTypeForIntent(scheduleIntent) : "");
   const [step, setStep] = useState<number>(1);
   const [status, setStatus] = useState<SubmitStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -1366,17 +1377,21 @@ const AppointmentForm = ({
         ...analyticsContext,
       });
 
-      trackLeadConversion(ANALYTICS_EVENTS.appointmentRequestSubmit, {
-        form_name: "schedule_request_form",
-        lead_type: "appointment_request",
-        lead_source: "schedule_request_form",
-        appointment_type: rawData.appointmentType,
-        scheduling_mode: rawData.schedulingMode,
-        urgent_flag: rawData.isEmergency ? "true" : "false",
-        contact_preference: rawData.contactPreference,
-        lead_channel: leadAttribution?.attribution.channel ?? "unknown",
-        ...pageContext,
+      const leadEvent = resolveAppointmentLeadEvent({
+        submitted: true,
+        success: true,
+        formName: leadFormName,
+        appointmentType: rawData.appointmentType,
+        schedulingMode: rawData.schedulingMode,
+        urgentFlag: rawData.isEmergency,
+        contactPreference: rawData.contactPreference,
+        leadChannel: leadAttribution?.attribution.channel ?? "unknown",
+        pagePath: pageContext.page_path,
+        pageCategory: pageContext.page_category,
       });
+      if (leadEvent) {
+        trackLeadConversion(leadEvent.eventName, leadEvent.properties);
+      }
 
       trackGAEvent("schedule_submit", {
         appointment_type: rawData.appointmentType,
