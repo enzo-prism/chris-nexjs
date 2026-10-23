@@ -21,7 +21,7 @@ export const GOOGLE_REVIEW_STATS_REVALIDATE_SECONDS = 86_400;
 /** Abort a hung Places request so SSR/build cannot stall. */
 export const GOOGLE_PLACES_FETCH_TIMEOUT_MS = 4_000;
 
-export function googleReviewStatsCacheKey(placeId: string): readonly string[] {
+export function googleReviewStatsCacheKey(placeId: string): string[] {
   return ["google-place-review-stats", placeId];
 }
 
