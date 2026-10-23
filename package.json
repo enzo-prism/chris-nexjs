@@ -96,7 +96,7 @@
     "lucide-react": "^0.453.0",
     "memorystore": "^1.6.7",
     "nanoid": "^5.1.16",
-    "next": "^15.5.24",
+    "next": "^15.5.28",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
     "react": "^19.1.8",

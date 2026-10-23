@@ -3,9 +3,9 @@ import { generateMetadata as generateCatchallMetadata } from "../[...slug]/page"
 import Testimonials from "@/pages/Testimonials";
 import { getGoogleReviewStats } from "../../server/googlePlaceReviews";
 import { getPublishedTestimonials } from "../../server/storage/publishedTestimonials";
-import { GOOGLE_REVIEW_STATS_REVALIDATE_SECONDS } from "@shared/googlePlaceReviews";
 
-export const revalidate = GOOGLE_REVIEW_STATS_REVALIDATE_SECONDS;
+// Next requires a numeric literal here (not an imported constant).
+export const revalidate = 86400;
 
 export const generateMetadata = async () =>
   generateCatchallMetadata({
