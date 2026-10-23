@@ -24,6 +24,24 @@ type ForwardingResult = {
   sent: boolean;
 };
 
+// The primary inbox gets 8s; optional services share a further 2s so an
+// accepted request cannot be held open by slow secondary integrations.
+const OPTIONAL_DISPATCH_WAIT_MS = 2_000;
+
+class UpstreamStatusError extends Error {
+  constructor(readonly status: number) {
+    super("upstream-request-rejected");
+  }
+}
+
+function logDispatchFailure(code: string, error: unknown): void {
+  // Do not log vendor bodies, arbitrary error messages, URLs, or payloads.
+  console.error("[schedule-request]", {
+    code,
+    ...(error instanceof UpstreamStatusError ? { status: error.status } : {}),
+  });
+}
+
 type ScheduleDispatchPayload = Omit<ScheduleRequestV2, "phone" | "email"> & {
   phone?: string;
   email?: string;
@@ -177,19 +195,24 @@ const buildInboxMessage = (data: ScheduleDispatchPayload) => {
   ].join("\n");
 };
 
-const postJsonWebhook = async (url: string, payload: unknown): Promise<void> => {
+const postJsonWebhook = async (
+  url: string,
+  payload: unknown,
+  signal: AbortSignal,
+): Promise<void> => {
   const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(payload),
-    signal: AbortSignal.timeout(8_000),
+    signal,
   });
 
   if (!response.ok) {
-    throw new Error(`Webhook request failed with ${response.status}.`);
+    throw new UpstreamStatusError(response.status);
   }
+  await response.body?.cancel();
 };
 
 const postToFormspree = async (
@@ -250,10 +273,7 @@ const postToFormspree = async (
   });
 
   if (!response.ok) {
-    const details = await response.text().catch(() => "No response body");
-    throw new Error(
-      `Office inbox request failed with ${response.status}: ${details.slice(0, 400)}`,
-    );
+    throw new UpstreamStatusError(response.status);
   }
 };
 
@@ -318,57 +338,62 @@ export async function POST(request: NextRequest) {
 
     await postToFormspree(formspreeEndpoint, payload);
 
-    await trackVercelServerEvent(
-      request,
-      ANALYTICS_EVENTS.appointmentRequestSubmit,
-      {
-        appointment_type: payload.appointmentType,
-        scheduling_mode: payload.schedulingMode,
-        urgent_flag: payload.isEmergency,
-        lead_type: "appointment_request",
-        lead_channel: payload.attribution?.channel ?? "unknown",
-        page_path: getAnalyticsPathFromUrl(sourceUrl) ?? "/schedule",
-        source: payload.source ?? "schedule_page_form",
-      },
-    );
-
+    const controller = new AbortController();
     const crmWebhookUrl = process.env.SCHEDULE_CRM_WEBHOOK_URL;
     const slackWebhookUrl = process.env.SCHEDULE_SLACK_WEBHOOK_URL;
+    const crmResult: ForwardingResult = { enabled: Boolean(crmWebhookUrl), sent: false };
+    const slackResult: ForwardingResult = { enabled: Boolean(slackWebhookUrl), sent: false };
 
-    const crmResult: ForwardingResult = {
-      enabled: Boolean(crmWebhookUrl),
-      sent: false,
-    };
-    const slackResult: ForwardingResult = {
-      enabled: Boolean(slackWebhookUrl),
-      sent: false,
-    };
-
-    if (crmWebhookUrl) {
+    const forward = async (
+      url: string | undefined,
+      body: unknown,
+      result: ForwardingResult,
+      failureCode: string,
+    ): Promise<void> => {
+      if (!url) return;
       try {
-        await postJsonWebhook(crmWebhookUrl, {
-          ...payload,
-          destination: "crm",
-        });
-        crmResult.sent = true;
+        await postJsonWebhook(url, body, controller.signal);
+        // `sent` means an acknowledgment arrived before our shared deadline.
+        if (!controller.signal.aborted) result.sent = true;
       } catch (error) {
-        crmResult.sent = false;
-        console.error("Optional CRM forwarding failed.", error);
+        logDispatchFailure(failureCode, error);
       }
-    }
+    };
 
-    if (slackWebhookUrl) {
-      try {
-        await postJsonWebhook(slackWebhookUrl, {
-          text: buildInboxMessage(payload),
-          type: "appointment_request",
-          ...payload,
-        });
-        slackResult.sent = true;
-      } catch (error) {
-        slackResult.sent = false;
-        console.error("Optional Slack forwarding failed.", error);
-      }
+    let deadlineTimer: ReturnType<typeof setTimeout> | undefined;
+    const deadline = new Promise<void>((resolve) => {
+      deadlineTimer = setTimeout(() => {
+        controller.abort();
+        resolve();
+      }, OPTIONAL_DISPATCH_WAIT_MS);
+    });
+
+    try {
+      // Start all optional work together. Await acknowledgments while budget
+      // remains; do not defer required forwarding to an untracked callback.
+      await Promise.race([
+        Promise.allSettled([
+          trackVercelServerEvent(request, ANALYTICS_EVENTS.appointmentRequestSubmit, {
+            appointment_type: payload.appointmentType,
+            scheduling_mode: payload.schedulingMode,
+            urgent_flag: payload.isEmergency,
+            lead_type: "appointment_request",
+            lead_channel: payload.attribution?.channel ?? "unknown",
+            page_path: getAnalyticsPathFromUrl(sourceUrl) ?? "/schedule",
+            source: payload.source ?? "schedule_page_form",
+          }),
+          forward(crmWebhookUrl, { ...payload, destination: "crm" }, crmResult, "crm_forward_failed"),
+          forward(slackWebhookUrl, {
+            text: buildInboxMessage(payload),
+            type: "appointment_request",
+            ...payload,
+          }, slackResult, "slack_forward_failed"),
+        ]),
+        deadline,
+      ]);
+    } finally {
+      clearTimeout(deadlineTimer);
+      controller.abort();
     }
 
     return NextResponse.json(
@@ -392,10 +417,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Never echo the raw failure: it can carry the upstream inbox provider's
-    // response body. Log it for us, return a safe, actionable line to the
-    // patient (the form renders this verbatim).
-    console.error("[schedule-request] Failed to deliver appointment request:", error);
+    logDispatchFailure("office_inbox_delivery_failed", error);
     return NextResponse.json(
       {
         message:

@@ -16,6 +16,19 @@ const requestWithBody = (payload: unknown): NextRequest =>
     body: JSON.stringify(payload),
   });
 
+const validV2Payload = {
+  isEmergency: false,
+  appointmentType: "New Patient Exam & Cleaning",
+  schedulingMode: "first_available",
+  firstName: "Synthetic",
+  lastName: "Patient",
+  phone: "6505550000",
+  email: "synthetic.patient@example.com",
+  contactPreference: "email",
+  source: "schedule_page_form_v2",
+  sourceUrl: "https://www.chriswongdds.com/schedule",
+} as const;
+
 const withMockedFetch = async (
   callback: (calls: RecordedCall[]) => Promise<void>,
 ): Promise<void> => {
@@ -512,6 +525,110 @@ async function testOptionalForwardingFailureIsSanitized() {
   }
 }
 
+async function testRejectedInboxNeverLogsPatientDetails() {
+  const originalFetch = globalThis.fetch;
+  const originalConsoleError = console.error;
+  const originalEndpoint = process.env.SCHEDULE_FORM_ENDPOINT;
+  const sensitiveDetails = "Synthetic Patient synthetic.patient@example.com 6505550000 private-note";
+  const logged: string[] = [];
+  process.env.SCHEDULE_FORM_ENDPOINT = "https://formspree.io/f/mock-endpoint";
+  console.error = (...args: unknown[]) => {
+    logged.push(args.map((arg) => arg instanceof Error
+      ? `${arg.name}: ${arg.message} ${arg.stack}`
+      : JSON.stringify(arg)).join(" "));
+  };
+
+  try {
+    for (const failure of ["body", "exception"] as const) {
+      globalThis.fetch = async () => {
+        if (failure === "exception") throw new Error(sensitiveDetails);
+        return new Response(JSON.stringify({ message: sensitiveDetails }), { status: 422 });
+      };
+      const response = await postScheduleRequest(requestWithBody(validV2Payload));
+      assert.equal(response.status, 500);
+      const publicBody = await response.text();
+      for (const patientDetail of sensitiveDetails.split(" ")) {
+        assert.equal(publicBody.includes(patientDetail), false);
+        assert.equal(logged.join(" ").includes(patientDetail), false,
+          "vendor error bodies and exception messages must not enter logs");
+      }
+    }
+    assert.match(logged[0], /office_inbox_delivery_failed/);
+    assert.match(logged[0], /422/);
+  } finally {
+    globalThis.fetch = originalFetch;
+    console.error = originalConsoleError;
+    if (originalEndpoint === undefined) delete process.env.SCHEDULE_FORM_ENDPOINT;
+    else process.env.SCHEDULE_FORM_ENDPOINT = originalEndpoint;
+  }
+}
+
+async function testHungOptionalServicesKeepInboxAcceptance() {
+  const originalFetch = globalThis.fetch;
+  const originalConsoleError = console.error;
+  const envKeys = ["SCHEDULE_FORM_ENDPOINT", "SCHEDULE_CRM_WEBHOOK_URL",
+    "SCHEDULE_SLACK_WEBHOOK_URL", "VERCEL_URL", "VERCEL_ENV"] as const;
+  const originalEnv = Object.fromEntries(envKeys.map((key) => [key, process.env[key]]));
+  process.env.SCHEDULE_FORM_ENDPOINT = "https://formspree.io/f/mock-endpoint";
+  process.env.SCHEDULE_CRM_WEBHOOK_URL = "https://crm.example.test/hook";
+  process.env.SCHEDULE_SLACK_WEBHOOK_URL = "https://slack.example.test/hook";
+  process.env.VERCEL_URL = "analytics.example.test";
+  process.env.VERCEL_ENV = "production";
+  console.error = () => undefined;
+
+  try {
+    for (const crmAcknowledges of [false, true]) {
+          const optionalCalls: string[] = [];
+      const webhookSignals: AbortSignal[] = [];
+      globalThis.fetch = async (input: URL | RequestInfo, init?: RequestInit) => {
+        const url = typeof input === "string" ? input
+          : input instanceof URL ? input.href : input.url;
+        if (url === process.env.SCHEDULE_FORM_ENDPOINT) {
+          return new Response(JSON.stringify({ ok: true }), { status: 200 });
+        }
+        optionalCalls.push(url);
+        if (url === process.env.SCHEDULE_CRM_WEBHOOK_URL && crmAcknowledges) {
+          return new Response("acknowledged", { status: 200 });
+        }
+        if (url.includes("/_vercel/insights/event")) {
+          // The analytics SDK has no AbortSignal option. Even a transport
+          // which never settles must not hold the primary inbox result open.
+          return new Promise<Response>(() => undefined);
+        }
+        assert.ok(init?.signal, "optional webhooks need an abortable deadline");
+        const signal = init.signal;
+        webhookSignals.push(signal);
+        return new Promise<Response>((_, reject) => {
+          signal.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")),
+            { once: true });
+        });
+      };
+      const started = performance.now();
+      const response = await postScheduleRequest(requestWithBody(validV2Payload));
+      const elapsed = performance.now() - started;
+      assert.equal(response.status, 201, "accepted inbox delivery stays successful");
+      const body = await response.json();
+      assert.equal(body.success, true);
+      assert.deepEqual(body.forwarding, {
+        crm: { enabled: true, sent: crmAcknowledges },
+        slack: { enabled: true, sent: false },
+      });
+      assert.equal(optionalCalls.length, 3, "analytics and both webhooks must start together");
+      assert.ok(optionalCalls.some((url) => url.includes("/_vercel/insights/event")));
+      assert.ok(webhookSignals.every((signal) => signal.aborted));
+      assert.ok(elapsed < 3_000,
+        `hung optional services exceeded the 2s response budget plus scheduling tolerance: ${elapsed}ms`);
+    }
+  } finally {
+    globalThis.fetch = originalFetch;
+    console.error = originalConsoleError;
+    for (const key of envKeys) {
+      if (originalEnv[key] === undefined) delete process.env[key];
+      else process.env[key] = originalEnv[key];
+    }
+  }
+}
+
 (async function run() {
   await testLegacyPayloadCompatibility();
   await testV2PayloadCompatibility();
@@ -523,6 +640,8 @@ async function testOptionalForwardingFailureIsSanitized() {
   await testDefaultFormspreeFallback();
   await testBlankEnvironmentFallsBackToDefaultFormspreeEndpoint();
   await testOptionalForwardingFailureIsSanitized();
+  await testRejectedInboxNeverLogsPatientDetails();
+  await testHungOptionalServicesKeepInboxAcceptance();
 
   console.log("Schedule request contract checks passed.");
 })().catch((error: unknown) => {
