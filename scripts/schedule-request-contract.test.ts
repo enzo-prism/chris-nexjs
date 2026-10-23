@@ -1,4 +1,14 @@
 import assert from "node:assert/strict";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  legacyScheduleRequestSchema,
+  preferredDayOptions,
+  scheduleRequestV2Schema,
+} from "../shared/scheduleRequest";
+import {
+  insertContactMessageSchema,
+  insertNewsletterSubscriptionSchema,
+} from "../shared/schema";
 
 import { NextRequest } from "next/server";
 import { POST as postScheduleRequest } from "../app/api/schedule-request/route";
@@ -15,6 +25,19 @@ const requestWithBody = (payload: unknown): NextRequest =>
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
+
+const validV2Payload = {
+  isEmergency: false,
+  appointmentType: "New Patient Exam & Cleaning",
+  schedulingMode: "first_available",
+  firstName: "Synthetic",
+  lastName: "Patient",
+  phone: "6505550000",
+  email: "synthetic.patient@example.com",
+  contactPreference: "email",
+  source: "schedule_page_form_v2",
+  sourceUrl: "https://www.chriswongdds.com/schedule",
+} as const;
 
 const withMockedFetch = async (
   callback: (calls: RecordedCall[]) => Promise<void>,
@@ -512,7 +535,178 @@ async function testOptionalForwardingFailureIsSanitized() {
   }
 }
 
+async function testRejectedInboxNeverLogsPatientDetails() {
+  const originalFetch = globalThis.fetch;
+  const originalConsoleError = console.error;
+  const originalEndpoint = process.env.SCHEDULE_FORM_ENDPOINT;
+  const sensitiveDetails = "Synthetic Patient synthetic.patient@example.com 6505550000 private-note";
+  const logged: string[] = [];
+  process.env.SCHEDULE_FORM_ENDPOINT = "https://formspree.io/f/mock-endpoint";
+  console.error = (...args: unknown[]) => {
+    logged.push(args.map((arg) => arg instanceof Error
+      ? `${arg.name}: ${arg.message} ${arg.stack}`
+      : JSON.stringify(arg)).join(" "));
+  };
+
+  try {
+    for (const failure of ["body", "exception"] as const) {
+      globalThis.fetch = async () => {
+        if (failure === "exception") throw new Error(sensitiveDetails);
+        return new Response(JSON.stringify({ message: sensitiveDetails }), { status: 422 });
+      };
+      const response = await postScheduleRequest(requestWithBody(validV2Payload));
+      assert.equal(response.status, 500);
+      const publicBody = await response.text();
+      for (const patientDetail of sensitiveDetails.split(" ")) {
+        assert.equal(publicBody.includes(patientDetail), false);
+        assert.equal(logged.join(" ").includes(patientDetail), false,
+          "vendor error bodies and exception messages must not enter logs");
+      }
+    }
+    assert.match(logged[0], /office_inbox_delivery_failed/);
+    assert.match(logged[0], /422/);
+  } finally {
+    globalThis.fetch = originalFetch;
+    console.error = originalConsoleError;
+    if (originalEndpoint === undefined) delete process.env.SCHEDULE_FORM_ENDPOINT;
+    else process.env.SCHEDULE_FORM_ENDPOINT = originalEndpoint;
+  }
+}
+
+async function testHungOptionalServicesKeepInboxAcceptance() {
+  const originalFetch = globalThis.fetch;
+  const originalConsoleError = console.error;
+  const envKeys = ["SCHEDULE_FORM_ENDPOINT", "SCHEDULE_CRM_WEBHOOK_URL",
+    "SCHEDULE_SLACK_WEBHOOK_URL", "VERCEL_URL", "VERCEL_ENV"] as const;
+  const originalEnv = Object.fromEntries(envKeys.map((key) => [key, process.env[key]]));
+  process.env.SCHEDULE_FORM_ENDPOINT = "https://formspree.io/f/mock-endpoint";
+  process.env.SCHEDULE_CRM_WEBHOOK_URL = "https://crm.example.test/hook";
+  process.env.SCHEDULE_SLACK_WEBHOOK_URL = "https://slack.example.test/hook";
+  process.env.VERCEL_URL = "analytics.example.test";
+  process.env.VERCEL_ENV = "production";
+  console.error = () => undefined;
+
+  try {
+    for (const crmAcknowledges of [false, true]) {
+          const optionalCalls: string[] = [];
+      const webhookSignals: AbortSignal[] = [];
+      globalThis.fetch = async (input: URL | RequestInfo, init?: RequestInit) => {
+        const url = typeof input === "string" ? input
+          : input instanceof URL ? input.href : input.url;
+        if (url === process.env.SCHEDULE_FORM_ENDPOINT) {
+          return new Response(JSON.stringify({ ok: true }), { status: 200 });
+        }
+        optionalCalls.push(url);
+        if (url === process.env.SCHEDULE_CRM_WEBHOOK_URL && crmAcknowledges) {
+          return new Response("acknowledged", { status: 200 });
+        }
+        if (url.includes("/_vercel/insights/event")) {
+          // The analytics SDK has no AbortSignal option. Even a transport
+          // which never settles must not hold the primary inbox result open.
+          return new Promise<Response>(() => undefined);
+        }
+        assert.ok(init?.signal, "optional webhooks need an abortable deadline");
+        const signal = init.signal;
+        webhookSignals.push(signal);
+        return new Promise<Response>((_, reject) => {
+          signal.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")),
+            { once: true });
+        });
+      };
+      const started = performance.now();
+      const response = await postScheduleRequest(requestWithBody(validV2Payload));
+      const elapsed = performance.now() - started;
+      assert.equal(response.status, 201, "accepted inbox delivery stays successful");
+      const body = await response.json();
+      assert.equal(body.success, true);
+      assert.deepEqual(body.forwarding, {
+        crm: { enabled: true, sent: crmAcknowledges },
+        slack: { enabled: true, sent: false },
+      });
+      assert.equal(optionalCalls.length, 3, "analytics and both webhooks must start together");
+      assert.ok(optionalCalls.some((url) => url.includes("/_vercel/insights/event")));
+      assert.ok(webhookSignals.every((signal) => signal.aborted));
+      assert.ok(elapsed < 3_000,
+        `hung optional services exceeded the 2s response budget plus scheduling tolerance: ${elapsed}ms`);
+    }
+  } finally {
+    globalThis.fetch = originalFetch;
+    console.error = originalConsoleError;
+    for (const key of envKeys) {
+      if (originalEnv[key] === undefined) delete process.env[key];
+      else process.env[key] = originalEnv[key];
+    }
+  }
+}
+
+async function testPatchedCollectionLimitsAndLegacyCompatibility() {
+  const oversizedDays = Array.from({ length: 10_000 }, () => "invalid-day");
+  const legacyPayload = {
+    emergency: false,
+    appointmentType: "Existing Patient Checkup",
+    preferredDays: [...preferredDayOptions],
+    preferredTimeOfDay: "Morning (8am-11am)",
+    firstName: "Synthetic",
+    lastName: "Patient",
+    phone: "6505550000",
+    email: "synthetic.patient@example.com",
+    utmParams: { utm_source: "google", utm_medium: "cpc", utm_campaign: "test",
+      utm_term: "dentist", utm_content: "text" },
+  };
+
+  // These must be real patched v4 schemas, including schemas generated by
+  // drizzle-zod. Importing zod/v3 from a new package version is insufficient.
+  for (const schema of [scheduleRequestV2Schema, legacyScheduleRequestSchema,
+    insertContactMessageSchema, insertNewsletterSubscriptionSchema]) {
+    assert.ok("_zod" in schema, "request schemas must use the v4 implementation");
+  }
+  for (const [schema, payload] of [
+    [scheduleRequestV2Schema, { ...validV2Payload, preferredDays: oversizedDays }],
+    [legacyScheduleRequestSchema, { ...legacyPayload, preferredDays: oversizedDays }],
+  ] as const) {
+    const result = schema.safeParse(payload);
+    assert.equal(result.success, false);
+    if (result.success) throw new Error("oversized collection unexpectedly accepted");
+    assert.deepEqual(result.error.issues.map(({ code, path }) => ({ code, path })),
+      [{ code: "too_big", path: ["preferredDays"] }],
+      "size bounds must reject before producing one error per invalid element");
+  }
+
+  const parsedLegacy = legacyScheduleRequestSchema.parse(legacyPayload);
+  assert.deepEqual(parsedLegacy.preferredDays, [...preferredDayOptions]);
+  assert.deepEqual(parsedLegacy.utmParams, legacyPayload.utmParams);
+  await withMockedFetch(async (calls) => {
+    const accepted = await postScheduleRequest(requestWithBody(legacyPayload));
+    assert.equal(accepted.status, 201, "all five existing legacy weekdays stay supported");
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].body.preferred_days, "Monday, Tuesday, Wednesday");
+  });
+  await withMockedFetch(async (calls) => {
+    const rejected = await postScheduleRequest(requestWithBody({
+      ...validV2Payload, preferredDays: oversizedDays,
+    }));
+    assert.equal(rejected.status, 400);
+    assert.ok((await rejected.text()).length < 2_000,
+      "collection rejection must not amplify the response with element errors");
+    assert.equal(calls.length, 0, "oversized collections must not reach any service");
+  });
+}
+
+async function testV4FormResolverCompatibility() {
+  const resolver = zodResolver(insertNewsletterSubscriptionSchema);
+  const options = { criteriaMode: "firstError" as const, fields: {},
+    shouldUseNativeValidation: false };
+  const normalized = await resolver({ email: "  SYNTHETIC@EXAMPLE.COM  " }, undefined, options);
+  assert.deepEqual(normalized.errors, {});
+  assert.deepEqual(normalized.values, { email: "synthetic@example.com" });
+  const rejected = await resolver({ email: "invalid" }, undefined, options);
+  assert.deepEqual(rejected.values, {});
+  assert.equal(rejected.errors.email?.message, "Enter a valid email address.");
+}
+
 (async function run() {
+  await testPatchedCollectionLimitsAndLegacyCompatibility();
+  await testV4FormResolverCompatibility();
   await testLegacyPayloadCompatibility();
   await testV2PayloadCompatibility();
   await testLegacyTextContactPreferenceFallback();
@@ -523,6 +717,8 @@ async function testOptionalForwardingFailureIsSanitized() {
   await testDefaultFormspreeFallback();
   await testBlankEnvironmentFallsBackToDefaultFormspreeEndpoint();
   await testOptionalForwardingFailureIsSanitized();
+  await testRejectedInboxNeverLogsPatientDetails();
+  await testHungOptionalServicesKeepInboxAcceptance();
 
   console.log("Schedule request contract checks passed.");
 })().catch((error: unknown) => {
