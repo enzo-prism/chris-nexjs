@@ -126,6 +126,13 @@ export function isThisProjectVercelHost(
   );
 }
 
+/** Only preview hosts are tagged. Real-site leads stay untagged. */
+export function previewSourceHostTag(
+  kind: ScheduleSourceHostKind | null,
+): "preview" | undefined {
+  return kind === "preview" ? "preview" : undefined;
+}
+
 export function classifySourceHostKind(
   sourceUrl: string,
   env: NodeJS.Dict<string | undefined> = process.env,

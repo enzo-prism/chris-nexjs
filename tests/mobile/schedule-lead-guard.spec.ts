@@ -21,7 +21,6 @@ const ROUTES = ["/schedule", "/invisalign-consult"] as const;
 async function installGtagProbe(page: Page): Promise<void> {
   await page.addInitScript(() => {
     window.dataLayer = [];
-    window.__cwForceAnalytics = true;
     window.gtag = (...args: unknown[]) => {
       window.dataLayer = window.dataLayer ?? [];
       window.dataLayer.push(args);
@@ -271,11 +270,13 @@ test.describe("schedule lead guard", () => {
     page,
   }) => {
     await installGtagProbe(page);
+    let requestCount = 0;
     await mockScheduleApi(page, async (route) => {
+      requestCount += 1;
       await route.fulfill({
         status: 429,
         contentType: "application/json",
-        headers: { "Retry-After": "2" },
+        headers: { "Retry-After": "600" },
         body: JSON.stringify({
           message:
             "Too many requests. Please wait a few minutes and try again, or call the office.",
@@ -284,6 +285,7 @@ test.describe("schedule lead guard", () => {
     });
 
     await openContactStep(page, "/schedule");
+    await page.clock.install();
     await page
       .getByRole("button", { name: "Send Appointment Request", exact: true })
       .click();
@@ -291,7 +293,51 @@ test.describe("schedule lead guard", () => {
     await expect(page.getByText("Too many requests.")).toBeVisible();
     const retry = page.getByRole("button", { name: "Try Sending Again", exact: true });
     await expect(retry).toBeDisabled();
+    await expect(page.getByRole("button", { name: /^back$/i })).toBeEnabled();
+
+    await retry.evaluate((button) => {
+      (button as HTMLButtonElement).form?.requestSubmit();
+    });
+    await page.getByLabel("First name").press("Enter");
+    expect(requestCount, "rateLimited guard must drop requestSubmit/Enter").toBe(1);
+
+    await page.getByLabel("First name").fill("Jordan");
+    await expect(page.getByLabel("First name")).toHaveValue("Jordan");
+    await expect(page.getByText("Too many requests.")).toBeVisible();
+    await expect(retry).toBeDisabled();
+
+    await page.getByRole("button", { name: /^back$/i }).click();
+    await expect(
+      page.getByRole("button", { name: /continue to contact details/i }),
+    ).toBeEnabled();
     expect(await countGtagEvents(page, "generate_lead")).toBe(0);
-    await expect(retry).toBeEnabled({ timeout: 5_000 });
+    await page.getByRole("button", { name: /continue to contact details/i }).click();
+    await expect(retry).toBeDisabled();
+
+    await page.clock.fastForward(600_000);
+    await expect(retry).toBeEnabled();
+    expect(requestCount).toBe(1);
+  });
+
+  test("form posts source and sourceUrl on /schedule", async ({ page }) => {
+    let posted: { source?: string; sourceUrl?: string } = {};
+    await mockScheduleApi(page, async (route) => {
+      posted = route.request().postDataJSON() as typeof posted;
+      await route.fulfill({
+        status: 201,
+        contentType: "application/json",
+        body: JSON.stringify({ success: true }),
+      });
+    });
+
+    await openContactStep(page, "/schedule");
+    await page
+      .getByRole("button", { name: "Send Appointment Request", exact: true })
+      .click();
+    await expect(
+      page.getByRole("heading", { name: "We'll confirm your appointment shortly." }),
+    ).toBeVisible();
+    expect(posted.source).toBe("schedule_page_form_v2");
+    expect(posted.sourceUrl).toMatch(/\/schedule/);
   });
 });

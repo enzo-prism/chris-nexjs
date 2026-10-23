@@ -6,6 +6,11 @@ import {
   resetScheduleRequestRateLimitForTests,
   SCHEDULE_REQUEST_RATE_LIMIT,
 } from "../server/scheduleRateLimit";
+import {
+  startCapturingVercelServerEventsForTests,
+  takeVercelServerEventsForTests,
+} from "../server/vercelAnalytics";
+import { ANALYTICS_EVENTS } from "../shared/analytics";
 import { HONEYPOT_FIELD } from "../shared/formspree";
 
 type RecordedCall = {
@@ -155,6 +160,16 @@ async function testV2PayloadCompatibility() {
     assert.equal(formspree.body.insurance_status, "Delta Dental");
     assert.equal(formspree.body.urgent, "Yes");
     assert.equal(formspree.body.preferred_time_of_day, "Afternoon (2pm-close)");
+    assert.equal(
+      Object.hasOwn(formspree.body, "source_host_kind"),
+      false,
+      "canonical production leads must not carry source_host_kind",
+    );
+    assert.equal(
+      String(formspree.body.message ?? "").includes("Source host:"),
+      false,
+      "clinic email must stay untagged for chriswongdds.com leads",
+    );
   });
 }
 
@@ -437,7 +452,16 @@ async function testSourceAllowlist() {
       }),
     );
     assert.equal(liveVercel.status, 201);
-    assert.equal(calls[0]?.body.source_host_kind, "production");
+    assert.equal(
+      Object.hasOwn(calls[0]?.body ?? {}, "source_host_kind"),
+      false,
+      "real-site leads must not carry source_host_kind",
+    );
+    assert.equal(
+      String(calls[0]?.body.message ?? "").includes("Source host:"),
+      false,
+      "clinic email must stay untagged for real-site leads",
+    );
   });
 
   await withMockedFetch(async (calls) => {
@@ -450,6 +474,8 @@ async function testSourceAllowlist() {
     );
     assert.equal(preview.status, 201);
     assert.equal(calls[0]?.body.source_host_kind, "preview");
+    assert.match(String(calls[0]?.body.message ?? ""), /Source host: preview/);
+    assert.equal(String(calls[0]?.body.message ?? "").includes("production"), false);
   });
 
   await withMockedFetch(async (calls) => {
@@ -491,14 +517,24 @@ async function testProductionRejectsLocalhostAndUserinfo() {
     });
 
     await withMockedFetch(async (calls) => {
-      const missing = await postScheduleRequest(
+      const missingSource = await postScheduleRequest(
         requestWithBody({
           ...validV2Payload,
           source: undefined,
+        }),
+      );
+      assert.equal(missingSource.status, 400);
+      assert.equal(calls.length, 0);
+    });
+
+    await withMockedFetch(async (calls) => {
+      const missingSourceUrl = await postScheduleRequest(
+        requestWithBody({
+          ...validV2Payload,
           sourceUrl: undefined,
         }),
       );
-      assert.equal(missing.status, 400);
+      assert.equal(missingSourceUrl.status, 400);
       assert.equal(calls.length, 0);
     });
   } finally {
@@ -730,6 +766,29 @@ async function testBlankEnvironmentFallsBackToDefaultFormspreeEndpoint() {
   }
 }
 
+async function testProductionServerEventOmitsSourceHostKind() {
+  startCapturingVercelServerEventsForTests();
+  try {
+    await withMockedFetch(async () => {
+      const response = await postScheduleRequest(requestWithBody(validV2Payload));
+      assert.equal(response.status, 201);
+    });
+
+    const events = takeVercelServerEventsForTests();
+    const submitEvents = events.filter(
+      (event) => event.name === ANALYTICS_EVENTS.appointmentRequestSubmit,
+    );
+    assert.equal(submitEvents.length, 1, "real-site submit must emit one server event");
+    assert.equal(
+      Object.hasOwn(submitEvents[0].properties, "source_host_kind"),
+      false,
+      "server event must stay untagged for real-site leads",
+    );
+  } finally {
+    takeVercelServerEventsForTests();
+  }
+}
+
 async function testOptionalForwardingFailureIsSanitized() {
   const originalFetch = globalThis.fetch;
   const originalConsoleError = console.error;
@@ -828,6 +887,7 @@ async function testOptionalForwardingFailureIsSanitized() {
   await testFormspreeNonJsonIsFailure();
   await testFormspreeSuccessFalseIsFailure();
   await testSourceAllowlist();
+  await testProductionServerEventOmitsSourceHostKind();
   await testProductionRejectsLocalhostAndUserinfo();
   await testPerIpRateLimit();
   await testRateLimitIgnoresHoneypotInvalidAndSpoofedXff();
