@@ -60,3 +60,13 @@ blank tracker and workflow require office review before real-data use.
 ## Validation
 
 See the PR description for final check results and preview screenshots.
+
+Hosted preview readback confirmed the page, noindex/nofollow/noarchive metadata,
+working CTA anchor, preselected Invisalign form and synthetic demo confirmation.
+The actual hosted API returned status 200 with `accepted:false, preview:true`;
+no GA/Hotjar/Vercel tracking scripts were loaded and no horizontal overflow was
+present at 390px. The form accessibility scan found zero automated violations;
+gradient-background contrast retains a manual-review category.
+
+Preview captures: [desktop](screenshots/desktop.png), [mobile](screenshots/mobile.png),
+[demo confirmation](screenshots/demo-confirmation.png).

@@ -100,14 +100,25 @@ test.describe("schedule lead guard", () => {
         await route.abort();
         return;
       }
-      const response = await route.fetch({ url: `${baseURL}${url.pathname}${url.search}` });
-      await route.fulfill({ response });
+      if (route.request().headers()["next-router-prefetch"] === "1") {
+        await route.abort();
+        return;
+      }
+      try {
+        const response = await route.fetch({
+          url: `${baseURL}${url.pathname}${url.search}`, timeout: 10_000,
+        });
+        await route.fulfill({ response });
+      } catch {
+        // Next may cancel a background read as the page/context closes. A
+        // required navigation still fails the status/visible-UI assertions.
+        await route.abort().catch(() => {});
+      }
     });
   });
   test.afterEach(async ({ page }) => {
-    // Next may still be prefetching when the assertion completes. Finish
-    // intercepted reads before closing the context instead of leaking callbacks.
-    await page.unrouteAll({ behavior: "wait" });
+    // Drop canceled background reads before the browser context closes.
+    await page.unrouteAll({ behavior: "ignoreErrors" });
   });
   for (const path of ROUTES) {
     test(`M1: 500 on ${path} does not fire generate_lead`, async ({ page }) => {
