@@ -47,9 +47,14 @@ import {
   preferredDayOptions,
   preferredTimeOptions,
   scheduleRequestV2Schema,
+  type AppointmentType,
   type ScheduleRequestV2,
 } from "@shared/scheduleRequest";
 import { ANALYTICS_EVENTS, getAnalyticsPageContext } from "@shared/analytics";
+import {
+  DEFAULT_APPOINTMENT_LEAD_FORM_NAME,
+  resolveAppointmentLeadEvent,
+} from "@/lib/appointmentLead";
 import { FeatureIcon } from "@/components/common/FeatureIcon";
 import { cn } from "@/lib/utils";
 
@@ -233,6 +238,14 @@ const extractUtmParams = (url: string): Record<string, string> => {
 type AppointmentFormProps = {
   readonly className?: string;
   readonly presentation?: FormPresentation;
+  /** Overrides generate_lead form_name. Schedule page keeps the default. */
+  readonly leadFormName?: string;
+  /** Prefills visit type when the form is embedded off /schedule. */
+  readonly defaultAppointmentType?: AppointmentType;
+  /** Wire `source` on the schedule-request payload. */
+  readonly requestSource?: string;
+  /** Ads landing: keep the preselected type visible and hide the rest. */
+  readonly collapseAppointmentTypes?: boolean;
 };
 
 const visitNeedsFields: FieldPath<ScheduleFormValues>[] = [
@@ -347,7 +360,7 @@ const getChoiceCardClasses = (
             ? "flex-col items-start text-left sm:items-center sm:text-center"
             : "items-center justify-start text-left",
           selected
-            ? "border-primary/45 bg-primary/[0.07] shadow-[0_14px_30px_-26px_rgba(37,99,235,0.6)]"
+            ? "border-primary/45 bg-primary/[0.07] shadow-soft"
             : "border-cream-300 bg-white hover:border-primary/30 hover:bg-primary/[0.02]",
         ]
       : [
@@ -469,28 +482,44 @@ const OptionalDetailsFields = ({
   );
 };
 
+export const APPOINTMENT_TYPE_OPTIONS_ID = "appointment-type-options";
+
 type StepProps = {
   control: Control<ScheduleFormValues>;
   presentation: FormPresentation;
+  collapseAppointmentTypes?: boolean;
 };
 
-const VisitNeedsStep = ({ control, presentation }: StepProps) => {
+const VisitNeedsStep = ({
+  control,
+  presentation,
+  collapseAppointmentTypes = false,
+}: StepProps) => {
+  const [showAllTypes, setShowAllTypes] = useState(false);
+
   return (
     <div className={cn(presentation === "funnel" ? "space-y-7" : "space-y-6")}>
       <FormField
         control={control}
         name="appointmentType"
-        render={({ field }) => (
+        render={({ field }) => {
+          const collapsed = Boolean(collapseAppointmentTypes && field.value && !showAllTypes);
+          const visibleOptions = collapsed
+            ? appointmentTypeOptions.filter((option) => option === field.value)
+            : appointmentTypeOptions;
+
+          return (
           <FormItem>
             <FormLabel>Appointment type</FormLabel>
             <FormControl>
               <RadioGroup
+                id={APPOINTMENT_TYPE_OPTIONS_ID}
                 className={cn(presentation === "funnel" ? "grid gap-2.5" : "grid gap-2")}
                 value={field.value}
                 onValueChange={field.onChange}
                 aria-label="Appointment type"
               >
-                {appointmentTypeOptions.map((option) => {
+                {visibleOptions.map((option) => {
                   const isSelected = field.value === option;
                   const isEmergencyOption = option === EMERGENCY_APPOINTMENT_TYPE;
                   return (
@@ -556,9 +585,22 @@ const VisitNeedsStep = ({ control, presentation }: StepProps) => {
                 </span>
               </p>
             ) : null}
+            {collapseAppointmentTypes && field.value ? (
+              <Button
+                type="button"
+                variant="ghost"
+                className="mt-1 h-11 px-2 text-sm font-semibold text-evergreen-800"
+                aria-expanded={showAllTypes}
+                aria-controls={APPOINTMENT_TYPE_OPTIONS_ID}
+                onClick={() => setShowAllTypes((open) => !open)}
+              >
+                {collapsed ? "Change visit type" : "Hide other visit types"}
+              </Button>
+            ) : null}
             <FormMessage />
           </FormItem>
-        )}
+          );
+        }}
       />
 
       <FormField
@@ -944,12 +986,16 @@ const ContactStep = ({
 const AppointmentForm = ({
   className = "",
   presentation = "default",
+  leadFormName = DEFAULT_APPOINTMENT_LEAD_FORM_NAME,
+  defaultAppointmentType,
+  requestSource = "schedule_page_form_v2",
+  collapseAppointmentTypes = false,
 }: AppointmentFormProps) => {
   const searchParams = useSearchParams();
   const scheduleIntent = searchParams?.get("intent") ?? null;
-  const initialAppointmentType = scheduleIntent
-    ? getAppointmentTypeForIntent(scheduleIntent)
-    : "";
+  const initialAppointmentType =
+    defaultAppointmentType ??
+    (scheduleIntent ? getAppointmentTypeForIntent(scheduleIntent) : "");
   const [step, setStep] = useState<number>(1);
   const [status, setStatus] = useState<SubmitStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -1301,7 +1347,7 @@ const AppointmentForm = ({
       contactPreference: rawData.contactPreference,
       insuranceProvider: rawData.insuranceProvider?.trim() || undefined,
       message: rawData.message?.trim() || undefined,
-      source: "schedule_page_form_v2",
+      source: requestSource,
       sourceUrl,
       // Tags on this URL win; otherwise fall back to the tags from the visit
       // that brought the patient to the site (e.g. a Google Business Profile
@@ -1366,17 +1412,21 @@ const AppointmentForm = ({
         ...analyticsContext,
       });
 
-      trackLeadConversion(ANALYTICS_EVENTS.appointmentRequestSubmit, {
-        form_name: "schedule_request_form",
-        lead_type: "appointment_request",
-        lead_source: "schedule_request_form",
-        appointment_type: rawData.appointmentType,
-        scheduling_mode: rawData.schedulingMode,
-        urgent_flag: rawData.isEmergency ? "true" : "false",
-        contact_preference: rawData.contactPreference,
-        lead_channel: leadAttribution?.attribution.channel ?? "unknown",
-        ...pageContext,
+      const leadEvent = resolveAppointmentLeadEvent({
+        submitted: true,
+        success: true,
+        formName: leadFormName,
+        appointmentType: rawData.appointmentType,
+        schedulingMode: rawData.schedulingMode,
+        urgentFlag: rawData.isEmergency,
+        contactPreference: rawData.contactPreference,
+        leadChannel: leadAttribution?.attribution.channel ?? "unknown",
+        pagePath: pageContext.page_path,
+        pageCategory: pageContext.page_category,
       });
+      if (leadEvent) {
+        trackLeadConversion(leadEvent.eventName, leadEvent.properties);
+      }
 
       trackGAEvent("schedule_submit", {
         appointment_type: rawData.appointmentType,
@@ -1630,7 +1680,11 @@ const AppointmentForm = ({
         )}
 
         {currentStep.name === "visit_needs" ? (
-          <VisitNeedsStep control={control} presentation={presentation} />
+          <VisitNeedsStep
+            control={control}
+            presentation={presentation}
+            collapseAppointmentTypes={collapseAppointmentTypes}
+          />
         ) : null}
         {currentStep.name === "scheduling_preferences" ? (
           <PreferenceStep control={control} presentation={presentation} />

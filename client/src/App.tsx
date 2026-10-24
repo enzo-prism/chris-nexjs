@@ -36,6 +36,7 @@ import Accessibility from "@/pages/Accessibility";
 import DentalVeneers from "@/pages/DentalVeneers";
 import DentalImplants from "@/pages/DentalImplants";
 import Invisalign from "@/pages/Invisalign";
+import InvisalignConsult from "@/pages/InvisalignConsult";
 import EmergencyDental from "@/pages/EmergencyDental";
 import ZoomWhiteningSchedule from "@/pages/ZoomWhiteningSchedule";
 import PreventiveDentistry from "@/pages/PreventiveDentistry";
@@ -113,6 +114,7 @@ function Router() {
             <Route path="/dentist-mountain-view" component={DentistMountainView} />
             <Route path="/locations" component={Locations} />
             <Route path="/invisalign" component={Invisalign} />
+            <Route path="/invisalign-consult" component={InvisalignConsult} />
             <Route path="/emergency-dental" component={EmergencyDental} />
             <Route path="/zoom-whitening/schedule" component={ZoomWhiteningSchedule} />
             <Route path="/analytics" component={AnalyticsMinimal} />
