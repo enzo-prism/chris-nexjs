@@ -7,4 +7,5 @@ interface Window {
     params?: Record<string, any>
   ) => void;
   setAnalyticsConsent?: (granted: boolean) => void;
+  __cwAnalyticsImmediate?: boolean;
 }
