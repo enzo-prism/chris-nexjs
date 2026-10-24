@@ -1047,6 +1047,7 @@ const AppointmentForm = ({
   const abandonmentTimersRef = useRef<number[]>([]);
   const lastStepViewRef = useRef("");
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const confirmationRef = useRef<HTMLDivElement>(null);
   const errorAlertRef = useRef<HTMLDivElement>(null);
   const honeypotRef = useRef<HTMLInputElement>(null);
   const shouldFocusHeadingRef = useRef(false);
@@ -1054,6 +1055,16 @@ const AppointmentForm = ({
   const submitInFlightRef = useRef(false);
   const leadEmittedRef = useRef(false);
   const rateLimitTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (status !== "success") return;
+    const frame = window.requestAnimationFrame(() => {
+      confirmationRef.current?.focus({ preventScroll: true });
+      confirmationRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [status]);
+
   const stepTrackingRef = useRef<{ index: number; name: StepName }>({
     index: 1,
     name: "visit_needs",
@@ -1600,7 +1611,10 @@ const AppointmentForm = ({
   if (status === "success") {
     return (
       <div
+        ref={confirmationRef}
+        tabIndex={-1}
         className={cn(
+          "scroll-mt-24 outline-none",
           presentation === "funnel"
             ? "rounded-[28px] border border-evergreen-100 bg-[linear-gradient(180deg,#f3fbf6_0%,#ffffff_100%)] px-6 py-10 text-center shadow-[0_30px_90px_-60px_rgba(22,101,52,0.45)] sm:px-10"
             : "rounded-xl border border-evergreen-100 bg-evergreen-50 p-6 text-center",

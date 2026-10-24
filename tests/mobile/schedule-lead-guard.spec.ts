@@ -204,6 +204,7 @@ test.describe("schedule lead guard", () => {
     await openContactStep(page, "/invisalign-consult");
     await page.getByRole("button", { name: "Send Appointment Request", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Preview complete. Nothing was sent." })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Preview complete. Nothing was sent." })).toBeInViewport();
     await expect(page.getByRole("status").filter({ hasText: "Preview only" })).toContainText("office has not received a request");
     expect(await countGtagEvents(page, "generate_lead")).toBe(0);
     expect(await countGtagEvents(page, "schedule_submit_success")).toBe(0);
