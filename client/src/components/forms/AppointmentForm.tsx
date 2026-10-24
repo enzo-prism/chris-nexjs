@@ -47,9 +47,22 @@ import {
   preferredDayOptions,
   preferredTimeOptions,
   scheduleRequestV2Schema,
+  type AppointmentType,
   type ScheduleRequestV2,
 } from "@shared/scheduleRequest";
 import { ANALYTICS_EVENTS, getAnalyticsPageContext } from "@shared/analytics";
+import {
+  DEFAULT_APPOINTMENT_LEAD_FORM_NAME,
+  resolveAppointmentLeadEvent,
+} from "@/lib/appointmentLead";
+import {
+  SCHEDULE_REQUEST_TIMEOUT_MS,
+  ScheduleSubmitError,
+  parseJsonBody,
+  parseRetryAfterSeconds,
+  planScheduleSubmitAnalytics,
+  readScheduleRequestResult,
+} from "@shared/scheduleRequestPolicy";
 import { FeatureIcon } from "@/components/common/FeatureIcon";
 import { cn } from "@/lib/utils";
 
@@ -233,6 +246,14 @@ const extractUtmParams = (url: string): Record<string, string> => {
 type AppointmentFormProps = {
   readonly className?: string;
   readonly presentation?: FormPresentation;
+  /** Overrides generate_lead form_name. Schedule page keeps the default. */
+  readonly leadFormName?: string;
+  /** Prefills visit type when the form is embedded off /schedule. */
+  readonly defaultAppointmentType?: AppointmentType;
+  /** Wire `source` on the schedule-request payload. */
+  readonly requestSource?: string;
+  /** Ads landing: keep the preselected type visible and hide the rest. */
+  readonly collapseAppointmentTypes?: boolean;
 };
 
 const visitNeedsFields: FieldPath<ScheduleFormValues>[] = [
@@ -292,6 +313,10 @@ const getDeviceType = (): "mobile" | "tablet" | "desktop" | "unknown" => {
 };
 
 const getScheduleFailureReason = (error: unknown): string => {
+  if (error instanceof ScheduleSubmitError && error.status === 429) {
+    return "rate_limited";
+  }
+
   if (!(error instanceof Error)) {
     return "unknown_error";
   }
@@ -300,13 +325,23 @@ const getScheduleFailureReason = (error: unknown): string => {
   if (message.includes("phone") || message.includes("valid")) {
     return "validation_error";
   }
-  if (message.includes("fetch") || message.includes("network")) {
+  if (
+    error.name === "AbortError" ||
+    message.includes("abort") ||
+    message.includes("timeout") ||
+    message.includes("fetch") ||
+    message.includes("network")
+  ) {
     return "network_error";
   }
   return "server_error";
 };
 
 const getScheduleErrorMessage = (error: unknown): string => {
+  if (error instanceof ScheduleSubmitError && error.status === 429) {
+    return error.message;
+  }
+
   const reason = getScheduleFailureReason(error);
   if (reason === "network_error") {
     return "We couldn’t connect. Check your internet connection and try again.";
@@ -347,7 +382,7 @@ const getChoiceCardClasses = (
             ? "flex-col items-start text-left sm:items-center sm:text-center"
             : "items-center justify-start text-left",
           selected
-            ? "border-primary/45 bg-primary/[0.07] shadow-[0_14px_30px_-26px_rgba(37,99,235,0.6)]"
+            ? "border-primary/45 bg-primary/[0.07] shadow-soft"
             : "border-cream-300 bg-white hover:border-primary/30 hover:bg-primary/[0.02]",
         ]
       : [
@@ -469,28 +504,44 @@ const OptionalDetailsFields = ({
   );
 };
 
+export const APPOINTMENT_TYPE_OPTIONS_ID = "appointment-type-options";
+
 type StepProps = {
   control: Control<ScheduleFormValues>;
   presentation: FormPresentation;
+  collapseAppointmentTypes?: boolean;
 };
 
-const VisitNeedsStep = ({ control, presentation }: StepProps) => {
+const VisitNeedsStep = ({
+  control,
+  presentation,
+  collapseAppointmentTypes = false,
+}: StepProps) => {
+  const [showAllTypes, setShowAllTypes] = useState(false);
+
   return (
     <div className={cn(presentation === "funnel" ? "space-y-7" : "space-y-6")}>
       <FormField
         control={control}
         name="appointmentType"
-        render={({ field }) => (
+        render={({ field }) => {
+          const collapsed = Boolean(collapseAppointmentTypes && field.value && !showAllTypes);
+          const visibleOptions = collapsed
+            ? appointmentTypeOptions.filter((option) => option === field.value)
+            : appointmentTypeOptions;
+
+          return (
           <FormItem>
             <FormLabel>Appointment type</FormLabel>
             <FormControl>
               <RadioGroup
+                id={APPOINTMENT_TYPE_OPTIONS_ID}
                 className={cn(presentation === "funnel" ? "grid gap-2.5" : "grid gap-2")}
                 value={field.value}
                 onValueChange={field.onChange}
                 aria-label="Appointment type"
               >
-                {appointmentTypeOptions.map((option) => {
+                {visibleOptions.map((option) => {
                   const isSelected = field.value === option;
                   const isEmergencyOption = option === EMERGENCY_APPOINTMENT_TYPE;
                   return (
@@ -556,9 +607,22 @@ const VisitNeedsStep = ({ control, presentation }: StepProps) => {
                 </span>
               </p>
             ) : null}
+            {collapseAppointmentTypes && field.value ? (
+              <Button
+                type="button"
+                variant="ghost"
+                className="mt-1 h-11 px-2 text-sm font-semibold text-evergreen-800"
+                aria-expanded={showAllTypes}
+                aria-controls={APPOINTMENT_TYPE_OPTIONS_ID}
+                onClick={() => setShowAllTypes((open) => !open)}
+              >
+                {collapsed ? "Change visit type" : "Hide other visit types"}
+              </Button>
+            ) : null}
             <FormMessage />
           </FormItem>
-        )}
+          );
+        }}
       />
 
       <FormField
@@ -944,14 +1008,19 @@ const ContactStep = ({
 const AppointmentForm = ({
   className = "",
   presentation = "default",
+  leadFormName = DEFAULT_APPOINTMENT_LEAD_FORM_NAME,
+  defaultAppointmentType,
+  requestSource = "schedule_page_form_v2",
+  collapseAppointmentTypes = false,
 }: AppointmentFormProps) => {
   const searchParams = useSearchParams();
   const scheduleIntent = searchParams?.get("intent") ?? null;
-  const initialAppointmentType = scheduleIntent
-    ? getAppointmentTypeForIntent(scheduleIntent)
-    : "";
+  const initialAppointmentType =
+    defaultAppointmentType ??
+    (scheduleIntent ? getAppointmentTypeForIntent(scheduleIntent) : "");
   const [step, setStep] = useState<number>(1);
   const [status, setStatus] = useState<SubmitStatus>("idle");
+  const [rateLimited, setRateLimited] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [errorSummary, setErrorSummary] = useState<FieldErrorSummary[]>([]);
   const [confirmationDetails, setConfirmationDetails] =
@@ -966,6 +1035,9 @@ const AppointmentForm = ({
   const honeypotRef = useRef<HTMLInputElement>(null);
   const shouldFocusHeadingRef = useRef(false);
   const pendingFocusFieldRef = useRef<FieldPath<ScheduleFormValues> | null>(null);
+  const submitInFlightRef = useRef(false);
+  const leadEmittedRef = useRef(false);
+  const rateLimitTimerRef = useRef<number | null>(null);
   const stepTrackingRef = useRef<{ index: number; name: StepName }>({
     index: 1,
     name: "visit_needs",
@@ -1129,6 +1201,14 @@ const AppointmentForm = ({
     window.requestAnimationFrame(() => setFocus(field));
   }, [activeStep, setFocus]);
 
+  useEffect(() => {
+    return () => {
+      if (rateLimitTimerRef.current !== null) {
+        window.clearTimeout(rateLimitTimerRef.current);
+      }
+    };
+  }, []);
+
   const markScheduleStarted = () => {
     if (hasTrackedStart.current || typeof window === "undefined") return;
     hasTrackedStart.current = true;
@@ -1164,7 +1244,7 @@ const AppointmentForm = ({
     if (errorSummary.length > 0) {
       setErrorSummary([]);
     }
-    if (status === "error") {
+    if (status === "error" && !rateLimited) {
       setStatus("idle");
       setErrorMessage("");
     }
@@ -1301,7 +1381,7 @@ const AppointmentForm = ({
       contactPreference: rawData.contactPreference,
       insuranceProvider: rawData.insuranceProvider?.trim() || undefined,
       message: rawData.message?.trim() || undefined,
-      source: "schedule_page_form_v2",
+      source: requestSource,
       sourceUrl,
       // Tags on this URL win; otherwise fall back to the tags from the visit
       // that brought the patient to the site (e.g. a Google Business Profile
@@ -1329,6 +1409,10 @@ const AppointmentForm = ({
 
     const payload = parsedPayload.data as ScheduleRequestV2;
 
+    if (submitInFlightRef.current || rateLimited) {
+      return;
+    }
+
     trackGAEvent("schedule_submit_attempt", {
       source: "schedule_page_form",
       step_index: activeStep,
@@ -1340,6 +1424,12 @@ const AppointmentForm = ({
     setStatus("submitting");
     setErrorMessage("");
     setErrorSummary([]);
+    submitInFlightRef.current = true;
+
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => {
+      controller.abort();
+    }, SCHEDULE_REQUEST_TIMEOUT_MS);
 
     try {
       const response = await fetch("/api/schedule-request", {
@@ -1351,75 +1441,107 @@ const AppointmentForm = ({
           ...payload,
           [HONEYPOT_FIELD]: honeypotRef.current?.value ?? "",
         }),
+        signal: controller.signal,
       });
 
-      if (!response.ok) {
-        const parsed = await response
-          .json()
-          .catch(() => ({ message: "Something went wrong. Please try again." }));
-        throw new Error(parsed?.message ?? "Something went wrong. Please try again.");
-      }
+      const parsedBody = parseJsonBody(await response.text());
+      const result = readScheduleRequestResult(response.status, parsedBody);
+      const plan = planScheduleSubmitAnalytics(result);
 
-      trackGAEvent("schedule_submit_success", {
-        source: "schedule_page_form",
-        contact_preference: rawData.contactPreference,
-        ...analyticsContext,
-      });
-
-      trackLeadConversion(ANALYTICS_EVENTS.appointmentRequestSubmit, {
-        form_name: "schedule_request_form",
-        lead_type: "appointment_request",
-        lead_source: "schedule_request_form",
-        appointment_type: rawData.appointmentType,
-        scheduling_mode: rawData.schedulingMode,
-        urgent_flag: rawData.isEmergency ? "true" : "false",
-        contact_preference: rawData.contactPreference,
-        lead_channel: leadAttribution?.attribution.channel ?? "unknown",
-        ...pageContext,
-      });
-
-      trackGAEvent("schedule_submit", {
-        appointment_type: rawData.appointmentType,
-        insurance_status: rawData.insuranceProvider ? "provided" : "not_provided",
-        urgent_flag: rawData.isEmergency ? "true" : "false",
-      });
-
-      if (rawData.isEmergency) {
-        trackGAEvent("schedule_submit_emergency", {
-          appointment_type: rawData.appointmentType,
-          insurance_status: rawData.insuranceProvider ? "provided" : "not_provided",
-          urgent_flag: "true",
+      if (plan.showError && !result.accepted && !result.neutral) {
+        throw new ScheduleSubmitError(result.message, {
+          status: response.status,
+          retryAfterSeconds:
+            response.status === 429
+              ? parseRetryAfterSeconds(response.headers.get("Retry-After"))
+              : null,
         });
       }
 
-      if (rawData.appointmentType === "New Patient Exam & Cleaning") {
-        trackGAEvent("schedule_submit_new_patient", {
-          appointment_type: rawData.appointmentType,
-          insurance_status: rawData.insuranceProvider ? "provided" : "not_provided",
-          urgent_flag: rawData.isEmergency ? "true" : "false",
+      if (plan.emitSuccessEvents) {
+        trackGAEvent("schedule_submit_success", {
+          source: "schedule_page_form",
+          contact_preference: rawData.contactPreference,
+          ...analyticsContext,
         });
       }
 
-      if (rawData.appointmentType === "Invisalign Consultation") {
-        trackGAEvent("schedule_submit_invisalign", {
+      const leadEvent = plan.emitLead
+        ? resolveAppointmentLeadEvent({
+            submitted: true,
+            success: true,
+            formName: leadFormName,
+            appointmentType: rawData.appointmentType,
+            schedulingMode: rawData.schedulingMode,
+            urgentFlag: rawData.isEmergency,
+            contactPreference: rawData.contactPreference,
+            leadChannel: leadAttribution?.attribution.channel ?? "unknown",
+            pagePath: pageContext.page_path,
+            pageCategory: pageContext.page_category,
+          })
+        : null;
+      if (leadEvent && !leadEmittedRef.current) {
+        leadEmittedRef.current = true;
+        trackLeadConversion(leadEvent.eventName, leadEvent.properties);
+      }
+
+      if (plan.emitSuccessEvents) {
+        trackGAEvent("schedule_submit", {
           appointment_type: rawData.appointmentType,
           insurance_status: rawData.insuranceProvider ? "provided" : "not_provided",
           urgent_flag: rawData.isEmergency ? "true" : "false",
         });
+
+        if (rawData.isEmergency) {
+          trackGAEvent("schedule_submit_emergency", {
+            appointment_type: rawData.appointmentType,
+            insurance_status: rawData.insuranceProvider ? "provided" : "not_provided",
+            urgent_flag: "true",
+          });
+        }
+
+        if (rawData.appointmentType === "New Patient Exam & Cleaning") {
+          trackGAEvent("schedule_submit_new_patient", {
+            appointment_type: rawData.appointmentType,
+            insurance_status: rawData.insuranceProvider ? "provided" : "not_provided",
+            urgent_flag: rawData.isEmergency ? "true" : "false",
+          });
+        }
+
+        if (rawData.appointmentType === "Invisalign Consultation") {
+          trackGAEvent("schedule_submit_invisalign", {
+            appointment_type: rawData.appointmentType,
+            insurance_status: rawData.insuranceProvider ? "provided" : "not_provided",
+            urgent_flag: rawData.isEmergency ? "true" : "false",
+          });
+        }
       }
 
-      completionStateRef.current = true;
-      setConfirmationDetails({
-        method: rawData.contactPreference,
-        destination:
-          rawData.contactPreference === "phone"
-            ? normalizedPhone
-            : normalizedEmail,
-      });
-      setStatus("success");
-      setStep(1);
-      reset();
+      if (plan.showConfirmation) {
+        completionStateRef.current = true;
+        setConfirmationDetails({
+          method: rawData.contactPreference,
+          destination:
+            rawData.contactPreference === "phone"
+              ? normalizedPhone
+              : normalizedEmail,
+        });
+        setStatus("success");
+        setStep(1);
+        reset();
+      }
     } catch (error) {
+      if (error instanceof ScheduleSubmitError && error.status === 429) {
+        setRateLimited(true);
+        if (rateLimitTimerRef.current !== null) {
+          window.clearTimeout(rateLimitTimerRef.current);
+        }
+        const waitMs = (error.retryAfterSeconds ?? 600) * 1000;
+        rateLimitTimerRef.current = window.setTimeout(() => {
+          setRateLimited(false);
+          rateLimitTimerRef.current = null;
+        }, waitMs);
+      }
       setErrorMessage(getScheduleErrorMessage(error));
       trackAnalyticsEvent(ANALYTICS_EVENTS.scheduleSubmitFailure, {
         source: "schedule_page_form",
@@ -1428,6 +1550,9 @@ const AppointmentForm = ({
       });
       setStatus("error");
       window.requestAnimationFrame(() => errorAlertRef.current?.focus());
+    } finally {
+      window.clearTimeout(timeoutId);
+      submitInFlightRef.current = false;
     }
   };
 
@@ -1525,6 +1650,8 @@ const AppointmentForm = ({
     );
   }
 
+  const submitInFlight = isSubmitting || status === "submitting";
+  const submitDisabled = submitInFlight || rateLimited;
   const progressPercent = Math.round((activeStep / totalSteps) * 100);
   const formClasses = cn(
     presentation === "funnel" ? "space-y-7" : "space-y-6",
@@ -1548,7 +1675,7 @@ const AppointmentForm = ({
         className={formClasses}
         autoComplete="on"
         noValidate
-        aria-busy={isSubmitting || status === "submitting"}
+        aria-busy={submitInFlight}
         data-hj-suppress
       >
         {/* Honeypot — hidden from real users; bots that fill it are dropped. */}
@@ -1630,7 +1757,11 @@ const AppointmentForm = ({
         )}
 
         {currentStep.name === "visit_needs" ? (
-          <VisitNeedsStep control={control} presentation={presentation} />
+          <VisitNeedsStep
+            control={control}
+            presentation={presentation}
+            collapseAppointmentTypes={collapseAppointmentTypes}
+          />
         ) : null}
         {currentStep.name === "scheduling_preferences" ? (
           <PreferenceStep control={control} presentation={presentation} />
@@ -1744,7 +1875,7 @@ const AppointmentForm = ({
           </div>
         ) : null}
 
-        {status === "error" && errorMessage ? (
+        {(status === "error" || rateLimited) && errorMessage ? (
           <div
             ref={errorAlertRef}
             tabIndex={-1}
@@ -1780,7 +1911,7 @@ const AppointmentForm = ({
                   variant="outline"
                   className="ui-focus-premium min-h-11 flex-1 sm:flex-none"
                   onClick={goToPreviousStep}
-                  disabled={isSubmitting || status === "submitting"}
+                  disabled={submitInFlight}
                 >
                   <ChevronLeft className="mr-1 h-4 w-4" aria-hidden="true" />
                   Back
@@ -1790,7 +1921,7 @@ const AppointmentForm = ({
                 <Button
                   type="submit"
                   className="ui-btn-primary min-h-11 flex-1 text-base font-semibold sm:min-w-[200px]"
-                  disabled={isSubmitting || status === "submitting"}
+                  disabled={submitDisabled}
                 >
                   {isSubmitting || status === "submitting"
                     ? "Sending request..."
@@ -1806,7 +1937,7 @@ const AppointmentForm = ({
                     event.preventDefault();
                     goToNextStep();
                   }}
-                  disabled={isSubmitting || status === "submitting"}
+                  disabled={submitInFlight}
                 >
                   {nextButtonLabel}
                   <ChevronRight className="ml-1 h-4 w-4" aria-hidden="true" />
@@ -1839,7 +1970,7 @@ const AppointmentForm = ({
                 variant="outline"
                 className="ui-focus-premium min-h-11 flex-1"
                 onClick={goToPreviousStep}
-                disabled={activeStep === 1 || isSubmitting || status === "submitting"}
+                disabled={activeStep === 1 || submitInFlight}
               >
                 <ChevronLeft className="mr-1 h-4 w-4" aria-hidden="true" />
                 Back
@@ -1848,7 +1979,7 @@ const AppointmentForm = ({
                 <Button
                   type="submit"
                   className="ui-btn-primary min-h-11 flex-1 text-base font-semibold"
-                  disabled={isSubmitting || status === "submitting"}
+                  disabled={submitDisabled}
                 >
                   {isSubmitting || status === "submitting"
                     ? "Sending request..."
@@ -1864,7 +1995,7 @@ const AppointmentForm = ({
                     event.preventDefault();
                     goToNextStep();
                   }}
-                  disabled={isSubmitting || status === "submitting"}
+                  disabled={submitInFlight}
                 >
                   {nextButtonLabel}
                   <ChevronRight className="ml-1 h-4 w-4" aria-hidden="true" />
