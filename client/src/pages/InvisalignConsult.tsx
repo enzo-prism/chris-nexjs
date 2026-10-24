@@ -111,7 +111,7 @@ const faqs: FAQEntry[] = [
   },
 ];
 
-const InvisalignConsult = () => {
+const InvisalignConsult = ({ reviewPreview = false }: { readonly reviewPreview?: boolean }) => {
   const schemas: StructuredDataNode[] = [];
   const faqSchema = buildFAQSchema(faqs, PATH);
   if (faqSchema) schemas.push(faqSchema);
@@ -119,6 +119,12 @@ const InvisalignConsult = () => {
   return (
     <>
       {schemas.length ? <StructuredData data={schemas} /> : null}
+
+      {reviewPreview ? (
+        <aside aria-label="Review preview" className="border-b border-gold-300 bg-cream-100 px-4 py-3 text-center text-sm leading-6 text-ink">
+          <strong>Review preview.</strong> Use made-up details to try the form. Requests here are not sent to the office.
+        </aside>
+      ) : null}
 
       <PageHero
         icon="aligner"
@@ -226,7 +232,9 @@ const InvisalignConsult = () => {
       <ScheduleRequestFunnel
         headingAs="h2"
         title="Request your Invisalign consult"
-        lead="About a minute to fill out. We'll call or email within one business day to confirm a time."
+        lead="About a minute to fill out. The office will call or email to confirm availability. Your consultation is not booked until the office confirms it."
+        responseTime={null}
+        reviewPreview={reviewPreview}
         defaultAppointmentType={getAppointmentTypeForIntent("invisalign")}
         leadFormName={INVISALIGN_CONSULT_FORM_NAME}
         requestSource={INVISALIGN_CONSULT_FORM_NAME}

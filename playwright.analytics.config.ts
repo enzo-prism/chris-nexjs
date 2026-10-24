@@ -28,6 +28,7 @@ export default defineConfig({
       name: "analytics-chromium",
       use: {
         ...devices["Desktop Chrome"],
+        channel: process.env.CI ? undefined : "chrome",
       },
     },
   ],

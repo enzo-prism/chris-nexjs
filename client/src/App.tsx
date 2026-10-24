@@ -114,7 +114,7 @@ function Router() {
             <Route path="/dentist-mountain-view" component={DentistMountainView} />
             <Route path="/locations" component={Locations} />
             <Route path="/invisalign" component={Invisalign} />
-            <Route path="/invisalign-consult" component={InvisalignConsult} />
+            <Route path="/invisalign-consult" component={() => <InvisalignConsult />} />
             <Route path="/emergency-dental" component={EmergencyDental} />
             <Route path="/zoom-whitening/schedule" component={ZoomWhiteningSchedule} />
             <Route path="/analytics" component={AnalyticsMinimal} />

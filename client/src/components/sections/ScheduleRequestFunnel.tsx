@@ -22,6 +22,8 @@ type ScheduleRequestFunnelProps = {
   readonly collapseAppointmentTypes?: boolean;
   readonly showReviews?: boolean;
   readonly showHelpLinks?: boolean;
+  readonly responseTime?: string | null;
+  readonly reviewPreview?: boolean;
 };
 
 const AppointmentForm = dynamic(
@@ -79,6 +81,8 @@ const ScheduleRequestFunnel = ({
   collapseAppointmentTypes = false,
   showReviews = true,
   showHelpLinks = true,
+  responseTime = "within one business day",
+  reviewPreview = false,
 }: ScheduleRequestFunnelProps) => {
   // Post-mount only: a build-time date would mismatch on hydration.
   const holiday = useHolidayNotice();
@@ -149,6 +153,8 @@ const ScheduleRequestFunnel = ({
             leadFormName={leadFormName}
             requestSource={requestSource}
             collapseAppointmentTypes={collapseAppointmentTypes}
+            responseTime={responseTime}
+            reviewPreview={reviewPreview}
           />
         </div>
       </div>

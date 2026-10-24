@@ -1054,7 +1054,42 @@ async function testV4FormResolverCompatibility() {
   assert.equal(rejected.errors.email?.message, "Enter a valid email address.");
 }
 
+async function testPreviewNeverDispatchesOrCountsLeads() {
+  const previous = process.env.VERCEL_ENV;
+  process.env.VERCEL_ENV = "preview";
+  try {
+    await withMockedFetch(async (calls) => {
+      process.env.SCHEDULE_CRM_WEBHOOK_URL = "https://example.invalid/crm";
+      process.env.SCHEDULE_SLACK_WEBHOOK_URL = "https://example.invalid/slack";
+      startCapturingVercelServerEventsForTests();
+      for (const sourceUrl of [
+        "https://chris-wong-dds-git-demo-enzo-design-prisms-projects.vercel.app/invisalign-consult",
+        // Spoofing a production source cannot defeat the deployment-owned guard.
+        "https://www.chriswongdds.com/invisalign-consult",
+      ]) {
+        const response = await postScheduleRequest(requestWithBody({
+          ...validV2Payload, source: "invisalign_consult", sourceUrl,
+        }));
+        assert.equal(response.status, 200);
+        assert.deepEqual(await response.json(), { ok: true, accepted: false, preview: true });
+        assert.equal(response.headers.get("cache-control"), "private, no-store");
+      }
+      assert.equal(calls.length, 0, "preview must not call inbox, CRM, Slack or analytics");
+      assert.deepEqual(takeVercelServerEventsForTests(), []);
+      const invalid = await postScheduleRequest(requestWithBody({
+        ...validV2Payload, firstName: "", source: "invisalign_consult",
+      }));
+      assert.equal(invalid.status, 400, "preview must exercise real validation");
+      assert.equal(calls.length, 0);
+    });
+  } finally {
+    if (previous === undefined) delete process.env.VERCEL_ENV;
+    else process.env.VERCEL_ENV = previous;
+  }
+}
+
 (async function run() {
+  await testPreviewNeverDispatchesOrCountsLeads();
   await testPatchedCollectionLimitsAndLegacyCompatibility();
   await testV4FormResolverCompatibility();
   await testLegacyPayloadCompatibility();

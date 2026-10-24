@@ -10,7 +10,7 @@ export const generateMetadata = async () =>
 export default function InvisalignConsultPage() {
   return (
     <RouteShell ssrPath="/invisalign-consult" chromeVariant="conversion">
-      <InvisalignConsult />
+      <InvisalignConsult reviewPreview={process.env.VERCEL_ENV === "preview"} />
     </RouteShell>
   );
 }

@@ -47,7 +47,7 @@ async function fillSyntheticEmailContact(page: Page): Promise<void> {
 }
 
 async function openContactStep(page: Page, path: string): Promise<void> {
-  await gotoAndHydrate(page, path);
+  await gotoAndHydrate(page, `https://www.chriswongdds.com${path}`);
   await advanceFunnelToContactStep(page, { dismissConsent: false });
   await fillSyntheticEmailContact(page);
 }
@@ -86,6 +86,29 @@ async function mockScheduleApi(
 }
 
 test.describe("schedule lead guard", () => {
+  test.beforeEach(async ({ page, baseURL }) => {
+    // Exercise the real production hostname guard against local files. Every
+    // production-origin request is intercepted; no public site is accessed.
+    await page.route("**/*", async (route) => {
+      const url = new URL(route.request().url());
+      if (url.hostname !== "www.chriswongdds.com") {
+        await route.abort();
+        return;
+      }
+      if (route.request().method() !== "GET") {
+        // Individual tests install their API mock after this fallback.
+        await route.abort();
+        return;
+      }
+      const response = await route.fetch({ url: `${baseURL}${url.pathname}${url.search}` });
+      await route.fulfill({ response });
+    });
+  });
+  test.afterEach(async ({ page }) => {
+    // Next may still be prefetching when the assertion completes. Finish
+    // intercepted reads before closing the context instead of leaking callbacks.
+    await page.unrouteAll({ behavior: "wait" });
+  });
   for (const path of ROUTES) {
     test(`M1: 500 on ${path} does not fire generate_lead`, async ({ page }) => {
       await installGtagProbe(page);
@@ -110,7 +133,7 @@ test.describe("schedule lead guard", () => {
         page.getByRole("button", { name: "Try Sending Again", exact: true }),
       ).toBeVisible();
       await expect(
-        page.getByRole("heading", { name: "We'll confirm your appointment shortly." }),
+        page.getByRole("heading", { name: /We'll confirm your appointment shortly\.|Your consultation request was sent\./ }),
       ).toHaveCount(0);
 
       expect(
@@ -153,12 +176,26 @@ test.describe("schedule lead guard", () => {
     mode = "ok";
     await page.getByRole("button", { name: "Try Sending Again", exact: true }).click();
     await expect(
-      page.getByRole("heading", { name: "We'll confirm your appointment shortly." }),
+      page.getByRole("heading", { name: /We'll confirm your appointment shortly\.|Your consultation request was sent\./ }),
     ).toBeVisible();
     expect(
       await countGtagEvents(page, "generate_lead"),
       "explicit success:true must fire generate_lead once",
     ).toBe(1);
+  });
+
+  test("preview demo makes no lead and does not claim office receipt", async ({ page }) => {
+    await installGtagProbe(page);
+    await mockScheduleApi(page, async (route) => {
+      await route.fulfill({ status: 200, contentType: "application/json",
+        body: JSON.stringify({ ok: true, accepted: false, preview: true }) });
+    });
+    await openContactStep(page, "/invisalign-consult");
+    await page.getByRole("button", { name: "Send Appointment Request", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Preview complete. Nothing was sent." })).toBeVisible();
+    await expect(page.getByRole("status").filter({ hasText: "Preview only" })).toContainText("office has not received a request");
+    expect(await countGtagEvents(page, "generate_lead")).toBe(0);
+    expect(await countGtagEvents(page, "schedule_submit_success")).toBe(0);
   });
 
   test("M3: double-submit sends one request", async ({ page }) => {
@@ -185,7 +222,7 @@ test.describe("schedule lead guard", () => {
       });
 
     await expect(
-      page.getByRole("heading", { name: "We'll confirm your appointment shortly." }),
+      page.getByRole("heading", { name: /We'll confirm your appointment shortly\.|Your consultation request was sent\./ }),
     ).toBeVisible();
     expect(requestCount, "M3: double-submit must not send two requests").toBe(1);
   });
@@ -195,10 +232,12 @@ test.describe("schedule lead guard", () => {
   }) => {
     test.setTimeout(45_000);
     await installGtagProbe(page);
-    await mockScheduleApi(page, async () => {
-      await new Promise(() => {
-        /* never fulfill — abort must unstick the spinner */
-      });
+    await mockScheduleApi(page, async (route) => {
+      // Outlast the client timeout, but release the handler so fixture teardown
+      // can finish after the browser aborts its request.
+      await new Promise((resolve) => setTimeout(resolve, 20_000));
+      await route.fulfill({ status: 201, contentType: "application/json",
+        body: JSON.stringify({ success: true }) }).catch(() => {});
     });
 
     await openContactStep(page, "/schedule");
@@ -231,7 +270,7 @@ test.describe("schedule lead guard", () => {
       .click();
 
     await expect(
-      page.getByRole("heading", { name: "We'll confirm your appointment shortly." }),
+      page.getByRole("heading", { name: /We'll confirm your appointment shortly\.|Your consultation request was sent\./ }),
     ).toBeVisible();
     expect(await countGtagEvents(page, "generate_lead")).toBe(0);
     expect(await countGtagEvents(page, "schedule_submit_success")).toBe(0);
@@ -259,7 +298,7 @@ test.describe("schedule lead guard", () => {
       .getByRole("button", { name: "Send Appointment Request", exact: true })
       .click();
     await expect(
-      page.getByRole("heading", { name: "We'll confirm your appointment shortly." }),
+      page.getByRole("heading", { name: /We'll confirm your appointment shortly\.|Your consultation request was sent\./ }),
     ).toBeVisible();
 
     expect(postedSource).toBe("invisalign_consult");
@@ -335,7 +374,7 @@ test.describe("schedule lead guard", () => {
       .getByRole("button", { name: "Send Appointment Request", exact: true })
       .click();
     await expect(
-      page.getByRole("heading", { name: "We'll confirm your appointment shortly." }),
+      page.getByRole("heading", { name: /We'll confirm your appointment shortly\.|Your consultation request was sent\./ }),
     ).toBeVisible();
     expect(posted.source).toBe("schedule_page_form_v2");
     expect(posted.sourceUrl).toMatch(/\/schedule/);

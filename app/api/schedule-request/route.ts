@@ -363,6 +363,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Review deployments exercise validation without touching office inboxes,
+    // optional integrations, or conversion analytics. This is server-owned;
+    // a request body/query flag can never enable production delivery.
+    if (process.env.VERCEL_ENV === "preview") {
+      return NextResponse.json(
+        { ok: true, accepted: false, preview: true },
+        { status: 200, headers: { "Cache-Control": "private, no-store" } },
+      );
+    }
+
     const utm = mergeUtmParams(sourceUrl, parsedBody.utmParams);
 
     const payload: ScheduleDispatchPayload = {

@@ -30,6 +30,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -254,6 +255,8 @@ type AppointmentFormProps = {
   readonly requestSource?: string;
   /** Ads landing: keep the preselected type visible and hide the rest. */
   readonly collapseAppointmentTypes?: boolean;
+  readonly responseTime?: string | null;
+  readonly reviewPreview?: boolean;
 };
 
 const visitNeedsFields: FieldPath<ScheduleFormValues>[] = [
@@ -431,6 +434,7 @@ const OptionalDetailsFields = ({
               {...field}
             />
           </FormControl>
+          <FormDescription className="sr-only">Optional. The office can check your PPO benefits before treatment.</FormDescription>
           <p className="mt-1 flex items-start gap-1.5 text-xs leading-5 text-ink-muted">
             <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-evergreen-600" aria-hidden="true" />
             <span>
@@ -466,6 +470,7 @@ const OptionalDetailsFields = ({
               value={field.value ?? ""}
             />
           </FormControl>
+          <FormDescription className="sr-only">Optional. Please keep sensitive medical details out of this message.</FormDescription>
           <p className="mt-1 text-xs leading-5 text-ink-muted">
             Please don&apos;t include medical history or other sensitive health
             details. Call us if you need to discuss care. {remainingNotesCharacters} characters left.
@@ -591,6 +596,7 @@ const VisitNeedsStep = ({
                 })}
               </RadioGroup>
             </FormControl>
+            <FormDescription className="sr-only">Choose the type of visit you would like to request.</FormDescription>
             {presentation === "funnel" && field.value === EMERGENCY_APPOINTMENT_TYPE ? (
               <p className="mt-2 flex items-start gap-2 rounded-xl bg-rose-50 px-3 py-2 text-xs leading-5 text-rose-700">
                 <PhoneCall className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
@@ -687,6 +693,7 @@ const VisitNeedsStep = ({
                 })}
               </RadioGroup>
             </FormControl>
+            <FormDescription className="sr-only">Choose the earliest opening or share preferred days and times.</FormDescription>
             <FormMessage />
           </FormItem>
         )}
@@ -788,6 +795,7 @@ const PreferenceStep = ({ control, presentation }: StepProps) => {
                 })}
               </RadioGroup>
             </FormControl>
+            <FormDescription className="sr-only">Choose the time of day that usually works best for you.</FormDescription>
             <FormMessage />
           </FormItem>
         )}
@@ -839,6 +847,7 @@ const ContactStep = ({
                   {...field}
                 />
               </FormControl>
+              <FormDescription className="sr-only">Enter your first name.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -863,6 +872,7 @@ const ContactStep = ({
                   {...field}
                 />
               </FormControl>
+              <FormDescription className="sr-only">Enter your last name.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -898,6 +908,7 @@ const ContactStep = ({
                   }
                 />
               </FormControl>
+              <FormDescription className="sr-only">Use a ten-digit US phone number. Required when phone is your preferred contact method.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -926,6 +937,7 @@ const ContactStep = ({
                   {...field}
                 />
               </FormControl>
+              <FormDescription className="sr-only">Required when email is your preferred contact method.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -985,6 +997,7 @@ const ContactStep = ({
                 })}
               </RadioGroup>
             </FormControl>
+            <FormDescription className="sr-only">Choose how the office should follow up about availability.</FormDescription>
             <p className="text-xs leading-5 text-ink-muted" aria-live="polite">
               {contactPreference === "phone"
                 ? "Add an email only if you want a backup contact method."
@@ -1012,6 +1025,8 @@ const AppointmentForm = ({
   defaultAppointmentType,
   requestSource = "schedule_page_form_v2",
   collapseAppointmentTypes = false,
+  responseTime = "within one business day",
+  reviewPreview = false,
 }: AppointmentFormProps) => {
   const searchParams = useSearchParams();
   const scheduleIntent = searchParams?.get("intent") ?? null;
@@ -1021,6 +1036,7 @@ const AppointmentForm = ({
   const [step, setStep] = useState<number>(1);
   const [status, setStatus] = useState<SubmitStatus>("idle");
   const [rateLimited, setRateLimited] = useState(false);
+  const [previewConfirmation, setPreviewConfirmation] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [errorSummary, setErrorSummary] = useState<FieldErrorSummary[]>([]);
   const [confirmationDetails, setConfirmationDetails] =
@@ -1518,6 +1534,11 @@ const AppointmentForm = ({
       }
 
       if (plan.showConfirmation) {
+        setPreviewConfirmation(
+          typeof parsedBody === "object" && parsedBody !== null &&
+          "preview" in parsedBody && parsedBody.preview === true &&
+          "accepted" in parsedBody && parsedBody.accepted === false,
+        );
         completionStateRef.current = true;
         setConfirmationDetails({
           method: rawData.contactPreference,
@@ -1590,13 +1611,21 @@ const AppointmentForm = ({
           <CheckCircle2 className="h-8 w-8 text-evergreen-600" aria-hidden="true" />
         </div>
         <p className="mt-5 text-xs font-semibold uppercase tracking-[0.2em] text-evergreen-700">
-          Request Received
+          {previewConfirmation ? "Preview only" : "Request Received"}
         </p>
         <h3 className="mt-3 font-heading text-[1.9rem] font-medium leading-tight tracking-[-0.01em] text-ink">
-          We&apos;ll confirm your appointment shortly.
+          {previewConfirmation
+            ? "Preview complete. Nothing was sent."
+            : responseTime === null
+              ? "Your consultation request was sent."
+              : "We'll confirm your appointment shortly."}
         </h3>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-ink-soft">
-          Our team will follow up within one business day
+          {previewConfirmation ? (
+            "This was a form demonstration. The office has not received a request and no appointment has been booked."
+          ) : (
+            <>
+          Our team will follow up{responseTime ? ` ${responseTime}` : ""}
           {confirmationDetails ? (
             <>
               {" "}by {confirmationDetails.method} at{" "}
@@ -1608,6 +1637,8 @@ const AppointmentForm = ({
             " by phone or email"
           )}{" "}
           to confirm an available time. Your visit is not booked until we confirm it.
+            </>
+          )}
         </p>
         <div className="mx-auto mt-6 max-w-xl rounded-2xl border border-cream-300 bg-white px-5 py-4 text-left">
           <p className="text-sm font-semibold text-ink">While you wait</p>
@@ -1693,7 +1724,7 @@ const AppointmentForm = ({
         {presentation === "funnel" ? (
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/70">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
                 Step {activeStep} of {totalSteps}
               </p>
               <span className="inline-flex items-center gap-1.5 text-xs font-medium text-ink-muted">
@@ -1704,6 +1735,7 @@ const AppointmentForm = ({
             <div
               className="h-1.5 overflow-hidden rounded-full bg-cream-200"
               role="progressbar"
+              aria-label="Appointment request progress"
               aria-valuenow={progressPercent}
               aria-valuemin={0}
               aria-valuemax={100}
@@ -1743,6 +1775,7 @@ const AppointmentForm = ({
             <div
               className="mt-3 h-2 overflow-hidden rounded-full bg-cream-300"
               role="progressbar"
+              aria-label="Appointment request progress"
               aria-valuenow={progressPercent}
               aria-valuemin={0}
               aria-valuemax={100}
@@ -1961,7 +1994,7 @@ const AppointmentForm = ({
                 Need urgent help? Call now
               </a>
               <span className="text-xs text-ink-muted">
-                Response in one business day
+                {reviewPreview ? "Preview only" : responseTime ? `Response ${responseTime}` : "Office confirms availability"}
               </span>
             </div>
             <div className="flex gap-2">
