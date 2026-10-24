@@ -9,13 +9,7 @@ import {
   type AnalyticsConsentState,
   type AnalyticsEventName,
 } from "@shared/analytics";
-
-const FALLBACK_GA_ALLOWED_HOSTS = new Set([
-  "www.chriswongdds.com",
-  "chriswongdds.com",
-  "chris-nextjs.vercel.app",
-  "chriswongdds.vercel.app",
-]);
+import { isAllowedAnalyticsHost } from "@shared/analyticsHosts";
 
 // Google Ads conversion tag. Inert until NEXT_PUBLIC_GOOGLE_ADS_ID (an
 // "AW-…" id) is set; NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL narrows the
@@ -41,11 +35,7 @@ function isAnalyticsTestHookActive(): boolean {
 export function isAnalyticsRuntimeEnabled(): boolean {
   if (typeof window === "undefined") return false;
   if (isAnalyticsTestHookActive()) return true;
-
-  const explicitMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim();
-  if (explicitMeasurementId) return true;
-
-  return FALLBACK_GA_ALLOWED_HOSTS.has(window.location.hostname);
+  return isAllowedAnalyticsHost(window.location.hostname);
 }
 
 export function getAnalyticsConsentState(): AnalyticsConsentState | null {
@@ -85,7 +75,7 @@ export function trackGAEvent(action: string, params: Record<string, unknown> = {
 
 function canTrackVercelEvent(): boolean {
   if (typeof window === "undefined") return false;
-  if (!hasAnalyticsConsent()) return false;
+  if (!isAnalyticsRuntimeEnabled() || !hasAnalyticsConsent()) return false;
   return !isAnalyticsPathExcluded(window.location.pathname);
 }
 

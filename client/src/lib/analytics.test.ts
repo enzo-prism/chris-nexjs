@@ -15,6 +15,7 @@ import {
   sanitizeAnalyticsEventProperties,
   sanitizeVercelEventProperties,
 } from "@shared/analytics";
+import { isAllowedAnalyticsHost } from "@shared/analyticsHosts";
 
 const waitForAnalyticsFlush = () => new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -116,7 +117,7 @@ trackGAEvent("no_gtag");
 assert.strictEqual(gaCalled, null);
 
 vercelCalled = null;
-(globalThis as any).window.location.hostname = "localhost";
+(globalThis as any).window.location.hostname = "www.chriswongdds.com";
 (globalThis as any).window.location.pathname = "/contact";
 trackVercelEvent(ANALYTICS_EVENTS.contactFormSubmit, {
   form_name: "contact_form",
@@ -136,6 +137,28 @@ assert.deepStrictEqual(vercelCalled, [
     options: undefined,
   },
 ]);
+
+vercelCalled = null;
+(globalThis as any).window.location.hostname = "localhost";
+trackVercelEvent(ANALYTICS_EVENTS.contactFormSubmit, {
+  form_name: "contact_form",
+  lead_type: "contact_request",
+  page_path: "/contact",
+});
+await waitForAnalyticsFlush();
+assert.strictEqual(vercelCalled, null);
+assert.strictEqual(isAllowedAnalyticsHost("localhost"), false);
+
+vercelCalled = null;
+(globalThis as any).window.location.hostname =
+  "chris-wong-dds-git-allowlist.vercel.app";
+trackVercelEvent(ANALYTICS_EVENTS.contactFormSubmit, {
+  form_name: "contact_form",
+  lead_type: "contact_request",
+  page_path: "/contact",
+});
+await waitForAnalyticsFlush();
+assert.strictEqual(vercelCalled, null);
 
 vercelCalled = null;
 (globalThis as any).window.localStorage.value = "denied";
