@@ -1827,9 +1827,9 @@ const AppointmentForm = ({
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
               Review your request
             </p>
-            <dl className="mt-3 space-y-3 text-sm">
+            <div className="mt-3 space-y-3 text-sm">
               <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
+                <dl className="min-w-0">
                   <dt className="text-ink-muted">Visit</dt>
                   <dd className="mt-0.5 font-medium text-ink">
                     {formValues.appointmentType || "Not selected yet"}
@@ -1839,7 +1839,7 @@ const AppointmentForm = ({
                       </span>
                     ) : null}
                   </dd>
-                </div>
+                </dl>
                 <Button
                   type="button"
                   variant="link"
@@ -1851,14 +1851,14 @@ const AppointmentForm = ({
                 </Button>
               </div>
               <div className="flex items-start justify-between gap-3 border-t border-cream-300 pt-3">
-                <div className="min-w-0">
+                <dl className="min-w-0">
                   <dt className="text-ink-muted">Scheduling</dt>
                   <dd className="mt-0.5 font-medium text-ink">
                     {schedulingMode === "first_available"
                       ? "Soonest available visit"
                       : `${reviewDays} · ${reviewTime}`}
                   </dd>
-                </div>
+                </dl>
                 <Button
                   type="button"
                   variant="link"
@@ -1875,7 +1875,7 @@ const AppointmentForm = ({
                   Edit
                 </Button>
               </div>
-              <div className="border-t border-cream-300 pt-3">
+              <dl className="border-t border-cream-300 pt-3">
                 <dt className="text-ink-muted">Confirmation</dt>
                 <dd className="mt-0.5 font-medium text-ink">
                   {formValues.contactPreference === "phone" ? "Phone" : "Email"}
@@ -1886,8 +1886,8 @@ const AppointmentForm = ({
                     ? ` · ${formValues.email}`
                     : null}
                 </dd>
-              </div>
-            </dl>
+              </dl>
+            </div>
             <p className="mt-4 border-t border-cream-300 pt-3 text-xs leading-5 text-ink-muted">
               Sending this form requests a time; it does not book an appointment.
               We&apos;ll confirm the final date and time with you.
