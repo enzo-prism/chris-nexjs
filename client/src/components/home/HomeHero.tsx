@@ -3,8 +3,8 @@ import Link from "next/link";
 import { ArrowRight, CalendarDays, Phone, Play } from "lucide-react";
 
 import { officeInfo } from "@/lib/data";
-import { GOOGLE_REVIEW_COUNT } from "@shared/reviewStats";
 import { StarRow } from "@/components/ds/Reviews";
+import { GoogleReviewProof } from "@/components/reviews/GoogleReviewProof";
 import { team } from "@/data/team";
 import { homeRibbonQuotes } from "@/data/reviewHighlights";
 import {
@@ -37,8 +37,7 @@ export function HomeHero() {
               New patients welcome
             </span>
             <Link href="/testimonials" className="pill transition-colors hover:border-gold-400 hover:text-ink">
-              <StarRow size="h-3.5 w-3.5" />
-              {GOOGLE_REVIEW_COUNT} five-star Google reviews
+              <GoogleReviewProof surface="home-hero" variant="chip" />
             </Link>
           </div>
 

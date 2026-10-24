@@ -13,6 +13,8 @@ import { PageHero } from "@/components/ds/PageHero";
 import { StarRow } from "@/components/ds/Reviews";
 import { Section } from "@/components/ds/Section";
 import { SectionHeading } from "@/components/ds/SectionHeading";
+import { GoogleReviewProof } from "@/components/reviews/GoogleReviewProof";
+import { useReviewStats } from "@/components/reviews/ReviewStatsProvider";
 import { HandwrittenNote } from "@/components/trust/HandwrittenNote";
 import { drWong, team } from "@/data/team";
 import { officeInfo } from "@/lib/data";
@@ -20,7 +22,6 @@ import { buildBreadcrumbSchema } from "@/lib/structuredData";
 import { isNoAdditionalCommentPlaceholder } from "@/lib/testimonialText";
 import { cn } from "@/lib/utils";
 import type { Testimonial } from "@shared/schema";
-import { GOOGLE_REVIEW_COUNT, PUBLISHED_REVIEW_COUNT } from "@shared/reviewStats";
 
 type TestimonialsProps = {
   /** Server-rendered published reviews (app/testimonials/page.tsx). */
@@ -153,6 +154,7 @@ const Testimonials = ({ initialTestimonials }: TestimonialsProps) => {
 
   const breadcrumb = buildBreadcrumbSchema(breadcrumbItems);
   const showSkeleton = isLoading && reviews.length === 0;
+  const { publishedReviewCount } = useReviewStats();
 
   return (
     <>
@@ -190,24 +192,20 @@ const Testimonials = ({ initialTestimonials }: TestimonialsProps) => {
           <div className="relative mx-auto w-full max-w-xl lg:max-w-none">
             <div className="relative overflow-hidden rounded-[2.25rem] border border-white/70 bg-evergreen-900 shadow-lift">
               <Image
-                src="/images/redesign/dr-wong-reception-conversation.webp"
-                alt="Dr. Christopher B. Wong talking with two team members at the reception counter"
-                width={1280}
-                height={720}
+                src="/images/redesign/dr-wong-atrium-smile-portrait.webp"
+                alt="Dr. Christopher B. Wong smiling in the office atrium"
+                width={800}
+                height={1000}
                 priority
                 fetchPriority="high"
                 sizes="(max-width: 1024px) 100vw, 42vw"
-                className="aspect-[4/3] h-auto w-full object-cover object-[35%_35%]"
+                className="aspect-[4/3] h-auto w-full object-cover object-[50%_10%]"
               />
               <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-evergreen-950/85 via-evergreen-950/20 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-5 text-cream-50 sm:p-7">
-                <StarRow size="h-5 w-5" label="Five stars" />
-                <p className="mt-2 flex items-baseline gap-3">
-                  <span className="font-heading text-[3.6rem] font-medium leading-none sm:text-[4.6rem]">{GOOGLE_REVIEW_COUNT}</span>
-                  <span className="max-w-[11rem] text-[15px] font-semibold leading-snug text-cream-100">five-star Google reviews</span>
-                </p>
+                <GoogleReviewProof surface="testimonials-hero" variant="hero" />
                 <p className="mt-3 text-sm leading-6 text-cream-100/85">
-                  {PUBLISHED_REVIEW_COUNT} published five-star reviews in all, including Yelp. Read every one below.
+                  {publishedReviewCount} published five-star reviews in all, including Yelp. Read every one below.
                 </p>
               </div>
             </div>
@@ -425,7 +423,7 @@ const Testimonials = ({ initialTestimonials }: TestimonialsProps) => {
           {ratingOnly > 0 ? (
             <p>
               Another {ratingOnly} patients left five stars without writing a comment. They count toward the{" "}
-              {PUBLISHED_REVIEW_COUNT} total but don’t appear as cards.
+              {publishedReviewCount} total but don’t appear as cards.
             </p>
           ) : null}
           <p>

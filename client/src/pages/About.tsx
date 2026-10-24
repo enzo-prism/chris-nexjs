@@ -41,7 +41,7 @@ import {
   buildVideoObjectSchemas,
   type StructuredDataNode,
 } from "@/lib/structuredData";
-import { GOOGLE_REVIEW_COUNT } from "@shared/reviewStats";
+import { GoogleReviewProof } from "@/components/reviews/GoogleReviewProof";
 
 // Interactive players load their chunk alongside hydration; the SSR shell
 // (poster + play button) paints without it.
@@ -455,7 +455,7 @@ const About = () => {
             lead="Many patients have seen the same friendly faces for years, and they name them in their reviews."
           />
           <Link href="/testimonials" className="btn btn-outline self-start lg:self-auto">
-            Read {GOOGLE_REVIEW_COUNT} Google reviews
+            <GoogleReviewProof surface="about" variant="read-link" />
             <ArrowRight aria-hidden="true" />
           </Link>
         </div>

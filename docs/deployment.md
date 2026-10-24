@@ -58,6 +58,11 @@ Analytics and advertising:
 - `NEXT_PUBLIC_GOOGLE_ADS_ID`
 - `NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL`
 
+Optional live Google review totals (server-only; never expose to the browser):
+
+- `GOOGLE_PLACES_API_KEY` — Places API (New) key. Unset today; the site keeps the committed counts in `shared/reviewStats.ts`.
+- `GOOGLE_PLACE_ID` — optional override. Defaults to `officeInfo.googlePlaceId` (`ChIJfT983OW6j4ARMtSs-SPlX08`).
+
 Use `.env.example` as the configuration inventory. The following are command
 overrides for audit runs, not required application environment variables:
 

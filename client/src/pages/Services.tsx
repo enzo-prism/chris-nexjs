@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowRight, ClipboardList, ScanLine, Sprout } from "lucide-react";
 
 import type { Service } from "@shared/schema";
-import { GOOGLE_REVIEW_COUNT } from "@shared/reviewStats";
+import { GoogleReviewProof } from "@/components/reviews/GoogleReviewProof";
 import StructuredData from "@/components/seo/StructuredData";
 import FAQSection from "@/components/common/FAQSection";
 import ServiceCard from "@/components/common/ServiceCard";
@@ -294,7 +294,7 @@ const Services = (_props: ServicesProps) => {
             lead="Thorough cleanings, careful fillings, clear explanations, and a team whole families stay with."
           />
           <Link href="/testimonials" className="btn btn-outline shrink-0 self-start sm:self-auto">
-            All {GOOGLE_REVIEW_COUNT} Google reviews
+            <GoogleReviewProof surface="services" variant="all-link" />
             <ArrowRight aria-hidden="true" />
           </Link>
         </div>
