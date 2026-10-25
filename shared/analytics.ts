@@ -50,7 +50,11 @@ export function getAnalyticsPageCategory(pathname: string): AnalyticsPageCategor
   const normalizedPath = normalizeAnalyticsPath(pathname);
 
   if (normalizedPath === "/") return "home";
-  if (normalizedPath === "/schedule" || normalizedPath === "/zoom-whitening/schedule") {
+  if (
+    normalizedPath === "/schedule" ||
+    normalizedPath === "/zoom-whitening/schedule" ||
+    normalizedPath === "/invisalign-consult"
+  ) {
     return "schedule";
   }
   if (isAnalyticsPathExcluded(normalizedPath)) return "internal";

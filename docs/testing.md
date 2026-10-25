@@ -89,12 +89,12 @@ Command reference for contract, UI, SEO, and performance checks.
 - `pnpm run test:seo:schema`
   - Runtime JSON-LD schema validation checks.
 - `pnpm run test:seo:all`
-  - Runs all SEO checks above.
+  - Runs static `test:seo` and `test:seo:freshness`, then the runtime onpage/links/schema audits.
+  - Starts its own `next start` on an ephemeral port. If `SEO_AUDIT_BASE_URL` is already set (CI, `test:production`, or a remote audit), it uses that URL and does not start another server.
 - `pnpm run llms:generate`
   - Regenerates both tracked `llms.txt` copies; CI reruns it and rejects drift.
 
-Runtime SEO scripts use `SEO_AUDIT_BASE_URL` and default to `http://localhost:3000`.
-If local dev is on port `5000`, set `SEO_AUDIT_BASE_URL=http://localhost:5000`.
+Runtime SEO scripts use `SEO_AUDIT_BASE_URL`. `test:seo:all` no longer falls through to whatever happens to be bound on `:3000`.
 
 ### UI and media checks
 

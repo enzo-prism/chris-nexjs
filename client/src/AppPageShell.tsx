@@ -41,7 +41,7 @@ const HotjarTracking = dynamic(
 // October decorations stay off urgent-care, conversion, legal, and
 // post-conversion pages (see AGENTS.md "Seasonal layer").
 const QUIET_PATHS =
-  /^\/(emergency-dental|schedule|zoom-whitening\/schedule|thank-you|privacy-policy|hipaa|terms|accessibility)\/?$/;
+  /^\/(emergency-dental|schedule|zoom-whitening\/schedule|invisalign-consult|thank-you|privacy-policy|hipaa|terms|accessibility)\/?$/;
 
 type AppPageShellProps = {
   readonly ssrPath?: string;

@@ -12,6 +12,16 @@ import {
 
 import { NextRequest } from "next/server";
 import { POST as postScheduleRequest } from "../app/api/schedule-request/route";
+import {
+  resetScheduleRequestRateLimitForTests,
+  SCHEDULE_REQUEST_RATE_LIMIT,
+} from "../server/scheduleRateLimit";
+import {
+  startCapturingVercelServerEventsForTests,
+  takeVercelServerEventsForTests,
+} from "../server/vercelAnalytics";
+import { ANALYTICS_EVENTS } from "../shared/analytics";
+import { HONEYPOT_FIELD } from "../shared/formspree";
 
 type RecordedCall = {
   url: string;
@@ -19,10 +29,16 @@ type RecordedCall = {
   body: Record<string, unknown>;
 };
 
-const requestWithBody = (payload: unknown): NextRequest =>
+const requestWithBody = (
+  payload: unknown,
+  ip = "203.0.113.10",
+): NextRequest =>
   new NextRequest("https://www.chriswongdds.com/api/schedule-request", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "x-real-ip": ip,
+    },
     body: JSON.stringify(payload),
   });
 
@@ -45,6 +61,7 @@ const withMockedFetch = async (
   const originalFetch = globalThis.fetch;
   const calls: RecordedCall[] = [];
 
+  resetScheduleRequestRateLimitForTests();
   process.env.SCHEDULE_FORM_ENDPOINT = "https://formspree.io/f/mock-endpoint";
   delete process.env.NEXT_PUBLIC_FORM_ENDPOINT;
   delete process.env.SCHEDULE_CRM_WEBHOOK_URL;
@@ -153,6 +170,16 @@ async function testV2PayloadCompatibility() {
     assert.equal(formspree.body.insurance_status, "Delta Dental");
     assert.equal(formspree.body.urgent, "Yes");
     assert.equal(formspree.body.preferred_time_of_day, "Afternoon (2pm-close)");
+    assert.equal(
+      Object.hasOwn(formspree.body, "source_host_kind"),
+      false,
+      "canonical production leads must not carry source_host_kind",
+    );
+    assert.equal(
+      String(formspree.body.message ?? "").includes("Source host:"),
+      false,
+      "clinic email must stay untagged for chriswongdds.com leads",
+    );
   });
 }
 
@@ -322,11 +349,309 @@ async function testValidationFailures() {
   });
 }
 
+async function testHoneypotIsNotALead() {
+  await withMockedFetch(async (calls) => {
+    const response = await postScheduleRequest(
+      requestWithBody({
+        ...validV2Payload,
+        [HONEYPOT_FIELD]: "Acme Bot Corp",
+      }),
+    );
+    const body = (await response.json()) as {
+      ok?: boolean;
+      accepted?: boolean;
+      success?: boolean;
+    };
+
+    assert.equal(response.status, 200);
+    assert.equal(body.ok, true);
+    assert.equal(body.accepted, false);
+    assert.notEqual(body.success, true);
+    assert.equal(calls.length, 0, "honeypot must not reach the office inbox");
+  });
+}
+
+async function testFormspreeNonJsonIsFailure() {
+  const originalFetch = globalThis.fetch;
+  const originalConsoleError = console.error;
+  resetScheduleRequestRateLimitForTests();
+  process.env.SCHEDULE_FORM_ENDPOINT = "https://formspree.io/f/mock-endpoint";
+  console.error = () => undefined;
+
+  globalThis.fetch = async () =>
+    new Response("<html><body>Thanks</body></html>", {
+      status: 200,
+      headers: { "Content-Type": "text/html" },
+    });
+
+  try {
+    const response = await postScheduleRequest(requestWithBody(validV2Payload));
+    const body = (await response.json()) as { success?: boolean };
+    assert.equal(response.status, 500);
+    assert.notEqual(body.success, true);
+  } finally {
+    globalThis.fetch = originalFetch;
+    console.error = originalConsoleError;
+  }
+}
+
+async function testFormspreeSuccessFalseIsFailure() {
+  const originalFetch = globalThis.fetch;
+  const originalConsoleError = console.error;
+  resetScheduleRequestRateLimitForTests();
+  process.env.SCHEDULE_FORM_ENDPOINT = "https://formspree.io/f/mock-endpoint";
+  console.error = () => undefined;
+
+  globalThis.fetch = async () =>
+    new Response(JSON.stringify({ success: false }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+
+  try {
+    const response = await postScheduleRequest(requestWithBody(validV2Payload));
+    const body = (await response.json()) as { success?: boolean };
+    assert.equal(response.status, 500);
+    assert.notEqual(body.success, true);
+  } finally {
+    globalThis.fetch = originalFetch;
+    console.error = originalConsoleError;
+  }
+}
+
+async function testSourceAllowlist() {
+  await withMockedFetch(async (calls) => {
+    const rejectedSource = await postScheduleRequest(
+      requestWithBody({
+        ...validV2Payload,
+        source: "invisalign-ads",
+      }),
+    );
+    assert.equal(rejectedSource.status, 400);
+    assert.equal(calls.length, 0);
+  });
+
+  await withMockedFetch(async (calls) => {
+    const rejectedUrl = await postScheduleRequest(
+      requestWithBody({
+        ...validV2Payload,
+        sourceUrl: "https://evil.example/phish",
+      }),
+    );
+    assert.equal(rejectedUrl.status, 400);
+    assert.equal(calls.length, 0);
+  });
+
+  await withMockedFetch(async (calls) => {
+    const accepted = await postScheduleRequest(
+      requestWithBody({
+        ...validV2Payload,
+        source: "invisalign_consult",
+        sourceUrl: "https://www.chriswongdds.com/invisalign-consult",
+      }),
+    );
+    assert.equal(accepted.status, 201);
+    assert.equal(calls.length, 1);
+  });
+
+  await withMockedFetch(async (calls) => {
+    const liveVercel = await postScheduleRequest(
+      requestWithBody({
+        ...validV2Payload,
+        sourceUrl: "https://chris-wong-dds.vercel.app/schedule",
+      }),
+    );
+    assert.equal(liveVercel.status, 201);
+    assert.equal(
+      Object.hasOwn(calls[0]?.body ?? {}, "source_host_kind"),
+      false,
+      "real-site leads must not carry source_host_kind",
+    );
+    assert.equal(
+      String(calls[0]?.body.message ?? "").includes("Source host:"),
+      false,
+      "clinic email must stay untagged for real-site leads",
+    );
+  });
+
+  await withMockedFetch(async (calls) => {
+    const preview = await postScheduleRequest(
+      requestWithBody({
+        ...validV2Payload,
+        sourceUrl:
+          "https://chris-wong-dds-git-demo-enzo-design-prisms-projects.vercel.app/invisalign-consult",
+      }),
+    );
+    assert.equal(preview.status, 201);
+    assert.equal(calls[0]?.body.source_host_kind, "preview");
+    assert.match(String(calls[0]?.body.message ?? ""), /Source host: preview/);
+    assert.equal(String(calls[0]?.body.message ?? "").includes("production"), false);
+  });
+
+  await withMockedFetch(async (calls) => {
+    const otherVercel = await postScheduleRequest(
+      requestWithBody({
+        ...validV2Payload,
+        sourceUrl: "https://unrelated-app.vercel.app/schedule",
+      }),
+    );
+    assert.equal(otherVercel.status, 400);
+    assert.equal(calls.length, 0);
+  });
+}
+
+async function testProductionRejectsLocalhostAndUserinfo() {
+  const previous = process.env.VERCEL_ENV;
+  process.env.VERCEL_ENV = "production";
+  try {
+    await withMockedFetch(async (calls) => {
+      const localhost = await postScheduleRequest(
+        requestWithBody({
+          ...validV2Payload,
+          sourceUrl: "http://localhost:3210/schedule",
+        }),
+      );
+      assert.equal(localhost.status, 400);
+      assert.equal(calls.length, 0);
+    });
+
+    await withMockedFetch(async (calls) => {
+      const userinfo = await postScheduleRequest(
+        requestWithBody({
+          ...validV2Payload,
+          sourceUrl: "https://user:secret@www.chriswongdds.com/schedule",
+        }),
+      );
+      assert.equal(userinfo.status, 400);
+      assert.equal(calls.length, 0);
+    });
+
+    await withMockedFetch(async (calls) => {
+      const missingSource = await postScheduleRequest(
+        requestWithBody({
+          ...validV2Payload,
+          source: undefined,
+        }),
+      );
+      assert.equal(missingSource.status, 400);
+      assert.equal(calls.length, 0);
+    });
+
+    await withMockedFetch(async (calls) => {
+      const missingSourceUrl = await postScheduleRequest(
+        requestWithBody({
+          ...validV2Payload,
+          sourceUrl: undefined,
+        }),
+      );
+      assert.equal(missingSourceUrl.status, 400);
+      assert.equal(calls.length, 0);
+    });
+  } finally {
+    if (previous === undefined) delete process.env.VERCEL_ENV;
+    else process.env.VERCEL_ENV = previous;
+  }
+}
+
+async function testPerIpRateLimit() {
+  await withMockedFetch(async (calls) => {
+    const ip = "198.51.100.77";
+    for (let i = 0; i < SCHEDULE_REQUEST_RATE_LIMIT.maxHits; i += 1) {
+      const response = await postScheduleRequest(
+        requestWithBody(validV2Payload, ip),
+      );
+      assert.equal(response.status, 201, `request ${i + 1} should be accepted`);
+    }
+
+    const blocked = await postScheduleRequest(
+      requestWithBody(validV2Payload, ip),
+    );
+    assert.equal(blocked.status, 429);
+    assert.equal(blocked.headers.get("Retry-After") !== null, true);
+    const body = (await blocked.json()) as { message?: string };
+    assert.match(String(body.message), /Too many requests/);
+    assert.equal(calls.length, SCHEDULE_REQUEST_RATE_LIMIT.maxHits);
+  });
+}
+
+async function testRateLimitIgnoresHoneypotInvalidAndSpoofedXff() {
+  await withMockedFetch(async (calls) => {
+    const ip = "198.51.100.88";
+    for (let i = 0; i < SCHEDULE_REQUEST_RATE_LIMIT.maxHits; i += 1) {
+      const honeypot = await postScheduleRequest(
+        requestWithBody({ ...validV2Payload, company: "bot" }, ip),
+      );
+      assert.equal(honeypot.status, 200);
+    }
+
+    const invalid = await postScheduleRequest(
+      requestWithBody({ ...validV2Payload, source: "not-allowed" }, ip),
+    );
+    assert.equal(invalid.status, 400);
+
+    const accepted = await postScheduleRequest(requestWithBody(validV2Payload, ip));
+    assert.equal(accepted.status, 201);
+    assert.equal(calls.length, 1, "honeypot/invalid posts must not consume the slot");
+  });
+
+  await withMockedFetch(async (calls) => {
+    const spoofed = "203.0.113.200";
+    const trusted = "198.51.100.99";
+    for (let i = 0; i < SCHEDULE_REQUEST_RATE_LIMIT.maxHits; i += 1) {
+      const request = new NextRequest(
+        "https://www.chriswongdds.com/api/schedule-request",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-forwarded-for": spoofed,
+            "x-real-ip": trusted,
+          },
+          body: JSON.stringify(validV2Payload),
+        },
+      );
+      const response = await postScheduleRequest(request);
+      assert.equal(response.status, 201);
+    }
+
+    const blockedTrusted = await postScheduleRequest(
+      new NextRequest("https://www.chriswongdds.com/api/schedule-request", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-forwarded-for": spoofed,
+          "x-real-ip": trusted,
+        },
+        body: JSON.stringify(validV2Payload),
+      }),
+    );
+    assert.equal(blockedTrusted.status, 429);
+
+    const spoofOnly = await postScheduleRequest(
+      new NextRequest("https://www.chriswongdds.com/api/schedule-request", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-forwarded-for": spoofed,
+        },
+        body: JSON.stringify(validV2Payload),
+      }),
+    );
+    assert.equal(
+      spoofOnly.status,
+      201,
+      "first XFF hop must not be the rate-limit key",
+    );
+    assert.equal(calls.length, SCHEDULE_REQUEST_RATE_LIMIT.maxHits + 1);
+  });
+}
+
 async function testDefaultFormspreeFallback() {
   const originalFetch = globalThis.fetch;
   const originalScheduleEndpoint = process.env.SCHEDULE_FORM_ENDPOINT;
   const originalPublicEndpoint = process.env.NEXT_PUBLIC_FORM_ENDPOINT;
   const calls: RecordedCall[] = [];
+  resetScheduleRequestRateLimitForTests();
 
   delete process.env.SCHEDULE_FORM_ENDPOINT;
   delete process.env.NEXT_PUBLIC_FORM_ENDPOINT;
@@ -391,6 +716,7 @@ async function testBlankEnvironmentFallsBackToDefaultFormspreeEndpoint() {
   const originalScheduleEndpoint = process.env.SCHEDULE_FORM_ENDPOINT;
   const originalPublicEndpoint = process.env.NEXT_PUBLIC_FORM_ENDPOINT;
   const calls: RecordedCall[] = [];
+  resetScheduleRequestRateLimitForTests();
 
   process.env.SCHEDULE_FORM_ENDPOINT = "   ";
   process.env.NEXT_PUBLIC_FORM_ENDPOINT = "";
@@ -450,6 +776,29 @@ async function testBlankEnvironmentFallsBackToDefaultFormspreeEndpoint() {
   }
 }
 
+async function testProductionServerEventOmitsSourceHostKind() {
+  startCapturingVercelServerEventsForTests();
+  try {
+    await withMockedFetch(async () => {
+      const response = await postScheduleRequest(requestWithBody(validV2Payload));
+      assert.equal(response.status, 201);
+    });
+
+    const events = takeVercelServerEventsForTests();
+    const submitEvents = events.filter(
+      (event) => event.name === ANALYTICS_EVENTS.appointmentRequestSubmit,
+    );
+    assert.equal(submitEvents.length, 1, "real-site submit must emit one server event");
+    assert.equal(
+      Object.hasOwn(submitEvents[0].properties, "source_host_kind"),
+      false,
+      "server event must stay untagged for real-site leads",
+    );
+  } finally {
+    takeVercelServerEventsForTests();
+  }
+}
+
 async function testOptionalForwardingFailureIsSanitized() {
   const originalFetch = globalThis.fetch;
   const originalConsoleError = console.error;
@@ -457,6 +806,7 @@ async function testOptionalForwardingFailureIsSanitized() {
   const originalCrmEndpoint = process.env.SCHEDULE_CRM_WEBHOOK_URL;
   const originalSlackEndpoint = process.env.SCHEDULE_SLACK_WEBHOOK_URL;
   const calls: RecordedCall[] = [];
+  resetScheduleRequestRateLimitForTests();
 
   process.env.SCHEDULE_FORM_ENDPOINT = "https://formspree.io/f/mock-endpoint";
   process.env.SCHEDULE_CRM_WEBHOOK_URL = "https://crm.example.test/hook";
@@ -704,7 +1054,42 @@ async function testV4FormResolverCompatibility() {
   assert.equal(rejected.errors.email?.message, "Enter a valid email address.");
 }
 
+async function testPreviewNeverDispatchesOrCountsLeads() {
+  const previous = process.env.VERCEL_ENV;
+  process.env.VERCEL_ENV = "preview";
+  try {
+    await withMockedFetch(async (calls) => {
+      process.env.SCHEDULE_CRM_WEBHOOK_URL = "https://example.invalid/crm";
+      process.env.SCHEDULE_SLACK_WEBHOOK_URL = "https://example.invalid/slack";
+      startCapturingVercelServerEventsForTests();
+      for (const sourceUrl of [
+        "https://chris-wong-dds-git-demo-enzo-design-prisms-projects.vercel.app/invisalign-consult",
+        // Spoofing a production source cannot defeat the deployment-owned guard.
+        "https://www.chriswongdds.com/invisalign-consult",
+      ]) {
+        const response = await postScheduleRequest(requestWithBody({
+          ...validV2Payload, source: "invisalign_consult", sourceUrl,
+        }));
+        assert.equal(response.status, 200);
+        assert.deepEqual(await response.json(), { ok: true, accepted: false, preview: true });
+        assert.equal(response.headers.get("cache-control"), "private, no-store");
+      }
+      assert.equal(calls.length, 0, "preview must not call inbox, CRM, Slack or analytics");
+      assert.deepEqual(takeVercelServerEventsForTests(), []);
+      const invalid = await postScheduleRequest(requestWithBody({
+        ...validV2Payload, firstName: "", source: "invisalign_consult",
+      }));
+      assert.equal(invalid.status, 400, "preview must exercise real validation");
+      assert.equal(calls.length, 0);
+    });
+  } finally {
+    if (previous === undefined) delete process.env.VERCEL_ENV;
+    else process.env.VERCEL_ENV = previous;
+  }
+}
+
 (async function run() {
+  await testPreviewNeverDispatchesOrCountsLeads();
   await testPatchedCollectionLimitsAndLegacyCompatibility();
   await testV4FormResolverCompatibility();
   await testLegacyPayloadCompatibility();
@@ -714,6 +1099,14 @@ async function testV4FormResolverCompatibility() {
   await testFirstAvailableMode();
   await testEmailOnlyMode();
   await testValidationFailures();
+  await testHoneypotIsNotALead();
+  await testFormspreeNonJsonIsFailure();
+  await testFormspreeSuccessFalseIsFailure();
+  await testSourceAllowlist();
+  await testProductionServerEventOmitsSourceHostKind();
+  await testProductionRejectsLocalhostAndUserinfo();
+  await testPerIpRateLimit();
+  await testRateLimitIgnoresHoneypotInvalidAndSpoofedXff();
   await testDefaultFormspreeFallback();
   await testBlankEnvironmentFallsBackToDefaultFormspreeEndpoint();
   await testOptionalForwardingFailureIsSanitized();

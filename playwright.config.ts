@@ -62,5 +62,9 @@ export default defineConfig({
     timeout: 240_000,
     stdout: "pipe",
     stderr: "pipe",
+    env: {
+      ...process.env,
+      NEXT_PUBLIC_GA_MEASUREMENT_ID: "G-TESTONLY000",
+    },
   },
 });

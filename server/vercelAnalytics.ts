@@ -4,11 +4,37 @@ import {
   sanitizeAnalyticsEventName,
   sanitizeVercelEventProperties,
 } from "@shared/analytics";
+import {
+  canSendServerAnalytics,
+  hostnameFromRequestHeaders,
+} from "@shared/analyticsHosts";
 
-function canSendVercelServerAnalytics(): boolean {
-  return Boolean(
-    process.env.VERCEL_URL || process.env.VERCEL_WEB_ANALYTICS_ENDPOINT,
+type CapturedServerEvent = {
+  readonly name: string;
+  readonly properties: Record<string, unknown>;
+};
+
+let capturedServerEvents: CapturedServerEvent[] | null = null;
+
+export function startCapturingVercelServerEventsForTests(): void {
+  capturedServerEvents = [];
+}
+
+export function takeVercelServerEventsForTests(): CapturedServerEvent[] {
+  const events = capturedServerEvents ?? [];
+  capturedServerEvents = null;
+  return events;
+}
+
+export function requestHostname(request: NextRequest): string {
+  return hostnameFromRequestHeaders(
+    request.headers,
+    request.nextUrl.hostname,
   );
+}
+
+export function canSendVercelServerAnalytics(request: NextRequest): boolean {
+  return canSendServerAnalytics(requestHostname(request), process.env);
 }
 
 export async function trackVercelServerEvent(
@@ -16,8 +42,12 @@ export async function trackVercelServerEvent(
   eventName: string,
   properties: Record<string, unknown> = {},
 ): Promise<void> {
+  capturedServerEvents?.push({
+    name: eventName,
+    properties: { ...properties },
+  });
   const sanitizedEventName = sanitizeAnalyticsEventName(eventName);
-  if (!sanitizedEventName || !canSendVercelServerAnalytics()) return;
+  if (!sanitizedEventName || !canSendVercelServerAnalytics(request)) return;
 
   const sanitizedProperties = sanitizeVercelEventProperties(
     sanitizedEventName,

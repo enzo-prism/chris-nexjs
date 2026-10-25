@@ -232,6 +232,22 @@ function testLegacyRedirects() {
     "/zoom-whitening/schedule must stay noindex",
   );
 
+  assert.equal(
+    getLegacyRedirectPath("/invisalign-consult"),
+    null,
+    "/invisalign-consult must not redirect",
+  );
+  assert.equal(
+    seoByPath["/invisalign-consult"]?.indexable,
+    false,
+    "/invisalign-consult must stay noindex",
+  );
+  assert.equal(
+    seoByPath["/invisalign"]?.indexable,
+    true,
+    "/invisalign must stay the indexable service page",
+  );
+
   // Merged routes stay in seoByPath as non-indexable redirects, like the
   // seven retired city pages.
   for (const merged of ["/zoom-whitening", "/invisalign/resources"]) {

@@ -253,6 +253,14 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
       "invisalign for teens",
     ],
   },
+  "/invisalign-consult": {
+    title: "Invisalign Consult | Christopher B. Wong, DDS",
+    description:
+      "Request an Invisalign consult with Dr. Christopher B. Wong in Palo Alto. A 3D scan, a clear plan, and check-ins that fit busy schedules.",
+    canonicalPath: "/invisalign-consult",
+    ogImage: "/images/og/invisalign-itero-scan.jpg",
+    robots: NOINDEX_ROBOTS,
+  },
   "/invisalign/resources": {
     title: "Invisalign Resources in Palo Alto | Christopher B. Wong, DDS",
     description:
