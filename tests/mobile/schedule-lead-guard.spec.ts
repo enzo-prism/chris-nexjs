@@ -120,6 +120,21 @@ test.describe("schedule lead guard", () => {
     // Drop canceled background reads before the browser context closes.
     await page.unrouteAll({ behavior: "ignoreErrors" });
   });
+  test("consult page excludes session recording and tracks its consult CTA", async ({ page }) => {
+    await installGtagProbe(page);
+    await page.addInitScript(() => { window.__cwAnalyticsImmediate = true; });
+    await gotoAndHydrate(page, "https://www.chriswongdds.com/invisalign-consult");
+    await page.getByRole("button", { name: "Continue to Contact Details", exact: true }).waitFor();
+    await page.getByRole("link", { name: "Request an Invisalign consult", exact: true }).first().click();
+    await expect.poll(() => countGtagEvents(page, "book_appointment_click")).toBe(1);
+    // Both loaders are mounted; the immediate-load probe makes a missing
+    // sensitive-route exclusion observable without making any vendor request.
+    await page.waitForTimeout(1_000);
+    await expect(page.locator('script[src*="static.hotjar.com"]')).toHaveCount(0);
+    await expect(page.locator("#appointment")).toHaveAttribute("data-hj-suppress", "");
+    expect(await countGtagEvents(page, "generate_lead")).toBe(0);
+  });
+
   for (const path of ROUTES) {
     test(`M1: 500 on ${path} does not fire generate_lead`, async ({ page }) => {
       await installGtagProbe(page);

@@ -91,6 +91,7 @@ const ScheduleRequestFunnel = ({
   return (
     <section
       id="appointment"
+      data-hj-suppress=""
       // `overflow-x-clip` (not `overflow-hidden`) clips the decorative glow
       // without making this section a scroll container, so nothing inside it
       // (including the form's own focus and scroll handling) gets trapped.
