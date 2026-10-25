@@ -19,7 +19,7 @@ import { captureLeadAttribution, getLeadAttribution } from "@/lib/attribution";
 const GA_MEASUREMENT_ID =
   process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() || "G-94WRBJY51J";
 
-const BOOKING_PATHS = new Set(["/schedule", "/zoom-whitening/schedule"]);
+const BOOKING_PATHS = new Set(["/schedule", "/zoom-whitening/schedule", "/invisalign-consult"]);
 
 // AI assistants that send measurable referral traffic. Detected from the
 // external referrer on the first page view of a visit so AI-driven sessions

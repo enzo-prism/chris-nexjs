@@ -38,6 +38,7 @@ const HotjarTracking = () => {
       "/contact",
       "/thank-you",
       "/zoom-whitening/schedule",
+      "/invisalign-consult",
     ]);
     if (sensitivePaths.has(pathname) || !hasAnalyticsConsent()) return;
 
