@@ -79,7 +79,7 @@ export const teamMembers = [
     name: "Kelty",
     role: "Scheduling Coordinator",
     image: "/images/team/kelty.jpeg",
-    bio: "Kelty is a native San Franciscan who graduated from Loyola Marymount University with a bachelor's degree in health and human sciences and a minor in psychology. She was first introduced to dentistry by her mother, a retired dentist and dental professor at the University of the Pacific."
+    bio: "Kelty is a native San Franciscan who graduated from Loyola Marymount University with a bachelor's degree in health and human sciences and a minor in psychology. She was first introduced to dentistry by her mother, a retired dentist and dental professor at UCSF and University of the Pacific."
   },
   {
     name: "Angelisa",
