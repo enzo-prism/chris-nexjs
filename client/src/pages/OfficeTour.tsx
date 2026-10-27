@@ -353,10 +353,10 @@ const OfficeTour = () => {
         <div className="mt-14 grid gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)]">
           <figure className="relative overflow-hidden rounded-[2rem] bg-cream-200 shadow-soft">
             <Image
-              src="/images/redesign/team-group-reception.webp"
-              alt="Dr. Christopher B. Wong and the dental team standing together in the office reception area"
-              width={1600}
-              height={1066}
+              src="/images/redesign/team-group-lounge.webp"
+              alt="Dr. Christopher B. Wong and the dental team in the office lounge, beside the aquarium"
+              width={1280}
+              height={853}
               sizes="(max-width: 1024px) 100vw, 60vw"
               className="aspect-[4/3] h-auto w-full object-cover object-[52%_45%] sm:aspect-[16/9]"
             />
@@ -366,7 +366,7 @@ const OfficeTour = () => {
                 <span className="block font-heading text-2xl leading-tight">
                   Who you’ll meet <em className="text-gold-300">at the door</em>
                 </span>
-                <span className="mt-1 block text-sm text-cream-100/90">Dr. Wong and the team in the reception area</span>
+                <span className="mt-1 block text-sm text-cream-100/90">Dr. Wong and the team in the office lounge</span>
               </span>
               <Link href="/about#team" className="btn btn-outline-light btn-sm self-start sm:self-auto">
                 Meet the team

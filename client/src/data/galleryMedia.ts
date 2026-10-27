@@ -217,17 +217,6 @@ export const galleryItems: readonly GalleryMediaItem[] = [
 
   // --- OUR TEAM ---
   {
-    id: "photo-team-reception",
-    kind: "image",
-    src: "/images/redesign/team-group-reception.webp",
-    alt: "Dr. Christopher B. Wong and the dental team standing together in the office reception area",
-    title: "The Whole Team",
-    description: "Dr. Wong and the team in the reception area.",
-    category: "Our Team",
-    layout: "photoStandard",
-    interaction: "staticImage",
-  },
-  {
     id: "photo-front-desk-laugh",
     kind: "image",
     src: "/images/redesign/dr-wong-front-desk-laughing.webp",
