@@ -58,6 +58,11 @@ Analytics and advertising:
 - `NEXT_PUBLIC_GOOGLE_ADS_ID`
 - `NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL`
 
+Optional live Google review totals (server-only; never expose to the browser):
+
+- `GOOGLE_PLACES_API_KEY` — Places API (New) server key. Absent from this fresh local checkout. On October 28, a names-only CLI read of `enzo-design-prisms-projects/chris-wong-dds` found no project environment variables; no hosted key is configured in that listing. Without a usable key the site keeps the committed counts in `shared/reviewStats.ts`. Account-owner prerequisites are in [the review runbook](reviews-data.md#live-updates).
+- `GOOGLE_PLACE_ID` — optional override. Defaults to `officeInfo.googlePlaceId` (`ChIJfT983OW6j4ARMtSs-SPlX08`).
+
 Use `.env.example` as the configuration inventory. The following are command
 overrides for audit runs, not required application environment variables:
 

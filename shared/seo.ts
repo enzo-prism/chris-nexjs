@@ -576,7 +576,7 @@ const LASTMOD_OVERRIDES: Partial<Record<string, string>> = {
   "/pediatric-dentistry": REDESIGN_LAUNCH_DATE,
   "/patient-resources": "2026-10-20",
   "/insurance": REDESIGN_LAUNCH_DATE,
-  "/testimonials": REDESIGN_LAUNCH_DATE,
+  "/testimonials": "2026-10-28",
   "/patient-stories": REDESIGN_LAUNCH_DATE,
   "/blog": REDESIGN_LAUNCH_DATE,
   "/gallery": "2026-10-26",

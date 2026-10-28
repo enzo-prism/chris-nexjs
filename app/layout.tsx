@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Figtree, Newsreader } from "next/font/google";
 import { getSeoForPath } from "@/lib/seo";
 import VercelAnalytics from "@/components/common/VercelAnalytics";
+import { ReviewStatsProvider } from "@/components/reviews/ReviewStatsProvider";
 import { SeasonScript } from "@/components/seasonal/SeasonScript";
+import { getGoogleReviewStats } from "../server/googlePlaceReviews";
 import {
   ANALYTICS_CONSENT_EVENT,
   ANALYTICS_CONSENT_STORAGE_KEY,
@@ -12,6 +14,10 @@ import {
   analyticsHostAllowlistGuardSnippet,
 } from "@shared/analyticsHosts";
 import "./globals.css";
+
+// Bound the HTML lifetime even when Places is unavailable during prerendering.
+// Every route must retry the shared snapshot rather than pin a fallback forever.
+export const revalidate = 86400;
 
 // Self-hosted via next/font (subset, size-adjusted fallbacks, no third-party
 // font request). "Rooted" type pairing — see docs/design-system.md:
@@ -162,11 +168,13 @@ export const metadata: Metadata = {
     : undefined,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const reviewStats = await getGoogleReviewStats();
+
   return (
     <html
       lang="en"
@@ -179,7 +187,7 @@ export default function RootLayout({
         <SeasonScript />
       </head>
       <body className="antialiased">
-        {children}
+        <ReviewStatsProvider value={reviewStats}>{children}</ReviewStatsProvider>
         <VercelAnalytics />
       </body>
     </html>

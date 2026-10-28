@@ -1,7 +1,8 @@
 # Invisalign office follow-up workflow
 
-Prepared October 24, 2026 for Enzo's review. This is a proposed operating
-workflow, not an instruction already accepted by the office. No staff member
+Updated October 28, 2026 for Enzo's review. Weekly capacity of 2–3 new consults
+and a front-desk response within one business day, if inquiries arrive like
+Formspree, are confirmed. The remaining operating workflow is proposed. No staff member
 has been assigned, patient record imported, message sent, or automation enabled.
 
 ## Decisions before the pilot
@@ -9,17 +10,20 @@ has been assigned, patient record imported, message sent, or automation enabled.
 | Decision | Proposed approach | Confirmation needed |
 | --- | --- | --- |
 | Inquiry owner and backup | One named front-desk owner, plus a backup for absences | Dr. Wong / Kelty chooses the people |
-| Weekly capacity | Cap demand to the consultations the office can accommodate | Dr. Wong provides a number |
-| Initial response | Within one business day in America/Los_Angeles | Office confirms this is achievable |
+| Weekly capacity | 2–3 new consultations per week | Confirmed; reconcile available slots before enabling paid traffic |
+| Initial response | Front desk responds within one business day in America/Los_Angeles, if inquiries arrive like Formspree | Confirmed target; actual office delivery remains unverified |
+| Private tracker | Use an approved private office system | Location and access approval unresolved; CSV below is only a template |
 | Follow-up cadence | Second attempt after two business days; review unanswered inquiries after five business days | Office approves cadence and channel |
 | Campaign | Existing three ad options, approved Invisalign assets, exact budget cap and review date | Enzo and Dr. Wong review before launch |
 
-The campaign page does not promise a response deadline while that target is
-unconfirmed. A form submission requests availability; it never books a visit.
+The response target is an office operating commitment. A form submission
+requests availability; it never books a visit. Named owner/backup and genuine
+office-delivery/GA ingestion evidence remain unresolved.
 
 ## Daily office routine
 
-1. Check the existing office inbox and private lead dashboard at opening and
+1. Once the approved private tracker location and staff ownership are recorded,
+   check the existing office inbox and that tracker at opening and
    before closing. The existing spam-review safeguard remains in place.
 2. For each accepted Invisalign inquiry, create one row in the approved private
    office tracking system. Use the original Formspree submission ID as
