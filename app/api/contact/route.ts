@@ -14,6 +14,7 @@ import {
   type LeadAttribution,
 } from "@shared/attribution";
 import { leadAttributionSchema } from "@shared/attributionSchema";
+import { isAcceptedContactInboxBody, isContactTestPayload } from "@shared/contactRequestPolicy";
 import { getStorage } from "../../../server/storage/repository";
 import { trackVercelServerEvent } from "../../../server/vercelAnalytics";
 import { validateJsonRequest } from "../../../server/requestPolicy";
@@ -79,11 +80,10 @@ const postContactToFormspree = async (
     signal: AbortSignal.timeout(8_000),
   });
 
-  if (!response.ok) {
-    const details = await response.text().catch(() => "No response body");
-    throw new Error(
-      `Contact office inbox request failed with ${response.status}: ${details.slice(0, 400)}`,
-    );
+  const acknowledgement: unknown = await response.json().catch(() => null);
+  if (!response.ok || !isAcceptedContactInboxBody(acknowledgement)) {
+    // Never log the provider body: it can contain contact details.
+    throw new Error(`Contact office inbox did not accept the request (${response.status}).`);
   }
 };
 
@@ -105,10 +105,19 @@ export async function POST(request: NextRequest) {
     // Silently accept honeypot-tripped submissions so bots see success but
     // nothing reaches the office inbox or the database.
     if (isHoneypotTripped(body)) {
-      return NextResponse.json({ ok: true }, { status: 201 });
+      return NextResponse.json({ ok: true, accepted: false }, { status: 201 });
     }
 
     const data = contactPayloadSchema.parse(body);
+
+    // Server-owned preview mode and explicit ops QA submissions exercise
+    // validation without inbox delivery, persistence, or acquisition events.
+    if (process.env.VERCEL_ENV === "preview" || isContactTestPayload(body)) {
+      return NextResponse.json(
+        { ok: true, accepted: false, ...(process.env.VERCEL_ENV === "preview" ? { preview: true } : { test: true }) },
+        { status: 200, headers: { "Cache-Control": "private, no-store" } },
+      );
+    }
 
     const referer = request.headers.get("referer");
     const pagePath = getAnalyticsPathFromUrl(referer) ?? "/contact";
@@ -130,10 +139,9 @@ export async function POST(request: NextRequest) {
     });
 
     // Best-effort persistence — never block lead delivery on DB availability.
-    let message: unknown = null;
     try {
       const storage = await getStorage();
-      message = await storage.createContactMessage(data);
+      await storage.createContactMessage(data);
     } catch (storageError) {
       console.error("[contact] Failed to persist contact message:", storageError);
     }
@@ -145,7 +153,7 @@ export async function POST(request: NextRequest) {
       page_path: pagePath,
     });
 
-    return NextResponse.json(message ?? { ok: true }, { status: 201 });
+    return NextResponse.json({ ok: true, accepted: true }, { status: 201 });
   } catch (error) {
     if (error instanceof ZodError) {
       const validationError = fromZodError(error);
