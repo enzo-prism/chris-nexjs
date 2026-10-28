@@ -1,10 +1,12 @@
-# Reviews and About release preparation — October 28, 2026
+# Reviews release preparation — October 28, 2026
 
-The existing PR #13 contains the Reviews portrait/shared count implementation
-and the approved Warriors About photograph. Current main (`ae5281f`), including
-the released contact acceptance safeguards, is merged without rewriting history.
-The PR remains a draft pending the recorded release decision and hosted Places
-configuration evidence.
+PR #13 contains the remaining Reviews portrait/shared count implementation.
+Current main (`3c4540b`), including the released contact acceptance safeguards
+and approved Warriors About photograph, is merged without rewriting history.
+The Warriors feature shipped separately in [PR #23](https://github.com/enzo-prism/chris-nexjs/pull/23)
+and is verified on the [live About page](https://www.chriswongdds.com/about#warriors-night).
+The Reviews PR remains a draft pending approved hosted Places configuration and
+a successful real-provider read.
 
 ## Result
 
@@ -15,10 +17,10 @@ configuration evidence.
   Google-plus-Yelp quotation corpus remains 392. No new reviews were imported.
 - Places reads have a four-second headers-and-body deadline. Only validated live
   data is cached, keyed by Place ID. Page HTML revalidates daily after fallback.
-- About now shows the original Warriors photograph after the doctor introduction
-  and before the Full Circle film. Website use was approved October 26. The
-  included source has no GPS IFD and preserves orientation. The companion is not
-  named. About/ProfilePage lastmod values are October 28.
+- Already released in main: About shows the original Warriors photograph after
+  the doctor introduction and before the Full Circle film. Website use was
+  approved October 26. The source has no GPS IFD and preserves orientation. The
+  companion is not named. About/ProfilePage lastmod values are October 28.
 - No patient-note quotation or signature is included.
 
 ## Visual evidence
@@ -51,13 +53,19 @@ Passed October 28 after integrating current main and the approved photograph:
 ## Release prerequisites
 
 `GOOGLE_PLACES_API_KEY` must be server-only. `GOOGLE_PLACE_ID` can override the
-existing public practice Place ID. Approved hosted key restrictions, API
-activation, billing exposure and a real successful refresh remain unverified.
+existing public practice Place ID. A names-only Vercel CLI read on October 28
+resolved `enzo-design-prisms-projects/chris-wong-dds` and found no project
+environment variables. The hosted Places key is therefore absent from that
+listing. Approved key restrictions, API activation, billing exposure and a real
+successful refresh still need verification.
 Verify current all-ratings copy, shared snapshot, cache and fallback before
 claiming a live integration. No key or billing change was provisioned.
 
-The front-desk owner/backup, private outcome tracker location, actual office
-receipt and production analytics ingestion remain separate operating checks.
+The root client review verified production GA4 ingestion of October 27
+`page_view`, `schedule_view` and `email_click` events. Genuine accepted-lead
+ingestion after the contact safeguard, actual office receipt, front-desk
+owner/backup and private outcome tracker adoption remain separate operating
+checks.
 Already-confirmed capacity is 2–3 new consults/week and one-business-day response
 when delivered like Formspree. The tracker is blank. No live form was submitted,
 patient outcome invented, ad activated, or SMS sent in this preparation.

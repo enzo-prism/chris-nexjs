@@ -33,6 +33,12 @@ literals in `shared/reviewStats.ts` (`REVIEW_STATS_LAST_UPDATED`) until someone:
    layout also revalidates page HTML daily, including pages prerendered with a
    fallback. The raw Places response is not cached separately.
 
+A names-only Vercel CLI check on October 28, 2026 resolved
+`enzo-design-prisms-projects/chris-wong-dds` and reported no project environment
+variables. The hosted Places key is absent from that listing; no secret values
+were read or changed. This configuration observation does not prove the status
+of any Google Cloud project, API or billing account.
+
 Activation prerequisites for the account owner: an existing Google Cloud
 project with billing approved, Places API (New) enabled, and a server-only key
 restricted to the required Places API. Configure the key through the hosting
