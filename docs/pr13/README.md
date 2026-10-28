@@ -1,56 +1,63 @@
-# Reviews draft preparation — October 28, 2026
+# Reviews and About release preparation — October 28, 2026
 
-PR #13 stays a draft. Current `main` (`fd5e9ef`) was merged into the existing
-branch without rewriting its history. The page-hero conflict preserves both
-the current `reviewLinkClassName` option and the shared review snapshot.
-The October 24 Invisalign implementation and PR #21's photo/bio changes are
-retained from `main`.
+The existing PR #13 contains the Reviews portrait/shared count implementation
+and the approved Warriors About photograph. Current main (`ae5281f`), including
+the released contact acceptance safeguards, is merged without rewriting history.
+The PR remains a draft pending the recorded release decision and hosted Places
+configuration evidence.
 
-## Repairs
+## Result
 
-- The four-second Places deadline now covers both response headers and body.
-  A stalled-body regression failed before the fix and passes after it.
-- Only validated live snapshots enter the daily cache. Raw Places responses
-  use `no-store`, and the request timer is cleared after completion.
-- Root-layout HTML revalidates daily even when prerendered with fallback
-  counts. The built prerender manifest confirms 86400 seconds on `/`,
-  `/about`, `/schedule`, `/invisalign-consult`, and `/testimonials`.
-- The bundle gate parses Next's ISR lifetime columns; budgets are unchanged.
-- Preparation docs record 2–3 new consults per week and the one-business-day
-  front-desk response target, conditional on Formspree-like inquiry delivery.
-  The CSV remains headers only. Staff owner/backup, private tracker location,
-  actual office delivery and GA ingestion proof remain unresolved.
+- Reviews uses the existing atrium portrait and one resolved Google snapshot
+  across header, heroes, service/location pages, About, Services and Testimonials.
+- The live path labels Google's all-ratings total alongside its actual rating.
+  The fallback remains the committed 382 five-star Google reviews; the published
+  Google-plus-Yelp quotation corpus remains 392. No new reviews were imported.
+- Places reads have a four-second headers-and-body deadline. Only validated live
+  data is cached, keyed by Place ID. Page HTML revalidates daily after fallback.
+- About now shows the original Warriors photograph after the doctor introduction
+  and before the Full Circle film. Website use was approved October 26. The
+  included source has no GPS IFD and preserves orientation. The companion is not
+  named. About/ProfilePage lastmod values are October 28.
+- No patient-note quotation or signature is included.
 
-## Local visual evidence
+## Visual evidence
 
-[Desktop, 1280px](reviews-1280.png) · [Mobile, 390px](reviews-390.png)
+[Reviews desktop, 1280px](reviews-1280.png) ·
+[Reviews mobile, 390px](reviews-390.png) ·
+[Warriors desktop, 1280px](warriors-1280.png) ·
+[Warriors mobile, 390px](warriors-390.png)
 
-The atrium portrait renders at both widths, with no horizontal overflow.
-Header and hero display the same fallback Google count (382); the published
-Google-plus-Yelp corpus stays 392. Screenshots show the hero only.
+Both pages were checked against the fresh local production build at both widths.
+The new image loads upright, the Warriors section occurs once, and neither route
+has horizontal overflow. [Structured results](visual-checks.json)
 
-## Configuration boundary
+## Fresh validation
 
-No Places key is configured in this fresh local checkout or its environment.
-Hosted secret configuration and Google Cloud billing/API status were not
-verified. The public Place ID is already in `shared/officeInfo.ts`. The account
-owner must supply approved server-only Places access for live totals. No key,
-billing change, campaign, client message, merge or manual deployment is part
-of this preparation. Public routes were checked only with GET requests.
+Passed October 28 after integrating current main and the approved photograph:
 
-## Checks
+- `pnpm run check`
+- `pnpm run test:api` (mocked provider responses; no live inquiry)
+- `pnpm run test:routes`
+- `pnpm run test:reviews` (24 tests plus corpus and quotation guards)
+- `pnpm run test:design-system`
+- `pnpm run test:seasonal`
+- `pnpm run build`
+- `pnpm run test:seo:all` against the local production server
+- `pnpm run test:images` (60 routes / 71 unique image URLs)
+- `pnpm run test:bundle` (unchanged budgets, including two parser tests)
+- Desktop/mobile browser rendering and source-photo GPS/orientation checks
 
-Passed locally: type/business-info checks, API contracts, route/metadata
-contracts, 24 review tests plus corpus/quote guards, full SEO suite, design
-system and seasonal guards, 29 mobile source guards, production build,
-image audit (60 routes / 70 images), unchanged bundle budgets, and performance
-smoke checks (9 routes). The production dependency high-severity gate passed;
-the audit reports one moderate advisory.
+## Release prerequisites
 
-Focused mobile appointment selection/validation passed, as did eight repeated
-reviews and scheduling-layout browser checks. Full mobile-suite results are
-recorded in the PR description after completion.
+`GOOGLE_PLACES_API_KEY` must be server-only. `GOOGLE_PLACE_ID` can override the
+existing public practice Place ID. Approved hosted key restrictions, API
+activation, billing exposure and a real successful refresh remain unverified.
+Verify current all-ratings copy, shared snapshot, cache and fallback before
+claiming a live integration. No key or billing change was provisioned.
 
-Production `/testimonials`, `/schedule`, and `/invisalign-consult` returned 200
-in read-only checks. Production still has the prior reviews hero/count markup,
-as expected while this PR remains unmerged. No live form was submitted.
+The front-desk owner/backup, private outcome tracker location, actual office
+receipt and production analytics ingestion remain separate operating checks.
+Already-confirmed capacity is 2–3 new consults/week and one-business-day response
+when delivered like Formspree. The tracker is blank. No live form was submitted,
+patient outcome invented, ad activated, or SMS sent in this preparation.

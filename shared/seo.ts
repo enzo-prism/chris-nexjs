@@ -569,7 +569,7 @@ const CHANGEFREQ_OVERRIDES: Partial<
 const REDESIGN_LAUNCH_DATE = "2026-10-16";
 const LASTMOD_OVERRIDES: Partial<Record<string, string>> = {
   "/": "2026-10-26",
-  "/about": "2026-10-26",
+  "/about": "2026-10-28",
   "/services": REDESIGN_LAUNCH_DATE,
   "/preventive-dentistry": REDESIGN_LAUNCH_DATE,
   "/restorative-dentistry": REDESIGN_LAUNCH_DATE,
