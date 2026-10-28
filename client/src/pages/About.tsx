@@ -135,7 +135,7 @@ function buildAboutSchema(): StructuredDataNode[] {
   const breadcrumbs = buildBreadcrumbSchema(breadcrumbItems);
   if (breadcrumbs) nodes.push(breadcrumbs);
   // ProfilePage → Dr. Wong, plus a Person node for everyone on the team grid.
-  nodes.push(buildProfilePageSchema({ dateModified: "2026-10-16" }));
+  nodes.push(buildProfilePageSchema({ dateModified: "2026-10-28" }));
   nodes.push(...buildTeamPersonSchemas(team));
   nodes.push(
     ...buildVideoObjectSchemas(
@@ -299,6 +299,31 @@ const About = () => {
             </p>
             <FactGrid facts={credentials} className="mt-6 sm:grid-cols-2 lg:grid-cols-2" />
           </div>
+        </div>
+      </Section>
+
+      {/* Website use approved by Dr. Wong on October 26, 2026. */}
+      <Section id="warriors-night" tone="paper" labelledBy="outside-office-title">
+        <div className="grid items-center gap-8 md:grid-cols-2 md:gap-12">
+          <div>
+            <SectionHeading
+              id="outside-office-title"
+              eyebrow="Outside the office"
+              title={<>A night at <em>the game</em></>}
+              lead="Away from the office, Dr. Wong enjoys cheering on the Golden State Warriors."
+            />
+          </div>
+          <figure className="mx-auto w-full max-w-sm overflow-hidden rounded-[2rem] bg-cream-200 shadow-soft">
+            <Image
+              src="/images/about/warriors-website.jpeg"
+              alt="Dr. Wong and a companion wearing Golden State Warriors jerseys at a basketball game"
+              width={4284}
+              height={5712}
+              sizes="(max-width: 768px) 90vw, 384px"
+              className="h-auto w-full"
+            />
+            <figcaption className="px-5 py-4 text-sm text-ink-soft">An evening cheering on the Warriors.</figcaption>
+          </figure>
         </div>
       </Section>
 
