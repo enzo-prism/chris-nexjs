@@ -11,8 +11,19 @@ export function isContactTestPayload(body: unknown): boolean {
 }
 
 export function isAcceptedContactInboxBody(body: unknown): boolean {
-  return isRecord(body) && body.ok !== false && body.success !== false && isExplicitSuccessBody(body) &&
-    !isTrue(body.preview) && !isTrue(body.test) && !isContactTestPayload(body);
+  if (!isRecord(body) || body.ok === false || body.success === false ||
+      body.accepted === false || body.lead === false || isTrue(body.preview) ||
+      isTrue(body.test) || isContactTestPayload(body)) {
+    return false;
+  }
+  if (body.errors != null && (!Array.isArray(body.errors) || body.errors.length > 0)) {
+    return false;
+  }
+  // Formspree's official SDK recognizes a `next` string as success without
+  // requiring ok/success flags. It is never used as a navigation destination;
+  // the browser still requires our own explicit accepted:true acknowledgement.
+  return isExplicitSuccessBody(body) ||
+    (typeof body.next === "string" && body.next.trim().length > 0);
 }
 
 export type ContactRequestResult = {

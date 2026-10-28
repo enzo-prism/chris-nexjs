@@ -86,6 +86,15 @@ async function run(): Promise<void> {
       [200, { ok: true, accepted: false }],
       [200, { ok: true, test: true }],
       [200, { ok: true, preview: true }],
+      [200, { next: "test-redirect-url", ok: false }],
+      [200, { next: "test-redirect-url", success: false }],
+      [200, { next: "test-redirect-url", accepted: false }],
+      [200, { next: "test-redirect-url", test: true }],
+      [200, { next: "test-redirect-url", preview: true }],
+      [200, { next: "test-redirect-url", errors: [{ message: "Rejected" }] }],
+      [200, { ok: true, errors: [{ message: "Rejected" }] }],
+      [200, { next: "" }],
+      [200, { next: 42 }],
       [200, "<html>Not an accepted inquiry</html>"],
     ] as const) {
       inboxStatus = status;
@@ -99,17 +108,28 @@ async function run(): Promise<void> {
     }
 
     inboxStatus = 200;
-    inboxBody = { ok: true };
-    startCapturingVercelServerEventsForTests();
-    const accepted = await POST(request(payload));
-    assert.equal(accepted.status, 201);
-    assert.deepEqual(await accepted.json(), { ok: true, accepted: true });
-    assert.equal(stored, 1, "only the delivered inquiry is persisted");
-    const events = takeVercelServerEventsForTests();
-    assert.equal(events.length, 1);
-    assert.equal(events[0].name, "contact_form_submit");
-    assert.equal(events[0].properties.page_path, "/contact");
-    assert.equal(JSON.stringify(events).includes(payload.email), false);
+    let acceptedCount = 0;
+    for (const body of [
+      { ok: true },
+      { success: true },
+      // Formspree's official SDK success fixture has only `next`.
+      { next: "test-redirect-url" },
+      { ok: true, next: "test-redirect-url" },
+      { next: "test-redirect-url", errors: [] },
+    ]) {
+      inboxBody = body;
+      startCapturingVercelServerEventsForTests();
+      const accepted = await POST(request(payload));
+      assert.equal(accepted.status, 201, JSON.stringify(body));
+      assert.deepEqual(await accepted.json(), { ok: true, accepted: true });
+      acceptedCount += 1;
+      assert.equal(stored, acceptedCount, "only accepted inquiries are persisted");
+      const events = takeVercelServerEventsForTests();
+      assert.equal(events.length, 1);
+      assert.equal(events[0].name, "contact_form_submit");
+      assert.equal(events[0].properties.page_path, "/contact");
+      assert.equal(JSON.stringify(events).includes(payload.email), false);
+    }
     console.log("Contact accepted-delivery contract checks passed.");
   } finally {
     globalThis.fetch = originalFetch;

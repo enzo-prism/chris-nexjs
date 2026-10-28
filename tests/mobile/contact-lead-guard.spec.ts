@@ -97,6 +97,7 @@ for (const [name, status, body] of [
   ["rejected HTTP", 500, JSON.stringify({ ok: true, accepted: true })],
   ["rejected JSON", 200, JSON.stringify({ ok: false, accepted: true })],
   ["ambiguous legacy success", 201, JSON.stringify({ ok: true })],
+  ["provider response without server acceptance", 201, JSON.stringify({ next: "test-redirect-url" })],
   ["HTML success", 200, "<html>Not accepted</html>"],
 ] as const) {
   test(`contact ${name} does not create a lead or discard entries`, async ({ page }) => {

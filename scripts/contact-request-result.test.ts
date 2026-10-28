@@ -15,6 +15,7 @@ for (const [status, body] of [
   [500, { ok: true, accepted: true }],
   [201, { ok: true }],
   [201, { id: 1 }],
+  [201, { next: "test-redirect-url" }],
   [200, { ok: false, accepted: true }],
   [200, { ok: true, accepted: false, success: false }],
   [200, { ok: true, accepted: true, success: false }],

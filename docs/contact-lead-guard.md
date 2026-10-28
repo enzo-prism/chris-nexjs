@@ -19,8 +19,10 @@ a new prospective patient.
 
 ## Resulting contract
 
-- Production office acceptance requires a 2xx inbox response containing explicit
-  `ok:true` or `success:true`, with no rejection, preview or test marker.
+- Production office acceptance requires a 2xx inbox response containing
+  Formspree's SDK success shape (a nonempty `next` string), `ok:true`, or
+  `success:true`, with no errors, rejection, preview or test marker. `next`
+  is never followed or returned as a navigation instruction.
 - Only after that acknowledgement does the API persist best effort, emit its
   existing server `contact_form_submit`, and return `201 {ok:true,accepted:true}`.
   The API no longer returns the stored contact object or logs provider bodies.
@@ -42,10 +44,11 @@ a new prospective patient.
 
 ## Verification
 
-`test:api` includes contact route and result-policy regressions. Eight browser
+`test:api` includes contact route and result-policy regressions. Nine browser
 cases intercept every form/vendor request and exercise the production hostname
 guard against the local build: quiet honeypot, explicit acceptance, preview,
-test, HTTP rejection, JSON rejection, ambiguous legacy success, and HTML success.
+test, HTTP rejection, JSON rejection, ambiguous legacy success, a provider-only
+response without server acceptance, and HTML success.
 The positive case requires exactly one of each existing acquisition event.
 The neutral/demo cases must also avoid the confirmation URL.
 
@@ -54,6 +57,14 @@ The neutral/demo cases must also avoid the confirmation URL.
 The new route regression failed on the previous API's missing `accepted:false`;
 the browser honeypot regression failed on the unchanged client by observing
 the two acquisition events. Final checks are recorded in the draft PR.
+
+Release review also caught and reproduced a compatibility gap in the first
+draft: Formspree's official SDK treats `{next:"test-redirect-url"}` as success,
+while the first guard returned a false 500. This was repaired before any merge
+or production release. The regression now exercises the official success
+fixture, legacy explicit acknowledgements, and conflicting failure markers.
+Primary source: [Formspree SDK success type](https://github.com/formspree/formspree-js/blob/3148bfbf06ed1738c618e160684d73a885d4237a/packages/formspree-core/src/submission.ts#L28)
+and [official fixture](https://github.com/formspree/formspree-js/blob/3148bfbf06ed1738c618e160684d73a885d4237a/packages/formspree-core/test/core.test.ts#L298).
 
 No measurement account settings, production deployment, merge, real inquiry,
 client message, credentials or billing were changed by this preparation.
