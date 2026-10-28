@@ -9,7 +9,15 @@ import {
   ANALYTICS_CONSENT_EVENT,
   ANALYTICS_CONSENT_STORAGE_KEY,
 } from "@shared/analytics";
+import {
+  ANALYTICS_IMMEDIATE_LOAD_FLAG,
+  analyticsHostAllowlistGuardSnippet,
+} from "@shared/analyticsHosts";
 import "./globals.css";
+
+// Bound the HTML lifetime even when Places is unavailable during prerendering.
+// Every route must retry the shared snapshot rather than pin a fallback forever.
+export const revalidate = 86400;
 
 // Self-hosted via next/font (subset, size-adjusted fallbacks, no third-party
 // font request). "Rooted" type pairing — see docs/design-system.md:
@@ -43,6 +51,8 @@ const googleTagBootstrap = `
   // Remember the entry URL and referrer before any client-side navigation so
   // lead attribution (client/src/lib/attribution.ts) sees the real landing page.
   window.__cwEntry = window.__cwEntry || { href: location.href, referrer: document.referrer };
+  (function () {
+    ${analyticsHostAllowlistGuardSnippet()}
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   window.gtag = window.gtag || gtag;
@@ -105,6 +115,10 @@ ${GOOGLE_ADS_ID ? `  gtag('config', '${GOOGLE_ADS_ID}');` : ""}
     triggerEvents.forEach(function (eventName) {
       window.addEventListener(eventName, loadGtagScript, { once: true, passive: true });
     });
+    if (window.${ANALYTICS_IMMEDIATE_LOAD_FLAG}) {
+      loadGtagScript();
+      return;
+    }
     // Keep non-essential analytics outside the Core Web Vitals window when a
     // visitor has not interacted. Interaction still loads immediately so
     // conversion events are not lost.
@@ -117,6 +131,7 @@ ${GOOGLE_ADS_ID ? `  gtag('config', '${GOOGLE_ADS_ID}');` : ""}
         }
       }, 4000);
     }, { once: true });
+  })();
   })();
 `;
 

@@ -305,8 +305,8 @@ export function TeamSection() {
       <figure className="relative mt-10 overflow-hidden rounded-[2rem] bg-cream-200 shadow-soft">
         <div className="relative aspect-[4/3] sm:aspect-[16/8] lg:aspect-[16/7]">
           <Image
-            src="/images/redesign/team-group-reception-smiling.webp"
-            alt="Dr. Christopher B. Wong and the dental team smiling together in the office reception area"
+            src="/images/redesign/team-group-lounge.webp"
+            alt="Dr. Christopher B. Wong and the dental team in the office lounge, beside the aquarium"
             fill
             sizes="(max-width: 1280px) 100vw, 1200px"
             className="object-cover object-[50%_45%]"
@@ -319,7 +319,7 @@ export function TeamSection() {
             <span className="block font-heading text-2xl leading-tight sm:text-3xl">
               Same faces, <em className="text-gold-300">visit after visit</em>
             </span>
-            <span className="mt-1 block text-sm text-cream-100/90">Dr. Wong and the team in the reception area</span>
+            <span className="mt-1 block text-sm text-cream-100/90">Dr. Wong and the team in the office lounge</span>
           </span>
           <Link href="/about#team" className="btn btn-outline-light btn-sm self-start sm:self-auto">
             Meet everyone

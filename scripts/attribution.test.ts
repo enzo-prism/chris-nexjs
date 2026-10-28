@@ -15,6 +15,8 @@ const cases: Array<[Parameters<typeof deriveLeadChannel>[0], string]> = [
   [{ utm: { utm_source: "gbp" }, referrerHost: "www.google.com" }, "google_business_profile"],
   [{ utm: { utm_source: "google", utm_medium: "cpc" } }, "google_ads"],
   [{ hasClickId: true, referrerHost: "www.google.com" }, "google_ads"],
+  [{ utm: { utm_source: "chatgpt", utm_medium: "cpc", utm_campaign: "wong_invisalign_pilot" } }, "campaign"],
+  [{ utm: { utm_source: "bing", utm_medium: "cpc" } }, "campaign"],
   [{ utm: { utm_source: "demandforce" } }, "email"],
   [{ utm: { utm_source: "newsletter", utm_medium: "email" } }, "email"],
   [{ utm: { utm_source: "flyer" } }, "campaign"],

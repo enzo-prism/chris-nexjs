@@ -247,6 +247,24 @@ describe("loadGoogleReviewStats fallback path", () => {
     assert.equal(stats.reviewCount, GOOGLE_REVIEW_COUNT);
   });
 
+  it("bounds the entire Places read when response headers arrive but the body hangs", async () => {
+    const stats = await Promise.race([
+      loadGoogleReviewStats({
+        apiKey: "test-key",
+        placeId: officeInfo.googlePlaceId,
+        timeoutMs: 20,
+        fetchImpl: async () => ({
+          ok: true,
+          json: () => new Promise(() => {}),
+        }) as Response,
+      }),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 250)),
+    ]);
+    assert.ok(stats, "a stalled response body must not stall the render");
+    assert.equal(stats.source, "fallback");
+    assert.equal(stats.reviewCount, GOOGLE_REVIEW_COUNT);
+  });
+
   it("uses the live count when Places returns a usable payload", async () => {
     const stats = await loadGoogleReviewStats({
       apiKey: "test-key",

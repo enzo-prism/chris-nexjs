@@ -133,7 +133,7 @@ export const scheduleRequestV2Schema = z
     message: optionalText(300),
     source: z.string().trim().max(80).optional(),
     sourceUrl: z.string().trim().url().optional(),
-    utmParams: z.record(z.string()).optional(),
+    utmParams: z.record(z.string(), z.string()).optional(),
     attribution: leadAttributionSchema.optional(),
   })
   .superRefine((value, ctx) => {
@@ -196,7 +196,7 @@ export const scheduleRequestV2Schema = z
 export const legacyScheduleRequestSchema = z.object({
   emergency: z.boolean(),
   appointmentType: z.enum(appointmentTypeOptions),
-  preferredDays: z.array(z.enum(preferredDayOptions)).min(1),
+  preferredDays: z.array(z.enum(preferredDayOptions)).max(preferredDayOptions.length).min(1),
   preferredTimeOfDay: preferredTimeSchema,
   firstName: z.string().trim().min(1).max(40),
   lastName: z.string().trim().min(1).max(40),
@@ -205,7 +205,7 @@ export const legacyScheduleRequestSchema = z.object({
   insuranceStatus: z.enum(["Yes", "No", "Not Sure"]).optional(),
   additionalNotes: z.string().trim().max(300).optional(),
   sourceUrl: z.string().trim().url().optional(),
-  utmParams: z.record(z.string()).optional(),
+  utmParams: z.record(z.string(), z.string()).optional(),
 });
 
 export type ScheduleRequestV2 = z.infer<typeof scheduleRequestV2Schema>;

@@ -115,7 +115,7 @@ export function deriveLeadChannel({
     return "google_business_profile";
   }
   if (hasClickId || /^(cpc|ppc|paid|paidsearch|paid_search)$/.test(medium)) {
-    return "google_ads";
+    return source && source !== "google" ? "campaign" : "google_ads";
   }
   if (medium === "email" || source.includes("demandforce")) return "email";
   if (source) return "campaign";

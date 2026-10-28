@@ -16,18 +16,50 @@ import {
   type ScheduleRequestV2,
 } from "@shared/scheduleRequest";
 import { describeLeadAttribution } from "@shared/attribution";
+import {
+  classifySourceHostKind,
+  isAllowedScheduleSource,
+  isAllowedScheduleSourceUrl,
+  isExplicitSuccessBody,
+  parseJsonBody,
+  previewSourceHostTag,
+  resolveScheduleSourcePolicy,
+} from "@shared/scheduleRequestPolicy";
 import { trackVercelServerEvent } from "../../../server/vercelAnalytics";
 import { validateJsonRequest } from "../../../server/requestPolicy";
+import {
+  consumeScheduleRequestSlot,
+  getTrustedClientIp,
+} from "../../../server/scheduleRateLimit";
 
 type ForwardingResult = {
   enabled: boolean;
   sent: boolean;
 };
 
+// The primary inbox gets 8s; optional services share a further 2s so an
+// accepted request cannot be held open by slow secondary integrations.
+const OPTIONAL_DISPATCH_WAIT_MS = 2_000;
+
+class UpstreamStatusError extends Error {
+  constructor(readonly status: number) {
+    super("upstream-request-rejected");
+  }
+}
+
+function logDispatchFailure(code: string, error: unknown): void {
+  // Do not log vendor bodies, arbitrary error messages, URLs, or payloads.
+  console.error("[schedule-request]", {
+    code,
+    ...(error instanceof UpstreamStatusError ? { status: error.status } : {}),
+  });
+}
+
 type ScheduleDispatchPayload = Omit<ScheduleRequestV2, "phone" | "email"> & {
   phone?: string;
   email?: string;
   sourceUrl: string;
+  sourceHostKind?: "preview";
   utm: Record<string, string>;
   timestamp: string;
 };
@@ -170,6 +202,7 @@ const buildInboxMessage = (data: ScheduleDispatchPayload) => {
     `Insurance provider: ${data.insuranceProvider ?? "Not provided"}`,
     `Source URL: ${data.sourceUrl ?? "Unknown"}`,
     `Source: ${data.source ?? "Not provided"}`,
+    ...(data.sourceHostKind === "preview" ? (["Source host: preview"] as const) : []),
     `Lead channel: ${describeLeadAttribution(data.attribution)}`,
     `UTM: ${JSON.stringify(data.utm || {})}`,
     `Submitted: ${data.timestamp}`,
@@ -177,19 +210,24 @@ const buildInboxMessage = (data: ScheduleDispatchPayload) => {
   ].join("\n");
 };
 
-const postJsonWebhook = async (url: string, payload: unknown): Promise<void> => {
+const postJsonWebhook = async (
+  url: string,
+  payload: unknown,
+  signal: AbortSignal,
+): Promise<void> => {
   const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(payload),
-    signal: AbortSignal.timeout(8_000),
+    signal,
   });
 
   if (!response.ok) {
-    throw new Error(`Webhook request failed with ${response.status}.`);
+    throw new UpstreamStatusError(response.status);
   }
+  await response.body?.cancel();
 };
 
 const postToFormspree = async (
@@ -218,6 +256,9 @@ const postToFormspree = async (
     insurance_status: payload.insuranceProvider ?? "Not provided",
     source_url: payload.sourceUrl,
     source: payload.source ?? "schedule_page_form",
+    ...(payload.sourceHostKind === "preview"
+      ? { source_host_kind: "preview" as const }
+      : {}),
     timestamp: payload.timestamp,
     utm_source: payload.utm.utm_source,
     utm_medium: payload.utm.utm_medium,
@@ -249,11 +290,9 @@ const postToFormspree = async (
     signal: AbortSignal.timeout(8_000),
   });
 
-  if (!response.ok) {
-    const details = await response.text().catch(() => "No response body");
-    throw new Error(
-      `Office inbox request failed with ${response.status}: ${details.slice(0, 400)}`,
-    );
+  const details = await response.text().catch(() => "");
+  if (!response.ok || !isExplicitSuccessBody(parseJsonBody(details))) {
+    throw new UpstreamStatusError(response.status);
   }
 };
 
@@ -272,10 +311,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Silently accept honeypot-tripped submissions: bots see success, but the
-    // request is never forwarded to the office inbox.
+    // Neutral ack for bots: 2xx so the UI stays quiet, but `accepted: false`
+    // so the client must not fire generate_lead and nothing reaches the inbox.
+    // Honeypot and invalid bodies do not consume a rate-limit slot.
     if (isHoneypotTripped(body)) {
-      return NextResponse.json({ ok: true }, { status: 201 });
+      return NextResponse.json({ ok: true, accepted: false }, { status: 200 });
     }
 
     const parsedBody = normalizeIncomingScheduleRequest(body);
@@ -289,10 +329,50 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const sourceUrl =
-      parsedBody.sourceUrl ??
-      request.headers.get("referer") ??
-      null;
+    const sourcePolicy = resolveScheduleSourcePolicy();
+    const sourceUrl = parsedBody.sourceUrl ?? null;
+    const sourceHostKind = previewSourceHostTag(
+      sourceUrl ? classifySourceHostKind(sourceUrl) : null,
+    );
+
+    if (!isAllowedScheduleSource(parsedBody.source, sourcePolicy)) {
+      return NextResponse.json(
+        { message: "Request source is not allowed." },
+        { status: 400 },
+      );
+    }
+
+    if (!isAllowedScheduleSourceUrl(sourceUrl, sourcePolicy)) {
+      return NextResponse.json(
+        { message: "Request source URL is not allowed." },
+        { status: 400 },
+      );
+    }
+
+    const rateLimit = consumeScheduleRequestSlot(getTrustedClientIp(request.headers));
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        {
+          message:
+            "Too many requests. Please wait a few minutes and try again, or call the office.",
+        },
+        {
+          status: 429,
+          headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
+        },
+      );
+    }
+
+    // Review deployments exercise validation without touching office inboxes,
+    // optional integrations, or conversion analytics. This is server-owned;
+    // a request body/query flag can never enable production delivery.
+    if (process.env.VERCEL_ENV === "preview") {
+      return NextResponse.json(
+        { ok: true, accepted: false, preview: true },
+        { status: 200, headers: { "Cache-Control": "private, no-store" } },
+      );
+    }
+
     const utm = mergeUtmParams(sourceUrl, parsedBody.utmParams);
 
     const payload: ScheduleDispatchPayload = {
@@ -303,6 +383,7 @@ export async function POST(request: NextRequest) {
       message: sanitizeOptionalText(parsedBody.message),
       source: sanitizeOptionalText(parsedBody.source),
       sourceUrl: sourceUrl ?? "",
+      ...(sourceHostKind ? { sourceHostKind } : {}),
       utm,
       timestamp: new Date().toISOString(),
     };
@@ -318,57 +399,62 @@ export async function POST(request: NextRequest) {
 
     await postToFormspree(formspreeEndpoint, payload);
 
-    await trackVercelServerEvent(
-      request,
-      ANALYTICS_EVENTS.appointmentRequestSubmit,
-      {
-        appointment_type: payload.appointmentType,
-        scheduling_mode: payload.schedulingMode,
-        urgent_flag: payload.isEmergency,
-        lead_type: "appointment_request",
-        lead_channel: payload.attribution?.channel ?? "unknown",
-        page_path: getAnalyticsPathFromUrl(sourceUrl) ?? "/schedule",
-        source: payload.source ?? "schedule_page_form",
-      },
-    );
-
+    const controller = new AbortController();
     const crmWebhookUrl = process.env.SCHEDULE_CRM_WEBHOOK_URL;
     const slackWebhookUrl = process.env.SCHEDULE_SLACK_WEBHOOK_URL;
+    const crmResult: ForwardingResult = { enabled: Boolean(crmWebhookUrl), sent: false };
+    const slackResult: ForwardingResult = { enabled: Boolean(slackWebhookUrl), sent: false };
 
-    const crmResult: ForwardingResult = {
-      enabled: Boolean(crmWebhookUrl),
-      sent: false,
-    };
-    const slackResult: ForwardingResult = {
-      enabled: Boolean(slackWebhookUrl),
-      sent: false,
-    };
-
-    if (crmWebhookUrl) {
+    const forward = async (
+      url: string | undefined,
+      body: unknown,
+      result: ForwardingResult,
+      failureCode: string,
+    ): Promise<void> => {
+      if (!url) return;
       try {
-        await postJsonWebhook(crmWebhookUrl, {
-          ...payload,
-          destination: "crm",
-        });
-        crmResult.sent = true;
+        await postJsonWebhook(url, body, controller.signal);
+        // `sent` means an acknowledgment arrived before our shared deadline.
+        if (!controller.signal.aborted) result.sent = true;
       } catch (error) {
-        crmResult.sent = false;
-        console.error("Optional CRM forwarding failed.", error);
+        logDispatchFailure(failureCode, error);
       }
-    }
+    };
 
-    if (slackWebhookUrl) {
-      try {
-        await postJsonWebhook(slackWebhookUrl, {
-          text: buildInboxMessage(payload),
-          type: "appointment_request",
-          ...payload,
-        });
-        slackResult.sent = true;
-      } catch (error) {
-        slackResult.sent = false;
-        console.error("Optional Slack forwarding failed.", error);
-      }
+    let deadlineTimer: ReturnType<typeof setTimeout> | undefined;
+    const deadline = new Promise<void>((resolve) => {
+      deadlineTimer = setTimeout(() => {
+        controller.abort();
+        resolve();
+      }, OPTIONAL_DISPATCH_WAIT_MS);
+    });
+
+    try {
+      // Start all optional work together. Await acknowledgments while budget
+      // remains; do not defer required forwarding to an untracked callback.
+      await Promise.race([
+        Promise.allSettled([
+          trackVercelServerEvent(request, ANALYTICS_EVENTS.appointmentRequestSubmit, {
+            appointment_type: payload.appointmentType,
+            scheduling_mode: payload.schedulingMode,
+            urgent_flag: payload.isEmergency,
+            lead_type: "appointment_request",
+            lead_channel: payload.attribution?.channel ?? "unknown",
+            page_path: getAnalyticsPathFromUrl(sourceUrl) ?? "/schedule",
+            source: payload.source ?? "schedule_page_form",
+          }),
+          forward(crmWebhookUrl, { ...payload, destination: "crm" }, crmResult, "crm_forward_failed"),
+          forward(slackWebhookUrl, {
+            text: buildInboxMessage(payload),
+            type: "appointment_request",
+            ...payload,
+          }, slackResult, "slack_forward_failed"),
+        ]),
+        deadline,
+      ]);
+    } finally {
+      clearTimeout(deadlineTimer);
+      controller.abort();
     }
 
     return NextResponse.json(
@@ -392,10 +478,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Never echo the raw failure: it can carry the upstream inbox provider's
-    // response body. Log it for us, return a safe, actionable line to the
-    // patient (the form renders this verbatim).
-    console.error("[schedule-request] Failed to deliver appointment request:", error);
+    logDispatchFailure("office_inbox_delivery_failed", error);
     return NextResponse.json(
       {
         message:

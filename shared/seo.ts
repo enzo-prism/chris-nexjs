@@ -253,6 +253,14 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
       "invisalign for teens",
     ],
   },
+  "/invisalign-consult": {
+    title: "Invisalign Consult | Christopher B. Wong, DDS",
+    description:
+      "Request an Invisalign consult with Dr. Christopher B. Wong in Palo Alto. A 3D scan, a clear plan, and check-ins that fit busy schedules.",
+    canonicalPath: "/invisalign-consult",
+    ogImage: "/images/og/invisalign-itero-scan.jpg",
+    robots: NOINDEX_ROBOTS,
+  },
   "/invisalign/resources": {
     title: "Invisalign Resources in Palo Alto | Christopher B. Wong, DDS",
     description:
@@ -560,19 +568,19 @@ const CHANGEFREQ_OVERRIDES: Partial<
 // lastmod — they never appear in a sitemap.
 const REDESIGN_LAUNCH_DATE = "2026-10-16";
 const LASTMOD_OVERRIDES: Partial<Record<string, string>> = {
-  "/": REDESIGN_LAUNCH_DATE,
-  "/about": REDESIGN_LAUNCH_DATE,
+  "/": "2026-10-26",
+  "/about": "2026-10-26",
   "/services": REDESIGN_LAUNCH_DATE,
   "/preventive-dentistry": REDESIGN_LAUNCH_DATE,
   "/restorative-dentistry": REDESIGN_LAUNCH_DATE,
   "/pediatric-dentistry": REDESIGN_LAUNCH_DATE,
   "/patient-resources": "2026-10-20",
   "/insurance": REDESIGN_LAUNCH_DATE,
-  "/testimonials": "2026-10-23",
+  "/testimonials": "2026-10-28",
   "/patient-stories": REDESIGN_LAUNCH_DATE,
   "/blog": REDESIGN_LAUNCH_DATE,
-  "/gallery": REDESIGN_LAUNCH_DATE,
-  "/office-tour": REDESIGN_LAUNCH_DATE,
+  "/gallery": "2026-10-26",
+  "/office-tour": "2026-10-26",
   "/contact": REDESIGN_LAUNCH_DATE,
   "/schedule": REDESIGN_LAUNCH_DATE,
   "/invisalign": REDESIGN_LAUNCH_DATE,
@@ -581,7 +589,7 @@ const LASTMOD_OVERRIDES: Partial<Record<string, string>> = {
   "/dental-cleaning-palo-alto": REDESIGN_LAUNCH_DATE,
   "/cavity-fillings-palo-alto": REDESIGN_LAUNCH_DATE,
   "/crowns-palo-alto": REDESIGN_LAUNCH_DATE,
-  "/dentist-menlo-park": REDESIGN_LAUNCH_DATE,
+  "/dentist-menlo-park": "2026-10-26",
   "/dentist-stanford": REDESIGN_LAUNCH_DATE,
   "/dentist-mountain-view": REDESIGN_LAUNCH_DATE,
   "/locations": REDESIGN_LAUNCH_DATE,

@@ -25,11 +25,20 @@ literals in `shared/reviewStats.ts` (`REVIEW_STATS_LAST_UPDATED`) until someone:
 1. Re-imports the Google export (see Refresh workflow), or
 2. Sets `GOOGLE_PLACES_API_KEY` (and optionally `GOOGLE_PLACE_ID`) on the
    server. The root layout then fetches `rating` + `userRatingCount` (4s
-   timeout) and every count surface reads that resolved snapshot. Successful
+   deadline covering headers and body) and every count surface reads that resolved snapshot. Successful
    live reads are cached about a day (keyed by place ID). Timeouts, errors,
    and unusable payloads fall back to the last committed values and are not
    pinned in the 24h cache — never 0 or blank. Live copy is
-   `{rating} from {n} Google reviews`; fallback copy stays five-star.
+   `{rating} from {n} Google reviews`; fallback copy stays five-star. The root
+   layout also revalidates page HTML daily, including pages prerendered with a
+   fallback. The raw Places response is not cached separately.
+
+Activation prerequisites for the account owner: an existing Google Cloud
+project with billing approved, Places API (New) enabled, and a server-only key
+restricted to the required Places API. Configure the key through the hosting
+provider's secret environment controls. Do not use a browser/referrer key or
+put it in a `NEXT_PUBLIC_` variable. This runbook does not provision any of
+those prerequisites or verify their account-level status.
 
 Do not create or bill a key from this change. Self-serving `aggregateRating`
 JSON-LD is still not emitted; if that ever changes, use

@@ -160,50 +160,43 @@ export async function loadGoogleReviewStats(
 
   const fetchImpl = options.fetchImpl ?? fetch;
   const timeoutMs = options.timeoutMs ?? GOOGLE_PLACES_FETCH_TIMEOUT_MS;
-  const signal = AbortSignal.timeout(timeoutMs);
+  const controller = new AbortController();
+  let timer: ReturnType<typeof setTimeout> | undefined;
   try {
-    const response = await Promise.race([
-      fetchImpl(placesDetailsUrl(placeId), {
-        method: "GET",
-        headers: {
-          "X-Goog-Api-Key": apiKey,
-          "X-Goog-FieldMask": "rating,userRatingCount",
-          Accept: "application/json",
-        },
-        signal,
-      }),
-      new Promise<Response>((_, reject) => {
-        const fail = () => {
-          const error = new Error("Places request timed out");
-          error.name = "TimeoutError";
-          reject(error);
-        };
-        const timer = setTimeout(fail, timeoutMs);
-        if (signal.aborted) {
-          clearTimeout(timer);
-          fail();
-          return;
-        }
-        signal.addEventListener(
-          "abort",
-          () => {
-            clearTimeout(timer);
-            fail();
+    return await Promise.race([
+      (async () => {
+        const response = await fetchImpl(placesDetailsUrl(placeId), {
+          method: "GET",
+          headers: {
+            "X-Goog-Api-Key": apiKey,
+            "X-Goog-FieldMask": "rating,userRatingCount",
+            Accept: "application/json",
           },
-          { once: true },
-        );
+          // Cache only the validated snapshot in the server wrapper. Next's
+          // fetch cache must not retain an invalid response independently.
+          cache: "no-store",
+          signal: controller.signal,
+        });
+        if (!response.ok) {
+          return fallbackGoogleReviewSnapshot();
+        }
+        const payload: unknown = await response.json();
+        return resolveGoogleReviewStats({
+          live: parsePlacesReviewFields(payload),
+          now: options.now,
+        });
+      })(),
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(() => {
+          controller.abort();
+          reject(new Error("Places request timed out"));
+        }, timeoutMs);
       }),
     ]);
-    if (!response.ok) {
-      return fallbackGoogleReviewSnapshot();
-    }
-    const payload: unknown = await response.json();
-    return resolveGoogleReviewStats({
-      live: parsePlacesReviewFields(payload),
-      now: options.now,
-    });
   } catch {
     return fallbackGoogleReviewSnapshot();
+  } finally {
+    clearTimeout(timer);
   }
 }
 

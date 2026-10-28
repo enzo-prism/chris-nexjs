@@ -3,6 +3,7 @@ import {
   getAnalyticsConsentState,
   hasAnalyticsConsent,
   isAnalyticsRuntimeEnabled,
+  isAnalyticsTestHookEnabled,
   trackGAEvent,
   trackVercelEvent,
 } from "./analytics";
@@ -14,6 +15,7 @@ import {
   sanitizeAnalyticsEventProperties,
   sanitizeVercelEventProperties,
 } from "@shared/analytics";
+import { isAllowedAnalyticsHost } from "@shared/analyticsHosts";
 
 const waitForAnalyticsFlush = () => new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -115,7 +117,7 @@ trackGAEvent("no_gtag");
 assert.strictEqual(gaCalled, null);
 
 vercelCalled = null;
-(globalThis as any).window.location.hostname = "localhost";
+(globalThis as any).window.location.hostname = "www.chriswongdds.com";
 (globalThis as any).window.location.pathname = "/contact";
 trackVercelEvent(ANALYTICS_EVENTS.contactFormSubmit, {
   form_name: "contact_form",
@@ -137,6 +139,28 @@ assert.deepStrictEqual(vercelCalled, [
 ]);
 
 vercelCalled = null;
+(globalThis as any).window.location.hostname = "localhost";
+trackVercelEvent(ANALYTICS_EVENTS.contactFormSubmit, {
+  form_name: "contact_form",
+  lead_type: "contact_request",
+  page_path: "/contact",
+});
+await waitForAnalyticsFlush();
+assert.strictEqual(vercelCalled, null);
+assert.strictEqual(isAllowedAnalyticsHost("localhost"), false);
+
+vercelCalled = null;
+(globalThis as any).window.location.hostname =
+  "chris-wong-dds-git-allowlist.vercel.app";
+trackVercelEvent(ANALYTICS_EVENTS.contactFormSubmit, {
+  form_name: "contact_form",
+  lead_type: "contact_request",
+  page_path: "/contact",
+});
+await waitForAnalyticsFlush();
+assert.strictEqual(vercelCalled, null);
+
+vercelCalled = null;
 (globalThis as any).window.localStorage.value = "denied";
 trackVercelEvent("blocked_vercel_event", {
   lead_type: "blocked",
@@ -152,5 +176,27 @@ trackVercelEvent("excluded_route_event", {
 });
 await waitForAnalyticsFlush();
 assert.strictEqual(vercelCalled, null);
+
+const previousNodeEnv = process.env.NODE_ENV;
+(globalThis as any).window.__cwForceAnalytics = true;
+(globalThis as any).window.localStorage.value = "denied";
+(globalThis as any).window.location.hostname = "localhost";
+process.env.NODE_ENV = "test";
+assert.equal(isAnalyticsTestHookEnabled(), true);
+assert.equal(hasAnalyticsConsent(), true, "non-prod hook may override denied consent");
+assert.equal(isAnalyticsRuntimeEnabled(), true);
+
+process.env.NODE_ENV = "production";
+assert.equal(isAnalyticsTestHookEnabled(), false);
+assert.equal(
+  hasAnalyticsConsent(),
+  false,
+  "production builds must not let __cwForceAnalytics override consent",
+);
+assert.equal(isAnalyticsRuntimeEnabled(), false);
+
+process.env.NODE_ENV = previousNodeEnv;
+delete (globalThis as any).window.__cwForceAnalytics;
+(globalThis as any).window.localStorage.value = "granted";
 
 console.log("analytics tests passed");

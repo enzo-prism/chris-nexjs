@@ -7,4 +7,12 @@ interface Window {
     params?: Record<string, any>
   ) => void;
   setAnalyticsConsent?: (granted: boolean) => void;
+  __cwForceAnalytics?: boolean;
+  __cwScheduleOutcomes?: Array<{
+    submitted: boolean;
+    success: boolean;
+    leadFired: boolean;
+    formName: string;
+  }>;
+  __cwAnalyticsImmediate?: boolean;
 }

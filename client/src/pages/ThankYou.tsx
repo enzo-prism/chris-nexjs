@@ -101,8 +101,8 @@ const ThankYou = () => {
           <figure className="overflow-hidden rounded-[2rem] bg-cream-200 shadow-soft">
             <div className="relative aspect-[16/10]">
               <Image
-                src="/images/redesign/team-group-reception.webp"
-                alt="Dr. Christopher B. Wong and the dental team standing together in the office reception area"
+                src="/images/redesign/team-group-lounge.webp"
+                alt="Dr. Christopher B. Wong and the dental team in the office lounge, beside the aquarium"
                 fill
                 sizes="(max-width: 1024px) 100vw, 40vw"
                 className="object-cover"

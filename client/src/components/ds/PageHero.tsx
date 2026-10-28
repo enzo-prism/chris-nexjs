@@ -18,6 +18,10 @@ type PageHeroProps = {
   readonly icon?: ServiceIconName;
   /** Replace the default request + call buttons. Pass null to hide. */
   readonly actions?: ReactNode | null;
+  /** Extra classes on the action-button row. */
+  readonly actionsClassName?: string;
+  /** Extra classes on the Google-review chip. */
+  readonly reviewLinkClassName?: string;
   /** Extra trust chips under the buttons. */
   readonly chips?: readonly ReactNode[];
   /** Show the Google-review chip (default true). */
@@ -42,6 +46,8 @@ export function PageHero({
   media,
   icon,
   actions,
+  actionsClassName,
+  reviewLinkClassName,
   chips = [],
   showReviews = true,
   callFirst = false,
@@ -79,7 +85,7 @@ export function PageHero({
           media ? "items-center lg:grid-cols-[1.05fr_0.95fr] lg:gap-14" : null,
         )}
       >
-        <div className="relative z-10 max-w-3xl">
+        <div className="relative z-10 min-w-0 max-w-3xl">
           {crumbs ? <PageBreadcrumbs items={crumbs} inline className="mb-6 sm:mb-8" /> : null}
           <div className="rise-in flex items-center gap-3">
             {icon ? (
@@ -94,14 +100,22 @@ export function PageHero({
           </h1>
           {lead ? <p className="lead mt-5 max-w-2xl">{lead}</p> : null}
           {actions !== null ? (
-            <div className="rise-in rise-in-3 mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <div
+              className={cn(
+                "rise-in rise-in-3 mt-8 flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap",
+                actionsClassName,
+              )}
+            >
               {actions ?? defaultActions}
             </div>
           ) : null}
           {showReviews || chips.length ? (
-            <div className="rise-in rise-in-4 mt-6 flex flex-wrap items-center gap-2">
+            <div className="rise-in rise-in-4 mt-6 flex min-w-0 flex-wrap items-center gap-2">
               {showReviews ? (
-                <Link href="/testimonials" className="pill transition-colors hover:border-gold-400">
+                <Link
+                  href="/testimonials"
+                  className={cn("pill transition-colors hover:border-gold-400", reviewLinkClassName)}
+                >
                   <GoogleReviewProof surface="page-hero" variant="chip" />
                 </Link>
               ) : null}

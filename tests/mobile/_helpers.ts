@@ -34,10 +34,16 @@ export const FONT_SIZE_PX = (el: Element): number =>
  * fields live on the final contact step, so tests pick an appointment type and
  * continue once before inspecting them.
  */
-export async function advanceFunnelToContactStep(page: Page): Promise<void> {
-  const decline = page.getByRole("button", { name: /^decline$/i });
-  if (await decline.isVisible().catch(() => false)) {
-    await decline.click();
+export async function advanceFunnelToContactStep(
+  page: Page,
+  options: { readonly dismissConsent?: boolean } = {},
+): Promise<void> {
+  const { dismissConsent = true } = options;
+  if (dismissConsent) {
+    const decline = page.getByRole("button", { name: /^decline$/i });
+    if (await decline.isVisible().catch(() => false)) {
+      await decline.click();
+    }
   }
 
   const appointmentGroup = page.getByRole("radiogroup", {

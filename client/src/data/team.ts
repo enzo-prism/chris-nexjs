@@ -99,7 +99,7 @@ export const team: readonly TeamMember[] = [
     image: "/images/team/kelty.jpeg",
     focus: "50% 30%",
     highlight: "Finds the visit time that works for you",
-    bio: "A native San Franciscan and Loyola Marymount graduate, Kelty was introduced to dentistry by her mother, a retired dentist and dental professor at the University of the Pacific.",
+    bio: "A native San Franciscan and Loyola Marymount graduate, Kelty was introduced to dentistry by her mother, a retired dentist and dental professor at UCSF and University of the Pacific.",
   },
   {
     slug: "dr-pearl-tran",
