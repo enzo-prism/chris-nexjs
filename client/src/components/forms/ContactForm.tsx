@@ -25,6 +25,7 @@ import { getLeadAttribution } from "@/lib/attribution";
 import { officeInfo } from "@/lib/data";
 import { ANALYTICS_EVENTS, getAnalyticsPageContext } from "@shared/analytics";
 import { HONEYPOT_FIELD } from "@shared/formspree";
+import { readContactRequestResult } from "@shared/contactRequestPolicy";
 // next/link, not wouter: this form renders on the dedicated /contact route,
 // where there is no wouter <Switch> — a wouter Link updates the URL but never
 // swaps the page content.
@@ -43,7 +44,7 @@ const contactFormSchema = insertContactMessageSchema.extend({
 });
 
 type ContactFormValues = z.infer<typeof contactFormSchema>;
-type SubmissionState = "idle" | "validation-error" | "submitting" | "error" | "success";
+type SubmissionState = "idle" | "validation-error" | "submitting" | "error" | "success" | "neutral" | "demo";
 
 const ContactForm = () => {
   const [submissionState, setSubmissionState] = useState<SubmissionState>("idle");
@@ -67,28 +68,35 @@ const ContactForm = () => {
   });
 
   const contactMutation = useMutation({
-    mutationFn: (data: InsertContactMessage) =>
-      apiRequest("POST", "/api/contact", {
+    mutationFn: async (data: InsertContactMessage) => {
+      const response = await apiRequest("POST", "/api/contact", {
         ...data,
         attribution: getLeadAttribution()?.attribution,
-      }),
-    onSuccess: () => {
-      trackLeadConversion(ANALYTICS_EVENTS.contactFormSubmit, {
-        form_name: "contact_form",
-        lead_type: "contact_request",
-        lead_source: "contact_form",
-        lead_channel: getLeadAttribution()?.attribution.channel ?? "unknown",
-        ...getAnalyticsPageContext(
-          typeof window !== "undefined" ? window.location.pathname : "/contact",
-        ),
       });
+      return readContactRequestResult(response.status, await response.json().catch(() => null));
+    },
+    onSuccess: (result) => {
+      if (result.accepted) {
+        trackLeadConversion(ANALYTICS_EVENTS.contactFormSubmit, {
+          form_name: "contact_form",
+          lead_type: "contact_request",
+          lead_source: "contact_form",
+          lead_channel: getLeadAttribution()?.attribution.channel ?? "unknown",
+          ...getAnalyticsPageContext(
+            typeof window !== "undefined" ? window.location.pathname : "/contact",
+          ),
+        });
+      }
+      if (result.preview || result.test) {
+        setSubmissionState("demo");
+        return;
+      }
       form.reset();
       setPrivacyConsent(false);
-      setSubmissionState("success");
-      // Land on the dedicated confirmation page: a stable conversion
-      // page-view for GA4/Ads goals (gtag uses beacon transport, so the
-      // events above survive the navigation).
-      if (typeof window !== "undefined") {
+      setSubmissionState(result.accepted ? "success" : "neutral");
+      // Only delivered inquiries reach the confirmation URL. Neutral bot
+      // acknowledgements stay quiet without a conversion-shaped page view.
+      if (result.accepted && typeof window !== "undefined") {
         window.setTimeout(() => window.location.assign("/thank-you"), 500);
       }
     },
@@ -125,7 +133,8 @@ const ContactForm = () => {
   };
 
   const isSubmitting = submissionState === "submitting";
-  const isSuccess = submissionState === "success";
+  const isSuccess = submissionState === "success" || submissionState === "neutral";
+  const isDemo = submissionState === "demo";
 
   return (
     <Form {...form}>
@@ -193,13 +202,13 @@ const ContactForm = () => {
           </div>
         ) : null}
 
-        {isSuccess ? (
+        {isSuccess || isDemo ? (
           <div
             role="status"
             className="flex items-center gap-3 rounded-xl border border-evergreen-200 bg-evergreen-50 p-4 text-sm font-medium text-evergreen-900"
           >
             <CheckCircle2 className="h-5 w-5 shrink-0" aria-hidden="true" />
-            Message sent. Opening your confirmation…
+            {isDemo ? "Demo complete. Nothing was sent to the office." : submissionState === "neutral" ? "Message sent." : "Message sent. Opening your confirmation…"}
           </div>
         ) : null}
 
@@ -388,7 +397,7 @@ const ContactForm = () => {
           type="submit"
           size="lg"
           className="ui-btn-primary min-h-12 w-full rounded-full py-3 text-base font-semibold"
-          disabled={isSubmitting || isSuccess}
+          disabled={isSubmitting || isSuccess || isDemo}
           aria-describedby="contact-submit-note"
           aria-busy={isSubmitting}
         >
@@ -397,10 +406,10 @@ const ContactForm = () => {
               <LoaderCircle className="animate-spin" aria-hidden="true" />
               Sending message…
             </>
-          ) : isSuccess ? (
+          ) : isSuccess || isDemo ? (
             <>
               <CheckCircle2 aria-hidden="true" />
-              Message sent
+              {isDemo ? "Demo complete" : "Message sent"}
             </>
           ) : (
             "Send message"
