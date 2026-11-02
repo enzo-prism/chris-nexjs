@@ -1089,10 +1089,6 @@ svg.lucide {
    ========================================================================== */
 :root {
   /* Reserved for seasonal art, never for UI, text, or CTAs. */
-  --cw-harvest-amber: #e08a2e;
-  --cw-harvest-gold: #ebc56b;
-  --cw-harvest-russet: #c0602a;
-  --cw-harvest-cranberry: #a3303f;
   --cw-harvest-glow: #fbe6b3;
   --cw-season-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -1259,7 +1255,7 @@ html[data-cw-season] .cw-turkey-peek {
   display: block;
   width: 100%;
   height: auto;
-  animation: cw-leaf-sway 0.9s ease-in-out 4 alternate;
+  animation: cw-leaf-sway 0.9s ease-in-out var(--delay) 4 alternate;
 }
 @keyframes cw-leaf-sway {
   from {
