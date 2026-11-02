@@ -35,8 +35,9 @@ The app runs on Next.js App Router with API route handlers, centralized SEO meta
   `/office-tour` page pairs the film with four real office clips.
 - `/changelog` ("Site updates") merges update history from current and legacy
   repositories.
-- October seasonal layer (Halloween) that switches itself on and off by date;
-  see the AGENTS.md "Seasonal layer" section.
+- Seasonal layer (Thanksgiving through November 30, 2026; Halloween ran in
+  October) that switches itself on and off by date; see the AGENTS.md
+  "Seasonal layer" section.
 - `/schedule` request funnel starts in the first phone screen and shows the
   insurance field with out-of-network guidance.
 - Lead-source attribution: appointment and contact leads carry a coarse channel

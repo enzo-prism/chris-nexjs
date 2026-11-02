@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <!-- Gold maple leaf for dark bands. -->
+  <path d="M24 2 27.2 9.2 31 7.4 29.6 17.6 35.6 11.6 37.2 15.4 44 14 41.2 21.2 45 23.4 35.4 31 36.6 35 26 33.6 25.2 34 25.6 45 22.4 45 22.8 34 22 33.6 11.4 35 12.6 31 3 23.4 6.8 21.2 4 14 10.8 15.4 12.4 11.6 18.4 17.6 17 7.4 20.8 9.2Z" fill="#EBC56B"/>
+  <path d="M24 44V8M24 30 37 18M24 30 11 18M24 34l9 0M24 34h-9" fill="none" stroke="#B9862F" stroke-width="1.1" stroke-linecap="round" opacity=".6"/>
+</svg>

@@ -15,7 +15,7 @@ import {
   TeamSection,
   VisitSection,
 } from "@/components/home/HomeSections";
-import { NightBandSky, TreatTipsSection } from "@/components/seasonal/HomeSeasonal";
+import { CtaBandLeaves, FeastTipsSection } from "@/components/seasonal/HomeSeasonal";
 import { buildFAQSchema, type FAQEntry } from "@/lib/structuredData";
 
 const homeFaqs: FAQEntry[] = [
@@ -56,7 +56,7 @@ const Home = () => {
       <FeaturedQuote />
       <OfficeSection />
       <CostSection />
-      <TreatTipsSection />
+      <FeastTipsSection />
       <VisitSection />
       <Section id="faq" tone="cream" labelledBy="faq-title">
         <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
@@ -73,7 +73,7 @@ const Home = () => {
           <FaqList items={homeFaqs} />
         </div>
       </Section>
-      <CtaBand analyticsContext="home-cta" decor={<NightBandSky />} />
+      <CtaBand analyticsContext="home-cta" decor={<CtaBandLeaves />} />
     </>
   );
 };

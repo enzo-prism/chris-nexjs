@@ -10,21 +10,29 @@ import {
   activeSeason,
   buildSeasonScript,
   halloween2026,
+  thanksgiving2026,
   isSeasonInRange,
 } from "../shared/seasonal";
 
-// Pacific Daylight Time is UTC-7 throughout October 2026.
-const SEP_30_LAST_MINUTE = "2026-10-01T06:59:00Z";
-const OCT_1_MIDNIGHT = "2026-10-01T07:00:00Z";
-const OCT_31_LAST_MINUTE = "2026-11-01T06:59:00Z";
-const NOV_1_MIDNIGHT = "2026-11-01T07:00:00Z";
+// November 1, 2026 starts on Pacific Daylight Time (UTC-7); clocks fall back
+// at 2am, so November 30 ends on Pacific Standard Time (UTC-8).
+const BEFORE_LAST_MINUTE = "2026-11-01T06:59:00Z"; // Oct 31, 11:59pm PDT
+const START_MIDNIGHT = "2026-11-01T07:00:00Z"; // Nov 1, 12:00am PDT
+const END_LAST_MINUTE = "2026-12-01T07:59:00Z"; // Nov 30, 11:59pm PST
+const AFTER_MIDNIGHT = "2026-12-01T08:00:00Z"; // Dec 1, 12:00am PST
 
 describe("isSeasonInRange", () => {
   it("follows the practice's Pacific calendar day, not UTC", () => {
-    assert.equal(isSeasonInRange(halloween2026, new Date(SEP_30_LAST_MINUTE)), false);
-    assert.equal(isSeasonInRange(halloween2026, new Date(OCT_1_MIDNIGHT)), true);
-    assert.equal(isSeasonInRange(halloween2026, new Date(OCT_31_LAST_MINUTE)), true);
-    assert.equal(isSeasonInRange(halloween2026, new Date(NOV_1_MIDNIGHT)), false);
+    assert.equal(isSeasonInRange(thanksgiving2026, new Date(BEFORE_LAST_MINUTE)), false);
+    assert.equal(isSeasonInRange(thanksgiving2026, new Date(START_MIDNIGHT)), true);
+    assert.equal(isSeasonInRange(thanksgiving2026, new Date(END_LAST_MINUTE)), true);
+    assert.equal(isSeasonInRange(thanksgiving2026, new Date(AFTER_MIDNIGHT)), false);
+  });
+
+  it("hands over from Halloween to Thanksgiving at Pacific midnight on November 1", () => {
+    assert.equal(activeSeason, thanksgiving2026);
+    assert.equal(isSeasonInRange(halloween2026, new Date(BEFORE_LAST_MINUTE)), true);
+    assert.equal(isSeasonInRange(halloween2026, new Date(START_MIDNIGHT)), false);
   });
 });
 
@@ -85,7 +93,7 @@ function runScript({
     },
   };
 
-  runInNewContext(buildSeasonScript(halloween2026), {
+  runInNewContext(buildSeasonScript(thanksgiving2026), {
     window,
     document,
     Date: FixedDate,
@@ -109,59 +117,59 @@ function fakeLink(href: string) {
 
 describe("buildSeasonScript", () => {
   it("turns the season on only inside the date range", () => {
-    assert.equal(runScript({ now: SEP_30_LAST_MINUTE }), null);
-    assert.equal(runScript({ now: OCT_1_MIDNIGHT }), "halloween");
-    assert.equal(runScript({ now: OCT_31_LAST_MINUTE }), "halloween");
-    assert.equal(runScript({ now: NOV_1_MIDNIGHT }), null);
+    assert.equal(runScript({ now: BEFORE_LAST_MINUTE }), null);
+    assert.equal(runScript({ now: START_MIDNIGHT }), "thanksgiving");
+    assert.equal(runScript({ now: END_LAST_MINUTE }), "thanksgiving");
+    assert.equal(runScript({ now: AFTER_MIDNIGHT }), null);
   });
 
-  it("previews out of season with ?season=halloween for the rest of the session", () => {
+  it("previews out of season with ?season=thanksgiving for the rest of the session", () => {
     const session = new Map<string, string>();
-    assert.equal(runScript({ now: NOV_1_MIDNIGHT, search: "?season=halloween", session }), "halloween");
+    assert.equal(runScript({ now: AFTER_MIDNIGHT, search: "?season=thanksgiving", session }), "thanksgiving");
     assert.equal(session.get(SEASON_PREVIEW_KEY), "1");
-    assert.equal(runScript({ now: NOV_1_MIDNIGHT, session }), "halloween");
+    assert.equal(runScript({ now: AFTER_MIDNIGHT, session }), "thanksgiving");
   });
 
   it("opts a browser out with ?season=off and resets with ?season=auto", () => {
     const local = new Map<string, string>();
-    assert.equal(runScript({ now: OCT_1_MIDNIGHT, search: "?season=off", local }), null);
+    assert.equal(runScript({ now: START_MIDNIGHT, search: "?season=off", local }), null);
     assert.equal(local.get(SEASON_OPT_OUT_KEY), "off");
-    assert.equal(runScript({ now: OCT_1_MIDNIGHT, local }), null);
-    assert.equal(runScript({ now: OCT_1_MIDNIGHT, search: "?season=auto", local }), "halloween");
+    assert.equal(runScript({ now: START_MIDNIGHT, local }), null);
+    assert.equal(runScript({ now: START_MIDNIGHT, search: "?season=auto", local }), "thanksgiving");
     assert.equal(local.has(SEASON_OPT_OUT_KEY), false);
   });
 
   it("an explicit ?season=off wins over an active preview", () => {
     const session = new Map([[SEASON_PREVIEW_KEY, "1"]]);
-    assert.equal(runScript({ now: OCT_1_MIDNIGHT, search: "?season=off", session }), null);
+    assert.equal(runScript({ now: START_MIDNIGHT, search: "?season=off", session }), null);
     assert.equal(session.has(SEASON_PREVIEW_KEY), false);
   });
 
   it("still follows the calendar (and honors ?season=) when storage is blocked", () => {
-    assert.equal(runScript({ now: OCT_1_MIDNIGHT, local: "throws", session: "throws" }), "halloween");
-    assert.equal(runScript({ now: NOV_1_MIDNIGHT, local: "throws", session: "throws" }), null);
+    assert.equal(runScript({ now: START_MIDNIGHT, local: "throws", session: "throws" }), "thanksgiving");
+    assert.equal(runScript({ now: AFTER_MIDNIGHT, local: "throws", session: "throws" }), null);
     assert.equal(
-      runScript({ now: NOV_1_MIDNIGHT, search: "?season=halloween", local: "throws", session: "throws" }),
-      "halloween",
+      runScript({ now: AFTER_MIDNIGHT, search: "?season=thanksgiving", local: "throws", session: "throws" }),
+      "thanksgiving",
     );
   });
 
   it("swaps the favicon only while the season is on", () => {
-    runScript({ now: OCT_1_MIDNIGHT });
-    assert.deepEqual(lastIconHrefs, [halloween2026.icon, halloween2026.icon]);
-    runScript({ now: NOV_1_MIDNIGHT });
+    runScript({ now: START_MIDNIGHT });
+    assert.deepEqual(lastIconHrefs, [thanksgiving2026.icon, thanksgiving2026.icon]);
+    runScript({ now: AFTER_MIDNIGHT });
     assert.deepEqual(lastIconHrefs, ["/favicon/favicon-32x32.png", "/favicon.ico"]);
   });
 
   it("re-applies the attribute when React resets <html> after a hydration error", () => {
     assert.match(
-      buildSeasonScript(halloween2026),
+      buildSeasonScript(thanksgiving2026),
       /MutationObserver\(function\(\)\{if\(d\.getAttribute\(c\.attribute\)!==c\.name\)d\.setAttribute\(c\.attribute,c\.name\)\}\)\.observe\(d,\{attributes:true,attributeFilter:\[c\.attribute\]\}\)/,
     );
   });
 
   it("escapes markup in the inlined config", () => {
-    assert.doesNotMatch(buildSeasonScript(halloween2026), /<\/?script/i);
+    assert.doesNotMatch(buildSeasonScript(thanksgiving2026), /<\/?script/i);
   });
 });
 

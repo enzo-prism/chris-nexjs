@@ -22,7 +22,7 @@ export function TeamCard({
   return (
     <article
       className={cn(
-        "cw-cobweb group relative flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-cream-300/80 bg-white shadow-soft",
+        "cw-card-corner group relative flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-cream-300/80 bg-white shadow-soft",
         className,
       )}
     >

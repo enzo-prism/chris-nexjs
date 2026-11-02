@@ -318,7 +318,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
         <div className="mx-auto flex h-10 max-w-7xl items-center justify-between gap-6 px-8 text-[13px]">
           <div className="flex items-center gap-5">
             <span className="inline-flex items-center gap-1.5 font-semibold text-gold-200">
-              <span className="cw-season-only cw-art cw-art-pumpkin h-4 w-4" aria-hidden="true" />
+              <span className="cw-season-only cw-art cw-art-leaf h-4 w-4" aria-hidden="true" />
               New patients welcome
             </span>
             <a

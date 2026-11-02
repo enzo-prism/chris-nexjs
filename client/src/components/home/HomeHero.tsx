@@ -8,14 +8,14 @@ import { StarRow } from "@/components/ds/Reviews";
 import { team } from "@/data/team";
 import { homeRibbonQuotes } from "@/data/reviewHighlights";
 import {
-  HarvestMoon,
-  HeroGhost,
-  PumpkinPatch,
+  HarvestRow,
+  HeroSprig,
+  HeroTurkey,
   SeasonalGreeting,
   SeasonalUnderline,
-  harvestMoonBox,
+  heroSprigBox,
 } from "@/components/seasonal/HomeSeasonal";
-import { HarvestBats } from "@/components/seasonal/SeasonalClient";
+import { FallingLeaves } from "@/components/seasonal/SeasonalClient";
 
 const HERO_IMAGE = "/images/hero/dr-wong-hero.webp";
 const faces = team.filter((m) => m.group !== "dentist").slice(0, 4);
@@ -24,7 +24,7 @@ const heroQuote = homeRibbonQuotes.find((q) => q.name === "Jimmy") ?? homeRibbon
 
 export function HomeHero() {
   return (
-    <section className="paper cw-hero-dusk relative isolate overflow-hidden" aria-labelledby="home-hero-title">
+    <section className="paper cw-hero-tint relative isolate overflow-hidden" aria-labelledby="home-hero-title">
       <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 pb-6 pt-6 sm:px-6 sm:pt-10 lg:grid-cols-[1.02fr_0.98fr] lg:gap-14 lg:px-8 lg:pb-10 lg:pt-14">
         <div className="relative z-10">
           <SeasonalGreeting />
@@ -105,8 +105,8 @@ export function HomeHero() {
         </div>
 
         <div className="relative mx-auto w-full max-w-xl lg:max-w-none">
-          <HarvestMoon />
-          <HeroGhost />
+          <HeroSprig />
+          <HeroTurkey />
           <div
             aria-hidden="true"
             className="absolute -inset-4 -z-10 rounded-[2.75rem] bg-[conic-gradient(from_200deg,rgba(176,209,193,0.55),rgba(243,224,176,0.6),rgba(176,209,193,0.55))] opacity-60 blur-2xl"
@@ -146,7 +146,7 @@ export function HomeHero() {
             </blockquote>
             <figcaption className="mt-2 text-xs font-semibold text-ink-muted">{heroQuote.name} · Google review</figcaption>
           </figure>
-          <HarvestBats className={harvestMoonBox} />
+          <FallingLeaves className={heroSprigBox} />
         </div>
       </div>
 
@@ -155,7 +155,7 @@ export function HomeHero() {
         aria-hidden="true"
         className="pointer-events-none relative -mt-2 h-[120px] bg-[url('/brand/roots-ink.svg')] bg-[length:1100px_275px] bg-[position:center_-28px] bg-no-repeat sm:h-[150px] sm:bg-[length:1440px_360px] sm:bg-[position:center_-40px]"
       >
-        <PumpkinPatch />
+        <HarvestRow />
       </div>
     </section>
   );

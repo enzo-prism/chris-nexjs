@@ -45,7 +45,7 @@ const dayRows = [
   ["Sat–Sun", "saturday"],
 ] as const;
 
-// The October greeting is drawn in CSS by `cw-season-footer` (app/globals.css).
+// The seasonal greeting is drawn in CSS by `cw-season-footer` (app/globals.css).
 // Urgent-care, legal, and post-conversion pages opt out via data-cw-quiet.
 const QUIET_PATHS = /^\/(emergency-dental|thank-you|privacy-policy|hipaa|terms|accessibility)\/?$/;
 
