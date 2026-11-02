@@ -74,7 +74,7 @@ export function ReviewCard({
   return (
     <figure
       className={cn(
-        "cw-cobweb relative flex h-full flex-col rounded-[1.5rem] border border-cream-300/80 bg-white p-5 shadow-soft",
+        "cw-card-corner relative flex h-full flex-col rounded-[1.5rem] border border-cream-300/80 bg-white p-5 shadow-soft",
         size === "lg" && "p-7 sm:p-8",
         className,
       )}

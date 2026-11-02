@@ -10,16 +10,16 @@ import {
 import {
   SEASON_ATTRIBUTE,
   activeSeason,
-  batFlightStorageKey,
   buildSeasonScript,
+  leafFallStorageKey,
   seasonalMotionAllowed,
   seasonIsOn,
 } from "@shared/seasonal";
 
 /*
- * Client pieces of the October seasonal layer, used on the homepage and the
+ * Client pieces of the seasonal layer, used on the homepage and the
  * 404 page only (keep them out of shared chrome so other routes' JS budgets
- * stay put). See AGENTS.md "Seasonal layer (October)".
+ * stay put). See AGENTS.md "Seasonal layer".
  */
 
 /**
@@ -83,45 +83,45 @@ export function SeasonPlay({
   );
 }
 
-const FLIGHT_MS = 4_700;
+const FALL_MS = 4_700;
 
-// Three bats lift off the moon on staggered, slightly different paths.
-// Total flight (delay + duration) stays under 5s (WCAG 2.2.2).
-const bats = [
-  { size: "3.4rem", flight: "cw-bat-flight-a", duration: "3.6s", delay: "0s" },
-  { size: "2.7rem", flight: "cw-bat-flight-b", duration: "3.8s", delay: "0.35s" },
-  { size: "2.1rem", flight: "cw-bat-flight-c", duration: "3.6s", delay: "0.75s" },
+// Three leaves let go of the hero sprig on staggered, slightly different
+// paths. Total fall (delay + duration) stays under 5s (WCAG 2.2.2).
+const leaves = [
+  { size: "2.4rem", fall: "cw-leaf-fall-a", duration: "3.7s", delay: "0s", color: "#E08A2E" },
+  { size: "1.9rem", fall: "cw-leaf-fall-b", duration: "3.8s", delay: "0.4s", color: "#C0602A" },
+  { size: "1.5rem", fall: "cw-leaf-fall-c", duration: "3.6s", delay: "0.8s", color: "#D9A441" },
 ] as const;
 
-function Bat() {
+function Leaf() {
   return (
-    <svg viewBox="0 0 64 30" fill="currentColor" aria-hidden="true">
-      <path d="M32 8c1.5 0 2.5 1 3 2.3L36.4 8l.8 3.2C41 7.8 46 6.2 51 6.4c3.4.1 6.6 1 9.4 2.8-2.7.4-4.7 2.2-5.4 4.6-2.1-.9-4.6-.6-6.3.9-1.5-1-3.6-1.1-5.2-.2-1.4.8-2.3 2.2-2.6 3.8-1.6-.9-3.4-1.3-5.3-1.2-1.5.1-2.8.9-3.6 2-.8-1.1-2.1-1.9-3.6-2-1.9-.1-3.7.3-5.3 1.2-.3-1.6-1.2-3-2.6-3.8-1.6-.9-3.7-.8-5.2.2-1.7-1.5-4.2-1.8-6.3-.9-.7-2.4-2.7-4.2-5.4-4.6C6.4 7.4 9.6 6.5 13 6.4c5-.2 10 1.4 13.8 4.8l.8-3.2 1.4 2.3c.5-1.3 1.5-2.3 3-2.3Z" />
+    <svg viewBox="0 0 48 48" fill="currentColor" aria-hidden="true">
+      <path d="M24 2 27.2 9.2 31 7.4 29.6 17.6 35.6 11.6 37.2 15.4 44 14 41.2 21.2 45 23.4 35.4 31 36.6 35 26 33.6 25.2 34 25.6 45 22.4 45 22.8 34 22 33.6 11.4 35 12.6 31 3 23.4 6.8 21.2 4 14 10.8 15.4 12.4 11.6 18.4 17.6 17 7.4 20.8 9.2Z" />
     </svg>
   );
 }
 
 /**
- * Bats lifting off the hero's harvest moon. Plays once per session, only in
- * season, only when the moon is on screen, and never for reduced-motion or
- * Save-Data visitors. `className` must place this box over the moon.
+ * Leaves falling from the hero's autumn sprig. Plays once per session, only
+ * in season, only when the sprig is on screen, and never for reduced-motion
+ * or Save-Data visitors. `className` must place this box over the sprig.
  */
-export function HarvestBats({ className = "" }: { readonly className?: string }) {
+export function FallingLeaves({ className = "" }: { readonly className?: string }) {
   const layerRef = useRef<HTMLDivElement>(null);
-  const [flying, setFlying] = useState(false);
+  const [falling, setFalling] = useState(false);
 
   useEffect(() => {
     const layer = layerRef.current;
     if (!layer || !activeSeason || !seasonIsOn() || !seasonalMotionAllowed()) return;
     if (typeof IntersectionObserver === "undefined") return;
 
-    const key = batFlightStorageKey(activeSeason);
+    const key = leafFallStorageKey(activeSeason);
     let session: Storage | null = null;
     try {
       session = window.sessionStorage;
       if (session.getItem(key) === "1") return;
     } catch {
-      // Storage is blocked: still fly once for this page view.
+      // Storage is blocked: still fall once for this page view.
     }
 
     let timer: number | undefined;
@@ -134,8 +134,8 @@ export function HarvestBats({ className = "" }: { readonly className?: string })
         } catch {
           // Best effort only.
         }
-        setFlying(true);
-        timer = window.setTimeout(() => setFlying(false), FLIGHT_MS + 200);
+        setFalling(true);
+        timer = window.setTimeout(() => setFalling(false), FALL_MS + 200);
       },
       { threshold: 0.6 },
     );
@@ -152,21 +152,22 @@ export function HarvestBats({ className = "" }: { readonly className?: string })
       aria-hidden="true"
       className={`cw-season-only pointer-events-none absolute z-[2] ${className}`}
     >
-      {flying
-        ? bats.map((bat) => (
+      {falling
+        ? leaves.map((leaf) => (
             <span
-              key={bat.flight}
-              className="cw-bat"
+              key={leaf.fall}
+              className="cw-leaf"
               style={
                 {
-                  "--size": bat.size,
-                  "--flight": bat.flight,
-                  "--duration": bat.duration,
-                  "--delay": bat.delay,
+                  "--size": leaf.size,
+                  "--fall": leaf.fall,
+                  "--duration": leaf.duration,
+                  "--delay": leaf.delay,
+                  color: leaf.color,
                 } as CSSProperties
               }
             >
-              <Bat />
+              <Leaf />
             </span>
           ))
         : null}
