@@ -4,6 +4,11 @@ import assert from "node:assert/strict";
 
 import { seoByPath } from "../shared/seo";
 import { getStorage } from "../server/storage/repository";
+import {
+  imageAuditExitCode,
+  verifyImageUrl,
+  type ImageAuditFailure,
+} from "./image-audit-retry";
 
 const BASE_URL = (process.env.IMAGE_AUDIT_BASE_URL || "http://localhost:3000").replace(
   /\/+$/,
@@ -14,11 +19,7 @@ const IMAGE_EXTENSIONS = /\.(png|jpe?g|webp|avif|gif|svg|ico)(?:[?#].*)?$/i;
 const SOURCE_DIRS = ["client/src", "app", "shared"] as const;
 const SOURCE_EXTENSIONS = new Set([".ts", ".tsx", ".js", ".jsx", ".css"]);
 
-type Failure = {
-  scope: "source" | "runtime" | "budget";
-  target: string;
-  reason: string;
-};
+type Failure = ImageAuditFailure;
 
 const CRITICAL_IMAGE_BUDGETS: Record<string, number> = {
   "/": 200 * 1024,
@@ -186,74 +187,6 @@ function normalizeImageAuditUrl(rawUrl: string): string {
   }
 }
 
-const IMAGE_AUDIT_RETRY_ATTEMPTS = 3;
-const IMAGE_AUDIT_RETRY_DELAY_MS = 400;
-
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
-
-function isTransientImageStatus(status: number): boolean {
-  return status === 500 || status === 502 || status === 503 || status === 504;
-}
-
-function isTransientImageError(reason: string): boolean {
-  return /timeout|timed out|aborted|abort/i.test(reason);
-}
-
-function shouldRetryImageFailure(failure: Failure): boolean {
-  const statusMatch = /returned status (\d+)/.exec(failure.reason);
-  if (statusMatch) {
-    const status = Number(statusMatch[1]);
-    if (status === 404) return false;
-    return isTransientImageStatus(status);
-  }
-  return isTransientImageError(failure.reason);
-}
-
-assert.equal(
-  shouldRetryImageFailure({
-    scope: "runtime",
-    target: "x",
-    reason: "Image request returned status 504",
-  }),
-  true,
-);
-assert.equal(
-  shouldRetryImageFailure({
-    scope: "runtime",
-    target: "x",
-    reason: "Image request returned status 500",
-  }),
-  true,
-);
-assert.equal(
-  shouldRetryImageFailure({
-    scope: "runtime",
-    target: "x",
-    reason: "Image request returned status 404",
-  }),
-  false,
-);
-assert.equal(
-  shouldRetryImageFailure({
-    scope: "runtime",
-    target: "x",
-    reason: "Image request returned status 403",
-  }),
-  false,
-);
-assert.equal(
-  shouldRetryImageFailure({
-    scope: "runtime",
-    target: "x",
-    reason: "Image request failed: The operation was aborted due to timeout",
-  }),
-  true,
-);
-
 async function fetchText(url: string): Promise<{ status: number; body: string }> {
   const response = await fetch(url, {
     redirect: "follow",
@@ -261,85 +194,6 @@ async function fetchText(url: string): Promise<{ status: number; body: string }>
   });
   const body = await response.text();
   return { status: response.status, body };
-}
-
-async function verifyImageUrlOnce(url: string): Promise<Failure | null> {
-  try {
-    const response = await fetch(url, {
-      redirect: "follow",
-      signal: AbortSignal.timeout(45_000),
-      headers: {
-        Accept: "image/*,*/*;q=0.8",
-        "User-Agent": "chris-nextjs-image-audit/1.0",
-      },
-    });
-
-    if (response.status >= 400) {
-      response.body?.cancel();
-      return {
-        scope: "runtime",
-        target: url,
-        reason: `Image request returned status ${response.status}`,
-      };
-    }
-
-    const contentType = (response.headers.get("content-type") || "").toLowerCase();
-
-    if (contentType.includes("text/html")) {
-      response.body?.cancel();
-      return {
-        scope: "runtime",
-        target: url,
-        reason: "URL responded with HTML instead of image bytes",
-      };
-    }
-
-    if (
-      contentType &&
-      !contentType.startsWith("image/") &&
-      !contentType.startsWith("application/octet-stream")
-    ) {
-      response.body?.cancel();
-      return {
-        scope: "runtime",
-        target: url,
-        reason: `Unexpected content-type for image: ${contentType}`,
-      };
-    }
-
-    const imageBytes = await response.arrayBuffer();
-    if (imageBytes.byteLength === 0) {
-      return {
-        scope: "runtime",
-        target: url,
-        reason: "Image response contained no bytes",
-      };
-    }
-
-    return null;
-  } catch (error) {
-    return {
-      scope: "runtime",
-      target: url,
-      reason: `Image request failed: ${error instanceof Error ? error.message : String(error)}`,
-    };
-  }
-}
-
-async function verifyImageUrl(url: string): Promise<Failure | null> {
-  let lastFailure: Failure | null = null;
-
-  for (let attempt = 1; attempt <= IMAGE_AUDIT_RETRY_ATTEMPTS; attempt += 1) {
-    const failure = await verifyImageUrlOnce(url);
-    if (!failure) return null;
-    lastFailure = failure;
-    if (!shouldRetryImageFailure(failure) || attempt === IMAGE_AUDIT_RETRY_ATTEMPTS) {
-      return failure;
-    }
-    await delay(IMAGE_AUDIT_RETRY_DELAY_MS * attempt);
-  }
-
-  return lastFailure;
 }
 
 async function getImageSizeBytes(url: string): Promise<number | null> {
@@ -505,7 +359,7 @@ async function main() {
   const runtimeFailures = await validateRuntimeImages();
   const failures = [...sourceFailures, ...runtimeFailures];
 
-  if (failures.length > 0) {
+  if (imageAuditExitCode(failures) !== 0) {
     console.error("Image audit failed:");
     for (const failure of failures) {
       console.error(`- [${failure.scope}] ${failure.target}: ${failure.reason}`);
@@ -516,11 +370,7 @@ async function main() {
   console.log("Image audit passed.");
 }
 
-if (process.env.IMAGE_AUDIT_CLASSIFIER_ONLY === "1") {
-  console.log("Image audit retry classifier passed.");
-} else {
-  main().catch((error: unknown) => {
-    console.error("Image audit failed:", error);
-    process.exit(1);
-  });
-}
+main().catch((error: unknown) => {
+  console.error("Image audit failed:", error);
+  process.exit(1);
+});

@@ -47,6 +47,7 @@ jobs:
           pnpm exec tsx scripts/og-meta-check.ts
           pnpm run test:gallery
           pnpm run test:invisalign-media
+          pnpm run test:image-retry
           pnpm run test:reviews
           pnpm run test:blog-index
 
