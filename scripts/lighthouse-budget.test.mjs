@@ -17,16 +17,30 @@ import {
 const require = createRequire(import.meta.url);
 
 function chromeExecutablePath() {
+  const candidates = [];
   try {
     const { chromium } = require("@playwright/test");
     if (typeof chromium?.executablePath === "function") {
-      return chromium.executablePath();
+      candidates.push(chromium.executablePath());
     }
   } catch {
     // Fall through to playwright-core.
   }
-  const { chromium } = require("playwright-core");
-  return chromium.executablePath();
+  try {
+    const { chromium } = require("playwright-core");
+    if (typeof chromium?.executablePath === "function") {
+      candidates.push(chromium.executablePath());
+    }
+  } catch {
+    // Optional dependency.
+  }
+  const existing = candidates.find((candidate) => candidate && existsSync(candidate));
+  if (!existing) {
+    throw new Error(
+      `Playwright Chromium is not installed (looked at ${candidates.join(", ") || "no paths"}). Run pnpm exec playwright install chromium.`,
+    );
+  }
+  return existing;
 }
 
 function spawnArgvMarker(marker, script = "setInterval(() => {}, 1000)") {
