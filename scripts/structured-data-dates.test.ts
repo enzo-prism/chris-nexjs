@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import { describe, it } from "node:test";
 import { blogIndex } from "../client/src/data/blogIndex";
 import { galleryItems, heroVideo } from "../client/src/data/galleryMedia";
 import {
+  blogPostingDateFields,
   buildBlogListSchemas,
   buildProfilePageSchema,
   buildVideoObjectSchemas,
@@ -19,6 +21,32 @@ describe("buildProfilePageSchema dates", () => {
     assert.equal(schema.datePublished, "2026-10-16T09:00:00-07:00");
     assert.equal(isValidIsoDateTime(String(schema.dateModified)), true);
     assert.equal(isValidIsoDateTime(String(schema.datePublished)), true);
+  });
+});
+
+describe("blogPostingDateFields", () => {
+  it("omits both date fields instead of throwing when the date is unparseable", () => {
+    assert.doesNotThrow(() => blogPostingDateFields("not a date"));
+    assert.deepEqual(blogPostingDateFields("not a date"), {});
+    assert.deepEqual(blogPostingDateFields("2026-02-30"), {});
+    assert.deepEqual(blogPostingDateFields("2026-10-28T00:00:00"), {});
+  });
+
+  it("attaches matching Pacific DateTimes when the date parses", () => {
+    assert.deepEqual(blogPostingDateFields("2026-06-23"), {
+      datePublished: "2026-06-23T00:00:00-07:00",
+      dateModified: "2026-06-23T00:00:00-07:00",
+    });
+  });
+
+  it("keeps the BlogPost render path from throwing on a bad date", () => {
+    const source = fs.readFileSync("client/src/pages/BlogPost.tsx", "utf8");
+    assert.match(source, /blogPostingDateFields\(post\.date\)/);
+    assert.match(source, /const dateFields = blogPostingDateFields\(post\.date\)/);
+    assert.doesNotMatch(
+      source,
+      /throw new Error\(`Blog post \$\{slug\} has an unparseable date`\)/,
+    );
   });
 });
 

@@ -174,6 +174,37 @@ describe("formatInstantInTimeZone without longOffset", () => {
     }
   });
 
+  it("falls back when shortOffset formatting throws", () => {
+    const restore = installStub((locales, options) => {
+      if (options?.timeZoneName === "shortOffset") {
+        throw new RangeError("Invalid option : shortOffset");
+      }
+      return new OriginalDateTimeFormat(locales, options);
+    });
+    try {
+      assert.equal(
+        toPacificDateTime("2026-01-15"),
+        "2026-01-15T00:00:00-08:00",
+        "winter midnight in America/Los_Angeles is PST",
+      );
+      assert.equal(
+        toPacificDateTime("2026-07-15"),
+        "2026-07-15T00:00:00-07:00",
+        "summer midnight in America/Los_Angeles is PDT",
+      );
+      assert.equal(
+        formatInstantInTimeZone(new Date("2026-01-15T12:00:00-08:00")),
+        "2026-01-15T12:00:00-08:00",
+      );
+      assert.equal(
+        formatInstantInTimeZone(new Date("2026-07-15T12:00:00-07:00")),
+        "2026-07-15T12:00:00-07:00",
+      );
+    } finally {
+      restore();
+    }
+  });
+
   it("returns null instead of throwing when Intl.DateTimeFormat is unavailable", () => {
     const restore = installStub(() => {
       throw new RangeError("Intl.DateTimeFormat is broken");
