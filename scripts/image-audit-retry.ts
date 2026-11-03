@@ -18,13 +18,22 @@ export function isTransientImageStatus(status: number): boolean {
 }
 
 export function isTransientImageError(reason: string): boolean {
-  return /timeout|timed out|aborted|abort/i.test(reason);
+  return /timeout|timed out/i.test(reason);
+}
+
+export function imageAuditAttemptTimeoutMs(): number {
+  const raw = process.env.IMAGE_AUDIT_ATTEMPT_TIMEOUT_MS;
+  if (raw == null || raw === "") return 45_000;
+  const parsed = Number.parseInt(raw, 10);
+  if (!Number.isFinite(parsed) || parsed < 1) return 45_000;
+  return parsed;
 }
 
 export function shouldRetryImageFailure(failure: ImageAuditFailure): boolean {
   const statusMatch = /returned status (\d+)/.exec(failure.reason);
   if (statusMatch) {
     const status = Number(statusMatch[1]);
+    if (!Number.isInteger(status)) return false;
     if (status >= 400 && status < 500) return false;
     return isTransientImageStatus(status);
   }
@@ -33,11 +42,12 @@ export function shouldRetryImageFailure(failure: ImageAuditFailure): boolean {
 
 export async function verifyImageUrlOnce(
   url: string,
+  timeoutMs = imageAuditAttemptTimeoutMs(),
 ): Promise<ImageAuditFailure | null> {
   try {
     const response = await fetch(url, {
       redirect: "follow",
-      signal: AbortSignal.timeout(45_000),
+      signal: AbortSignal.timeout(timeoutMs),
       headers: {
         Accept: "image/*,*/*;q=0.8",
         "User-Agent": "chris-nextjs-image-audit/1.0",
@@ -104,11 +114,13 @@ export function imageAuditExitCode(
 
 export async function verifyImageUrl(
   url: string,
+  options: { readonly timeoutMs?: number } = {},
 ): Promise<ImageAuditFailure | null> {
   let lastFailure: ImageAuditFailure | null = null;
+  const timeoutMs = options.timeoutMs ?? imageAuditAttemptTimeoutMs();
 
   for (let attempt = 1; attempt <= IMAGE_AUDIT_RETRY_ATTEMPTS; attempt += 1) {
-    const failure = await verifyImageUrlOnce(url);
+    const failure = await verifyImageUrlOnce(url, timeoutMs);
     if (!failure) return null;
     lastFailure = failure;
     if (!shouldRetryImageFailure(failure) || attempt === IMAGE_AUDIT_RETRY_ATTEMPTS) {

@@ -54,6 +54,38 @@ assert.equal(
   }),
   true,
 );
+assert.equal(
+  shouldRetryImageFailure({
+    scope: "runtime",
+    target: "x",
+    reason: "Image request failed: fetch failed",
+  }),
+  false,
+);
+assert.equal(
+  shouldRetryImageFailure({
+    scope: "runtime",
+    target: "x",
+    reason: "Image request failed: read ECONNRESET",
+  }),
+  false,
+);
+assert.equal(
+  shouldRetryImageFailure({
+    scope: "runtime",
+    target: "x",
+    reason: "URL responded with HTML instead of image bytes",
+  }),
+  false,
+);
+assert.equal(
+  shouldRetryImageFailure({
+    scope: "runtime",
+    target: "x",
+    reason: "Image response contained no bytes",
+  }),
+  false,
+);
 
 async function withStubServer(
   handler: (request: IncomingMessage, response: ServerResponse) => void,
@@ -93,7 +125,7 @@ function sendImage(response: ServerResponse): void {
   response.end(TINY_JPEG);
 }
 
-describe("verifyImageUrl stub server", () => {
+describe("verifyImageUrl stub server", { concurrency: false }, () => {
   it("exits non-zero after a persistent 504 without retrying past 3 attempts", async () => {
     let hits = 0;
     await withStubServer(
@@ -178,6 +210,89 @@ describe("verifyImageUrl stub server", () => {
         assert.ok(failure);
         assert.match(failure.reason, /status 404/);
         assert.deepEqual(seen, [500, 404]);
+      },
+    );
+  });
+
+  it("gives a connection reset exactly one attempt (R7/R13)", async () => {
+    let hits = 0;
+    await withStubServer(
+      (request) => {
+        hits += 1;
+        request.socket?.destroy();
+      },
+      async (url) => {
+        const failure = await verifyImageUrl(url);
+        assert.ok(failure, "connection reset must fail");
+        assert.match(failure.reason, /failed/i);
+        assert.doesNotMatch(failure.reason, /returned status/);
+        assert.equal(hits, 1);
+        assert.equal(imageAuditExitCode([failure]), 1);
+      },
+    );
+  });
+
+  it("does not retry an HTML 200 (R14)", async () => {
+    let hits = 0;
+    await withStubServer(
+      (_request, response) => {
+        hits += 1;
+        response.statusCode = 200;
+        response.setHeader("content-type", "text/html; charset=utf-8");
+        response.end("<html><body>not an image</body></html>");
+      },
+      async (url) => {
+        const failure = await verifyImageUrl(url);
+        assert.ok(failure);
+        assert.match(failure.reason, /HTML/);
+        assert.equal(hits, 1);
+        assert.equal(imageAuditExitCode([failure]), 1);
+      },
+    );
+  });
+
+  it("does not retry an empty 200 (R15)", async () => {
+    let hits = 0;
+    await withStubServer(
+      (_request, response) => {
+        hits += 1;
+        response.statusCode = 200;
+        response.setHeader("content-type", "image/jpeg");
+        response.end();
+      },
+      async (url) => {
+        const failure = await verifyImageUrl(url);
+        assert.ok(failure);
+        assert.match(failure.reason, /no bytes/);
+        assert.equal(hits, 1);
+        assert.equal(imageAuditExitCode([failure]), 1);
+      },
+    );
+  });
+
+  it("retries a per-attempt timeout up to three times (R16)", async () => {
+    let hits = 0;
+    await withStubServer(
+      (_request, _response) => {
+        hits += 1;
+      },
+      async (url) => {
+        const failure = await Promise.race([
+          verifyImageUrl(url, { timeoutMs: 150 }),
+          new Promise<never>((_, reject) => {
+            setTimeout(() => {
+              reject(
+                new Error(
+                  `timeout retry exceeded ${IMAGE_AUDIT_RETRY_ATTEMPTS} attempts (hits=${hits})`,
+                ),
+              );
+            }, 8_000);
+          }),
+        ]);
+        assert.ok(failure);
+        assert.match(failure.reason, /timeout|timed out/i);
+        assert.equal(hits, IMAGE_AUDIT_RETRY_ATTEMPTS);
+        assert.equal(imageAuditExitCode([failure]), 1);
       },
     );
   });
