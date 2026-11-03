@@ -7,6 +7,7 @@ import { PageHero } from "@/components/ds/PageHero";
 import { Section } from "@/components/ds/Section";
 import { SectionHeading } from "@/components/ds/SectionHeading";
 import type { Step } from "@/components/ds/Steps";
+import { InvisalignMediaSection } from "@/components/invisalign/InvisalignMediaSection";
 import { CostPanel } from "@/components/services/CostPanel";
 import { FeatureGrid, type Feature } from "@/components/services/FeatureList";
 import { PhotoBadge, ServicePhoto } from "@/components/services/ServicePhoto";
@@ -14,6 +15,10 @@ import { StepList } from "@/components/services/StepList";
 import ScheduleRequestFunnel from "@/components/sections/ScheduleRequestFunnel";
 import { INVISALIGN_CONSULT_FORM_NAME } from "@/lib/appointmentLead";
 import { officeInfo } from "@/lib/data";
+import {
+  INVISALIGN_CONSULT_GRAPHICS,
+  INVISALIGN_CONSULT_VIDEOS,
+} from "@/pages/invisalignConsultMedia";
 import {
   buildFAQSchema,
   type FAQEntry,
@@ -205,6 +210,11 @@ const InvisalignConsult = ({ reviewPreview = false }: { readonly reviewPreview?:
         />
         <StepList steps={visitSteps} columns={4} className="mt-10" />
       </Section>
+
+      <InvisalignMediaSection
+        videos={INVISALIGN_CONSULT_VIDEOS}
+        graphics={INVISALIGN_CONSULT_GRAPHICS}
+      />
 
       <CostPanel
         id="invisalign-cost"

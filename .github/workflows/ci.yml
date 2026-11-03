@@ -46,6 +46,7 @@ jobs:
           pnpm exec tsx scripts/contact-form-ux.test.ts
           pnpm exec tsx scripts/og-meta-check.ts
           pnpm run test:gallery
+          pnpm run test:invisalign-media
           pnpm run test:reviews
           pnpm run test:blog-index
 
@@ -57,6 +58,9 @@ jobs:
 
       - name: Build app for runtime audits
         run: pnpm run build
+
+      - name: Confirm fixture preview is excluded from production
+        run: pnpm run test:invisalign-media
 
       - name: Runtime SEO and image audits
         run: |
