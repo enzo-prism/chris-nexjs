@@ -39,3 +39,29 @@ for (const route of ROUTES) {
     ).toBeLessThanOrEqual(innerWidth + 1);
   });
 }
+
+// /reviews redirects to /testimonials. A 2px overflow here came from the
+// nowrap "Show more reviews" button, so assert scrollWidth against clientWidth
+// at the QA viewports — no 1px slack.
+const REVIEWS_PATH = "/reviews";
+const REVIEWS_WIDTHS = [320, 390, 1440] as const;
+
+for (const width of REVIEWS_WIDTHS) {
+  test(`no horizontal overflow at ${width}px on ${REVIEWS_PATH}`, async ({ page }) => {
+    await page.setViewportSize({ width, height: width >= 1440 ? 900 : 720 });
+    await gotoAndHydrate(page, REVIEWS_PATH);
+    await expect(page.locator("main")).toBeVisible();
+    await expect(page.locator('[data-review-surface="testimonials-hero"]')).toBeVisible();
+
+    const { scrollWidth, clientWidth } = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth: document.documentElement.clientWidth,
+    }));
+
+    expect(
+      scrollWidth,
+      `${REVIEWS_PATH} at ${width}px overflows by ${scrollWidth - clientWidth}px ` +
+        `(scrollWidth=${scrollWidth}, clientWidth=${clientWidth})`,
+    ).toBeLessThanOrEqual(clientWidth);
+  });
+}

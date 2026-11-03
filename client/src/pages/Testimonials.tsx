@@ -409,11 +409,13 @@ const Testimonials = ({ initialTestimonials }: TestimonialsProps) => {
             <button
               type="button"
               onClick={() => setVisible((v) => v + PAGE_STEP)}
-              className="btn btn-outline btn-lg"
+              className="btn btn-outline btn-lg max-w-full whitespace-normal px-5 text-center sm:px-7"
               aria-controls={listId}
             >
-              Show more reviews
-              <span className="font-normal text-ink-muted">({remaining} more)</span>
+              <span>
+                Show more reviews{" "}
+                <span className="font-normal text-ink-muted">({remaining} more)</span>
+              </span>
               <ChevronDown aria-hidden="true" />
             </button>
           </div>
