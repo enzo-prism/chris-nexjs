@@ -42,6 +42,10 @@ test("file facade stays lazy and mounts English captions after click", async ({
 
   const video = page.locator("#invisalign-media video").first();
   await expect(video).toBeVisible();
+  await expect(video).toHaveAttribute("crossorigin", "anonymous");
+  const source = video.locator("source");
+  await expect(source).toHaveAttribute("src", /data:video\/mp4/);
+  await expect(source).not.toHaveAttribute("src", /data:image/);
   const track = video.locator("track");
   await expect(track).toHaveAttribute("kind", "captions");
   await expect(track).toHaveAttribute("srclang", "en");
@@ -55,6 +59,20 @@ test("embed iframe appears only after click and makes no third-party requests be
 }) => {
   const thirdPartyBeforeClick: string[] = [];
   let clicked = false;
+
+  await page.route("**/*youtube-nocookie.com/**", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "text/html; charset=utf-8",
+      body: "<!doctype html><title>privacy embed stub</title>",
+    });
+  });
+  await page.route("**/*{ytimg,googlevideo,youtube.com,youtu.be}/**", async (route) => {
+    await route.fulfill({
+      status: 204,
+      body: "",
+    });
+  });
 
   const onRequest = (request: Request): void => {
     if (clicked) return;
@@ -90,6 +108,10 @@ test("embed iframe appears only after click and makes no third-party requests be
   await expect(iframe).toHaveAttribute(
     "src",
     /https:\/\/www\.youtube-nocookie\.com\/.*autoplay=1/,
+  );
+  await expect(iframe).toHaveAttribute(
+    "referrerpolicy",
+    "strict-origin-when-cross-origin",
   );
   await expect(iframe).toBeFocused();
 });

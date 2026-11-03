@@ -1,6 +1,7 @@
 import RouteShell from "../[...slug]/page-shell";
 import { generateMetadata as generateCatchallMetadata } from "../[...slug]/page";
 import InvisalignConsult from "@/pages/InvisalignConsult";
+import "@/pages/invisalignConsultMedia";
 
 export const generateMetadata = async () =>
   generateCatchallMetadata({

@@ -5,6 +5,7 @@ import React, { useEffect, useRef, useState, type JSX } from "react";
 import {
   embedSrcWithAutoplay,
   isFixtureVideo,
+  videoHasAvailableCaptions,
   type MediaEmbedVideo,
   type MediaFileVideo,
   type RenderableVideo,
@@ -43,6 +44,7 @@ function FilePlayer({
       playsInline
       preload="none"
       poster={video.poster}
+      crossOrigin="anonymous"
       tabIndex={0}
     >
       <source src={video.src} type="video/mp4" />
@@ -109,7 +111,10 @@ export function InvisalignMediaVideo({
   const [active, setActive] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const playLabel = `Play video: ${video.title} (${video.durationLabel}, captions available)`;
+  const captionsAvailable = videoHasAvailableCaptions(video);
+  const playLabel = captionsAvailable
+    ? `Play video: ${video.title} (${video.durationLabel}, captions available)`
+    : `Play video: ${video.title} (${video.durationLabel})`;
   useEffect(() => {
     if (!active) return;
     if (video.kind === "embed") {
@@ -161,7 +166,9 @@ export function InvisalignMediaVideo({
           {video.title}
         </h3>
         <p className="text-[15px] leading-6 text-ink-soft sm:leading-7">
-          Captions available · {video.durationLabel}
+          {captionsAvailable
+            ? `Captions available · ${video.durationLabel}`
+            : video.durationLabel}
         </p>
       </div>
     </article>

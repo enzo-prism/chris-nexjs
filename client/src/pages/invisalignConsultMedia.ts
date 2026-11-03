@@ -1,4 +1,39 @@
-export type ProductionMediaSrc = `/${string}` | `https://${string}`;
+import {
+  INVISALIGN_CONSULT_GRAPHICS as DATA_GRAPHICS,
+  INVISALIGN_CONSULT_VIDEOS as DATA_VIDEOS,
+} from "./invisalignConsultMedia.data";
+
+export type ProductionMediaSrc =
+  | `/${string}`
+  | `https://www.chriswongdds.com/${string}`
+  | `https://chriswongdds.com/${string}`
+  | `https://res.cloudinary.com/${string}`;
+
+type AllowlistedHttpsSrc =
+  | `https://www.chriswongdds.com/${string}`
+  | `https://chriswongdds.com/${string}`
+  | `https://res.cloudinary.com/${string}`;
+
+export type RejectUnsafeProductionSrc<T extends string> = T extends
+  | `${string}\\${string}`
+  | `${string}\t${string}`
+  | `${string}\n${string}`
+  | `${string}\r${string}`
+  | `//${string}`
+  ? never
+  : T extends `https://${string}`
+    ? T extends AllowlistedHttpsSrc
+      ? T
+      : never
+    : T extends `/${string}`
+      ? T
+      : never;
+
+export function productionMediaSrc<T extends string>(
+  src: RejectUnsafeProductionSrc<T>,
+): ProductionMediaSrc {
+  return src as ProductionMediaSrc;
+}
 
 export type MediaFileVideo = {
   readonly kind: "file";
@@ -59,8 +94,21 @@ export type FixtureMediaGraphic = {
 export type RenderableVideo = MediaVideo | FixtureMediaVideo;
 export type RenderableGraphic = MediaGraphic | FixtureMediaGraphic;
 
+const SITE_ORIGIN = "https://www.chriswongdds.com";
 const YOUTUBE_PRIVACY_HOST = "www.youtube-nocookie.com";
 const VIMEO_PRIVACY_HOST = "player.vimeo.com";
+
+export const PRODUCTION_MEDIA_HOSTS = [
+  "www.chriswongdds.com",
+  "chriswongdds.com",
+  "res.cloudinary.com",
+] as const;
+
+const PRODUCTION_MEDIA_HOST_SET: ReadonlySet<string> = new Set(
+  PRODUCTION_MEDIA_HOSTS,
+);
+
+const UNSAFE_SRC_CHARS = /[\\\u0000-\u001F\u007F]/;
 
 function videoLabel(video: { title?: string; id?: string }, index: number): string {
   return video.title || video.id || String(index);
@@ -74,8 +122,8 @@ function parseAbsoluteUrl(src: string): URL | null {
   }
 }
 
-function isSameOriginPath(src: string): boolean {
-  return src.startsWith("/") && !src.startsWith("//");
+function hasForbiddenSrcChars(src: string): boolean {
+  return UNSAFE_SRC_CHARS.test(src);
 }
 
 function hostnameLooksLikeEmbed(hostname: string): boolean {
@@ -100,35 +148,84 @@ export function isFixtureGraphic(
   return "fixture" in graphic && graphic.fixture === true;
 }
 
+export function parseMediaUrl(src: string, label: string): URL {
+  const trimmed = src.trim();
+  if (!trimmed) {
+    throw new Error(`${label} is missing a src`);
+  }
+  if (hasForbiddenSrcChars(trimmed)) {
+    throw new Error(`${label} contains an unsafe character`);
+  }
+  if (trimmed.startsWith("data:") || trimmed.startsWith("blob:")) {
+    throw new Error(`${label} cannot use a data: or blob: src in production`);
+  }
+  if (trimmed.startsWith("//")) {
+    throw new Error(`${label} cannot use a protocol-relative URL`);
+  }
+
+  let url: URL;
+  try {
+    url = new URL(trimmed, SITE_ORIGIN);
+  } catch {
+    throw new Error(`${label} must be a same-origin path or https URL`);
+  }
+
+  if (url.protocol !== "https:") {
+    throw new Error(`${label} must be a same-origin path or https URL`);
+  }
+  if (url.username || url.password) {
+    throw new Error(`${label} cannot include userinfo`);
+  }
+  return url;
+}
+
+export function parseTrustedMediaUrl(src: string, label: string): URL {
+  const url = parseMediaUrl(src, label);
+  if (!PRODUCTION_MEDIA_HOST_SET.has(url.hostname)) {
+    throw new Error(`${label} must use an allowlisted host`);
+  }
+  return url;
+}
+
+export function isAllowlistedMediaUrl(src: string): boolean {
+  try {
+    parseTrustedMediaUrl(src, "media");
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function assertProductionSrc(
   src: string,
   label: string,
   options: { readonly allowEmbedHosts?: boolean } = {},
-): URL | null {
-  if (!src.trim()) {
-    throw new Error(`${label} is missing a src`);
-  }
-  if (src.startsWith("data:") || src.startsWith("blob:")) {
-    throw new Error(`${label} cannot use a data: or blob: src in production`);
-  }
-  if (isSameOriginPath(src)) {
-    return null;
-  }
-
-  const url = parseAbsoluteUrl(src);
-  if (!url || url.protocol !== "https:") {
-    throw new Error(`${label} must be a same-origin path or https URL`);
-  }
+): URL {
+  const url = parseMediaUrl(src, label);
   if (!options.allowEmbedHosts && hostnameLooksLikeEmbed(url.hostname)) {
     throw new Error(`${label} cannot use an embed host on a file asset`);
+  }
+  if (!PRODUCTION_MEDIA_HOST_SET.has(url.hostname)) {
+    throw new Error(`${label} must use an allowlisted host`);
   }
   return url;
 }
 
 export function assertPrivacyEmbedSrc(src: string, label: string): URL {
-  const url = parseAbsoluteUrl(src);
+  const trimmed = src.trim();
+  if (!trimmed) {
+    throw new Error(`${label} must use an https privacy embed URL`);
+  }
+  if (hasForbiddenSrcChars(trimmed) || trimmed.startsWith("//")) {
+    throw new Error(`${label} must use an https privacy embed URL`);
+  }
+
+  const url = parseAbsoluteUrl(trimmed);
   if (!url || url.protocol !== "https:") {
     throw new Error(`${label} must use an https privacy embed URL`);
+  }
+  if (url.username || url.password) {
+    throw new Error(`${label} cannot include userinfo`);
   }
   if (url.hostname === YOUTUBE_PRIVACY_HOST) {
     return url;
@@ -187,27 +284,6 @@ export function assertProductionVideos(videos: readonly MediaVideo[]): void {
   videos.forEach((video, index) => assertProductionVideo(video, index));
 }
 
-export function assertProductionGraphic(
-  graphic: MediaGraphic,
-  index = 0,
-): void {
-  const label = `Invisalign media graphic "${graphic.id || index}"`;
-  if (isFixtureGraphic(graphic)) {
-    throw new Error(`${label} cannot ship as a fixture`);
-  }
-  assertProductionSrc(graphic.src, label);
-  if (!graphic.alt.trim() && !graphic.caption?.trim()) {
-    throw new Error(`${label} is missing alt text`);
-  }
-}
-
-export function assertProductionGraphics(
-  graphics: readonly MediaGraphic[],
-): void {
-  productionMediaValidation.graphics += 1;
-  graphics.forEach((graphic, index) => assertProductionGraphic(graphic, index));
-}
-
 function normalizeComparable(value: string): string {
   return value.trim().toLowerCase().replace(/\s+/g, " ");
 }
@@ -229,6 +305,11 @@ export function resolveGraphicAlt(graphic: RenderableGraphic): string {
   const plain = alt.toLowerCase().startsWith(prefix)
     ? alt.slice(alt.toLowerCase().indexOf(prefix) + prefix.length).trim()
     : alt;
+  if (!plain) {
+    throw new Error(
+      `Invisalign media graphic "${graphic.id}" is missing alt text`,
+    );
+  }
   const prefixed = `Invisalign graphic: ${plain}`;
 
   if (caption && normalizeComparable(caption) === normalizeComparable(plain)) {
@@ -236,6 +317,41 @@ export function resolveGraphicAlt(graphic: RenderableGraphic): string {
   }
 
   return prefixed;
+}
+
+export function assertProductionGraphic(
+  graphic: MediaGraphic,
+  index = 0,
+): void {
+  const label = `Invisalign media graphic "${graphic.id || index}"`;
+  if (isFixtureGraphic(graphic)) {
+    throw new Error(`${label} cannot ship as a fixture`);
+  }
+  assertProductionSrc(graphic.src, label);
+  resolveGraphicAlt(graphic);
+}
+
+export function assertProductionGraphics(
+  graphics: readonly MediaGraphic[],
+): void {
+  productionMediaValidation.graphics += 1;
+  graphics.forEach((graphic, index) => assertProductionGraphic(graphic, index));
+}
+
+export function videoHasAvailableCaptions(video: RenderableVideo): boolean {
+  switch (video.kind) {
+    case "embed":
+      return video.captionsBuiltIn === true;
+    case "file":
+      if (isFixtureVideo(video)) {
+        return Boolean(video.captions.trim());
+      }
+      return isAllowlistedMediaUrl(video.captions);
+    default: {
+      const _exhaustive: never = video;
+      return _exhaustive;
+    }
+  }
 }
 
 export function embedSrcWithAutoplay(src: string): string {
@@ -250,11 +366,8 @@ export function embedSrcWithAutoplay(src: string): string {
 // TODO: add a CSP frame-src allowlist in the same PR as the first embed.
 // Do not introduce a partial Content-Security-Policy while the arrays are empty.
 
-/** Align-supplied videos. Ship empty until captioned assets are approved. */
-export const INVISALIGN_CONSULT_VIDEOS: readonly MediaVideo[] = [];
-
-/** Align-supplied graphics. Ship empty until approved stills land. */
-export const INVISALIGN_CONSULT_GRAPHICS: readonly MediaGraphic[] = [];
+export const INVISALIGN_CONSULT_VIDEOS = DATA_VIDEOS;
+export const INVISALIGN_CONSULT_GRAPHICS = DATA_GRAPHICS;
 
 assertProductionVideos(INVISALIGN_CONSULT_VIDEOS);
 assertProductionGraphics(INVISALIGN_CONSULT_GRAPHICS);

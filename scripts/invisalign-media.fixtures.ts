@@ -33,6 +33,7 @@ export const FIXTURE_EMBED_VIDEO = {
   kind: "embed",
   id: "fixture-embed-1",
   title: `Fixture embed ${INVISALIGN_MEDIA_FIXTURE_MARKER}`,
+  // Privacy host only. The embed e2e stubs this request and must not fetch YouTube.
   src: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ",
   poster: "/images/redesign/jamal-itero-scan.webp",
   captionsBuiltIn: true,

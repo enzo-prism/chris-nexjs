@@ -1,6 +1,7 @@
-import type {
-  MediaGraphic,
-  MediaVideo,
+import {
+  productionMediaSrc,
+  type MediaGraphic,
+  type MediaVideo,
 } from "../client/src/pages/invisalignConsultMedia";
 
 export const goodFile: MediaVideo = {
@@ -108,11 +109,11 @@ export const embedHttp: MediaVideo = {
   durationLabel: "0:10",
 };
 
-// @ts-expect-error youtube.com is not the privacy host
 export const embedYoutubeCom: MediaVideo = {
   kind: "embed",
   id: "embed-youtube",
   title: "YouTube",
+  // @ts-expect-error youtube.com is not the privacy host
   src: "https://www.youtube.com/embed/abc123",
   poster: "/media/invisalign/yt.jpg",
   captionsBuiltIn: true,
@@ -161,11 +162,11 @@ export const fileBlob: MediaVideo = {
   durationLabel: "0:10",
 };
 
-// @ts-expect-error Vimeo embeds must include dnt=1 in the typed src
 export const embedVimeoWithoutDnt: MediaVideo = {
   kind: "embed",
   id: "embed-vimeo-no-dnt",
   title: "Vimeo no DNT",
+  // @ts-expect-error Vimeo embeds must include dnt=1 in the typed src
   src: "https://player.vimeo.com/video/123",
   poster: "/media/invisalign/vimeo.jpg",
   captionsBuiltIn: true,
@@ -179,4 +180,69 @@ export const graphicBlob: MediaGraphic = {
   alt: "A still",
   width: 1080,
   height: 1080,
+};
+
+export const fileArbitraryHttps: MediaVideo = {
+  kind: "file",
+  id: "file-evil-https",
+  title: "Evil https",
+  // @ts-expect-error file videos cannot use an arbitrary https host
+  src: productionMediaSrc("https://evil.example/video.mp4"),
+  poster: "/media/invisalign/demo.jpg",
+  captions: "/media/invisalign/demo.vtt",
+  durationLabel: "0:10",
+};
+
+export const fileBackslashSrc: MediaVideo = {
+  kind: "file",
+  id: "file-backslash",
+  title: "Backslash",
+  // @ts-expect-error backslash path is not a trusted media src
+  src: productionMediaSrc("/\\evil.example/x"),
+  poster: "/media/invisalign/demo.jpg",
+  captions: "/media/invisalign/demo.vtt",
+  durationLabel: "0:10",
+};
+
+export const fileTabSrc: MediaVideo = {
+  kind: "file",
+  id: "file-tab",
+  title: "Tab",
+  // @ts-expect-error tab path is not a trusted media src
+  src: productionMediaSrc("/\t/evil.example/x"),
+  poster: "/media/invisalign/demo.jpg",
+  captions: "/media/invisalign/demo.vtt",
+  durationLabel: "0:10",
+};
+
+export const fileCaptionsArbitraryHttps: MediaVideo = {
+  kind: "file",
+  id: "file-evil-captions",
+  title: "Evil captions",
+  src: "/media/invisalign/demo.mp4",
+  poster: "/media/invisalign/demo.jpg",
+  // @ts-expect-error captions cannot use an arbitrary https host
+  captions: productionMediaSrc("https://evil.example/captions.vtt"),
+  durationLabel: "0:10",
+};
+
+export const embedUserinfo: MediaVideo = {
+  kind: "embed",
+  id: "embed-userinfo",
+  title: "Userinfo",
+  // @ts-expect-error embed URLs cannot include userinfo
+  src: "https://evil.com@www.youtube-nocookie.com/embed/abc123",
+  poster: "/media/invisalign/yt.jpg",
+  captionsBuiltIn: true,
+  durationLabel: "0:10",
+};
+
+export const fileCloudinary: MediaVideo = {
+  kind: "file",
+  id: "file-cloudinary",
+  title: "Cloudinary",
+  src: "https://res.cloudinary.com/demo/video/upload/demo.mp4",
+  poster: "https://res.cloudinary.com/demo/image/upload/demo.jpg",
+  captions: "https://res.cloudinary.com/demo/raw/upload/demo.vtt",
+  durationLabel: "0:12",
 };

@@ -19,9 +19,15 @@ import {
   INVISALIGN_CONSULT_VIDEOS,
   productionMediaValidation,
   resolveGraphicAlt,
+  videoHasAvailableCaptions,
   type MediaGraphic,
   type MediaVideo,
 } from "../client/src/pages/invisalignConsultMedia";
+import {
+  INVISALIGN_CONSULT_GRAPHICS as DATA_GRAPHICS,
+  INVISALIGN_CONSULT_HAS_MEDIA,
+  INVISALIGN_CONSULT_VIDEOS as DATA_VIDEOS,
+} from "../client/src/pages/invisalignConsultMedia.data";
 import {
   getInvisalignMediaFixtures,
   INVISALIGN_MEDIA_FIXTURE_MARKER,
@@ -118,6 +124,13 @@ describe("invisalign consult media data", () => {
   it("ships empty video and graphic arrays", () => {
     assert.equal(INVISALIGN_CONSULT_VIDEOS.length, 0);
     assert.equal(INVISALIGN_CONSULT_GRAPHICS.length, 0);
+    assert.equal(DATA_VIDEOS.length, 0);
+    assert.equal(DATA_GRAPHICS.length, 0);
+    assert.equal(
+      INVISALIGN_CONSULT_HAS_MEDIA,
+      DATA_VIDEOS.length > 0 || DATA_GRAPHICS.length > 0,
+    );
+    assert.equal(INVISALIGN_CONSULT_HAS_MEDIA, false);
   });
 
   it("accepts an empty video list", () => {
@@ -177,6 +190,69 @@ describe("invisalign consult media data", () => {
     );
   });
 
+  it("rejects fixture videos and graphics at production assert time", () => {
+    assert.throws(
+      () => assertProductionVideo(asVideo(pair.videos[0]!)),
+      /cannot ship as a fixture/,
+    );
+    assert.throws(
+      () => assertProductionGraphic(asGraphic(pair.graphics[0]!)),
+      /cannot ship as a fixture/,
+    );
+  });
+
+  it("rejects arbitrary https hosts, backslash, tab, and protocol-relative paths", () => {
+    assert.throws(
+      () => assertProductionSrc("https://evil.example/video.mp4", "any-https"),
+      /allowlisted host/,
+    );
+    assert.throws(
+      () =>
+        assertProductionVideo(
+          fileVideo({ src: "https://evil.example/video.mp4" }),
+        ),
+      /allowlisted host/,
+    );
+    assert.throws(
+      () => assertProductionSrc("/\\evil.example/x", "backslash"),
+      /unsafe character/,
+    );
+    assert.throws(
+      () =>
+        assertProductionVideo(fileVideo({ src: "/\\evil.example/x" })),
+      /unsafe character/,
+    );
+    assert.throws(
+      () => assertProductionSrc("/\t/evil.example/x", "tab"),
+      /unsafe character/,
+    );
+    assert.throws(
+      () =>
+        assertProductionVideo(
+          fileVideo({ captions: "/\t/evil.example/x" }),
+        ),
+      /unsafe character/,
+    );
+    assert.throws(
+      () => assertProductionSrc("//evil.example/video.mp4", "protocol-relative"),
+      /protocol-relative/,
+    );
+    assert.throws(
+      () =>
+        assertProductionSrc("https://user@www.chriswongdds.com/demo.mp4", "userinfo"),
+      /userinfo/,
+    );
+    assert.doesNotThrow(() =>
+      assertProductionVideo(
+        fileVideo({
+          src: "https://res.cloudinary.com/demo/video/upload/demo.mp4",
+          poster: "https://res.cloudinary.com/demo/image/upload/demo.jpg",
+          captions: "https://res.cloudinary.com/demo/raw/upload/demo.vtt",
+        }),
+      ),
+    );
+  });
+
   it("fails http, empty, blob, and lookalike-host file sources", () => {
     assert.throws(
       () => assertProductionSrc("http://example.com/demo.mp4", "http file"),
@@ -228,6 +304,30 @@ describe("invisalign consult media data", () => {
           embedVideo({ src: "https://www.youtube.com/embed/abc123" }),
         ),
       /exact privacy embed host/,
+    );
+    assert.throws(
+      () =>
+        assertPrivacyEmbedSrc(
+          "https://evil.youtube-nocookie.com/embed/abc123",
+          "suffix embed",
+        ),
+      /exact privacy embed host/,
+    );
+    assert.throws(
+      () =>
+        assertPrivacyEmbedSrc(
+          "https://www.youtube-nocookie.com.evil.com/embed/abc123",
+          "lookalike embed",
+        ),
+      /exact privacy embed host/,
+    );
+    assert.throws(
+      () =>
+        assertPrivacyEmbedSrc(
+          "https://evil.com@www.youtube-nocookie.com/embed/abc123",
+          "userinfo embed",
+        ),
+      /userinfo/,
     );
   });
 
@@ -300,6 +400,29 @@ describe("resolveGraphicAlt", () => {
       () =>
         assertProductionGraphic(
           asGraphic({ ...base, alt: "   ", caption: "" }),
+        ),
+      /missing alt text/,
+    );
+  });
+
+  it("rejects prefix-only alt with no description", () => {
+    assert.throws(
+      () => resolveGraphicAlt({ ...base, alt: "Invisalign graphic:" }),
+      /missing alt text/,
+    );
+    assert.throws(
+      () =>
+        resolveGraphicAlt({
+          ...base,
+          alt: "invisalign graphic:   ",
+          caption: "A caption",
+        }),
+      /missing alt text/,
+    );
+    assert.throws(
+      () =>
+        assertProductionGraphic(
+          asGraphic({ ...base, alt: "Invisalign graphic:" }),
         ),
       /missing alt text/,
     );
@@ -505,6 +628,38 @@ describe("InvisalignMediaVideo facade", () => {
     assert.match(html, /loading="lazy"/);
     assert.doesNotMatch(html, /fetchpriority="high"/i);
   });
+
+  it("does not claim captions available for an untrusted track", () => {
+    const untrusted = fileVideo({
+      captions: "https://evil.example/captions.vtt",
+    });
+    assert.equal(videoHasAvailableCaptions(untrusted), false);
+
+    const fixtureWithoutCaptions = {
+      ...single.videos[0]!,
+      captions: "   ",
+    };
+    assert.equal(videoHasAvailableCaptions(fixtureWithoutCaptions), false);
+    const html = renderToStaticMarkup(
+      createElement(InvisalignMediaVideo, { video: fixtureWithoutCaptions }),
+    );
+    assert.doesNotMatch(html, /captions available/i);
+    assert.match(html, /0:12/);
+  });
+
+  it("treats allowlisted and fixture captions as available", () => {
+    assert.equal(videoHasAvailableCaptions(fileVideo()), true);
+    assert.equal(
+      videoHasAvailableCaptions(
+        fileVideo({
+          captions: "https://res.cloudinary.com/demo/raw/upload/demo.vtt",
+        }),
+      ),
+      true,
+    );
+    assert.equal(videoHasAvailableCaptions(single.videos[0]!), true);
+    assert.equal(videoHasAvailableCaptions(embedVideo()), true);
+  });
 });
 
 describe("fixture and production exclusion", () => {
@@ -535,6 +690,9 @@ describe("fixture and production exclusion", () => {
     const productionSources = [
       "client/src/pages/InvisalignConsult.tsx",
       "client/src/pages/invisalignConsultMedia.ts",
+      "client/src/pages/invisalignConsultMedia.data.ts",
+      "client/src/pages/invisalignConsultMedia.slot.tsx",
+      "app/invisalign-consult/page.tsx",
     ];
     for (const file of productionSources) {
       const source = readFileSync(file, "utf8");
@@ -552,6 +710,78 @@ describe("fixture and production exclusion", () => {
         source.includes("InvisalignMediaFixtureImage"),
         false,
         `${file} must not import the fixture image path`,
+      );
+    }
+  });
+
+  it("keeps the video island out of the consult page module graph until media exists", () => {
+    const consult = readFileSync("client/src/pages/InvisalignConsult.tsx", "utf8");
+    if (!INVISALIGN_CONSULT_HAS_MEDIA) {
+      assert.doesNotMatch(consult, /next\/dynamic/);
+      assert.doesNotMatch(consult, /InvisalignMediaSection/);
+      assert.doesNotMatch(consult, /ConsultMediaSlot/);
+      assert.doesNotMatch(consult, /invisalignConsultMedia\.slot/);
+      assert.doesNotMatch(consult, /invisalignConsultMedia\.data/);
+    } else {
+      assert.match(consult, /ConsultMediaSlot/);
+    }
+
+    const slot = readFileSync(
+      "client/src/pages/invisalignConsultMedia.slot.tsx",
+      "utf8",
+    );
+    assert.match(slot, /from "next\/dynamic"/);
+    assert.match(
+      slot,
+      /dynamic\(\s*\(\)\s*=>\s*import\("@\/components\/invisalign\/InvisalignMediaSection"\)/,
+    );
+
+    const page = readFileSync("app/invisalign-consult/page.tsx", "utf8");
+    assert.match(page, /import "@\/pages\/invisalignConsultMedia"/);
+  });
+
+  it("keeps video-island copy out of the empty consult page chunk", () => {
+    const appPathsPath = ".next/server/app-paths-manifest.json";
+    const isProductionBuild =
+      existsSync(".next/BUILD_ID") && existsSync(".next/required-server-files.json");
+    if (!isProductionBuild || !existsSync(appPathsPath)) {
+      return;
+    }
+
+    const clientChunks = walkFiles(".next/static/chunks").filter((file) =>
+      file.endsWith(".js"),
+    );
+    const pageChunks = clientChunks.filter(
+      (file) =>
+        file.includes("invisalign-consult") || file.includes("invisalign-consult"),
+    );
+    const consultPageSources = [
+      "client/src/pages/InvisalignConsult.tsx",
+      "app/invisalign-consult/page.tsx",
+    ];
+    for (const file of consultPageSources) {
+      const source = readFileSync(file, "utf8");
+      assert.equal(source.includes("Play video"), false);
+      assert.equal(source.includes("captions available"), false);
+      assert.equal(source.includes("InvisalignMediaVideoCards"), false);
+    }
+
+    for (const file of pageChunks) {
+      const contents = readFileSync(file, "utf8");
+      assert.equal(
+        contents.includes("InvisalignMediaVideoCards"),
+        false,
+        `${file} must not include the video cards`,
+      );
+      assert.equal(
+        contents.includes("Play video"),
+        false,
+        `${file} must not include the play label`,
+      );
+      assert.equal(
+        contents.includes("captions available"),
+        false,
+        `${file} must not include captions-available copy`,
       );
     }
   });
