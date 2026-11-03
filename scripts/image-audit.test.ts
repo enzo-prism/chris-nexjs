@@ -186,6 +186,74 @@ function normalizeImageAuditUrl(rawUrl: string): string {
   }
 }
 
+const IMAGE_AUDIT_RETRY_ATTEMPTS = 3;
+const IMAGE_AUDIT_RETRY_DELAY_MS = 400;
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+function isTransientImageStatus(status: number): boolean {
+  return status === 500 || status === 502 || status === 503 || status === 504;
+}
+
+function isTransientImageError(reason: string): boolean {
+  return /timeout|timed out|aborted|abort/i.test(reason);
+}
+
+function shouldRetryImageFailure(failure: Failure): boolean {
+  const statusMatch = /returned status (\d+)/.exec(failure.reason);
+  if (statusMatch) {
+    const status = Number(statusMatch[1]);
+    if (status === 404) return false;
+    return isTransientImageStatus(status);
+  }
+  return isTransientImageError(failure.reason);
+}
+
+assert.equal(
+  shouldRetryImageFailure({
+    scope: "runtime",
+    target: "x",
+    reason: "Image request returned status 504",
+  }),
+  true,
+);
+assert.equal(
+  shouldRetryImageFailure({
+    scope: "runtime",
+    target: "x",
+    reason: "Image request returned status 500",
+  }),
+  true,
+);
+assert.equal(
+  shouldRetryImageFailure({
+    scope: "runtime",
+    target: "x",
+    reason: "Image request returned status 404",
+  }),
+  false,
+);
+assert.equal(
+  shouldRetryImageFailure({
+    scope: "runtime",
+    target: "x",
+    reason: "Image request returned status 403",
+  }),
+  false,
+);
+assert.equal(
+  shouldRetryImageFailure({
+    scope: "runtime",
+    target: "x",
+    reason: "Image request failed: The operation was aborted due to timeout",
+  }),
+  true,
+);
+
 async function fetchText(url: string): Promise<{ status: number; body: string }> {
   const response = await fetch(url, {
     redirect: "follow",
@@ -195,7 +263,7 @@ async function fetchText(url: string): Promise<{ status: number; body: string }>
   return { status: response.status, body };
 }
 
-async function verifyImageUrl(url: string): Promise<Failure | null> {
+async function verifyImageUrlOnce(url: string): Promise<Failure | null> {
   try {
     const response = await fetch(url, {
       redirect: "follow",
@@ -256,6 +324,22 @@ async function verifyImageUrl(url: string): Promise<Failure | null> {
       reason: `Image request failed: ${error instanceof Error ? error.message : String(error)}`,
     };
   }
+}
+
+async function verifyImageUrl(url: string): Promise<Failure | null> {
+  let lastFailure: Failure | null = null;
+
+  for (let attempt = 1; attempt <= IMAGE_AUDIT_RETRY_ATTEMPTS; attempt += 1) {
+    const failure = await verifyImageUrlOnce(url);
+    if (!failure) return null;
+    lastFailure = failure;
+    if (!shouldRetryImageFailure(failure) || attempt === IMAGE_AUDIT_RETRY_ATTEMPTS) {
+      return failure;
+    }
+    await delay(IMAGE_AUDIT_RETRY_DELAY_MS * attempt);
+  }
+
+  return lastFailure;
 }
 
 async function getImageSizeBytes(url: string): Promise<number | null> {
@@ -432,7 +516,11 @@ async function main() {
   console.log("Image audit passed.");
 }
 
-main().catch((error: unknown) => {
-  console.error("Image audit failed:", error);
-  process.exit(1);
-});
+if (process.env.IMAGE_AUDIT_CLASSIFIER_ONLY === "1") {
+  console.log("Image audit retry classifier passed.");
+} else {
+  main().catch((error: unknown) => {
+    console.error("Image audit failed:", error);
+    process.exit(1);
+  });
+}
