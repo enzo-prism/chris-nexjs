@@ -40,11 +40,12 @@ export function getInvisalignMediaFixtures(options: {
   const videos = POSTER_COLORS.slice(0, options.videoCount).map((color, index) => {
     const n = index + 1;
     return {
+      id: `fixture-video-${n}`,
       src: FIXTURE_VIDEO_SRC,
       poster: solidSvgDataUri(color, 1600, 900),
       title: `Fixture video ${n} ${INVISALIGN_MEDIA_FIXTURE_MARKER}`,
-      captionsSrc: FIXTURE_CAPTIONS_SRC,
-      runtime: index === 0 ? "0:12" : "0:18",
+      captions: FIXTURE_CAPTIONS_SRC,
+      durationLabel: index === 0 ? "0:12" : "0:18",
     } satisfies MediaVideo;
   });
 
@@ -52,9 +53,13 @@ export function getInvisalignMediaFixtures(options: {
     (color, index) => {
       const n = index + 1;
       return {
+        id: `fixture-graphic-${n}`,
         src: solidSvgDataUri(color, 1080, 1080),
         alt: `Neutral solid-color graphic ${n} ${INVISALIGN_MEDIA_FIXTURE_MARKER}`,
         caption: `Fixture caption ${n}`,
+        width: 1080,
+        height: 1080,
+        contain: n === 4,
       } satisfies MediaGraphic;
     },
   );

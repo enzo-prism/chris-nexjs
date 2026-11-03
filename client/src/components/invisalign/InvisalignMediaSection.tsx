@@ -1,8 +1,18 @@
 import React, { type JSX } from "react";
 
-import type { MediaGraphic, MediaVideo } from "@/pages/invisalignConsultMedia";
+import {
+  resolveGraphicAlt,
+  type MediaGraphic,
+  type MediaVideo,
+} from "@/pages/invisalignConsultMedia";
 import { Section } from "@/components/ds/Section";
 import { SectionHeading } from "@/components/ds/SectionHeading";
+import {
+  INVISALIGN_GRAPHIC_SIZES,
+  INVISALIGN_VIDEO_SIZES,
+  INVISALIGN_VIDEO_SIZES_SINGLE,
+  InvisalignMediaImage,
+} from "@/components/invisalign/InvisalignMediaImage";
 import { InvisalignMediaVideo } from "@/components/invisalign/InvisalignMediaVideo";
 import { cn } from "@/lib/utils";
 
@@ -16,6 +26,9 @@ export function InvisalignMediaSection({
   if (videos.length === 0 && graphics.length === 0) {
     return null;
   }
+
+  const videoSizes =
+    videos.length === 1 ? INVISALIGN_VIDEO_SIZES_SINGLE : INVISALIGN_VIDEO_SIZES;
 
   return (
     <Section id="invisalign-media" tone="white" labelledBy="invisalign-media-title">
@@ -39,7 +52,7 @@ export function InvisalignMediaSection({
           )}
         >
           {videos.map((video) => (
-            <InvisalignMediaVideo key={video.title} video={video} />
+            <InvisalignMediaVideo key={video.id} video={video} sizes={videoSizes} />
           ))}
         </div>
       ) : null}
@@ -54,19 +67,20 @@ export function InvisalignMediaSection({
           )}
         >
           {graphics.map((graphic) => (
-            <li key={graphic.src} className="card overflow-hidden">
+            <li key={graphic.id} className="card overflow-hidden">
               <figure>
-                <div className="aspect-square bg-cream-200">
-                  <img
+                <div className="relative aspect-square bg-cream-200">
+                  <InvisalignMediaImage
                     src={graphic.src}
-                    alt={graphic.alt}
-                    loading="lazy"
-                    decoding="async"
-                    className="h-full w-full object-cover"
+                    alt={resolveGraphicAlt(graphic)}
+                    sizes={INVISALIGN_GRAPHIC_SIZES}
+                    width={graphic.width}
+                    height={graphic.height}
+                    fit={graphic.contain ? "contain" : "cover"}
                   />
                 </div>
                 {graphic.caption ? (
-                  <figcaption className="px-3.5 pb-3.5 pt-3 text-[13px] leading-5 text-ink-soft sm:px-5 sm:pb-[1.125rem] sm:pt-4 sm:text-[15px] sm:leading-6">
+                  <figcaption className="px-4 py-4 text-[13px] leading-5 text-ink-soft sm:px-5 sm:text-[15px] sm:leading-6">
                     {graphic.caption}
                   </figcaption>
                 ) : null}
@@ -76,9 +90,9 @@ export function InvisalignMediaSection({
         </ul>
       ) : null}
 
-      {/* TODO: Align attribution wording must be confirmed before assets ship. */}
-      <p className="mt-6 text-[13px] leading-5 text-ink-soft">
-        Videos and graphics © Align Technology, Inc. Used with permission.
+      {/* TODO: confirm Align's required attribution before assets ship. */}
+      <p className="mt-6 text-[13px] leading-5 text-ink-muted">
+        Videos and graphics © Align Technology, Inc.
       </p>
     </Section>
   );
