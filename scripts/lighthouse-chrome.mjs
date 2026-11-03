@@ -1,5 +1,10 @@
 import { execSync } from "node:child_process";
-import { rmSync } from "node:fs";
+import { readdirSync, rmSync, statSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+export const CHROME_EXIT_WAIT_MS = 2_000;
+export const CHROME_EXIT_POLL_MS = 50;
 
 export function listProcessLines() {
   try {
@@ -26,25 +31,113 @@ export function pidsForUserDataDir(psLines, userDataDir) {
   return pids;
 }
 
-export function killPids(pids, killFn = (pid, signal) => process.kill(pid, signal)) {
+export function isPidAlive(pid) {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function listLauncherUserDataDirs() {
+  const tmp = tmpdir();
+  try {
+    return new Set(
+      readdirSync(tmp)
+        .filter((name) => /^lighthouse\.[^/]+$/.test(name))
+        .map((name) => join(tmp, name))
+        .filter((absolutePath) => {
+          try {
+            return statSync(absolutePath).isDirectory();
+          } catch {
+            return false;
+          }
+        }),
+    );
+  } catch {
+    return new Set();
+  }
+}
+
+export function createdLauncherDirs(before) {
+  return [...listLauncherUserDataDirs()].filter((dir) => !before.has(dir));
+}
+
+export function killPids(pids, killFn = (pid, signal) => process.kill(pid, signal), signal = "SIGTERM") {
   for (const pid of pids) {
     try {
-      killFn(pid, "SIGTERM");
+      killFn(pid, signal);
     } catch {
       // Process already exited.
     }
   }
 }
 
-export function killChromeForUserDataDir(userDataDir, options = {}) {
+export async function waitForPidsToExit(pids, options = {}) {
+  const timeoutMs = options.timeoutMs ?? CHROME_EXIT_WAIT_MS;
+  const pollMs = options.pollMs ?? CHROME_EXIT_POLL_MS;
+  const killFn = options.killFn ?? ((pid, signal) => process.kill(pid, signal));
+  const alive = options.isAlive ?? isPidAlive;
+  const remaining = new Set(pids);
+  const deadline = Date.now() + timeoutMs;
+
+  while (remaining.size > 0 && Date.now() < deadline) {
+    for (const pid of [...remaining]) {
+      if (!alive(pid)) remaining.delete(pid);
+    }
+    if (remaining.size === 0) break;
+    await new Promise((resolve) => {
+      setTimeout(resolve, pollMs);
+    });
+  }
+
+  killPids(remaining, killFn, "SIGKILL");
+
+  const killDeadline = Date.now() + timeoutMs;
+  while (remaining.size > 0 && Date.now() < killDeadline) {
+    for (const pid of [...remaining]) {
+      if (!alive(pid)) remaining.delete(pid);
+    }
+    if (remaining.size === 0) break;
+    await new Promise((resolve) => {
+      setTimeout(resolve, pollMs);
+    });
+  }
+
+  return remaining;
+}
+
+export async function killChromeForUserDataDir(userDataDir, options = {}) {
   const listLines = options.listLines ?? listProcessLines;
   const killFn = options.killFn ?? ((pid, signal) => process.kill(pid, signal));
+  const extraDirs = options.extraDirs ?? [];
   const pids = pidsForUserDataDir(listLines(), userDataDir);
-  killPids(pids, killFn);
-  try {
-    rmSync(userDataDir, { recursive: true, force: true });
-  } catch {
-    // Temp profile already gone.
+
+  killPids(pids, killFn, "SIGTERM");
+  await waitForPidsToExit(pids, {
+    killFn,
+    isAlive: options.isAlive,
+    timeoutMs: options.exitTimeoutMs,
+  });
+
+  const leftover = pidsForUserDataDir(listLines(), userDataDir);
+  if (leftover.size) {
+    killPids(leftover, killFn, "SIGKILL");
+    await waitForPidsToExit(leftover, {
+      killFn,
+      isAlive: options.isAlive,
+      timeoutMs: options.exitTimeoutMs,
+    });
   }
+
+  for (const dir of [userDataDir, ...extraDirs]) {
+    try {
+      rmSync(dir, { recursive: true, force: true });
+    } catch {
+      // Temp profile already gone.
+    }
+  }
+
   return pids;
 }

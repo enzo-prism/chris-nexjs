@@ -1,25 +1,54 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { existsSync, mkdtempSync } from "node:fs";
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import { killChromeForUserDataDir, pidsForUserDataDir } from "./lighthouse-chrome.mjs";
+import {
+  createdLauncherDirs,
+  isPidAlive,
+  killChromeForUserDataDir,
+  listLauncherUserDataDirs,
+  pidsForUserDataDir,
+} from "./lighthouse-chrome.mjs";
 
-function isAlive(pid) {
+const require = createRequire(import.meta.url);
+
+function chromeExecutablePath() {
   try {
-    process.kill(pid, 0);
-    return true;
+    const { chromium } = require("@playwright/test");
+    if (typeof chromium?.executablePath === "function") {
+      return chromium.executablePath();
+    }
   } catch {
-    return false;
+    // Fall through to playwright-core.
   }
+  const { chromium } = require("playwright-core");
+  return chromium.executablePath();
 }
 
-function spawnArgvMarker(marker) {
+function spawnArgvMarker(marker, script = "setInterval(() => {}, 1000)") {
+  const child = spawn(process.execPath, ["-e", script, "--", marker], {
+    detached: true,
+    stdio: "ignore",
+  });
+  child.unref();
+  return child;
+}
+
+function spawnChrome(args) {
   const child = spawn(
-    process.execPath,
-    ["-e", "setInterval(() => {}, 1000)", "--", marker],
+    chromeExecutablePath(),
+    [
+      "--headless=new",
+      "--no-sandbox",
+      "--disable-gpu",
+      "--disable-dev-shm-usage",
+      "--no-first-run",
+      ...args,
+    ],
     {
       detached: true,
       stdio: "ignore",
@@ -29,49 +58,108 @@ function spawnArgvMarker(marker) {
   return child;
 }
 
+async function waitUntil(predicate, timeoutMs = 2_000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (await predicate()) return;
+    await new Promise((resolve) => {
+      setTimeout(resolve, 25);
+    });
+  }
+  throw new Error("timed out waiting for process state");
+}
+
 describe("lighthouse chrome cleanup", () => {
-  it("kills only the process that carries this attempt's user-data-dir", async () => {
-    const userDataDir = mkdtempSync(join(tmpdir(), "lighthouse-cw-test-"));
-    const target = spawnArgvMarker(`--user-data-dir=${userDataDir}`);
-    const bystander = spawnArgvMarker("--remote-debugging-port=9222");
+  it("waits for a SIGTERM-ignoring process, SIGKILLs it, then removes the dir", async () => {
+    const userDataDir = mkdtempSync(join(tmpdir(), "lighthouse-cw-hang-"));
+    writeFileSync(join(userDataDir, "Default"), "profile");
+    const hung = spawnArgvMarker(
+      `--user-data-dir=${userDataDir}`,
+      "process.on('SIGTERM', () => {}); setInterval(() => {}, 1000)",
+    );
 
     try {
-      assert.ok(target.pid);
-      assert.ok(bystander.pid);
-      assert.equal(isAlive(target.pid), true);
-      assert.equal(isAlive(bystander.pid), true);
-
-      const killed = killChromeForUserDataDir(userDataDir);
-      assert.equal(killed.has(target.pid), true);
-      assert.equal(killed.has(bystander.pid), false);
-
-      const deadline = Date.now() + 1_000;
-      while (isAlive(target.pid) && Date.now() < deadline) {
-        await new Promise((resolve) => {
-          setTimeout(resolve, 25);
-        });
-      }
-
-      assert.equal(isAlive(target.pid), false);
-      assert.equal(isAlive(bystander.pid), true);
+      await waitUntil(() => isPidAlive(hung.pid));
+      const killed = await killChromeForUserDataDir(userDataDir, {
+        exitTimeoutMs: 400,
+      });
+      assert.equal(killed.has(hung.pid), true);
+      await waitUntil(() => !isPidAlive(hung.pid), 2_000);
+      assert.equal(isPidAlive(hung.pid), false);
       assert.equal(existsSync(userDataDir), false);
+    } finally {
+      try {
+        process.kill(hung.pid, "SIGKILL");
+      } catch {
+        // already gone
+      }
+    }
+  });
+
+  it("leaves a real Chrome :9334 bystander, an unrelated lighthouse.* dir, and lighthouse-cw-OTHERRUN", async () => {
+    const attemptDir = mkdtempSync(join(tmpdir(), "lighthouse-cw-"));
+    const otherRunDir = mkdtempSync(join(tmpdir(), "lighthouse-cw-OTHERRUN-"));
+    const bystanderLhDir = mkdtempSync(join(tmpdir(), "lighthouse."));
+    const debugProfile = mkdtempSync(join(tmpdir(), "cw-debug-"));
+    writeFileSync(join(bystanderLhDir, "Keep"), "unrelated");
+
+    const beforeLauncherDirs = listLauncherUserDataDirs();
+    assert.equal(beforeLauncherDirs.has(bystanderLhDir), true);
+
+    const target = spawnArgvMarker(`--user-data-dir=${attemptDir}`);
+    const debugChrome = spawnChrome([
+      "--remote-debugging-port=9334",
+      `--user-data-dir=${debugProfile}`,
+    ]);
+    const lhBystander = spawnChrome([`--user-data-dir=${bystanderLhDir}`]);
+    const otherRun = spawnChrome([`--user-data-dir=${otherRunDir}`]);
+
+    try {
+      await waitUntil(
+        () =>
+          isPidAlive(target.pid) &&
+          isPidAlive(debugChrome.pid) &&
+          isPidAlive(lhBystander.pid) &&
+          isPidAlive(otherRun.pid),
+      );
+
+      const extraDirs = createdLauncherDirs(beforeLauncherDirs);
+      assert.equal(extraDirs.includes(bystanderLhDir), false);
+
+      const killed = await killChromeForUserDataDir(attemptDir, { extraDirs });
+      assert.equal(killed.has(target.pid), true);
+      assert.equal(killed.has(debugChrome.pid), false);
+      assert.equal(killed.has(lhBystander.pid), false);
+      assert.equal(killed.has(otherRun.pid), false);
+
+      await waitUntil(() => !isPidAlive(target.pid));
+      assert.equal(existsSync(attemptDir), false);
+      assert.equal(isPidAlive(debugChrome.pid), true);
+      assert.equal(isPidAlive(lhBystander.pid), true);
+      assert.equal(existsSync(bystanderLhDir), true);
+      assert.equal(isPidAlive(otherRun.pid), true);
+      assert.equal(existsSync(otherRunDir), true);
       assert.equal(
         pidsForUserDataDir(
-          [`${bystander.pid} chrom --remote-debugging-port=9222`],
-          userDataDir,
+          [`${debugChrome.pid} chrome --remote-debugging-port=9334`],
+          attemptDir,
         ).size,
         0,
       );
     } finally {
-      try {
-        process.kill(bystander.pid, "SIGTERM");
-      } catch {
-        // already gone
+      for (const child of [target, debugChrome, lhBystander, otherRun]) {
+        try {
+          process.kill(child.pid, "SIGKILL");
+        } catch {
+          // already gone
+        }
       }
-      try {
-        process.kill(target.pid, "SIGTERM");
-      } catch {
-        // already gone
+      for (const dir of [attemptDir, otherRunDir, bystanderLhDir, debugProfile]) {
+        try {
+          rmSync(dir, { recursive: true, force: true });
+        } catch {
+          // already gone
+        }
       }
     }
   });

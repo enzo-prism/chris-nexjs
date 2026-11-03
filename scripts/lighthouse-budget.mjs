@@ -3,7 +3,11 @@ import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { killChromeForUserDataDir } from "./lighthouse-chrome.mjs";
+import {
+  createdLauncherDirs,
+  killChromeForUserDataDir,
+  listLauncherUserDataDirs,
+} from "./lighthouse-chrome.mjs";
 
 const DEFAULT_CHROME_FLAGS =
   "--headless --no-sandbox --disable-dev-shm-usage";
@@ -128,8 +132,9 @@ function isChromeLaunchFlake(error) {
   return /waiting for dynamic debugging port/i.test(message);
 }
 
-function runLighthouseOnce(url) {
+async function runLighthouseOnce(url) {
   const userDataDir = mkdtempSync(join(tmpdir(), "lighthouse-cw-"));
+  const launcherDirsBefore = listLauncherUserDataDirs();
   const command = [
     "npx --yes lighthouse",
     url,
@@ -149,17 +154,19 @@ function runLighthouseOnce(url) {
     });
     return JSON.parse(stdout);
   } finally {
-    killChromeForUserDataDir(userDataDir);
+    await killChromeForUserDataDir(userDataDir, {
+      extraDirs: createdLauncherDirs(launcherDirsBefore),
+    });
   }
 }
 
-function runLighthouse(url) {
+async function runLighthouse(url) {
   const attempts = Math.max(1, launchRetries);
   let lastError;
 
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
-      return runLighthouseOnce(url);
+      return await runLighthouseOnce(url);
     } catch (error) {
       lastError = error;
       if (!isChromeLaunchFlake(error) || attempt === attempts) {
@@ -236,11 +243,11 @@ async function assertPrecheck() {
   }
 }
 
-function summarizeRuns(url, runCount) {
+async function summarizeRuns(url, runCount) {
   const samples = [];
 
   for (let index = 0; index < runCount; index += 1) {
-    const report = runLighthouse(url);
+    const report = await runLighthouse(url);
     samples.push({
       performance: report.categories.performance.score ?? 0,
       lcp:
@@ -267,7 +274,7 @@ async function main() {
 
   for (const budget of budgets) {
     const targetUrl = `${baseUrl}${budget.path}`;
-    const summary = summarizeRuns(targetUrl, Math.max(1, runsPerRoute));
+    const summary = await summarizeRuns(targetUrl, Math.max(1, runsPerRoute));
     const performance = summary.performance;
     const lcp = summary.lcp;
     const cls = summary.cls;
