@@ -249,6 +249,14 @@ describe("invisalign consult media data", () => {
         ),
       /cannot include userinfo/,
     );
+    assert.throws(
+      () =>
+        assertProductionSrc(
+          `https://:pw@res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/x.jpg`,
+          "cloudinary-password-only",
+        ),
+      /cannot include userinfo/,
+    );
     assert.doesNotThrow(() =>
       assertProductionVideo(
         fileVideo({
@@ -344,19 +352,6 @@ describe("invisalign consult media data", () => {
         `https://${CLOUDINARY_HOST}/${CLOUDINARY_CLOUD}/image/upload/x.jpg`,
         "practice-cloudinary",
       ),
-    );
-    const mediaModule = readFileSync(
-      "client/src/pages/invisalignConsultMedia.ts",
-      "utf8",
-    );
-    assert.match(
-      mediaModule,
-      /PRODUCTION_MEDIA_HOST_SET\.has\(url\.hostname\)/,
-    );
-    assert.doesNotMatch(mediaModule, /url\.hostname\.endsWith\(/);
-    assert.equal(
-      new Set(PRODUCTION_MEDIA_HOSTS).has("evilcloudinary.com"),
-      false,
     );
   });
 

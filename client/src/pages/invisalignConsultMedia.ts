@@ -126,7 +126,7 @@ function isSameOriginPath(src: string): boolean {
 }
 
 function hasNonDefaultPort(url: URL): boolean {
-  return url.port !== "" && url.port !== "443";
+  return url.port !== "";
 }
 
 function assertCloudinaryCloud(url: URL, label: string): void {
