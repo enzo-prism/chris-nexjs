@@ -44,7 +44,7 @@ for (const route of ROUTES) {
 // nowrap "Show more reviews" button, so assert scrollWidth against clientWidth
 // at the QA viewports — no 1px slack.
 const REVIEWS_PATH = "/reviews";
-const REVIEWS_WIDTHS = [320, 390, 1440] as const;
+const REVIEWS_WIDTHS = [320, 375, 390, 1440] as const;
 
 for (const width of REVIEWS_WIDTHS) {
   test(`no horizontal overflow at ${width}px on ${REVIEWS_PATH}`, async ({ page }) => {
@@ -63,5 +63,29 @@ for (const width of REVIEWS_WIDTHS) {
       `${REVIEWS_PATH} at ${width}px overflows by ${scrollWidth - clientWidth}px ` +
         `(scrollWidth=${scrollWidth}, clientWidth=${clientWidth})`,
     ).toBeLessThanOrEqual(clientWidth);
+
+    const remaining = page.locator("[data-reviews-remaining]");
+    await expect(remaining).toBeVisible();
+    const wrap = await remaining.evaluate((el) => {
+      const style = getComputedStyle(el);
+      const rect = el.getBoundingClientRect();
+      const fontSize = parseFloat(style.fontSize);
+      const lineHeight = parseFloat(style.lineHeight);
+      return {
+        whiteSpace: style.whiteSpace,
+        height: rect.height,
+        lineHeight: Number.isFinite(lineHeight) ? lineHeight : fontSize * 1.2,
+        text: (el.textContent ?? "").replace(/\s+/g, " ").trim(),
+      };
+    });
+    expect(
+      wrap.whiteSpace,
+      `${REVIEWS_PATH} remaining count at ${width}px must stay nowrap`,
+    ).toBe("nowrap");
+    expect(
+      wrap.height,
+      `${REVIEWS_PATH} remaining count is ${wrap.height}px tall at ${width}px (line-height ${wrap.lineHeight})`,
+    ).toBeLessThanOrEqual(wrap.lineHeight + 2);
+    expect(wrap.text).toMatch(/^\(\d+ more\)$/);
   });
 }

@@ -414,7 +414,12 @@ const Testimonials = ({ initialTestimonials }: TestimonialsProps) => {
             >
               <span>
                 Show more reviews{" "}
-                <span className="font-normal text-ink-muted">({remaining} more)</span>
+                <span
+                  data-reviews-remaining
+                  className="whitespace-nowrap font-normal text-ink-muted"
+                >
+                  ({remaining} more)
+                </span>
               </span>
               <ChevronDown aria-hidden="true" />
             </button>
