@@ -229,10 +229,14 @@ test("a double click posts once and emits each lead event once", async ({ page }
   assertGoogleHostsBlocked();
 });
 
-test("a filled honeypot does not fire generate_lead", async ({ page }) => {
-  await page.route("**/api/contact", (route) => route.fulfill({
-    status: 201, contentType: "application/json", body: JSON.stringify({ ok: true, accepted: false }),
-  }));
+test("a filled honeypot does not POST or fire generate_lead", async ({ page }) => {
+  let posted = false;
+  await page.route("**/api/contact", async (route) => {
+    posted = true;
+    await route.fulfill({
+      status: 201, contentType: "application/json", body: JSON.stringify({ ok: true, accepted: true }),
+    });
+  });
   await page.goto("https://www.chriswongdds.com/contact", { waitUntil: "networkidle" });
   await page.getByLabel("Full name", { exact: true }).fill("Contact Example");
   await page.getByLabel("Email address", { exact: true }).fill("contact.example@example.com");
@@ -246,8 +250,36 @@ test("a filled honeypot does not fire generate_lead", async ({ page }) => {
   });
   await page.getByRole("button", { name: "Send message", exact: true }).click();
   await expect(page.getByRole("status").filter({ hasText: /^Message sent\.$/ })).toBeVisible();
+  expect(posted, "a filled honeypot must not POST /api/contact").toBe(false);
   expect(await eventNames(page)).not.toContain("generate_lead");
   expect(await eventNames(page)).not.toContain("contact_form_submit");
+  assertGoogleHostsBlocked();
+});
+
+test("an abort then retry emits generate_lead once", async ({ page }) => {
+  let attempts = 0;
+  await page.route("**/api/contact", async (route) => {
+    attempts += 1;
+    if (attempts === 1) {
+      await route.abort();
+      return;
+    }
+    await route.fulfill({
+      status: 201, contentType: "application/json", body: JSON.stringify({ ok: true, accepted: true }),
+    });
+  });
+  await submitContact(page);
+  const errorAlert = page.getByRole("alert").filter({ hasText: /we could not send your message/i });
+  await expect(errorAlert).toBeVisible();
+  await expect(errorAlert).toContainText(/the request took too long/i);
+  expect(await eventNames(page)).not.toContain("generate_lead");
+  expect(await eventNames(page)).not.toContain("contact_form_submit");
+  await page.getByRole("button", { name: "Try again", exact: true }).click();
+  await expect(page).toHaveURL(/\/thank-you$/);
+  expect(attempts).toBe(2);
+  const names = await eventNames(page);
+  expect(names.filter((name) => name === "generate_lead")).toHaveLength(1);
+  expect(names.filter((name) => name === "contact_form_submit")).toHaveLength(1);
   assertGoogleHostsBlocked();
 });
 

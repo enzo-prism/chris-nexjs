@@ -11,6 +11,7 @@ assert.match(formSource, /contactFormSchema = insertContactMessageSchema\.extend
 assert.match(formSource, /mode: "onBlur"/);
 assert.match(formSource, /role="alert"/);
 assert.match(formSource, /Your entries are still here/);
+assert.match(formSource, /The request took too long/);
 assert.match(formSource, /Try again/);
 assert.match(formSource, /aria-invalid=\{privacyError\}/);
 assert.match(formSource, /privacy policy/);

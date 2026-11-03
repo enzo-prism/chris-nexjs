@@ -25,7 +25,7 @@ import { resolveContactLeadEvents } from "@/lib/contactLead";
 import { getLeadAttribution } from "@/lib/attribution";
 import { officeInfo } from "@/lib/data";
 import { getAnalyticsPageContext } from "@shared/analytics";
-import { HONEYPOT_FIELD } from "@shared/formspree";
+import { HONEYPOT_FIELD, isHoneypotTripped } from "@shared/formspree";
 import { readContactRequestResult } from "@shared/contactRequestPolicy";
 // next/link, not wouter: this form renders on the dedicated /contact route,
 // where there is no wouter <Switch> — a wouter Link updates the URL but never
@@ -46,9 +46,28 @@ const contactFormSchema = insertContactMessageSchema.extend({
 
 type ContactFormValues = z.infer<typeof contactFormSchema>;
 type SubmissionState = "idle" | "validation-error" | "submitting" | "error" | "success" | "neutral" | "demo";
+type SubmitErrorKind = "timeout" | "generic";
+
+function contactSubmitErrorKind(error: unknown): SubmitErrorKind {
+  if (!(error instanceof Error)) return "generic";
+  const message = error.message.toLowerCase();
+  if (
+    error.name === "TimeoutError" ||
+    error.name === "AbortError" ||
+    message.includes("timeout") ||
+    message.includes("timed out") ||
+    message.includes("abort") ||
+    message.includes("failed to fetch") ||
+    message.includes("network")
+  ) {
+    return "timeout";
+  }
+  return "generic";
+}
 
 const ContactForm = () => {
   const [submissionState, setSubmissionState] = useState<SubmissionState>("idle");
+  const [submitErrorKind, setSubmitErrorKind] = useState<SubmitErrorKind>("generic");
   const [privacyConsent, setPrivacyConsent] = useState(false);
   const [privacyError, setPrivacyError] = useState(false);
   const honeypotRef = useRef<HTMLInputElement>(null);
@@ -111,6 +130,7 @@ const ContactForm = () => {
     onError: (error) => {
       console.error("Error sending message:", error);
       submitLockRef.current = false;
+      setSubmitErrorKind(contactSubmitErrorKind(error));
       setSubmissionState("error");
       window.requestAnimationFrame(() => errorSummaryRef.current?.focus());
     },
@@ -125,13 +145,23 @@ const ContactForm = () => {
     }
     if (submitLockRef.current) return;
 
+    const payload = {
+      ...data,
+      [HONEYPOT_FIELD]: honeypotRef.current?.value ?? "",
+    } as InsertContactMessage;
+    // Bots that fill the hidden company field never reach the API, so a
+    // filled honeypot cannot create a POST or a generate_lead.
+    if (isHoneypotTripped(payload)) {
+      form.reset();
+      setPrivacyConsent(false);
+      setSubmissionState("neutral");
+      return;
+    }
+
     setPrivacyError(false);
     setSubmissionState("submitting");
     submitLockRef.current = true;
-    contactMutation.mutate({
-      ...data,
-      [HONEYPOT_FIELD]: honeypotRef.current?.value ?? "",
-    } as InsertContactMessage);
+    contactMutation.mutate(payload);
   };
 
   const onInvalid = () => {
@@ -194,7 +224,9 @@ const ContactForm = () => {
           >
             <p className="font-semibold">We could not send your message.</p>
             <p className="mt-1">
-              Your entries are still here. Try again, or call{" "}
+              {submitErrorKind === "timeout"
+                ? "The request took too long. Your entries are still here. Try again, or call "
+                : "Your entries are still here. Try again, or call "}
               <a className="ui-link-premium" href={`tel:${officeInfo.phoneE164}`}>
                 {officeInfo.phone}
               </a>
