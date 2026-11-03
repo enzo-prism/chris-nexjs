@@ -9,10 +9,23 @@ const baseUrl = (
 
 const runsPerRoute = Number.parseInt(process.env.LIGHTHOUSE_RUNS || "3", 10);
 const skipPrecheck = process.env.LIGHTHOUSE_SKIP_PRECHECK === "1";
-const launchRetries = Number.parseInt(
-  process.env.LIGHTHOUSE_LAUNCH_RETRIES || "3",
-  10,
-);
+const DEFAULT_LAUNCH_RETRIES = 3;
+
+function parseLaunchRetries(raw) {
+  if (raw == null || raw === "") {
+    return DEFAULT_LAUNCH_RETRIES;
+  }
+  const parsed = Number.parseInt(String(raw), 10);
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    console.warn(
+      `LIGHTHOUSE_LAUNCH_RETRIES=${JSON.stringify(raw)} is not a valid count; using ${DEFAULT_LAUNCH_RETRIES}.`,
+    );
+    return DEFAULT_LAUNCH_RETRIES;
+  }
+  return parsed;
+}
+
+const launchRetries = parseLaunchRetries(process.env.LIGHTHOUSE_LAUNCH_RETRIES);
 
 const budgets = [
   {
@@ -107,9 +120,28 @@ const budgets = [
 
 function isChromeLaunchFlake(error) {
   const message = `${error?.message ?? ""} ${error?.stderr ?? ""}`;
-  return /waiting for dynamic debugging port|chrome-err\.log|ECONNREFUSED/i.test(
-    message,
-  );
+  return /waiting for dynamic debugging port/i.test(message);
+}
+
+function killLaunchedChrome() {
+  let output = "";
+  try {
+    output = execSync("ps -eo pid=,args=", { encoding: "utf8" });
+  } catch {
+    return;
+  }
+
+  for (const line of output.split("\n")) {
+    if (!/--remote-debugging-port=/.test(line)) continue;
+    if (!/chrom/i.test(line)) continue;
+    const pid = Number.parseInt(line.trim().split(/\s+/, 1)[0] ?? "", 10);
+    if (!Number.isInteger(pid) || pid <= 1) continue;
+    try {
+      process.kill(pid, "SIGTERM");
+    } catch {
+      // Chrome already exited.
+    }
+  }
 }
 
 function runLighthouseOnce(url) {
@@ -145,6 +177,7 @@ function runLighthouse(url) {
       if (!isChromeLaunchFlake(error) || attempt === attempts) {
         throw error;
       }
+      killLaunchedChrome();
       console.warn(
         `Lighthouse Chrome launch failed (attempt ${attempt}/${attempts}), retrying...`,
       );

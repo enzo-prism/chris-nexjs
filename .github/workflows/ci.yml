@@ -53,6 +53,9 @@ jobs:
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium
 
+      - name: Invisalign media facade (dev preview)
+        run: pnpm run test:invisalign-media:e2e
+
       - name: Mobile browser suite
         run: pnpm run test:mobile
 

@@ -5,12 +5,19 @@ import { describe, it } from "node:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
+import { InvisalignMediaImage } from "../client/src/components/invisalign/InvisalignMediaImage";
 import { InvisalignMediaSection } from "../client/src/components/invisalign/InvisalignMediaSection";
 import { InvisalignMediaVideo } from "../client/src/components/invisalign/InvisalignMediaVideo";
 import {
-  assertMediaVideosHaveCaptions,
+  assertPrivacyEmbedSrc,
+  assertProductionGraphic,
+  assertProductionGraphics,
+  assertProductionSrc,
+  assertProductionVideo,
+  assertProductionVideos,
   INVISALIGN_CONSULT_GRAPHICS,
   INVISALIGN_CONSULT_VIDEOS,
+  productionMediaValidation,
   resolveGraphicAlt,
   type MediaGraphic,
   type MediaVideo,
@@ -20,8 +27,20 @@ import {
   INVISALIGN_MEDIA_FIXTURE_MARKER,
 } from "./invisalign-media.fixtures";
 
+const videosCheckedAtImport = productionMediaValidation.videos;
+const graphicsCheckedAtImport = productionMediaValidation.graphics;
+
 const pair = getInvisalignMediaFixtures({ videoCount: 2, graphicCount: 4 });
 const single = getInvisalignMediaFixtures({ videoCount: 1, graphicCount: 3 });
+
+const PRODUCTION_GRAPHIC: MediaGraphic = {
+  id: "prod-graphic",
+  src: "/images/redesign/jamal-itero-scan.webp",
+  alt: "A digital scan",
+  caption: "Chairside scan",
+  width: 1600,
+  height: 1600,
+};
 
 function renderSection(
   videos: readonly Parameters<typeof InvisalignMediaSection>[0]["videos"],
@@ -46,90 +65,297 @@ function walkFiles(directoryPath: string): string[] {
   return files;
 }
 
-function fileVideo(overrides: Partial<MediaVideo> = {}): MediaVideo {
-  return {
+function asVideo(video: Record<string, unknown>): MediaVideo {
+  return video as unknown as MediaVideo;
+}
+
+function asGraphic(graphic: Record<string, unknown>): MediaGraphic {
+  return graphic as unknown as MediaGraphic;
+}
+
+function fileVideo(
+  overrides: Record<string, unknown> = {},
+): MediaVideo {
+  return asVideo({
+    kind: "file",
     id: "test-video",
-    src: "data:video/mp4,base",
-    poster: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'/>",
     title: "Test video",
-    captions: "data:text/vtt,WEBVTT",
+    src: "/media/invisalign/demo.mp4",
+    poster: "/media/invisalign/demo.jpg",
+    captions: "/media/invisalign/demo.vtt",
     durationLabel: "0:10",
     ...overrides,
-  };
+  });
+}
+
+function embedVideo(
+  overrides: Record<string, unknown> = {},
+): MediaVideo {
+  return asVideo({
+    kind: "embed",
+    id: "test-embed",
+    title: "Test embed",
+    src: "https://www.youtube-nocookie.com/embed/abc123",
+    poster: "/media/invisalign/yt.jpg",
+    captionsBuiltIn: true,
+    durationLabel: "0:18",
+    ...overrides,
+  });
 }
 
 describe("invisalign consult media data", () => {
+  it("validates shipped arrays at module load", () => {
+    assert.ok(
+      videosCheckedAtImport >= 1,
+      "assertProductionVideos must run when the data module loads",
+    );
+    assert.ok(
+      graphicsCheckedAtImport >= 1,
+      "assertProductionGraphics must run when the data module loads",
+    );
+  });
+
   it("ships empty video and graphic arrays", () => {
     assert.equal(INVISALIGN_CONSULT_VIDEOS.length, 0);
     assert.equal(INVISALIGN_CONSULT_GRAPHICS.length, 0);
   });
 
   it("accepts an empty video list", () => {
-    assert.doesNotThrow(() => assertMediaVideosHaveCaptions([]));
+    assert.doesNotThrow(() => assertProductionVideos([]));
+  });
+
+  it("accepts a same-origin file video with English captions", () => {
+    assert.doesNotThrow(() => assertProductionVideo(fileVideo()));
+  });
+
+  it("accepts privacy embeds with captionsBuiltIn", () => {
+    assert.doesNotThrow(() => assertProductionVideo(embedVideo()));
+    assert.doesNotThrow(() =>
+      assertProductionVideo(
+        embedVideo({
+          src: "https://player.vimeo.com/video/123?dnt=1",
+        }),
+      ),
+    );
   });
 
   it("fails when a file video is missing captions", () => {
     assert.throws(
-      () => assertMediaVideosHaveCaptions([fileVideo({ captions: "   " })]),
+      () => assertProductionVideo(fileVideo({ captions: "   " })),
       /missing an English captions track/,
     );
   });
 
-  it("accepts an embed with built-in captions and no track", () => {
-    assert.doesNotThrow(() =>
-      assertMediaVideosHaveCaptions([
-        fileVideo({
-          src: "https://www.youtube-nocookie.com/embed/abc123",
-          captions: undefined,
-          captionsBuiltIn: true,
-        }),
-      ]),
-    );
-  });
-
-  it("fails an embed that has neither a track nor built-in captions", () => {
+  it("fails a youtube-nocookie embed without captionsBuiltIn even if a captions string is set", () => {
     assert.throws(
       () =>
-        assertMediaVideosHaveCaptions([
-          fileVideo({
-            src: "https://www.youtube-nocookie.com/embed/abc123",
-            captions: undefined,
-            captionsBuiltIn: false,
+        assertProductionVideo(
+          embedVideo({
+            captionsBuiltIn: undefined,
+            captions: "/media/invisalign/demo.vtt",
           }),
-        ]),
-      /missing an English captions track/,
+        ),
+      /captionsBuiltIn/,
     );
   });
 
-  it("fails a non-privacy embed URL", () => {
+  it("fails a Vimeo embed that is missing dnt=1", () => {
     assert.throws(
       () =>
-        assertMediaVideosHaveCaptions([
-          fileVideo({
-            src: "https://www.youtube.com/embed/abc123",
-            captionsBuiltIn: true,
-          }),
-        ]),
-      /no-cookie or privacy embed URL/,
+        assertPrivacyEmbedSrc(
+          "https://player.vimeo.com/video/123",
+          "vimeo",
+        ),
+      /dnt=1/,
+    );
+    assert.throws(
+      () =>
+        assertProductionVideo(
+          embedVideo({ src: "https://player.vimeo.com/video/123" }),
+        ),
+      /dnt=1/,
     );
   });
 
-  it("prefixes graphic alt and blanks it when the figcaption repeats the description", () => {
-    const unique: MediaGraphic = {
-      id: "g1",
-      src: "/g1.png",
-      alt: "Aligners on a tray",
-      caption: "A different caption",
-      width: 1080,
-      height: 1080,
-    };
-    const repeated: MediaGraphic = {
-      ...unique,
-      id: "g2",
-      caption: "Aligners on a tray",
-    };
-    assert.equal(resolveGraphicAlt(unique), "Invisalign graphic: Aligners on a tray");
-    assert.equal(resolveGraphicAlt(repeated), "");
+  it("fails http, empty, blob, and lookalike-host file sources", () => {
+    assert.throws(
+      () => assertProductionSrc("http://example.com/demo.mp4", "http file"),
+      /same-origin path or https/,
+    );
+    assert.throws(
+      () => assertProductionSrc("", "empty file"),
+      /missing a src/,
+    );
+    assert.throws(
+      () => assertProductionSrc("   ", "whitespace file"),
+      /missing a src/,
+    );
+    assert.throws(
+      () => assertProductionSrc("blob:https://example.com/abc", "blob file"),
+      /data: or blob:/,
+    );
+    assert.throws(
+      () =>
+        assertProductionSrc(
+          "https://youtube-nocookie.com.evil.com/video.mp4",
+          "lookalike file",
+        ),
+      /cannot use an embed host/,
+    );
+    assert.throws(
+      () =>
+        assertProductionVideo(
+          fileVideo({
+            src: "https://youtube-nocookie.com.evil.com/video.mp4",
+          }),
+        ),
+      /cannot use an embed host/,
+    );
+  });
+
+  it("fails http and non-allowlisted embed hosts", () => {
+    assert.throws(
+      () =>
+        assertPrivacyEmbedSrc(
+          "http://www.youtube-nocookie.com/embed/abc123",
+          "http embed",
+        ),
+      /https privacy embed/,
+    );
+    assert.throws(
+      () =>
+        assertProductionVideo(
+          embedVideo({ src: "https://www.youtube.com/embed/abc123" }),
+        ),
+      /exact privacy embed host/,
+    );
+  });
+
+  it("rejects data, blob, and non-https graphics in production data", () => {
+    assert.throws(
+      () =>
+        assertProductionGraphic(
+          asGraphic({
+            id: "data-graphic",
+            src: "data:image/png,AAAA",
+            alt: "A still",
+            width: 1080,
+            height: 1080,
+          }),
+        ),
+      /data: or blob:/,
+    );
+    assert.throws(
+      () =>
+        assertProductionGraphic(
+          asGraphic({
+            id: "blob-graphic",
+            src: "blob:https://example.com/abc",
+            alt: "A still",
+            width: 1080,
+            height: 1080,
+          }),
+        ),
+      /data: or blob:/,
+    );
+    assert.throws(
+      () =>
+        assertProductionGraphic(
+          asGraphic({
+            id: "http-graphic",
+            src: "http://example.com/still.jpg",
+            alt: "A still",
+            width: 1080,
+            height: 1080,
+          }),
+        ),
+      /same-origin path or https/,
+    );
+    assert.doesNotThrow(() => assertProductionGraphics([PRODUCTION_GRAPHIC]));
+  });
+});
+
+describe("resolveGraphicAlt", () => {
+  const base = {
+    id: "g1",
+    src: "/g1.png",
+    width: 1080,
+    height: 1080,
+  } as const;
+
+  it("rejects empty or whitespace alt when no caption exists", () => {
+    assert.throws(
+      () => resolveGraphicAlt({ ...base, alt: "" }),
+      /missing alt text/,
+    );
+    assert.throws(
+      () => resolveGraphicAlt({ ...base, alt: "   " }),
+      /missing alt text/,
+    );
+    assert.throws(
+      () => resolveGraphicAlt({ ...base, alt: "\n\t", caption: "  " }),
+      /missing alt text/,
+    );
+    assert.throws(
+      () =>
+        assertProductionGraphic(
+          asGraphic({ ...base, alt: "   ", caption: "" }),
+        ),
+      /missing alt text/,
+    );
+  });
+
+  it("allows a blank alt when a caption exists", () => {
+    assert.equal(
+      resolveGraphicAlt({ ...base, alt: "  ", caption: "Aligners on a tray" }),
+      "",
+    );
+  });
+
+  it("prefixes unique alt text once, case-insensitively", () => {
+    assert.equal(
+      resolveGraphicAlt({
+        ...base,
+        alt: "Aligners on a tray",
+        caption: "A different caption",
+      }),
+      "Invisalign graphic: Aligners on a tray",
+    );
+    assert.equal(
+      resolveGraphicAlt({
+        ...base,
+        alt: "invisalign graphic: Tray",
+        caption: "A different caption",
+      }),
+      "Invisalign graphic: Tray",
+    );
+    assert.equal(
+      resolveGraphicAlt({
+        ...base,
+        alt: "INVISALIGN GRAPHIC: Tray",
+        caption: "A different caption",
+      }),
+      "Invisalign graphic: Tray",
+    );
+  });
+
+  it("treats caption repeats as decorative after normalizing case and whitespace", () => {
+    assert.equal(
+      resolveGraphicAlt({
+        ...base,
+        alt: "Aligners on a tray",
+        caption: "Aligners on a tray",
+      }),
+      "",
+    );
+    assert.equal(
+      resolveGraphicAlt({
+        ...base,
+        alt: "  ALIGNERS   on a   TRAY ",
+        caption: "aligners on a tray",
+      }),
+      "",
+    );
   });
 });
 
@@ -178,16 +404,30 @@ describe("InvisalignMediaSection", () => {
     assert.equal(four.includes("lg:grid-cols-3"), false);
   });
 
-  it("keeps graphics lazy, sized, and never priority", () => {
+  it("keeps fixture graphics lazy, sized, and never priority", () => {
     const html = renderSection([], pair.graphics);
     const graphicImgs = html.match(/<img\b[^>]*>/g) ?? [];
     assert.equal(graphicImgs.length, 4);
     for (const img of graphicImgs) {
       assert.match(img, /loading="lazy"/);
       assert.match(img, /sizes="\(min-width:1024px\) 292px, 50vw"/);
-      assert.equal(img.includes("priority"), false);
+      assert.doesNotMatch(img, /fetchpriority="high"/i);
+      assert.doesNotMatch(img, /loading="eager"/);
     }
     assert.match(html, /object-contain/);
+  });
+
+  it("omits the caption strip when a graphic has no caption", () => {
+    const html = renderSection(
+      [],
+      [{ ...pair.graphics[0]!, caption: undefined }],
+    );
+    assert.equal(html.includes("<figcaption"), false);
+  });
+
+  it("omits the caption strip when a graphic caption is only whitespace", () => {
+    const html = renderSection([], [{ ...pair.graphics[0]!, caption: "   " }]);
+    assert.equal(html.includes("<figcaption"), false);
   });
 
   it("uses the spec credit line and no free-consult, pricing, or financing copy", () => {
@@ -200,8 +440,55 @@ describe("InvisalignMediaSection", () => {
   });
 });
 
+describe("InvisalignMediaImage production path", () => {
+  it("rejects data, blob, and http sources at render time", () => {
+    assert.throws(
+      () =>
+        renderToStaticMarkup(
+          createElement(InvisalignMediaImage, {
+            src: "data:image/png,AAAA" as never,
+            alt: "x",
+            sizes: "100vw",
+          }),
+        ),
+      /data: or blob:/,
+    );
+    assert.throws(
+      () =>
+        renderToStaticMarkup(
+          createElement(InvisalignMediaImage, {
+            src: "blob:https://example.com/1" as never,
+            alt: "x",
+            sizes: "100vw",
+          }),
+        ),
+      /data: or blob:/,
+    );
+    assert.throws(
+      () =>
+        renderToStaticMarkup(
+          createElement(InvisalignMediaImage, {
+            src: "http://example.com/a.jpg" as never,
+            alt: "x",
+            sizes: "100vw",
+          }),
+        ),
+      /same-origin path or https/,
+    );
+  });
+
+  it("accepts a same-origin production src before render", () => {
+    assert.doesNotThrow(() =>
+      assertProductionSrc(
+        "/images/redesign/jamal-itero-scan.webp",
+        "production image",
+      ),
+    );
+  });
+});
+
 describe("InvisalignMediaVideo facade", () => {
-  it("renders the poster and play button without a video element", () => {
+  it("renders the poster and play button without a video or iframe", () => {
     const html = renderToStaticMarkup(
       createElement(InvisalignMediaVideo, { video: single.videos[0]! }),
     );
@@ -215,52 +502,8 @@ describe("InvisalignMediaVideo facade", () => {
     assert.match(html, /min-w-11/);
     assert.match(html, /Captions available · 0:12/);
     assert.match(html, /alt=""/);
-  });
-
-  it("only mounts <video controls playsInline preload=\"none\"> after click in source", () => {
-    const source = readFileSync(
-      "client/src/components/invisalign/InvisalignMediaVideo.tsx",
-      "utf8",
-    );
-    assert.match(source, /useState\(false\)/);
-    assert.match(source, /onClick=\{\(\) => setActive\(true\)\}/);
-    assert.match(source, /\{active \? \(/);
-    assert.match(source, /<video/);
-    assert.match(source, /controls/);
-    assert.match(source, /playsInline/);
-    assert.match(source, /preload="none"/);
-    assert.match(source, /kind="captions"/);
-    assert.match(source, /srcLang="en"/);
-    assert.match(source, /label="English"/);
-    assert.match(source, /<iframe/);
-    assert.match(source, /aria-label=\{playLabel\}/);
-    assert.match(
-      source,
-      /const playLabel = `Play video: \$\{video\.title\} \(\$\{video\.durationLabel\}, captions available\)`/,
-    );
-  });
-
-  it("uses next/image for production posters and graphics, lazy and never priority", () => {
-    const image = readFileSync(
-      "client/src/components/invisalign/InvisalignMediaImage.tsx",
-      "utf8",
-    );
-    const section = readFileSync(
-      "client/src/components/invisalign/InvisalignMediaSection.tsx",
-      "utf8",
-    );
-    const video = readFileSync(
-      "client/src/components/invisalign/InvisalignMediaVideo.tsx",
-      "utf8",
-    );
-    assert.match(image, /import Image from "next\/image"/);
-    assert.match(image, /loading="lazy"/);
-    assert.equal(image.includes("priority"), false);
-    assert.match(image, /\(min-width:1024px\) 600px, 100vw/);
-    assert.match(image, /\(min-width:1024px\) 720px, 100vw/);
-    assert.match(image, /\(min-width:1024px\) 292px, 50vw/);
-    assert.match(section, /InvisalignMediaImage/);
-    assert.match(video, /InvisalignMediaImage/);
+    assert.match(html, /loading="lazy"/);
+    assert.doesNotMatch(html, /fetchpriority="high"/i);
   });
 });
 
@@ -277,6 +520,8 @@ describe("fixture and production exclusion", () => {
     assert.match(pair.graphics[0]!.src, /^data:image\/svg\+xml/);
     assert.equal(pair.videos[0]!.id, "fixture-video-1");
     assert.equal(pair.graphics[0]!.width, 1080);
+    assert.equal(pair.videos[0]!.kind, "file");
+    assert.equal(pair.videos[0]!.fixture, true);
   });
 
   it("keeps fixture art out of public/ and production page modules", () => {
@@ -302,6 +547,11 @@ describe("fixture and production exclusion", () => {
         source.includes("invisalign-media.fixtures"),
         false,
         `${file} must not import the fixture module`,
+      );
+      assert.equal(
+        source.includes("InvisalignMediaFixtureImage"),
+        false,
+        `${file} must not import the fixture image path`,
       );
     }
   });

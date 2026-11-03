@@ -211,10 +211,13 @@ const InvisalignConsult = ({ reviewPreview = false }: { readonly reviewPreview?:
         <StepList steps={visitSteps} columns={4} className="mt-10" />
       </Section>
 
-      <InvisalignMediaSection
-        videos={INVISALIGN_CONSULT_VIDEOS}
-        graphics={INVISALIGN_CONSULT_GRAPHICS}
-      />
+      {INVISALIGN_CONSULT_VIDEOS.length > 0 ||
+      INVISALIGN_CONSULT_GRAPHICS.length > 0 ? (
+        <InvisalignMediaSection
+          videos={INVISALIGN_CONSULT_VIDEOS}
+          graphics={INVISALIGN_CONSULT_GRAPHICS}
+        />
+      ) : null}
 
       <CostPanel
         id="invisalign-cost"

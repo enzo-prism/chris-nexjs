@@ -1,12 +1,19 @@
 "use client";
 
-import React, { useState, type JSX } from "react";
+import React, { useEffect, useRef, useState, type JSX } from "react";
 
-import { isEmbedSrc, type MediaVideo } from "@/pages/invisalignConsultMedia";
+import {
+  embedSrcWithAutoplay,
+  isFixtureVideo,
+  type MediaEmbedVideo,
+  type MediaFileVideo,
+  type RenderableVideo,
+} from "@/pages/invisalignConsultMedia";
 import {
   INVISALIGN_VIDEO_SIZES,
   InvisalignMediaImage,
 } from "@/components/invisalign/InvisalignMediaImage";
+import { InvisalignMediaFixtureImage } from "@/components/invisalign/InvisalignMediaFixtureImage";
 
 function PlayTriangle(): JSX.Element {
   return (
@@ -20,57 +27,124 @@ function PlayTriangle(): JSX.Element {
   );
 }
 
+function FilePlayer({
+  video,
+  playerRef,
+}: {
+  readonly video: MediaFileVideo | Extract<RenderableVideo, { kind: "file" }>;
+  readonly playerRef: React.Ref<HTMLVideoElement>;
+}): JSX.Element {
+  return (
+    <video
+      ref={playerRef}
+      className="h-full w-full"
+      controls
+      autoPlay
+      playsInline
+      preload="none"
+      poster={video.poster}
+      tabIndex={0}
+    >
+      <source src={video.src} type="video/mp4" />
+      <track
+        kind="captions"
+        srcLang="en"
+        label="English"
+        src={video.captions}
+        default
+      />
+    </video>
+  );
+}
+
+function EmbedPlayer({
+  video,
+  playerRef,
+}: {
+  readonly video: MediaEmbedVideo;
+  readonly playerRef: React.Ref<HTMLIFrameElement>;
+}): JSX.Element {
+  return (
+    <iframe
+      ref={playerRef}
+      src={embedSrcWithAutoplay(video.src)}
+      title={video.title}
+      className="h-full w-full"
+      allow="autoplay; fullscreen"
+      referrerPolicy="strict-origin-when-cross-origin"
+      tabIndex={0}
+    />
+  );
+}
+
+function ActivePlayer({
+  video,
+  videoRef,
+  iframeRef,
+}: {
+  readonly video: RenderableVideo;
+  readonly videoRef: React.Ref<HTMLVideoElement>;
+  readonly iframeRef: React.Ref<HTMLIFrameElement>;
+}): JSX.Element {
+  switch (video.kind) {
+    case "file":
+      return <FilePlayer video={video} playerRef={videoRef} />;
+    case "embed":
+      return <EmbedPlayer video={video} playerRef={iframeRef} />;
+    default: {
+      const _exhaustive: never = video;
+      throw new Error(`Unknown Invisalign media video kind`);
+      return _exhaustive;
+    }
+  }
+}
+
 export function InvisalignMediaVideo({
   video,
   sizes = INVISALIGN_VIDEO_SIZES,
 }: {
-  readonly video: MediaVideo;
+  readonly video: RenderableVideo;
   readonly sizes?: string;
 }): JSX.Element {
   const [active, setActive] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const playLabel = `Play video: ${video.title} (${video.durationLabel}, captions available)`;
+  useEffect(() => {
+    if (!active) return;
+    if (video.kind === "embed") {
+      iframeRef.current?.focus();
+      return;
+    }
+    const player = videoRef.current;
+    player?.focus();
+    void player?.play();
+  }, [active, video.kind]);
 
   return (
     <article className="card flex flex-col gap-4 overflow-hidden p-5 sm:p-6">
       <div className="relative aspect-video overflow-hidden rounded-[1.25rem] bg-evergreen-900">
         {active ? (
-          isEmbedSrc(video.src) ? (
-            <iframe
-              src={video.src}
-              title={video.title}
-              className="h-full w-full"
-              allow="fullscreen"
-              referrerPolicy="strict-origin-when-cross-origin"
-            />
-          ) : (
-            <video
-              className="h-full w-full"
-              controls
-              playsInline
-              preload="none"
-              poster={video.poster}
-            >
-              <source src={video.src} type="video/mp4" />
-              {video.captions ? (
-                <track
-                  kind="captions"
-                  srcLang="en"
-                  label="English"
-                  src={video.captions}
-                  default
-                />
-              ) : null}
-            </video>
-          )
+          <ActivePlayer video={video} videoRef={videoRef} iframeRef={iframeRef} />
         ) : (
           <>
-            <InvisalignMediaImage
-              src={video.poster}
-              alt=""
-              sizes={sizes}
-              width={1600}
-              height={900}
-            />
+            {isFixtureVideo(video) ? (
+              <InvisalignMediaFixtureImage
+                src={video.poster}
+                alt=""
+                sizes={sizes}
+                width={1600}
+                height={900}
+              />
+            ) : (
+              <InvisalignMediaImage
+                src={video.poster}
+                alt=""
+                sizes={sizes}
+                width={1600}
+                height={900}
+              />
+            )}
             <button
               type="button"
               aria-label={playLabel}

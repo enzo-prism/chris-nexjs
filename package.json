@@ -30,6 +30,8 @@
     "test:images": "tsx scripts/image-audit.test.ts",
     "test:gallery": "tsx scripts/gallery-media.test.ts",
     "test:invisalign-media": "tsx --import ./scripts/preload-react.ts --test scripts/invisalign-media.test.ts",
+    "test:invisalign-media:e2e": "playwright test -c playwright.invisalign-media.config.ts",
+    "test:invisalign-media:mutants": "node scripts/invisalign-media.mutants.mjs",
     "test:blog-index": "tsx scripts/blog-index.test.ts",
     "test:bundle": "node --test scripts/bundle-budget-lib.test.mjs && node scripts/bundle-budget.test.mjs",
     "perf:smoke": "node scripts/perf-smoke.mjs",

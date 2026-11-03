@@ -1,27 +1,36 @@
 import React, { type JSX } from "react";
+import dynamic from "next/dynamic";
 
 import {
+  isFixtureGraphic,
   resolveGraphicAlt,
-  type MediaGraphic,
-  type MediaVideo,
+  type RenderableGraphic,
+  type RenderableVideo,
 } from "@/pages/invisalignConsultMedia";
 import { Section } from "@/components/ds/Section";
 import { SectionHeading } from "@/components/ds/SectionHeading";
+import { InvisalignMediaFixtureImage } from "@/components/invisalign/InvisalignMediaFixtureImage";
 import {
   INVISALIGN_GRAPHIC_SIZES,
   INVISALIGN_VIDEO_SIZES,
   INVISALIGN_VIDEO_SIZES_SINGLE,
   InvisalignMediaImage,
 } from "@/components/invisalign/InvisalignMediaImage";
-import { InvisalignMediaVideo } from "@/components/invisalign/InvisalignMediaVideo";
 import { cn } from "@/lib/utils";
+
+const InvisalignMediaVideoCards = dynamic(
+  () =>
+    import("@/components/invisalign/InvisalignMediaVideoCards").then(
+      (module) => module.InvisalignMediaVideoCards,
+    ),
+);
 
 export function InvisalignMediaSection({
   videos,
   graphics,
 }: {
-  readonly videos: readonly MediaVideo[];
-  readonly graphics: readonly MediaGraphic[];
+  readonly videos: readonly RenderableVideo[];
+  readonly graphics: readonly RenderableGraphic[];
 }): JSX.Element | null {
   if (videos.length === 0 && graphics.length === 0) {
     return null;
@@ -51,9 +60,7 @@ export function InvisalignMediaSection({
             videos.length === 1 ? "max-w-3xl" : "grid gap-4 lg:grid-cols-2",
           )}
         >
-          {videos.map((video) => (
-            <InvisalignMediaVideo key={video.id} video={video} sizes={videoSizes} />
-          ))}
+          <InvisalignMediaVideoCards videos={videos} sizes={videoSizes} />
         </div>
       ) : null}
 
@@ -70,16 +77,27 @@ export function InvisalignMediaSection({
             <li key={graphic.id} className="card overflow-hidden">
               <figure>
                 <div className="relative aspect-square bg-cream-200">
-                  <InvisalignMediaImage
-                    src={graphic.src}
-                    alt={resolveGraphicAlt(graphic)}
-                    sizes={INVISALIGN_GRAPHIC_SIZES}
-                    width={graphic.width}
-                    height={graphic.height}
-                    fit={graphic.contain ? "contain" : "cover"}
-                  />
+                  {isFixtureGraphic(graphic) ? (
+                    <InvisalignMediaFixtureImage
+                      src={graphic.src}
+                      alt={resolveGraphicAlt(graphic)}
+                      sizes={INVISALIGN_GRAPHIC_SIZES}
+                      width={graphic.width}
+                      height={graphic.height}
+                      fit={graphic.contain ? "contain" : "cover"}
+                    />
+                  ) : (
+                    <InvisalignMediaImage
+                      src={graphic.src}
+                      alt={resolveGraphicAlt(graphic)}
+                      sizes={INVISALIGN_GRAPHIC_SIZES}
+                      width={graphic.width}
+                      height={graphic.height}
+                      fit={graphic.contain ? "contain" : "cover"}
+                    />
+                  )}
                 </div>
-                {graphic.caption ? (
+                {graphic.caption?.trim() ? (
                   <figcaption className="px-4 py-4 text-[13px] leading-5 text-ink-soft sm:px-5 sm:text-[15px] sm:leading-6">
                     {graphic.caption}
                   </figcaption>
