@@ -1,7 +1,8 @@
 import { execSync } from "node:child_process";
-import { mkdtempSync } from "node:fs";
+import { mkdtempSync, realpathSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { killChromeForUserDataDir } from "./lighthouse-chrome.mjs";
 
@@ -128,8 +129,11 @@ function isChromeLaunchFlake(error) {
   return /waiting for dynamic debugging port/i.test(message);
 }
 
-async function runLighthouseOnce(url) {
-  const userDataDir = mkdtempSync(join(tmpdir(), "lighthouse-cw-"));
+export async function runLighthouseOnce(url, options = {}) {
+  const userDataDir =
+    options.userDataDir ?? mkdtempSync(join(tmpdir(), "lighthouse-cw-"));
+  const runCommand = options.execSync ?? execSync;
+  const cleanup = options.cleanup ?? killChromeForUserDataDir;
   const command = [
     "npx --yes lighthouse",
     url,
@@ -142,14 +146,14 @@ async function runLighthouseOnce(url) {
   ].join(" ");
 
   try {
-    const stdout = execSync(command, {
+    const stdout = runCommand(command, {
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
       maxBuffer: 16 * 1024 * 1024,
     });
     return JSON.parse(stdout);
   } finally {
-    await killChromeForUserDataDir(userDataDir);
+    await cleanup(userDataDir);
   }
 }
 
@@ -311,7 +315,19 @@ async function main() {
   console.log("\nLighthouse budget passed.");
 }
 
-main().catch((error) => {
-  console.error("Lighthouse budget failed:", error);
-  process.exit(1);
-});
+function isMainModule() {
+  const entry = process.argv[1];
+  if (!entry) return false;
+  try {
+    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(entry);
+  } catch {
+    return false;
+  }
+}
+
+if (isMainModule()) {
+  main().catch((error) => {
+    console.error("Lighthouse budget failed:", error);
+    process.exit(1);
+  });
+}
