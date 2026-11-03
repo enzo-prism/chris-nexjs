@@ -241,8 +241,63 @@ export const fileCloudinary: MediaVideo = {
   kind: "file",
   id: "file-cloudinary",
   title: "Cloudinary",
-  src: "https://res.cloudinary.com/demo/video/upload/demo.mp4",
-  poster: "https://res.cloudinary.com/demo/image/upload/demo.jpg",
-  captions: "https://res.cloudinary.com/demo/raw/upload/demo.vtt",
+  src: "https://res.cloudinary.com/dhqpqfw6w/video/upload/demo.mp4",
+  poster: "https://res.cloudinary.com/dhqpqfw6w/image/upload/demo.jpg",
+  captions: "https://res.cloudinary.com/dhqpqfw6w/raw/upload/demo.vtt",
   durationLabel: "0:12",
+};
+
+export const fileWwwAbsolute: MediaVideo = {
+  kind: "file",
+  id: "file-www-absolute",
+  title: "WWW absolute",
+  // @ts-expect-error absolute www hosts are not next/image remotePatterns
+  src: productionMediaSrc("https://www.chriswongdds.com/media/invisalign/demo.mp4"),
+  poster: "/media/invisalign/demo.jpg",
+  captions: "/media/invisalign/demo.vtt",
+  durationLabel: "0:10",
+};
+
+export const fileApexAbsolute: MediaVideo = {
+  kind: "file",
+  id: "file-apex-absolute",
+  title: "Apex absolute",
+  // @ts-expect-error absolute apex hosts are not next/image remotePatterns
+  src: productionMediaSrc("https://chriswongdds.com/media/invisalign/demo.mp4"),
+  poster: "/media/invisalign/demo.jpg",
+  captions: "/media/invisalign/demo.vtt",
+  durationLabel: "0:10",
+};
+
+export const fileCloudinaryDemo: MediaVideo = {
+  kind: "file",
+  id: "file-cloudinary-demo",
+  title: "Cloudinary demo cloud",
+  // @ts-expect-error only the practice Cloudinary cloud is allowed
+  src: productionMediaSrc("https://res.cloudinary.com/demo/video/upload/demo.mp4"),
+  poster: "/media/invisalign/demo.jpg",
+  captions: "/media/invisalign/demo.vtt",
+  durationLabel: "0:10",
+};
+
+export const fileEvilCloudinary: MediaVideo = {
+  kind: "file",
+  id: "file-evilcloudinary",
+  title: "Evil cloudinary host",
+  // @ts-expect-error suffix hosts are not an exact Cloudinary match
+  src: productionMediaSrc("https://evilcloudinary.com/dhqpqfw6w/video/upload/demo.mp4"),
+  poster: "/media/invisalign/demo.jpg",
+  captions: "/media/invisalign/demo.vtt",
+  durationLabel: "0:10",
+};
+
+export const fileCloudinaryPort: MediaVideo = {
+  kind: "file",
+  id: "file-cloudinary-port",
+  title: "Cloudinary port",
+  // @ts-expect-error non-default ports are not a trusted media src
+  src: productionMediaSrc("https://res.cloudinary.com:8443/dhqpqfw6w/video/upload/demo.mp4"),
+  poster: "/media/invisalign/demo.jpg",
+  captions: "/media/invisalign/demo.vtt",
+  durationLabel: "0:10",
 };

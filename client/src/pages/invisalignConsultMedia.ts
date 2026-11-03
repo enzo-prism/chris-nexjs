@@ -3,16 +3,14 @@ import {
   INVISALIGN_CONSULT_VIDEOS as DATA_VIDEOS,
 } from "./invisalignConsultMedia.data";
 
-export type ProductionMediaSrc =
-  | `/${string}`
-  | `https://www.chriswongdds.com/${string}`
-  | `https://chriswongdds.com/${string}`
-  | `https://res.cloudinary.com/${string}`;
+export const CLOUDINARY_HOST = "res.cloudinary.com";
+export const CLOUDINARY_CLOUD = "dhqpqfw6w";
 
-type AllowlistedHttpsSrc =
-  | `https://www.chriswongdds.com/${string}`
-  | `https://chriswongdds.com/${string}`
-  | `https://res.cloudinary.com/${string}`;
+type CloudinaryMediaSrc = `https://${typeof CLOUDINARY_HOST}/${typeof CLOUDINARY_CLOUD}/${string}`;
+
+export type ProductionMediaSrc = `/${string}` | CloudinaryMediaSrc;
+
+type AllowlistedHttpsSrc = CloudinaryMediaSrc;
 
 export type RejectUnsafeProductionSrc<T extends string> = T extends
   | `${string}\\${string}`
@@ -95,14 +93,11 @@ export type RenderableVideo = MediaVideo | FixtureMediaVideo;
 export type RenderableGraphic = MediaGraphic | FixtureMediaGraphic;
 
 const SITE_ORIGIN = "https://www.chriswongdds.com";
+const SITE_HOSTNAME = new URL(SITE_ORIGIN).hostname;
 const YOUTUBE_PRIVACY_HOST = "www.youtube-nocookie.com";
 const VIMEO_PRIVACY_HOST = "player.vimeo.com";
 
-export const PRODUCTION_MEDIA_HOSTS = [
-  "www.chriswongdds.com",
-  "chriswongdds.com",
-  "res.cloudinary.com",
-] as const;
+export const PRODUCTION_MEDIA_HOSTS = [CLOUDINARY_HOST] as const;
 
 const PRODUCTION_MEDIA_HOST_SET: ReadonlySet<string> = new Set(
   PRODUCTION_MEDIA_HOSTS,
@@ -124,6 +119,23 @@ function parseAbsoluteUrl(src: string): URL | null {
 
 function hasForbiddenSrcChars(src: string): boolean {
   return UNSAFE_SRC_CHARS.test(src);
+}
+
+function isSameOriginPath(src: string): boolean {
+  return src.startsWith("/") && !src.startsWith("//");
+}
+
+function hasNonDefaultPort(url: URL): boolean {
+  return url.port !== "" && url.port !== "443";
+}
+
+function assertCloudinaryCloud(url: URL, label: string): void {
+  if (url.hostname !== CLOUDINARY_HOST) {
+    return;
+  }
+  if (!url.pathname.startsWith(`/${CLOUDINARY_CLOUD}/`)) {
+    throw new Error(`${label} must use the practice Cloudinary cloud`);
+  }
 }
 
 function hostnameLooksLikeEmbed(hostname: string): boolean {
@@ -176,14 +188,24 @@ export function parseMediaUrl(src: string, label: string): URL {
   if (url.username || url.password) {
     throw new Error(`${label} cannot include userinfo`);
   }
+  if (hasNonDefaultPort(url)) {
+    throw new Error(`${label} cannot use a non-default port`);
+  }
   return url;
 }
 
 export function parseTrustedMediaUrl(src: string, label: string): URL {
   const url = parseMediaUrl(src, label);
+  if (isSameOriginPath(src.trim())) {
+    if (url.hostname !== SITE_HOSTNAME) {
+      throw new Error(`${label} must stay on the site origin`);
+    }
+    return url;
+  }
   if (!PRODUCTION_MEDIA_HOST_SET.has(url.hostname)) {
     throw new Error(`${label} must use an allowlisted host`);
   }
+  assertCloudinaryCloud(url, label);
   return url;
 }
 
@@ -201,12 +223,9 @@ export function assertProductionSrc(
   label: string,
   options: { readonly allowEmbedHosts?: boolean } = {},
 ): URL {
-  const url = parseMediaUrl(src, label);
+  const url = parseTrustedMediaUrl(src, label);
   if (!options.allowEmbedHosts && hostnameLooksLikeEmbed(url.hostname)) {
     throw new Error(`${label} cannot use an embed host on a file asset`);
-  }
-  if (!PRODUCTION_MEDIA_HOST_SET.has(url.hostname)) {
-    throw new Error(`${label} must use an allowlisted host`);
   }
   return url;
 }
@@ -226,6 +245,9 @@ export function assertPrivacyEmbedSrc(src: string, label: string): URL {
   }
   if (url.username || url.password) {
     throw new Error(`${label} cannot include userinfo`);
+  }
+  if (hasNonDefaultPort(url)) {
+    throw new Error(`${label} cannot use a non-default port`);
   }
   if (url.hostname === YOUTUBE_PRIVACY_HOST) {
     return url;

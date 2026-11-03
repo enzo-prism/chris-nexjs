@@ -8,6 +8,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { InvisalignMediaImage } from "../client/src/components/invisalign/InvisalignMediaImage";
 import { InvisalignMediaSection } from "../client/src/components/invisalign/InvisalignMediaSection";
 import { InvisalignMediaVideo } from "../client/src/components/invisalign/InvisalignMediaVideo";
+import nextConfig from "../next.config.mjs";
 import {
   assertPrivacyEmbedSrc,
   assertProductionGraphic,
@@ -15,8 +16,11 @@ import {
   assertProductionSrc,
   assertProductionVideo,
   assertProductionVideos,
+  CLOUDINARY_CLOUD,
+  CLOUDINARY_HOST,
   INVISALIGN_CONSULT_GRAPHICS,
   INVISALIGN_CONSULT_VIDEOS,
+  PRODUCTION_MEDIA_HOSTS,
   productionMediaValidation,
   resolveGraphicAlt,
   videoHasAvailableCaptions,
@@ -245,12 +249,124 @@ describe("invisalign consult media data", () => {
     assert.doesNotThrow(() =>
       assertProductionVideo(
         fileVideo({
-          src: "https://res.cloudinary.com/demo/video/upload/demo.mp4",
-          poster: "https://res.cloudinary.com/demo/image/upload/demo.jpg",
-          captions: "https://res.cloudinary.com/demo/raw/upload/demo.vtt",
+          src: `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/video/upload/demo.mp4`,
+          poster: `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/demo.jpg`,
+          captions: `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/raw/upload/demo.vtt`,
         }),
       ),
     );
+    assert.throws(
+      () =>
+        assertProductionSrc(
+          "https://res.cloudinary.com/demo/video/upload/demo.mp4",
+          "demo-cloud",
+        ),
+      /practice Cloudinary cloud/,
+    );
+    assert.throws(
+      () =>
+        assertProductionSrc(
+          "https://www.chriswongdds.com/media/invisalign/demo.mp4",
+          "www-absolute",
+        ),
+      /allowlisted host/,
+    );
+    assert.throws(
+      () =>
+        assertProductionSrc(
+          "https://chriswongdds.com/media/invisalign/demo.mp4",
+          "apex-absolute",
+        ),
+      /allowlisted host/,
+    );
+    assert.throws(
+      () =>
+        assertProductionSrc(
+          `https://res.cloudinary.com:8443/${CLOUDINARY_CLOUD}/video/upload/demo.mp4`,
+          "cloudinary-port",
+        ),
+      /non-default port/,
+    );
+    assert.throws(
+      () =>
+        assertPrivacyEmbedSrc(
+          "https://www.youtube-nocookie.com:8443/embed/abc123",
+          "embed-port",
+        ),
+      /non-default port/,
+    );
+  });
+
+  it("rejects evilcloudinary.com with an exact host match (A10)", () => {
+    assert.throws(
+      () =>
+        assertProductionSrc(
+          `https://evilcloudinary.com/${CLOUDINARY_CLOUD}/image/upload/x.jpg`,
+          "evilcloudinary",
+        ),
+      /allowlisted host/,
+    );
+    assert.throws(
+      () =>
+        assertProductionSrc(
+          `https://res.cloudinary.com.evil.com/${CLOUDINARY_CLOUD}/image/upload/x.jpg`,
+          "cloudinary-suffix",
+        ),
+      /allowlisted host/,
+    );
+    assert.doesNotThrow(() =>
+      assertProductionSrc(
+        `https://${CLOUDINARY_HOST}/${CLOUDINARY_CLOUD}/image/upload/x.jpg`,
+        "practice-cloudinary",
+      ),
+    );
+    assert.equal(
+      PRODUCTION_MEDIA_HOSTS.includes("evilcloudinary.com" as never),
+      false,
+    );
+    assert.equal(
+      "evilcloudinary.com".endsWith("cloudinary.com"),
+      true,
+      "A10 seed: endsWith would accept evilcloudinary.com",
+    );
+  });
+
+  it("keeps PRODUCTION_MEDIA_HOSTS in lockstep with next/image remotePatterns", () => {
+    const remotePatterns = nextConfig.images.remotePatterns;
+    assert.ok(Array.isArray(remotePatterns));
+    const remoteHosts = [...new Set(remotePatterns.map((pattern) => pattern.hostname))].sort();
+    assert.deepEqual([...PRODUCTION_MEDIA_HOSTS].sort(), remoteHosts);
+    assert.deepEqual([...PRODUCTION_MEDIA_HOSTS], [CLOUDINARY_HOST]);
+    for (const pattern of remotePatterns) {
+      assert.equal(pattern.protocol, "https");
+      if (pattern.hostname === CLOUDINARY_HOST) {
+        assert.equal(pattern.pathname, `/${CLOUDINARY_CLOUD}/**`);
+      }
+    }
+  });
+
+  it("rejects off-allowlist posters on file and embed videos (A13/A14)", () => {
+    assert.throws(
+      () =>
+        assertProductionVideo(
+          fileVideo({ poster: "https://evil.example/poster.jpg" }),
+        ),
+      /allowlisted host/,
+    );
+    assert.throws(
+      () =>
+        assertProductionVideo(
+          embedVideo({ poster: "https://evil.example/poster.jpg" }),
+        ),
+      /allowlisted host/,
+    );
+    const mediaModule = readFileSync(
+      "client/src/pages/invisalignConsultMedia.ts",
+      "utf8",
+    );
+    assert.match(mediaModule, /assertProductionSrc\(video\.poster/);
+    assert.match(mediaModule, /assertProductionVideos\(INVISALIGN_CONSULT_VIDEOS\)/);
+    assert.match(mediaModule, /assertProductionGraphics\(INVISALIGN_CONSULT_GRAPHICS\)/);
   });
 
   it("fails http, empty, blob, and lookalike-host file sources", () => {
@@ -276,7 +392,7 @@ describe("invisalign consult media data", () => {
           "https://youtube-nocookie.com.evil.com/video.mp4",
           "lookalike file",
         ),
-      /cannot use an embed host/,
+      /allowlisted host|cannot use an embed host/,
     );
     assert.throws(
       () =>
@@ -285,7 +401,7 @@ describe("invisalign consult media data", () => {
             src: "https://youtube-nocookie.com.evil.com/video.mp4",
           }),
         ),
-      /cannot use an embed host/,
+      /allowlisted host|cannot use an embed host/,
     );
   });
 
@@ -652,7 +768,7 @@ describe("InvisalignMediaVideo facade", () => {
     assert.equal(
       videoHasAvailableCaptions(
         fileVideo({
-          captions: "https://res.cloudinary.com/demo/raw/upload/demo.vtt",
+          captions: `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/raw/upload/demo.vtt`,
         }),
       ),
       true,
@@ -712,6 +828,30 @@ describe("fixture and production exclusion", () => {
         `${file} must not import the fixture image path`,
       );
     }
+  });
+
+  it("keeps the slot gated on the literal HAS_MEDIA switch (B2)", () => {
+    const data = readFileSync(
+      "client/src/pages/invisalignConsultMedia.data.ts",
+      "utf8",
+    );
+    assert.match(data, /export const INVISALIGN_CONSULT_HAS_MEDIA = false;/);
+    assert.doesNotMatch(data, /INVISALIGN_CONSULT_HAS_MEDIA\s*=\s*DATA_/);
+    assert.equal(INVISALIGN_CONSULT_HAS_MEDIA, false);
+
+    const slot = readFileSync(
+      "client/src/pages/invisalignConsultMedia.slot.tsx",
+      "utf8",
+    );
+    assert.match(
+      slot,
+      /if \(!INVISALIGN_CONSULT_HAS_MEDIA\) \{\s*return null;/,
+    );
+
+    const consult = readFileSync("client/src/pages/InvisalignConsult.tsx", "utf8");
+    assert.doesNotMatch(consult, /ConsultMediaSlot/);
+    assert.doesNotMatch(consult, /invisalignConsultMedia\.slot/);
+    assert.doesNotMatch(consult, /InvisalignMediaSection/);
   });
 
   it("keeps the video island out of the consult page module graph until media exists", () => {
