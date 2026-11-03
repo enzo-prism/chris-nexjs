@@ -1,18 +1,28 @@
 import assert from "node:assert/strict";
-import { describe, it } from "node:test";
+import { readFileSync } from "node:fs";
+import { beforeEach, describe, it } from "node:test";
+import { fileURLToPath } from "node:url";
 
 import {
+  clearGoogleReviewStatsNegativeCache,
   displayedAggregateRating,
   fallbackGoogleReviewSnapshot,
-  getResolvedGoogleReviewStats,
+  GOOGLE_PLACES_API_KEY_ENV,
+  GOOGLE_PLACES_FIELD_MASK,
+  GOOGLE_REVIEW_STATS_NEGATIVE_REVALIDATE_SECONDS,
+  GOOGLE_REVIEW_STATS_REVALIDATE_SECONDS,
   googleReviewStatsCacheKey,
+  googleReviewStatsNegativeCacheKey,
   isUsableRating,
   isUsableReviewCount,
   loadGoogleReviewStats,
   parsePlacesReviewFields,
   placesDetailsUrl,
+  readGooglePlacesApiKey,
+  readGoogleReviewStatsNegativeCache,
   resolveGoogleReviewStats,
   withPublishedReviewCount,
+  writeGoogleReviewStatsNegativeCache,
 } from "../shared/googlePlaceReviews";
 import { getGoogleReviewStats } from "../server/googlePlaceReviews";
 import {
@@ -287,12 +297,83 @@ describe("loadGoogleReviewStats fallback path", () => {
   });
 });
 
+describe("Places request contract", () => {
+  it("keeps the field mask exactly rating,userRatingCount", async () => {
+    assert.equal(GOOGLE_PLACES_FIELD_MASK, "rating,userRatingCount");
+    assert.doesNotMatch(GOOGLE_PLACES_FIELD_MASK, /reviews/i);
+    assert.deepEqual(GOOGLE_PLACES_FIELD_MASK.split(","), ["rating", "userRatingCount"]);
+
+    let fieldMask: string | null = null;
+    await loadGoogleReviewStats({
+      apiKey: "test-key",
+      placeId: officeInfo.googlePlaceId,
+      now: NOW,
+      fetchImpl: async (_input, init) => {
+        fieldMask = new Headers(init?.headers).get("X-Goog-FieldMask");
+        return jsonResponse({ rating: 5, userRatingCount: 405 });
+      },
+    });
+    assert.equal(fieldMask, "rating,userRatingCount");
+    assert.doesNotMatch(fieldMask ?? "", /reviews/i);
+  });
+
+  it("does not read the Places key from a NEXT_PUBLIC_ env var", () => {
+    assert.equal(GOOGLE_PLACES_API_KEY_ENV, "GOOGLE_PLACES_API_KEY");
+    assert.ok(!GOOGLE_PLACES_API_KEY_ENV.startsWith("NEXT_PUBLIC_"));
+    assert.equal(
+      readGooglePlacesApiKey({
+        NEXT_PUBLIC_GOOGLE_PLACES_API_KEY: "should-not-be-read",
+      }),
+      null,
+    );
+    assert.equal(
+      readGooglePlacesApiKey({
+        NEXT_PUBLIC_GOOGLE_PLACES_API_KEY: "should-not-be-read",
+        GOOGLE_PLACES_API_KEY: "  test-key  ",
+      }),
+      "test-key",
+    );
+  });
+
+  it("marks both Places modules as server-only", () => {
+    const shared = readFileSync(
+      fileURLToPath(new URL("../shared/googlePlaceReviews.ts", import.meta.url)),
+      "utf8",
+    );
+    const server = readFileSync(
+      fileURLToPath(new URL("../server/googlePlaceReviews.ts", import.meta.url)),
+      "utf8",
+    );
+    assert.match(shared, /^import ["']server-only["'];/m);
+    assert.match(server, /^import ["']server-only["'];/m);
+  });
+});
+
 describe("server wrapper cache policy", () => {
+  beforeEach(() => {
+    clearGoogleReviewStatsNegativeCache();
+  });
+
   it("includes the place ID in the live cache key", () => {
     assert.deepEqual(googleReviewStatsCacheKey("ChIJ-test"), [
       "google-place-review-stats",
       "ChIJ-test",
     ]);
+  });
+
+  it("keeps the miss cache on a separate key and a 5-minute window", () => {
+    assert.deepEqual(googleReviewStatsNegativeCacheKey("ChIJ-test"), [
+      "google-place-review-stats-miss",
+      "ChIJ-test",
+    ]);
+    assert.notDeepEqual(
+      googleReviewStatsNegativeCacheKey("ChIJ-test"),
+      googleReviewStatsCacheKey("ChIJ-test"),
+    );
+    assert.equal(GOOGLE_REVIEW_STATS_NEGATIVE_REVALIDATE_SECONDS, 300);
+    assert.ok(
+      GOOGLE_REVIEW_STATS_NEGATIVE_REVALIDATE_SECONDS < GOOGLE_REVIEW_STATS_REVALIDATE_SECONDS,
+    );
   });
 
   it("does not write a fallback into the live cache", async () => {
@@ -308,6 +389,63 @@ describe("server wrapper cache policy", () => {
     assert.equal(stats.source, "fallback");
     assert.equal(stats.reviewCount, GOOGLE_REVIEW_COUNT);
     assert.deepEqual(writes, []);
+  });
+
+  it("remembers a Places miss for five minutes without storing fallback as live data", async () => {
+    clearGoogleReviewStatsNegativeCache();
+    let loads = 0;
+    const liveWrites: Array<{ readonly source: string }> = [];
+
+    const first = await getGoogleReviewStats({
+      apiKey: "test-key",
+      placeId: officeInfo.googlePlaceId,
+      load: async () => {
+        loads += 1;
+        return fallbackGoogleReviewSnapshot();
+      },
+      writeLiveCache: (_placeId, stats) => {
+        liveWrites.push(stats);
+      },
+    });
+    assert.equal(first.source, "fallback");
+    assert.equal(loads, 1);
+    assert.deepEqual(liveWrites, []);
+    assert.equal(readGoogleReviewStatsNegativeCache(officeInfo.googlePlaceId), true);
+
+    const second = await getGoogleReviewStats({
+      apiKey: "test-key",
+      placeId: officeInfo.googlePlaceId,
+      load: async () => {
+        loads += 1;
+        return fallbackGoogleReviewSnapshot();
+      },
+      writeLiveCache: (_placeId, stats) => {
+        liveWrites.push(stats);
+      },
+    });
+    assert.equal(second.source, "fallback");
+    assert.equal(loads, 1, "a recent miss must not re-hit Places");
+    assert.deepEqual(liveWrites, []);
+
+    writeGoogleReviewStatsNegativeCache(
+      officeInfo.googlePlaceId,
+      Date.now() - (GOOGLE_REVIEW_STATS_NEGATIVE_REVALIDATE_SECONDS * 1_000 + 1),
+    );
+    const third = await getGoogleReviewStats({
+      apiKey: "test-key",
+      placeId: officeInfo.googlePlaceId,
+      load: async () => {
+        loads += 1;
+        return fallbackGoogleReviewSnapshot();
+      },
+      writeLiveCache: (_placeId, stats) => {
+        liveWrites.push(stats);
+      },
+    });
+    assert.equal(third.source, "fallback");
+    assert.equal(loads, 2, "an expired miss must retry Places");
+    assert.deepEqual(liveWrites, []);
+    clearGoogleReviewStatsNegativeCache();
   });
 
   it("caches only a successful live snapshot, keyed by place ID", async () => {

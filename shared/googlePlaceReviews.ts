@@ -1,3 +1,5 @@
+import "server-only";
+
 import { getOfficeTodayISO, officeInfo } from "./officeInfo";
 import {
   fallbackGoogleReviewStats,
@@ -15,14 +17,53 @@ export type { GoogleReviewStats, PublishedReviewStats, ReviewStatsSource } from 
 export const GOOGLE_PLACES_API_KEY_ENV = "GOOGLE_PLACES_API_KEY";
 export const GOOGLE_PLACE_ID_ENV = "GOOGLE_PLACE_ID";
 
+/** Places API (New) field mask. Never request `reviews` or other PII fields. */
+export const GOOGLE_PLACES_FIELD_MASK = "rating,userRatingCount";
+
 /** Daily window for a successful live Places read. */
 export const GOOGLE_REVIEW_STATS_REVALIDATE_SECONDS = 86_400;
+
+/** Short process-local window after a Places miss so SSR does not re-hang. */
+export const GOOGLE_REVIEW_STATS_NEGATIVE_REVALIDATE_SECONDS = 300;
 
 /** Abort a hung Places request so SSR/build cannot stall. */
 export const GOOGLE_PLACES_FETCH_TIMEOUT_MS = 4_000;
 
 export function googleReviewStatsCacheKey(placeId: string): string[] {
   return ["google-place-review-stats", placeId];
+}
+
+export function googleReviewStatsNegativeCacheKey(placeId: string): string[] {
+  return ["google-place-review-stats-miss", placeId];
+}
+
+const negativeCacheUntil = new Map<string, number>();
+
+export function readGoogleReviewStatsNegativeCache(
+  placeId: string,
+  nowMs: number = Date.now(),
+): boolean {
+  const expiresAt = negativeCacheUntil.get(placeId);
+  if (expiresAt === undefined) return false;
+  if (expiresAt <= nowMs) {
+    negativeCacheUntil.delete(placeId);
+    return false;
+  }
+  return true;
+}
+
+export function writeGoogleReviewStatsNegativeCache(
+  placeId: string,
+  nowMs: number = Date.now(),
+): void {
+  negativeCacheUntil.set(
+    placeId,
+    nowMs + GOOGLE_REVIEW_STATS_NEGATIVE_REVALIDATE_SECONDS * 1_000,
+  );
+}
+
+export function clearGoogleReviewStatsNegativeCache(): void {
+  negativeCacheUntil.clear();
 }
 
 type PlacesLiveFields = {
@@ -169,7 +210,7 @@ export async function loadGoogleReviewStats(
           method: "GET",
           headers: {
             "X-Goog-Api-Key": apiKey,
-            "X-Goog-FieldMask": "rating,userRatingCount",
+            "X-Goog-FieldMask": GOOGLE_PLACES_FIELD_MASK,
             Accept: "application/json",
           },
           // Cache only the validated snapshot in the server wrapper. Next's
@@ -213,12 +254,15 @@ export type ResolveGoogleReviewStatsDeps = {
   readonly load?: (options: LoadGoogleReviewStatsOptions) => Promise<GoogleReviewStats>;
   readonly readLiveCache?: (placeId: string) => Promise<GoogleReviewStats | null>;
   readonly writeLiveCache?: (placeId: string, stats: GoogleReviewStats) => Promise<void> | void;
+  readonly readNegativeCache?: (placeId: string) => Promise<boolean> | boolean;
+  readonly writeNegativeCache?: (placeId: string) => Promise<void> | void;
   readonly now?: Date;
 };
 
 /**
  * Resolve live-or-fallback stats. Only successful live snapshots are written
- * to cache; fallbacks are returned immediately and never pinned.
+ * to the 24h cache. Misses go to a short negative cache so the next request
+ * does not re-hit Places; fallback is never stored as live data.
  */
 export async function getResolvedGoogleReviewStats(
   deps: ResolveGoogleReviewStatsDeps = {},
@@ -226,8 +270,14 @@ export async function getResolvedGoogleReviewStats(
   const placeId = (deps.placeId ?? defaultGooglePlaceId()).trim();
   const apiKey = deps.apiKey === undefined ? readGooglePlacesApiKey() : deps.apiKey;
   const load = deps.load ?? loadGoogleReviewStats;
+  const readNegative = deps.readNegativeCache ?? readGoogleReviewStatsNegativeCache;
+  const writeNegative = deps.writeNegativeCache ?? writeGoogleReviewStatsNegativeCache;
 
   if (!apiKey || !placeId) {
+    return withPublishedReviewCount(fallbackGoogleReviewSnapshot());
+  }
+
+  if (await readNegative(placeId)) {
     return withPublishedReviewCount(fallbackGoogleReviewSnapshot());
   }
 
@@ -241,6 +291,8 @@ export async function getResolvedGoogleReviewStats(
   );
   if (stats.source === "live" && deps.writeLiveCache) {
     await deps.writeLiveCache(placeId, stats);
+  } else if (stats.source === "fallback") {
+    await writeNegative(placeId);
   }
   return withPublishedReviewCount(stats);
 }
