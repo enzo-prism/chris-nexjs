@@ -1,7 +1,9 @@
 import { execSync } from "node:child_process";
-import { readdirSync, rmSync, statSync } from "node:fs";
+import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+
+import { killChromeForUserDataDir } from "./lighthouse-chrome.mjs";
 
 const DEFAULT_CHROME_FLAGS =
   "--headless --no-sandbox --disable-dev-shm-usage";
@@ -126,111 +128,12 @@ function isChromeLaunchFlake(error) {
   return /waiting for dynamic debugging port/i.test(message);
 }
 
-function listProcessLines() {
-  try {
-    return execSync("ps -eo pid=,args=", { encoding: "utf8" }).split("\n");
-  } catch {
-    return [];
-  }
-}
-
-function pidFromPsLine(line) {
-  const pid = Number.parseInt(line.trim().split(/\s+/, 1)[0] ?? "", 10);
-  if (!Number.isInteger(pid) || pid <= 1 || pid === process.pid) return null;
-  return pid;
-}
-
-function listLighthouseUserDataDirs() {
-  const tmp = tmpdir();
-  try {
-    return new Set(
-      readdirSync(tmp)
-        .filter((name) => name.startsWith("lighthouse."))
-        .map((name) => join(tmp, name))
-        .filter((absolutePath) => {
-          try {
-            return statSync(absolutePath).isDirectory();
-          } catch {
-            return false;
-          }
-        }),
-    );
-  } catch {
-    return new Set();
-  }
-}
-
-function listChromePidsForUserDataDirs(dirs) {
-  const pids = new Set();
-  if (dirs.size === 0) return pids;
-  for (const line of listProcessLines()) {
-    if (!/chrom/i.test(line)) continue;
-    let matches = false;
-    for (const dir of dirs) {
-      if (line.includes(dir)) {
-        matches = true;
-        break;
-      }
-    }
-    if (!matches) continue;
-    const pid = pidFromPsLine(line);
-    if (pid) pids.add(pid);
-  }
-  return pids;
-}
-
-function listLighthouseChromePids() {
-  const pids = new Set();
-  for (const line of listProcessLines()) {
-    if (!/chrom/i.test(line)) continue;
-    if (!/lighthouse\./i.test(line)) continue;
-    const pid = pidFromPsLine(line);
-    if (pid) pids.add(pid);
-  }
-  return pids;
-}
-
-function killPids(pids) {
-  for (const pid of pids) {
-    try {
-      process.kill(pid, "SIGTERM");
-    } catch {
-      // Chrome already exited.
-    }
-  }
-}
-
-function snapshotLaunchedChrome() {
-  return {
-    pids: listLighthouseChromePids(),
-    dirs: listLighthouseUserDataDirs(),
-  };
-}
-
-function killLaunchedChrome(snapshot) {
-  if (!snapshot) return;
-  const currentPids = listLighthouseChromePids();
-  const createdPids = [...currentPids].filter((pid) => !snapshot.pids.has(pid));
-  const createdDirs = new Set(
-    [...listLighthouseUserDataDirs()].filter((dir) => !snapshot.dirs.has(dir)),
-  );
-  killPids(createdPids);
-  killPids(listChromePidsForUserDataDirs(createdDirs));
-  for (const dir of createdDirs) {
-    try {
-      rmSync(dir, { recursive: true, force: true });
-    } catch {
-      // Temp profile already gone.
-    }
-  }
-}
-
 function runLighthouseOnce(url) {
-  const snapshot = snapshotLaunchedChrome();
+  const userDataDir = mkdtempSync(join(tmpdir(), "lighthouse-cw-"));
   const command = [
     "npx --yes lighthouse",
     url,
-    `--chrome-flags='${DEFAULT_CHROME_FLAGS}'`,
+    `--chrome-flags='${DEFAULT_CHROME_FLAGS} --user-data-dir=${userDataDir}'`,
     "--only-categories=performance,seo",
     "--throttling-method=provided",
     "--output=json",
@@ -246,7 +149,7 @@ function runLighthouseOnce(url) {
     });
     return JSON.parse(stdout);
   } finally {
-    killLaunchedChrome(snapshot);
+    killChromeForUserDataDir(userDataDir);
   }
 }
 
