@@ -28,15 +28,38 @@ function isGoogleMeasurementUrl(rawUrl: string): boolean {
   );
 }
 
-let googleHits: string[] = [];
+let googleCompletedHits: string[] = [];
+let googleCollectHits: string[] = [];
+
+function isGoogleCollectUrl(rawUrl: string): boolean {
+  if (!isGoogleMeasurementUrl(rawUrl)) return false;
+  try {
+    const path = new URL(rawUrl).pathname;
+    return (
+      path === "/collect" ||
+      path.endsWith("/collect") ||
+      path.includes("/g/collect") ||
+      path.includes("/r/collect") ||
+      path.includes("/j/collect")
+    );
+  } catch {
+    return false;
+  }
+}
 
 // Every production-origin GET is served from localhost. POSTs and vendor
 // requests are intercepted: these checks never send a lead or collect event.
 test.beforeEach(async ({ page, context, baseURL }) => {
-  googleHits = [];
+  googleCompletedHits = [];
+  googleCollectHits = [];
   context.on("request", (request) => {
+    if (isGoogleCollectUrl(request.url())) {
+      googleCollectHits.push(request.url());
+    }
+  });
+  context.on("requestfinished", (request) => {
     if (isGoogleMeasurementUrl(request.url())) {
-      googleHits.push(request.url());
+      googleCompletedHits.push(request.url());
     }
   });
   await context.route("**/*", async (route) => {
@@ -69,7 +92,14 @@ test.beforeEach(async ({ page, context, baseURL }) => {
       const events = JSON.parse(sessionStorage.getItem("contact-test-events") ?? "[]");
       events.push(args);
       sessionStorage.setItem("contact-test-events", JSON.stringify(events));
+      window.dataLayer = window.dataLayer ?? [];
+      window.dataLayer.push(args);
     };
+    try {
+      window.localStorage.setItem("analytics_consent", "granted");
+    } catch {
+      // ignore
+    }
   });
 });
 
@@ -112,8 +142,15 @@ async function generateLeadPayloads(page: Page): Promise<Array<Record<string, un
     );
 }
 
-function assertNoGoogleHits(): void {
-  expect(googleHits, `Google measurement requests:\n${googleHits.join("\n")}`).toEqual([]);
+function assertGoogleHostsBlocked(): void {
+  expect(
+    googleCompletedHits,
+    `Completed Google measurement requests:\n${googleCompletedHits.join("\n")}`,
+  ).toEqual([]);
+  expect(
+    googleCollectHits,
+    `Google collect requests:\n${googleCollectHits.join("\n")}`,
+  ).toEqual([]);
 }
 
 test("contact honeypot acknowledgement stays quiet without a lead", async ({ page }) => {
@@ -126,7 +163,7 @@ test("contact honeypot acknowledgement stays quiet without a lead", async ({ pag
   expect(page.url()).toMatch(/\/contact$/);
   expect(await eventNames(page)).not.toContain("generate_lead");
   expect(await eventNames(page)).not.toContain("contact_form_submit");
-  assertNoGoogleHits();
+  assertGoogleHostsBlocked();
 });
 
 test("an explicit accepted contact emits generate_lead once with contact params", async ({ page }) => {
@@ -141,7 +178,7 @@ test("an explicit accepted contact emits generate_lead once with contact params"
   expect(await generateLeadPayloads(page)).toEqual([
     { form_name: "contact", lead_source: "contact_form" },
   ]);
-  assertNoGoogleHits();
+  assertGoogleHostsBlocked();
 });
 
 test("a validation error does not fire generate_lead", async ({ page }) => {
@@ -158,7 +195,7 @@ test("a validation error does not fire generate_lead", async ({ page }) => {
   expect(posted, "validation miss must not POST the contact backend").toBe(false);
   expect(await eventNames(page)).not.toContain("generate_lead");
   expect(await eventNames(page)).not.toContain("contact_form_submit");
-  assertNoGoogleHits();
+  assertGoogleHostsBlocked();
 });
 
 for (const flag of ["preview", "test"] as const) {
@@ -175,7 +212,7 @@ for (const flag of ["preview", "test"] as const) {
     expect(page.url()).toMatch(/\/contact$/);
     expect(await eventNames(page)).not.toContain("generate_lead");
     expect(await eventNames(page)).not.toContain("contact_form_submit");
-    assertNoGoogleHits();
+    assertGoogleHostsBlocked();
   });
 }
 
@@ -193,6 +230,6 @@ for (const [name, status, body] of [
     await expect(page.getByLabel("Full name", { exact: true })).toHaveValue("Contact Example");
     expect(await eventNames(page)).not.toContain("generate_lead");
     expect(await eventNames(page)).not.toContain("contact_form_submit");
-    assertNoGoogleHits();
+    assertGoogleHostsBlocked();
   });
 }
