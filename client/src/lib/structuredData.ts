@@ -1,6 +1,9 @@
 import { doctorInfo, getOfficeTodayISO, officeInfo } from "@/lib/data";
 import type { TeamMember } from "@/data/team";
 import type { Service, Testimonial } from "@shared/schema";
+import { toPacificDateTime, unixSecondsToIsoDateTime } from "@shared/isoDateTime";
+
+export { toIsoDateString, toPacificDateTime } from "@shared/isoDateTime";
 
 export type FAQEntry = {
   question: string;
@@ -353,8 +356,16 @@ export const buildPersonSchema = () => ({
  * Render alongside buildTeamPersonSchemas(team) and the existing breadcrumb.
  */
 export const buildProfilePageSchema = (options?: {
-  /** ISO date the profile content last changed (e.g. the route's lastmod). */
+  /**
+   * ISO 8601 DateTime with an explicit offset or Z (e.g. 2026-10-28T00:00:00-07:00).
+   * A date-only lastmod is not valid here — Google reads this as DateTime.
+   */
   dateModified?: string;
+  /**
+   * ISO 8601 DateTime with an explicit offset or Z for when the profile
+   * was first published. Omit rather than emitting a date-only value.
+   */
+  datePublished?: string;
 }): StructuredDataNode => ({
   "@context": "https://schema.org",
   "@type": "ProfilePage",
@@ -363,6 +374,7 @@ export const buildProfilePageSchema = (options?: {
   name: "About Dr. Christopher B. Wong",
   inLanguage: "en-US",
   isPartOf: { "@id": WEBSITE_ID },
+  ...(options?.datePublished ? { datePublished: options.datePublished } : {}),
   ...(options?.dateModified ? { dateModified: options.dateModified } : {}),
   mainEntity: buildDrWongPersonNode(),
 });
@@ -592,12 +604,6 @@ export const buildLocationItemListSchema = (locations: CollectionPart[]) => {
   };
 };
 
-export const toIsoDateString = (value: string): string | null => {
-  const time = Date.parse(value);
-  if (Number.isNaN(time)) return null;
-  return new Date(time).toISOString().split("T")[0];
-};
-
 type BlogListPost = {
   title: string;
   slug: string;
@@ -611,12 +617,12 @@ export const buildBlogListSchemas = (
   if (!posts.length) return [];
   const items = posts.slice(0, limit);
   const postNodes = items.map((post) => {
-    const isoDate = toIsoDateString(post.date);
+    const published = toPacificDateTime(post.date);
     return {
       "@type": "BlogPosting",
       headline: post.title,
       url: absoluteUrl(`/blog/${post.slug}`),
-      ...(isoDate ? { datePublished: isoDate } : {}),
+      ...(published ? { datePublished: published } : {}),
     };
   });
 
@@ -696,9 +702,8 @@ type VideoMediaInput = {
   description: string;
   src: string;
   poster?: string;
-  // Explicit ISO date (yyyy-mm-dd, or a full ISO 8601 timestamp with offset)
-  // for self-hosted /videos/*.mp4 files, which carry no Cloudinary version
-  // segment to derive a date from.
+  // Explicit ISO 8601 DateTime with offset, or a date-only / named date that
+  // buildVideoObjectSchemas expands to midnight America/Los_Angeles.
   uploadDate?: string;
   /** ISO 8601 duration, e.g. "PT2M14S". */
   duration?: string;
@@ -716,7 +721,7 @@ type VideoMediaInput = {
 const extractCloudinaryUploadDate = (src: string): string | null => {
   const match = src.match(/\/v(\d{10})\//);
   if (!match) return null;
-  return new Date(Number(match[1]) * 1000).toISOString().split("T")[0];
+  return unixSecondsToIsoDateTime(Number(match[1]));
 };
 
 export const buildVideoObjectSchemas = (
@@ -724,8 +729,9 @@ export const buildVideoObjectSchemas = (
   pagePath: string,
 ): StructuredDataNode[] =>
   videos.map((video) => {
-    const uploadDate =
-      video.uploadDate ?? extractCloudinaryUploadDate(video.src);
+    const uploadDate = video.uploadDate
+      ? toPacificDateTime(video.uploadDate)
+      : extractCloudinaryUploadDate(video.src);
     return {
       "@context": "https://schema.org",
       "@type": "VideoObject",

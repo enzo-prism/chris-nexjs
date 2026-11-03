@@ -21,7 +21,7 @@ import { CtaBand } from "@/components/ds/CtaBand";
 import {
   absoluteUrl,
   buildBreadcrumbSchema,
-  toIsoDateString,
+  toPacificDateTime,
   type StructuredDataNode,
 } from "@/lib/structuredData";
 
@@ -355,15 +355,16 @@ const BlogPost = ({ params, initialPosts = [] }: BlogPostPageProps) => {
   const blogOgImage = getSeoForPath("/blog").ogImage;
   const pageUrl = absoluteUrl(`/blog/${slug}`);
   const resolvedBlogImage = resolveBlogImagePath(post);
-  const postIsoDate = toIsoDateString(post.date);
+  const postIsoDate = toPacificDateTime(post.date);
   const blogSchema: StructuredDataNode = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: post.title,
     description: pageDescription,
     image: absoluteUrl(resolvedBlogImage ?? blogOgImage ?? "/images/dr_wong_polaroids.png"),
-    datePublished: postIsoDate ?? post.date,
-    dateModified: postIsoDate ?? post.date,
+    ...(postIsoDate
+      ? { datePublished: postIsoDate, dateModified: postIsoDate }
+      : {}),
     author: {
       "@type": "Organization",
       name: "Christopher B. Wong, DDS",

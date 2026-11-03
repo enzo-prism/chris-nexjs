@@ -11,7 +11,7 @@ export type GalleryMediaItem = {
   category: GalleryCategory;
   layout: "videoWide" | "photoStandard" | "photoTall";
   interaction: "tapToPlayLoopMuted" | "staticImage";
-  /** ISO date for VideoObject schema when the src carries no Cloudinary version. */
+  /** Date or DateTime for VideoObject schema when the src carries no Cloudinary version. */
   uploadDate?: string;
 };
 
