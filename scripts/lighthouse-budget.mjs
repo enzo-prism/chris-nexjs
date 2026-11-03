@@ -9,6 +9,10 @@ const baseUrl = (
 
 const runsPerRoute = Number.parseInt(process.env.LIGHTHOUSE_RUNS || "3", 10);
 const skipPrecheck = process.env.LIGHTHOUSE_SKIP_PRECHECK === "1";
+const launchRetries = Number.parseInt(
+  process.env.LIGHTHOUSE_LAUNCH_RETRIES || "3",
+  10,
+);
 
 const budgets = [
   {
@@ -101,7 +105,14 @@ const budgets = [
   },
 ];
 
-function runLighthouse(url) {
+function isChromeLaunchFlake(error) {
+  const message = `${error?.message ?? ""} ${error?.stderr ?? ""}`;
+  return /waiting for dynamic debugging port|chrome-err\.log|ECONNREFUSED/i.test(
+    message,
+  );
+}
+
+function runLighthouseOnce(url) {
   const command = [
     "npx --yes lighthouse",
     url,
@@ -120,6 +131,27 @@ function runLighthouse(url) {
   });
 
   return JSON.parse(stdout);
+}
+
+function runLighthouse(url) {
+  const attempts = Math.max(1, launchRetries);
+  let lastError;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      return runLighthouseOnce(url);
+    } catch (error) {
+      lastError = error;
+      if (!isChromeLaunchFlake(error) || attempt === attempts) {
+        throw error;
+      }
+      console.warn(
+        `Lighthouse Chrome launch failed (attempt ${attempt}/${attempts}), retrying...`,
+      );
+    }
+  }
+
+  throw lastError;
 }
 
 function fmtMs(value) {
