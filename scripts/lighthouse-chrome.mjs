@@ -1,14 +1,14 @@
 import { execSync } from "node:child_process";
-import { readdirSync, rmSync, statSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { rmSync } from "node:fs";
 
 export const CHROME_EXIT_WAIT_MS = 2_000;
 export const CHROME_EXIT_POLL_MS = 50;
 
+const USER_DATA_DIR_FLAG = /--user-data-dir(?:=|\s+)(\S+)/g;
+
 export function listProcessLines() {
   try {
-    return execSync("ps -eo pid=,args=", { encoding: "utf8" }).split("\n");
+    return execSync("ps -ww -eo pid=,args=", { encoding: "utf8" }).split("\n");
   } catch {
     return [];
   }
@@ -31,6 +31,19 @@ export function pidsForUserDataDir(psLines, userDataDir) {
   return pids;
 }
 
+export function userDataDirsFromPsLines(psLines, pids) {
+  const dirs = new Set();
+  if (!pids?.size) return dirs;
+  for (const line of psLines) {
+    const pid = pidFromPsLine(line);
+    if (!pid || !pids.has(pid)) continue;
+    for (const match of line.matchAll(USER_DATA_DIR_FLAG)) {
+      if (match[1]) dirs.add(match[1]);
+    }
+  }
+  return dirs;
+}
+
 export function isPidAlive(pid) {
   try {
     process.kill(pid, 0);
@@ -38,30 +51,6 @@ export function isPidAlive(pid) {
   } catch {
     return false;
   }
-}
-
-export function listLauncherUserDataDirs() {
-  const tmp = tmpdir();
-  try {
-    return new Set(
-      readdirSync(tmp)
-        .filter((name) => /^lighthouse\.[^/]+$/.test(name))
-        .map((name) => join(tmp, name))
-        .filter((absolutePath) => {
-          try {
-            return statSync(absolutePath).isDirectory();
-          } catch {
-            return false;
-          }
-        }),
-    );
-  } catch {
-    return new Set();
-  }
-}
-
-export function createdLauncherDirs(before) {
-  return [...listLauncherUserDataDirs()].filter((dir) => !before.has(dir));
 }
 
 export function killPids(pids, killFn = (pid, signal) => process.kill(pid, signal), signal = "SIGTERM") {
@@ -112,7 +101,9 @@ export async function killChromeForUserDataDir(userDataDir, options = {}) {
   const listLines = options.listLines ?? listProcessLines;
   const killFn = options.killFn ?? ((pid, signal) => process.kill(pid, signal));
   const extraDirs = options.extraDirs ?? [];
-  const pids = pidsForUserDataDir(listLines(), userDataDir);
+  const lines = listLines();
+  const pids = pidsForUserDataDir(lines, userDataDir);
+  const argvDirs = userDataDirsFromPsLines(lines, pids);
 
   killPids(pids, killFn, "SIGTERM");
   await waitForPidsToExit(pids, {
@@ -131,7 +122,8 @@ export async function killChromeForUserDataDir(userDataDir, options = {}) {
     });
   }
 
-  for (const dir of [userDataDir, ...extraDirs]) {
+  // Bounded waits can still leave a PID; rmSync still runs.
+  for (const dir of new Set([userDataDir, ...argvDirs, ...extraDirs])) {
     try {
       rmSync(dir, { recursive: true, force: true });
     } catch {

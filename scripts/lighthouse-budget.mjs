@@ -3,11 +3,7 @@ import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import {
-  createdLauncherDirs,
-  killChromeForUserDataDir,
-  listLauncherUserDataDirs,
-} from "./lighthouse-chrome.mjs";
+import { killChromeForUserDataDir } from "./lighthouse-chrome.mjs";
 
 const DEFAULT_CHROME_FLAGS =
   "--headless --no-sandbox --disable-dev-shm-usage";
@@ -134,7 +130,6 @@ function isChromeLaunchFlake(error) {
 
 async function runLighthouseOnce(url) {
   const userDataDir = mkdtempSync(join(tmpdir(), "lighthouse-cw-"));
-  const launcherDirsBefore = listLauncherUserDataDirs();
   const command = [
     "npx --yes lighthouse",
     url,
@@ -154,9 +149,7 @@ async function runLighthouseOnce(url) {
     });
     return JSON.parse(stdout);
   } finally {
-    await killChromeForUserDataDir(userDataDir, {
-      extraDirs: createdLauncherDirs(launcherDirsBefore),
-    });
+    await killChromeForUserDataDir(userDataDir);
   }
 }
 
