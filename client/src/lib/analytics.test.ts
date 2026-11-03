@@ -5,6 +5,7 @@ import {
   isAnalyticsRuntimeEnabled,
   isAnalyticsTestHookEnabled,
   trackGAEvent,
+  trackLeadConversion,
   trackVercelEvent,
 } from "./analytics";
 import {
@@ -198,5 +199,42 @@ assert.equal(isAnalyticsRuntimeEnabled(), false);
 process.env.NODE_ENV = previousNodeEnv;
 delete (globalThis as any).window.__cwForceAnalytics;
 (globalThis as any).window.localStorage.value = "granted";
+(globalThis as any).window.location.hostname = "www.chriswongdds.com";
+const leadCalls: unknown[][] = [];
+(globalThis as any).window.gtag = (...args: unknown[]) => {
+  leadCalls.push(args);
+};
+trackLeadConversion(
+  ANALYTICS_EVENTS.contactFormSubmit,
+  {
+    form_name: "contact_form",
+    lead_type: "contact_request",
+    lead_source: "contact_form",
+  },
+  {
+    generateLeadProperties: {
+      form_name: "contact",
+      lead_source: "contact_form",
+    },
+  },
+);
+assert.deepStrictEqual(
+  leadCalls.filter((args) => args[0] === "event" && args[1] === "contact_form_submit"),
+  [
+    [
+      "event",
+      "contact_form_submit",
+      {
+        form_name: "contact_form",
+        lead_type: "contact_request",
+        lead_source: "contact_form",
+      },
+    ],
+  ],
+);
+assert.deepStrictEqual(
+  leadCalls.filter((args) => args[0] === "event" && args[1] === "generate_lead"),
+  [["event", "generate_lead", { form_name: "contact", lead_source: "contact_form" }]],
+);
 
 console.log("analytics tests passed");

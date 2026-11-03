@@ -149,9 +149,15 @@ function trackGoogleAdsConversion(): void {
 export function trackLeadConversion(
   eventName: AnalyticsEventName,
   properties: Record<string, unknown>,
+  options?: {
+    readonly generateLeadProperties?: Record<string, unknown>;
+  },
 ): void {
   trackAnalyticsEvent(eventName, properties, { ga: true, vercel: false });
-  trackGAEvent(ANALYTICS_EVENTS.generateLead, properties);
+  trackGAEvent(
+    ANALYTICS_EVENTS.generateLead,
+    options?.generateLeadProperties ?? properties,
+  );
   trackGoogleAdsConversion();
 }
 

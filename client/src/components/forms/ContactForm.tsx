@@ -21,9 +21,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { trackLeadConversion } from "@/lib/analytics";
+import { resolveContactLeadEvents } from "@/lib/contactLead";
 import { getLeadAttribution } from "@/lib/attribution";
 import { officeInfo } from "@/lib/data";
-import { ANALYTICS_EVENTS, getAnalyticsPageContext } from "@shared/analytics";
+import { getAnalyticsPageContext } from "@shared/analytics";
 import { HONEYPOT_FIELD } from "@shared/formspree";
 import { readContactRequestResult } from "@shared/contactRequestPolicy";
 // next/link, not wouter: this form renders on the dedicated /contact route,
@@ -76,16 +77,21 @@ const ContactForm = () => {
       return readContactRequestResult(response.status, await response.json().catch(() => null));
     },
     onSuccess: (result) => {
-      if (result.accepted) {
-        trackLeadConversion(ANALYTICS_EVENTS.contactFormSubmit, {
-          form_name: "contact_form",
-          lead_type: "contact_request",
-          lead_source: "contact_form",
-          lead_channel: getLeadAttribution()?.attribution.channel ?? "unknown",
-          ...getAnalyticsPageContext(
-            typeof window !== "undefined" ? window.location.pathname : "/contact",
-          ),
-        });
+      const pageContext = getAnalyticsPageContext(
+        typeof window !== "undefined" ? window.location.pathname : "/contact",
+      );
+      const leadEvents = resolveContactLeadEvents({
+        accepted: result.accepted,
+        leadChannel: getLeadAttribution()?.attribution.channel ?? "unknown",
+        pagePath: pageContext.page_path,
+        pageCategory: pageContext.page_category,
+      });
+      if (leadEvents) {
+        trackLeadConversion(
+          leadEvents.contactFormSubmit.eventName,
+          leadEvents.contactFormSubmit.properties,
+          { generateLeadProperties: leadEvents.generateLead.properties },
+        );
       }
       if (result.preview || result.test) {
         setSubmissionState("demo");

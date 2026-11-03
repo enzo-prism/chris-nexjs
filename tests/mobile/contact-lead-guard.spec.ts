@@ -1,9 +1,49 @@
 import { test, expect, type Page } from "@playwright/test";
 
+const GOOGLE_HOST_SUFFIXES = [
+  "googletagmanager.com",
+  "google-analytics.com",
+  "googletagservices.com",
+  "doubleclick.net",
+] as const;
+
+function isGoogleMeasurementUrl(rawUrl: string): boolean {
+  let parsed: URL;
+  try {
+    parsed = new URL(rawUrl);
+  } catch {
+    return false;
+  }
+  const host = parsed.hostname.toLowerCase();
+  if (
+    GOOGLE_HOST_SUFFIXES.some((root) => host === root || host.endsWith(`.${root}`))
+  ) {
+    return true;
+  }
+  if (!parsed.pathname.includes("/pagead")) return false;
+  return (
+    host === "google.com" ||
+    host.endsWith(".google.com") ||
+    /^([a-z0-9-]+\.)?google\.[a-z]{2,3}(\.[a-z]{2})?$/.test(host)
+  );
+}
+
+let googleHits: string[] = [];
+
 // Every production-origin GET is served from localhost. POSTs and vendor
 // requests are intercepted: these checks never send a lead or collect event.
-test.beforeEach(async ({ page, baseURL }) => {
-  await page.route("**/*", async (route) => {
+test.beforeEach(async ({ page, context, baseURL }) => {
+  googleHits = [];
+  context.on("request", (request) => {
+    if (isGoogleMeasurementUrl(request.url())) {
+      googleHits.push(request.url());
+    }
+  });
+  await context.route("**/*", async (route) => {
+    if (isGoogleMeasurementUrl(route.request().url())) {
+      await route.abort();
+      return;
+    }
     const url = new URL(route.request().url());
     if (url.hostname !== "www.chriswongdds.com" || route.request().method() !== "GET") {
       await route.abort();
@@ -14,7 +54,10 @@ test.beforeEach(async ({ page, baseURL }) => {
       return;
     }
     try {
-      const response = await route.fetch({ url: `${baseURL}${url.pathname}${url.search}`, timeout: 10_000 });
+      const response = await route.fetch({
+        url: `${baseURL}${url.pathname}${url.search}`,
+        timeout: 10_000,
+      });
       await route.fulfill({ response });
     } catch {
       await route.abort().catch(() => {});
@@ -30,7 +73,8 @@ test.beforeEach(async ({ page, baseURL }) => {
   });
 });
 
-test.afterEach(async ({ page }) => {
+test.afterEach(async ({ page, context }) => {
+  await context.unrouteAll({ behavior: "ignoreErrors" }).catch(() => {});
   await page.unrouteAll({ behavior: "ignoreErrors" });
 });
 
@@ -46,11 +90,30 @@ async function submitContact(page: Page): Promise<void> {
   await page.getByRole("button", { name: "Send message", exact: true }).click();
 }
 
-async function eventNames(page: Page): Promise<string[]> {
+async function eventEntries(page: Page): Promise<unknown[][]> {
   return page.evaluate(() => {
-    const events: unknown[][] = JSON.parse(sessionStorage.getItem("contact-test-events") ?? "[]");
-    return events.filter((args) => args[0] === "event").map((args) => String(args[1]));
+    return JSON.parse(sessionStorage.getItem("contact-test-events") ?? "[]") as unknown[][];
   });
+}
+
+async function eventNames(page: Page): Promise<string[]> {
+  const events = await eventEntries(page);
+  return events.filter((args) => args[0] === "event").map((args) => String(args[1]));
+}
+
+async function generateLeadPayloads(page: Page): Promise<Array<Record<string, unknown>>> {
+  const events = await eventEntries(page);
+  return events
+    .filter((args) => args[0] === "event" && args[1] === "generate_lead")
+    .map((args) =>
+      args[2] && typeof args[2] === "object"
+        ? (args[2] as Record<string, unknown>)
+        : {},
+    );
+}
+
+function assertNoGoogleHits(): void {
+  expect(googleHits, `Google measurement requests:\n${googleHits.join("\n")}`).toEqual([]);
 }
 
 test("contact honeypot acknowledgement stays quiet without a lead", async ({ page }) => {
@@ -63,9 +126,10 @@ test("contact honeypot acknowledgement stays quiet without a lead", async ({ pag
   expect(page.url()).toMatch(/\/contact$/);
   expect(await eventNames(page)).not.toContain("generate_lead");
   expect(await eventNames(page)).not.toContain("contact_form_submit");
+  assertNoGoogleHits();
 });
 
-test("an explicit accepted contact emits each acquisition event once", async ({ page }) => {
+test("an explicit accepted contact emits generate_lead once with contact params", async ({ page }) => {
   await page.route("**/api/contact", (route) => route.fulfill({
     status: 201, contentType: "application/json", body: JSON.stringify({ ok: true, accepted: true }),
   }));
@@ -74,6 +138,27 @@ test("an explicit accepted contact emits each acquisition event once", async ({ 
   const names = await eventNames(page);
   expect(names.filter((name) => name === "generate_lead")).toHaveLength(1);
   expect(names.filter((name) => name === "contact_form_submit")).toHaveLength(1);
+  expect(await generateLeadPayloads(page)).toEqual([
+    { form_name: "contact", lead_source: "contact_form" },
+  ]);
+  assertNoGoogleHits();
+});
+
+test("a validation error does not fire generate_lead", async ({ page }) => {
+  let posted = false;
+  await page.route("**/api/contact", async (route) => {
+    posted = true;
+    await route.abort();
+  });
+  await page.goto("https://www.chriswongdds.com/contact", { waitUntil: "networkidle" });
+  await page.getByRole("button", { name: "Send message", exact: true }).click();
+  await expect(
+    page.getByRole("alert").filter({ hasText: /please review the highlighted fields/i }),
+  ).toBeVisible();
+  expect(posted, "validation miss must not POST the contact backend").toBe(false);
+  expect(await eventNames(page)).not.toContain("generate_lead");
+  expect(await eventNames(page)).not.toContain("contact_form_submit");
+  assertNoGoogleHits();
 });
 
 for (const flag of ["preview", "test"] as const) {
@@ -90,6 +175,7 @@ for (const flag of ["preview", "test"] as const) {
     expect(page.url()).toMatch(/\/contact$/);
     expect(await eventNames(page)).not.toContain("generate_lead");
     expect(await eventNames(page)).not.toContain("contact_form_submit");
+    assertNoGoogleHits();
   });
 }
 
@@ -107,5 +193,6 @@ for (const [name, status, body] of [
     await expect(page.getByLabel("Full name", { exact: true })).toHaveValue("Contact Example");
     expect(await eventNames(page)).not.toContain("generate_lead");
     expect(await eventNames(page)).not.toContain("contact_form_submit");
+    assertNoGoogleHits();
   });
 }
