@@ -238,13 +238,16 @@ describe("invisalign consult media data", () => {
       /unsafe character/,
     );
     assert.throws(
-      () => assertProductionSrc("//evil.example/video.mp4", "protocol-relative"),
-      /protocol-relative/,
+      () => assertProductionSrc("//evil.example/video.mp4", "file"),
+      /cannot use a protocol-relative URL/,
     );
     assert.throws(
       () =>
-        assertProductionSrc("https://user@www.chriswongdds.com/demo.mp4", "userinfo"),
-      /userinfo/,
+        assertProductionSrc(
+          `https://user@res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/x.jpg`,
+          "cloudinary-with-credentials",
+        ),
+      /cannot include userinfo/,
     );
     assert.doesNotThrow(() =>
       assertProductionVideo(
@@ -266,6 +269,22 @@ describe("invisalign consult media data", () => {
     assert.throws(
       () =>
         assertProductionSrc(
+          `https://res.cloudinary.com/${CLOUDINARY_CLOUD}X/image/upload/x.jpg`,
+          "cloud-prefix",
+        ),
+      /practice Cloudinary cloud/,
+    );
+    assert.throws(
+      () =>
+        assertProductionSrc(
+          `https://res.cloudinary.com/${CLOUDINARY_CLOUD}`,
+          "cloud-root",
+        ),
+      /practice Cloudinary cloud/,
+    );
+    assert.throws(
+      () =>
+        assertProductionSrc(
           "https://www.chriswongdds.com/media/invisalign/demo.mp4",
           "www-absolute",
         ),
@@ -278,6 +297,12 @@ describe("invisalign consult media data", () => {
           "apex-absolute",
         ),
       /allowlisted host/,
+    );
+    assert.doesNotThrow(() =>
+      assertProductionSrc(
+        `https://res.cloudinary.com:443/${CLOUDINARY_CLOUD}/image/upload/x.jpg`,
+        "default-https-port",
+      ),
     );
     assert.throws(
       () =>
@@ -320,14 +345,18 @@ describe("invisalign consult media data", () => {
         "practice-cloudinary",
       ),
     );
-    assert.equal(
-      PRODUCTION_MEDIA_HOSTS.includes("evilcloudinary.com" as never),
-      false,
+    const mediaModule = readFileSync(
+      "client/src/pages/invisalignConsultMedia.ts",
+      "utf8",
     );
+    assert.match(
+      mediaModule,
+      /PRODUCTION_MEDIA_HOST_SET\.has\(url\.hostname\)/,
+    );
+    assert.doesNotMatch(mediaModule, /url\.hostname\.endsWith\(/);
     assert.equal(
-      "evilcloudinary.com".endsWith("cloudinary.com"),
-      true,
-      "A10 seed: endsWith would accept evilcloudinary.com",
+      new Set(PRODUCTION_MEDIA_HOSTS).has("evilcloudinary.com"),
+      false,
     );
   });
 
@@ -441,9 +470,9 @@ describe("invisalign consult media data", () => {
       () =>
         assertPrivacyEmbedSrc(
           "https://evil.com@www.youtube-nocookie.com/embed/abc123",
-          "userinfo embed",
+          "privacy-embed",
         ),
-      /userinfo/,
+      /cannot include userinfo/,
     );
   });
 
