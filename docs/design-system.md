@@ -20,7 +20,7 @@ Tailwind colors (`tailwind.config.ts`):
 | `gold-200…700` | `#F3E0B0` → `#7F5C1C` | accents; **only gold-700 may be text on light**, gold-300 text on dark |
 | `mint-200…500` | `#C9F2E4` → `#3FBF98` | glows on dark only |
 | `ink`, `ink-soft`, `ink-muted` | `#14231D`, `#3B4A43`, `#5C6A63` | text; `ink-muted` is the lightest allowed small text on cream |
-| `pumpkin-300…600`, `candle`, `night` | | October seasonal art only |
+| `pumpkin-300…600`, `candle`, `night`, `hearth`, `cranberry` | | seasonal art only (`hearth` is the November feast-tips band) |
 
 shadcn variables (`app/globals.css`) map `--primary` to evergreen-700 and
 `--background` to cream-50, so legacy `bg-primary`/`text-primary` already

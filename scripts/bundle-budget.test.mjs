@@ -7,7 +7,7 @@ import { parseRouteLine } from "./bundle-budget-lib.mjs";
 // 187 (was 186): /services sat at the rounded ceiling with ~0.2KB of real
 // headroom, and the October seasonal layer's footer opt-out (~0.15KB gzip,
 // shared chrome) tipped it over. All other seasonal art is CSS or
-// homepage-only; see AGENTS.md "Seasonal layer (October)".
+// homepage-only; see AGENTS.md "Seasonal layer".
 const CORE_MAX_KB = Number.parseFloat(process.env.BUNDLE_CORE_MAX_KB || "187");
 // The homepage deliberately server-renders its FAQ, service grid (internal
 // links), and About content for crawlability/indexing, which adds ~1KB to its

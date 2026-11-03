@@ -27,7 +27,7 @@ import { featuredQuote, homeRibbonQuotes } from "@/data/reviewHighlights";
 import { drWong, team } from "@/data/team";
 import { fullCircleFilm, fullCircleShort } from "@/data/fullCircleFilm";
 import { fullCircleTranscript } from "@/data/fullCircleTranscript";
-import { SpiderDrop } from "@/components/seasonal/HomeSeasonal";
+import { LeafDrift } from "@/components/seasonal/HomeSeasonal";
 
 // The player is interactive-only chrome: its chunk loads alongside hydration
 // instead of counting toward the homepage's First Load JS.
@@ -68,7 +68,7 @@ export function ReviewRibbon() {
   const half = Math.ceil(homeRibbonQuotes.length / 2);
   return (
     <section aria-labelledby="ribbon-title" className="relative bg-white py-14 sm:py-16">
-      <SpiderDrop className="right-[6%] top-0 h-40 w-12 overflow-hidden sm:right-[12%]" />
+      <LeafDrift className="right-[6%] top-0 h-40 w-12 overflow-hidden sm:right-[12%]" />
       <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 sm:flex-row sm:items-end sm:justify-between sm:px-6 lg:px-8">
         <div>
           <p className="eyebrow">In their words</p>

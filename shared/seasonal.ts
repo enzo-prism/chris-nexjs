@@ -1,10 +1,10 @@
 /* ------------------------------------------------------------------ *
  * Seasonal layer: small, optional delight on top of the design system,
- * never a re-theme. See AGENTS.md "Seasonal layer (October)".
+ * never a re-theme. See AGENTS.md "Seasonal layer".
  *
  * Pages are prerendered, so the season is decided in the browser by a
  * tiny <head> script (`buildSeasonScript`) that sets
- * <html data-cw-season="halloween"> before first paint. Decorations switch
+ * <html data-cw-season="thanksgiving"> before first paint. Decorations switch
  * on and off on the practice's local calendar day without a redeploy, and
  * every seasonal style in app/globals.css is keyed off that attribute.
  *
@@ -14,14 +14,14 @@
 
 export const SEASON_ATTRIBUTE = "data-cw-season";
 
-/** `?season=halloween` previews, `?season=off` opts out, `?season=auto` resets. */
+/** `?season=thanksgiving` previews, `?season=off` opts out, `?season=auto` resets. */
 export const SEASON_QUERY_PARAM = "season";
 /** localStorage: "off" keeps decorations off in this browser. */
 export const SEASON_OPT_OUT_KEY = "cw-season";
 /** sessionStorage: "1" forces the season on for this tab (previews/QA). */
 export const SEASON_PREVIEW_KEY = "cw-season-preview";
 
-export type SeasonName = "halloween";
+export type SeasonName = "halloween" | "thanksgiving";
 
 export type SeasonalTheme = {
   readonly id: string;
@@ -43,12 +43,23 @@ export const halloween2026: SeasonalTheme = {
   icon: "/seasonal/halloween-2026/icon.svg",
 };
 
-/** The season this build knows about, or null to ship no seasonal script. */
-export const activeSeason: SeasonalTheme | null = halloween2026;
+/** Through the Monday after Thanksgiving (Thursday, November 26). Its art
+ *  replaced Halloween's in public/seasonal/thanksgiving-2026/. */
+export const thanksgiving2026: SeasonalTheme = {
+  id: "thanksgiving-2026",
+  name: "thanksgiving",
+  startsOn: "2026-11-01",
+  endsOn: "2026-11-30",
+  timeZone: "America/Los_Angeles",
+  icon: "/seasonal/thanksgiving-2026/icon.svg",
+};
 
-/** sessionStorage key: the homepage bat fly-by has played this session. */
-export function batFlightStorageKey(theme: SeasonalTheme): string {
-  return `cw-season-bats:${theme.id}`;
+/** The season this build knows about, or null to ship no seasonal script. */
+export const activeSeason: SeasonalTheme | null = thanksgiving2026;
+
+/** sessionStorage key: the homepage leaf fall has played this session. */
+export function leafFallStorageKey(theme: SeasonalTheme): string {
+  return `cw-season-leaves:${theme.id}`;
 }
 
 /** YYYY-MM-DD for `now` on the theme's local calendar. */

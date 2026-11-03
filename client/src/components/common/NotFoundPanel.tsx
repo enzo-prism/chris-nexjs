@@ -36,11 +36,11 @@ const NotFoundPanel = () => {
 
         <div className="flex flex-1 items-center py-10">
           <div className="card w-full p-6 text-center sm:p-10">
-            {/* October seasonal art (AGENTS.md "Seasonal layer (October)"): a
-                ghost-tooth floating in front of a harvest moon. */}
+            {/* November seasonal art (AGENTS.md "Seasonal layer"): a tooth in
+                turkey feathers bobbing in front of a golden afternoon. */}
             <div aria-hidden="true" className="cw-season-only mb-8">
               <div className="cw-porthole mx-auto grid h-36 w-36 place-items-center overflow-hidden rounded-full shadow-xl ring-4 ring-white">
-                <span className="cw-art cw-art-ghost cw-ghost-float w-16" />
+                <span className="cw-art cw-art-turkey cw-float w-24" />
               </div>
             </div>
             <p className="eyebrow justify-center">Error 404</p>

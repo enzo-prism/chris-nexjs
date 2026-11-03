@@ -25,7 +25,7 @@ const TestimonialQuote = ({ testimonial, className, hideStars = false }: Testimo
   return (
     <figure
       className={cn(
-        "cw-cobweb relative flex h-full flex-col rounded-[1.5rem] border border-cream-300/80 bg-white p-6 shadow-soft sm:p-7",
+        "cw-card-corner relative flex h-full flex-col rounded-[1.5rem] border border-cream-300/80 bg-white p-6 shadow-soft sm:p-7",
         className,
       )}
     >

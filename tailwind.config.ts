@@ -91,6 +91,8 @@ export default {
         },
         candle: "#FFD98A",
         night: "#140F1F",
+        hearth: "#2A1A12",
+        cranberry: "#A3303F",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {

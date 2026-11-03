@@ -135,7 +135,7 @@ function buildAboutSchema(): StructuredDataNode[] {
   const breadcrumbs = buildBreadcrumbSchema(breadcrumbItems);
   if (breadcrumbs) nodes.push(breadcrumbs);
   // ProfilePage → Dr. Wong, plus a Person node for everyone on the team grid.
-  nodes.push(buildProfilePageSchema({ dateModified: "2026-10-28" }));
+  nodes.push(buildProfilePageSchema({ dateModified: "2026-10-28T00:00:00-07:00" }));
   nodes.push(...buildTeamPersonSchemas(team));
   nodes.push(
     ...buildVideoObjectSchemas(
