@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { createServer } from "node:net";
 import {
   existsSync,
@@ -13,7 +13,7 @@ import {
 } from "node:fs";
 import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import { describe, it } from "node:test";
 import { pathToFileURL } from "node:url";
 
@@ -24,6 +24,7 @@ import {
   killChromeForUserDataDir,
   pidsForUserDataDir,
   userDataDirsFromPsLines,
+  waitForPidsToExit,
 } from "./lighthouse-chrome.mjs";
 
 const require = createRequire(import.meta.url);
@@ -133,8 +134,26 @@ function chromiumScratchDirs() {
     .map((name) => join(tmpdir(), name));
 }
 
-function six() {
-  return Math.random().toString(36).slice(2, 8).padEnd(6, "x").slice(0, 6);
+function seven() {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let out = "";
+  for (let i = 0; i < 7; i += 1) {
+    out += alphabet[Math.floor(Math.random() * alphabet.length)];
+  }
+  return out;
+}
+
+function mkGnuLauncherDir() {
+  // chrome-launcher 1.2.2 uses GNU `mktemp -d -t lighthouse.XXXXXXX` (7 chars).
+  // BSD `mktemp -t` appends its own suffix; this suite pins the Linux shape.
+  const dir = execFileSync("mktemp", ["-d", "-t", "lighthouse.XXXXXXX"], {
+    encoding: "utf8",
+  }).trim();
+  if (!/^lighthouse\.[A-Za-z0-9]{7}$/.test(basename(dir))) {
+    rmSync(dir, { recursive: true, force: true });
+    throw new Error(`expected GNU lighthouse.XXXXXXX, got ${basename(dir)}`);
+  }
+  return dir;
 }
 
 async function reap(kids, dirs, scratchBefore = new Set()) {
@@ -174,6 +193,113 @@ async function reap(kids, dirs, scratchBefore = new Set()) {
 }
 
 describe("lighthouse chrome cleanup", { concurrency: false }, () => {
+  it("bounds waitForPidsToExit wait-phase elapsed time", { timeout: 3_000 }, async () => {
+    const timeoutMs = 80;
+    const slackMs = 150;
+    const raceMs = 2 * timeoutMs + 400;
+    let hold = true;
+    const started = Date.now();
+    const finished = waitForPidsToExit([99], {
+      timeoutMs,
+      pollMs: 10,
+      isAlive: () => hold,
+      killFn: () => {},
+    });
+    const timedOut = Symbol("timeout");
+    const winner = await Promise.race([
+      finished,
+      new Promise((resolve) => {
+        setTimeout(() => resolve(timedOut), raceMs);
+      }),
+    ]);
+    const elapsed = Date.now() - started;
+    hold = false;
+    await Promise.race([
+      finished,
+      new Promise((resolve) => {
+        setTimeout(resolve, 100);
+      }),
+    ]);
+    assert.notEqual(winner, timedOut, `wait exceeded race cap (${elapsed}ms)`);
+    assert.ok(
+      elapsed <= 2 * timeoutMs + slackMs,
+      `elapsed ${elapsed}ms exceeded ${2 * timeoutMs + slackMs}ms`,
+    );
+    assert.ok(elapsed >= timeoutMs - 20, `elapsed ${elapsed}ms skipped the wait deadline`);
+  });
+
+  it("SIGKILLs leftovers after the first wait when the re-list is empty", async () => {
+    const dirs = [];
+    try {
+      const userDataDir = mkdtempSync(join(tmpdir(), "lighthouse-cw-"));
+      dirs.push(userDataDir);
+      writeFileSync(join(userDataDir, "Default"), "profile");
+      const fakePid = 424201;
+      const line = `${fakePid} chrome --user-data-dir=${userDataDir}`;
+      const argv = ["chrome", `--user-data-dir=${userDataDir}`];
+      const signals = [];
+      let listed = 0;
+      await killChromeForUserDataDir(userDataDir, {
+        exitTimeoutMs: 40,
+        isAlive: () => true,
+        listLines: () => {
+          listed += 1;
+          return listed === 1 ? [line] : [];
+        },
+        readArgv: () => argv,
+        killFn: (_pid, signal) => {
+          signals.push(signal);
+        },
+      });
+      assert.ok(
+        signals.includes("SIGKILL"),
+        `first-wait SIGKILL missing; signals=${signals.join(",")}`,
+      );
+      assert.equal(existsSync(userDataDir), false);
+    } finally {
+      await reap([], dirs);
+    }
+  });
+
+  it("SIGKILLs leftover PIDs that appeared dead during the first wait", async () => {
+    const dirs = [];
+    try {
+      const userDataDir = mkdtempSync(join(tmpdir(), "lighthouse-cw-"));
+      dirs.push(userDataDir);
+      writeFileSync(join(userDataDir, "Default"), "profile");
+      const fakePid = 424207;
+      const line = `${fakePid} chrome --user-data-dir=${userDataDir}`;
+      const argv = ["chrome", `--user-data-dir=${userDataDir}`];
+      const signals = [];
+      let termSeen = false;
+      let leftoverListed = false;
+      await killChromeForUserDataDir(userDataDir, {
+        exitTimeoutMs: 40,
+        isAlive: () => {
+          if (!termSeen) return true;
+          if (!leftoverListed) return false;
+          return true;
+        },
+        listLines: () => {
+          if (termSeen) leftoverListed = true;
+          return [line];
+        },
+        readArgv: () => argv,
+        killFn: (_pid, signal) => {
+          signals.push(signal);
+          if (signal === "SIGTERM") termSeen = true;
+        },
+      });
+      assert.ok(
+        signals.includes("SIGKILL"),
+        `leftover SIGKILL missing; signals=${signals.join(",")}`,
+      );
+      assert.equal(existsSync(userDataDir), false);
+    } finally {
+      await reap([], dirs);
+    }
+  });
+
   it("waits for a ready SIGTERM-ignorer that rewrites its profile, then SIGKILLs and removes the dir", { timeout: 8_000 }, async () => {
     const kids = [];
     const dirs = [];
@@ -214,22 +340,28 @@ describe("lighthouse chrome cleanup", { concurrency: false }, () => {
     try {
       const attemptDir = mkdtempSync(join(tmpdir(), "lighthouse-cw-"));
       dirs.push(attemptDir);
-      const thisRunLauncher = mkdtempSync(join(tmpdir(), "lighthouse."));
+      const thisRunLauncher = mkGnuLauncherDir();
       dirs.push(thisRunLauncher);
+      const sixCharSameProcess = mkdtempSync(join(tmpdir(), "lighthouse."));
+      dirs.push(sixCharSameProcess);
       const otherRunDir = mkdtempSync(join(tmpdir(), "lighthouse-cw-"));
       dirs.push(otherRunDir);
-      const preexistingLhDir = mkdtempSync(join(tmpdir(), "lighthouse."));
+      const preexistingLhDir = mkGnuLauncherDir();
       dirs.push(preexistingLhDir);
       const debugProfile = mkdtempSync(join(tmpdir(), "cw-debug-"));
       dirs.push(debugProfile);
       writeFileSync(join(preexistingLhDir, "Keep"), "unrelated");
       writeFileSync(join(thisRunLauncher, "Launcher"), "this-run");
+      writeFileSync(join(sixCharSameProcess, "Keep"), "six");
+      assert.match(basename(thisRunLauncher), /^lighthouse\.[A-Za-z0-9]{7}$/);
+      assert.match(basename(sixCharSameProcess), /^lighthouse\.[A-Za-z0-9]{6}$/);
 
       const debugPort = await unusedPort();
       kids.push(
         spawnArgvMarker([
           `--user-data-dir=${attemptDir}`,
           `--user-data-dir=${thisRunLauncher}`,
+          `--user-data-dir=${sixCharSameProcess}`,
         ]),
       );
       kids.push(
@@ -252,7 +384,7 @@ describe("lighthouse chrome cleanup", { concurrency: false }, () => {
         true,
       );
 
-      const duringLhDir = mkdtempSync(join(tmpdir(), "lighthouse."));
+      const duringLhDir = mkGnuLauncherDir();
       dirs.push(duringLhDir);
       writeFileSync(join(duringLhDir, "Keep"), "during");
       kids.push(spawnChrome([`--user-data-dir=${duringLhDir}`]));
@@ -269,6 +401,7 @@ describe("lighthouse chrome cleanup", { concurrency: false }, () => {
       await waitUntil(() => !isPidAlive(target.pid));
       assert.equal(existsSync(attemptDir), false);
       assert.equal(existsSync(thisRunLauncher), false);
+      assert.equal(existsSync(join(sixCharSameProcess, "Keep")), true);
       assert.equal(isPidAlive(debugChrome.pid), true);
       assert.equal(isPidAlive(lhBystander.pid), true);
       assert.equal(existsSync(preexistingLhDir), true);
@@ -365,6 +498,7 @@ describe("lighthouse chrome cleanup", { concurrency: false }, () => {
       writeFileSync(
         helper,
         `
+          import { execFileSync } from "node:child_process";
           import { existsSync, mkdtempSync, writeFileSync } from "node:fs";
           import { join } from "node:path";
           import { killChromeForUserDataDir } from ${JSON.stringify(
@@ -372,7 +506,9 @@ describe("lighthouse chrome cleanup", { concurrency: false }, () => {
           )};
           const attemptDir = mkdtempSync(join(process.env.TMPDIR, "lighthouse-cw-"));
           writeFileSync(join(attemptDir, "Default"), "x");
-          const launcher = mkdtempSync(join(process.env.TMPDIR, "lighthouse."));
+          const launcher = execFileSync("mktemp", ["-d", "-t", "lighthouse.XXXXXXX"], {
+            encoding: "utf8",
+          }).trim();
           await killChromeForUserDataDir(attemptDir, {
             listLines: () => [
               "4242 chrome --user-data-dir=" + launcher + " --user-data-dir=" + attemptDir,
@@ -518,7 +654,7 @@ describe("lighthouse chrome cleanup", { concurrency: false }, () => {
       const target = mkdtempSync(join(tmpdir(), "cw-symlink-target-"));
       dirs.push(target);
       writeFileSync(join(target, "Keep"), "target");
-      link = join(tmpdir(), `lighthouse.${six()}`);
+      link = join(tmpdir(), `lighthouse.${seven()}`);
       symlinkSync(target, link);
       dirs.push(link);
       const attemptDir = mkdtempSync(join(tmpdir(), "lighthouse-cw-"));
@@ -628,12 +764,341 @@ describe("lighthouse chrome cleanup", { concurrency: false }, () => {
     }
   });
 
+  it("rejects a relative lighthouse.ABCDEFG when cwd is tmpdir", async () => {
+    const dirs = [];
+    const prev = process.cwd();
+    const relativeName = "lighthouse.ABCDEFG";
+    const victim = join(tmpdir(), relativeName);
+    try {
+      rmSync(victim, { recursive: true, force: true });
+      mkdirSync(victim);
+      dirs.push(victim);
+      writeFileSync(join(victim, "Keep"), "relative");
+      const attemptDir = mkdtempSync(join(tmpdir(), "lighthouse-cw-"));
+      dirs.push(attemptDir);
+      process.chdir(tmpdir());
+      await killChromeForUserDataDir(attemptDir, {
+        listLines: () => [
+          `4251 chrome --user-data-dir=${relativeName} --user-data-dir=${attemptDir}`,
+        ],
+        readArgv: () => [
+          "chrome",
+          `--user-data-dir=${relativeName}`,
+          `--user-data-dir=${attemptDir}`,
+        ],
+        killFn: () => {},
+        isAlive: () => false,
+        exitTimeoutMs: 20,
+      });
+      assert.equal(isOwnedTempProfile(relativeName), false);
+      assert.equal(existsSync(join(victim, "Keep")), true);
+      assert.equal(existsSync(attemptDir), false);
+    } finally {
+      process.chdir(prev);
+      await reap([], dirs);
+    }
+  });
+
+  it("does not delete lighthouse.ABCDEFG outside tmpdir", async () => {
+    const dirs = [];
+    try {
+      const sandbox = mkdtempSync(join(tmpdir(), "cw-g3-sandbox-"));
+      dirs.push(sandbox);
+      const victim = join(sandbox, "lighthouse.ABCDEFG");
+      mkdirSync(victim);
+      dirs.push(victim);
+      writeFileSync(join(victim, "Keep"), "outside");
+      const attemptDir = mkdtempSync(join(tmpdir(), "lighthouse-cw-"));
+      dirs.push(attemptDir);
+      await killChromeForUserDataDir(attemptDir, {
+        listLines: () => [
+          `4253 chrome --user-data-dir=${victim} --user-data-dir=${attemptDir}`,
+        ],
+        readArgv: () => [
+          "chrome",
+          `--user-data-dir=${victim}`,
+          `--user-data-dir=${attemptDir}`,
+        ],
+        killFn: () => {},
+        isAlive: () => false,
+        extraDirs: [victim],
+        exitTimeoutMs: 20,
+      });
+      assert.equal(isOwnedTempProfile(victim), false);
+      assert.equal(existsSync(join(victim, "Keep")), true);
+      assert.equal(existsSync(attemptDir), false);
+    } finally {
+      await reap([], dirs);
+    }
+  });
+
+  it("does not delete xlighthouse.ABCDEFG inside tmpdir", async () => {
+    const dirs = [];
+    const victim = join(tmpdir(), "xlighthouse.ABCDEFG");
+    try {
+      rmSync(victim, { recursive: true, force: true });
+      mkdirSync(victim);
+      dirs.push(victim);
+      writeFileSync(join(victim, "Keep"), "prefix");
+      const attemptDir = mkdtempSync(join(tmpdir(), "lighthouse-cw-"));
+      dirs.push(attemptDir);
+      await killChromeForUserDataDir(attemptDir, {
+        listLines: () => [
+          `4255 chrome --user-data-dir=${victim} --user-data-dir=${attemptDir}`,
+        ],
+        readArgv: () => [
+          "chrome",
+          `--user-data-dir=${victim}`,
+          `--user-data-dir=${attemptDir}`,
+        ],
+        killFn: () => {},
+        isAlive: () => false,
+        extraDirs: [victim],
+        exitTimeoutMs: 20,
+      });
+      assert.equal(isOwnedTempProfile(victim), false);
+      assert.equal(existsSync(join(victim, "Keep")), true);
+      assert.equal(existsSync(attemptDir), false);
+    } finally {
+      await reap([], dirs);
+    }
+  });
+
+  it("does not delete lighthouse.ABCDEFG-x inside tmpdir", async () => {
+    const dirs = [];
+    const victim = join(tmpdir(), "lighthouse.ABCDEFG-x");
+    try {
+      rmSync(victim, { recursive: true, force: true });
+      mkdirSync(victim);
+      dirs.push(victim);
+      writeFileSync(join(victim, "Keep"), "suffix");
+      const attemptDir = mkdtempSync(join(tmpdir(), "lighthouse-cw-"));
+      dirs.push(attemptDir);
+      await killChromeForUserDataDir(attemptDir, {
+        listLines: () => [
+          `4256 chrome --user-data-dir=${victim} --user-data-dir=${attemptDir}`,
+        ],
+        readArgv: () => [
+          "chrome",
+          `--user-data-dir=${victim}`,
+          `--user-data-dir=${attemptDir}`,
+        ],
+        killFn: () => {},
+        isAlive: () => false,
+        extraDirs: [victim],
+        exitTimeoutMs: 20,
+      });
+      assert.equal(isOwnedTempProfile(victim), false);
+      assert.equal(existsSync(join(victim, "Keep")), true);
+      assert.equal(existsSync(attemptDir), false);
+    } finally {
+      await reap([], dirs);
+    }
+  });
+
+  it("does not delete cw-keep-ABCDEF inside tmpdir", async () => {
+    const dirs = [];
+    const victim = join(tmpdir(), "cw-keep-ABCDEF");
+    try {
+      rmSync(victim, { recursive: true, force: true });
+      mkdirSync(victim);
+      dirs.push(victim);
+      writeFileSync(join(victim, "Keep"), "basename");
+      const attemptDir = mkdtempSync(join(tmpdir(), "lighthouse-cw-"));
+      dirs.push(attemptDir);
+      await killChromeForUserDataDir(attemptDir, {
+        listLines: () => [
+          `4254 chrome --user-data-dir=${victim} --user-data-dir=${attemptDir}`,
+        ],
+        readArgv: () => [
+          "chrome",
+          `--user-data-dir=${victim}`,
+          `--user-data-dir=${attemptDir}`,
+        ],
+        killFn: () => {},
+        isAlive: () => false,
+        extraDirs: [victim],
+        exitTimeoutMs: 20,
+      });
+      assert.equal(isOwnedTempProfile(victim), false);
+      assert.equal(existsSync(join(victim, "Keep")), true);
+      assert.equal(existsSync(attemptDir), false);
+    } finally {
+      await reap([], dirs);
+    }
+  });
+
+  it("does not rm a non-owned userDataDir", async () => {
+    const dirs = [];
+    try {
+      const victim = mkdtempSync(join(tmpdir(), "cw-not-owned-"));
+      dirs.push(victim);
+      writeFileSync(join(victim, "Keep"), "userdir");
+      await killChromeForUserDataDir(victim, {
+        listLines: () => [],
+        killFn: () => {},
+        isAlive: () => false,
+        exitTimeoutMs: 20,
+      });
+      assert.equal(isOwnedTempProfile(victim), false);
+      assert.equal(existsSync(join(victim, "Keep")), true);
+    } finally {
+      await reap([], dirs);
+    }
+  });
+
+  it("rejects a regular file with a matching launcher name", async () => {
+    const file = join(tmpdir(), `lighthouse.${seven()}`);
+    try {
+      writeFileSync(file, "not-a-dir");
+      assert.equal(isOwnedTempProfile(file), false);
+    } finally {
+      try {
+        rmSync(file, { force: true });
+      } catch {
+        // already gone
+      }
+    }
+  });
+
+  it("kills a token-less child in the matched process group", { timeout: 8_000 }, async () => {
+    const kids = [];
+    const dirs = [];
+    try {
+      const work = mkdtempSync(join(tmpdir(), "lighthouse-cw-"));
+      dirs.push(work);
+      writeFileSync(join(work, "Default"), "profile");
+      const childReady = join(work, "child-ready");
+      const leaderReady = join(work, "leader-ready");
+      const childPidFile = join(work, "child-pid");
+      const childScript = join(work, "child.cjs");
+      const leaderScript = join(work, "leader.cjs");
+      writeFileSync(
+        childScript,
+        `
+          const fs = require("node:fs");
+          fs.writeFileSync(process.env.CHILD_READY, "ready");
+          setInterval(() => {}, 1000);
+        `,
+      );
+      writeFileSync(
+        leaderScript,
+        `
+          const { spawn } = require("node:child_process");
+          const fs = require("node:fs");
+          const child = spawn(process.execPath, [process.env.CHILD_SCRIPT], {
+            stdio: "ignore",
+            env: process.env,
+          });
+          fs.writeFileSync(process.env.CHILD_PID_FILE, String(child.pid));
+          fs.writeFileSync(process.env.LEADER_READY, "ready");
+          setInterval(() => {}, 1000);
+        `,
+      );
+      const leader = spawn(
+        process.execPath,
+        [leaderScript, "--", `--user-data-dir=${work}`],
+        {
+          detached: true,
+          stdio: "ignore",
+          env: {
+            ...process.env,
+            CHILD_SCRIPT: childScript,
+            CHILD_READY: childReady,
+            CHILD_PID_FILE: childPidFile,
+            LEADER_READY: leaderReady,
+          },
+        },
+      );
+      leader.unref();
+      kids.push(leader);
+      await waitUntil(() => existsSync(leaderReady) && existsSync(childPidFile));
+      const childPid = Number.parseInt(readFileSync(childPidFile, "utf8"), 10);
+      await waitUntil(() => existsSync(childReady) && isPidAlive(childPid));
+      const killed = await killChromeForUserDataDir(work, { exitTimeoutMs: 400 });
+      assert.equal(killed.has(leader.pid), true);
+      await waitUntil(() => !isPidAlive(leader.pid) && !isPidAlive(childPid), 2_000);
+      assert.equal(isPidAlive(childPid), false);
+      assert.equal(existsSync(work), false);
+    } finally {
+      await reap(kids, dirs);
+    }
+  });
+
+  it("falls back to the PID when the match is not a group leader", { timeout: 8_000 }, async () => {
+    const kids = [];
+    const dirs = [];
+    try {
+      const work = mkdtempSync(join(tmpdir(), "lighthouse-cw-"));
+      dirs.push(work);
+      writeFileSync(join(work, "Default"), "profile");
+      const childReady = join(work, "child-ready");
+      const leaderReady = join(work, "leader-ready");
+      const childPidFile = join(work, "child-pid");
+      const childScript = join(work, "child.cjs");
+      const leaderScript = join(work, "leader.cjs");
+      writeFileSync(
+        childScript,
+        `
+          const fs = require("node:fs");
+          fs.writeFileSync(process.env.CHILD_READY, "ready");
+          setInterval(() => {}, 1000);
+        `,
+      );
+      writeFileSync(
+        leaderScript,
+        `
+          const { spawn } = require("node:child_process");
+          const fs = require("node:fs");
+          const child = spawn(process.execPath, [process.env.CHILD_SCRIPT, "--", process.env.CHILD_TOKEN], {
+            stdio: "ignore",
+            env: process.env,
+          });
+          fs.writeFileSync(process.env.CHILD_PID_FILE, String(child.pid));
+          fs.writeFileSync(process.env.LEADER_READY, "ready");
+          setInterval(() => {}, 1000);
+        `,
+      );
+      const leader = spawn(process.execPath, [leaderScript], {
+        detached: true,
+        stdio: "ignore",
+        env: {
+          ...process.env,
+          CHILD_SCRIPT: childScript,
+          CHILD_TOKEN: `--user-data-dir=${work}`,
+          CHILD_READY: childReady,
+          CHILD_PID_FILE: childPidFile,
+          LEADER_READY: leaderReady,
+        },
+      });
+      leader.unref();
+      kids.push(leader);
+      await waitUntil(() => existsSync(leaderReady) && existsSync(childPidFile));
+      const childPid = Number.parseInt(readFileSync(childPidFile, "utf8"), 10);
+      kids.push({ pid: childPid });
+      await waitUntil(() => existsSync(childReady) && isPidAlive(childPid));
+      const killed = await killChromeForUserDataDir(work, { exitTimeoutMs: 400 });
+      assert.equal(killed.has(childPid), true);
+      assert.equal(killed.has(leader.pid), false);
+      await waitUntil(() => !isPidAlive(childPid), 2_000);
+      assert.equal(isPidAlive(childPid), false);
+      assert.equal(isPidAlive(leader.pid), true);
+      assert.equal(existsSync(work), false);
+    } finally {
+      await reap(kids, dirs);
+    }
+  });
+
   it("parses only equals-form --user-data-dir tokens from /proc argv", () => {
     const src = readFileSync("scripts/lighthouse-chrome.mjs", "utf8");
     assert.doesNotMatch(src, /user-data-dir\(\?:=\|\\s\+\)/);
     assert.doesNotMatch(src, /line\.includes\(userDataDir\)/);
     assert.match(src, /\/proc\/\$\{pid\}\/cmdline/);
     assert.match(src, /isOwnedTempProfile/);
+    assert.match(src, /lighthouse\\\.\[A-Za-z0-9\]\{7\}/);
+    assert.doesNotMatch(src, /lighthouse\(\?:\\\.\|-cw-\)\[A-Za-z0-9\]\{6/);
+    assert.doesNotMatch(src, /\[A-Za-z0-9\]\{6,7\}/);
+    assert.match(src, /isDirectory\(\)/);
     assert.match(
       readFileSync("scripts/lighthouse-budget.mjs", "utf8"),
       /await cleanup\(userDataDir\)/,

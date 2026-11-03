@@ -7,7 +7,8 @@ export const CHROME_EXIT_WAIT_MS = 2_000;
 export const CHROME_EXIT_POLL_MS = 50;
 
 const USER_DATA_DIR_PREFIX = "--user-data-dir=";
-const LAUNCHER_DIR_NAME = /^lighthouse(?:\.|-cw-)[A-Za-z0-9]{6}$/;
+const LAUNCHER_DIR_NAME =
+  /^(?:lighthouse\.[A-Za-z0-9]{7}|lighthouse-cw-[A-Za-z0-9]{6})$/;
 
 export function listProcessLines() {
   try {
@@ -34,7 +35,8 @@ export function argvFor(pid, line) {
 export function isOwnedTempProfile(dir) {
   if (!dir || !isAbsolute(dir)) return false;
   try {
-    if (lstatSync(dir).isSymbolicLink()) return false;
+    const stat = lstatSync(dir);
+    if (stat.isSymbolicLink() || !stat.isDirectory()) return false;
     return (
       realpathSync(dirname(dir)) === realpathSync(tmpdir()) &&
       LAUNCHER_DIR_NAME.test(basename(dir))
