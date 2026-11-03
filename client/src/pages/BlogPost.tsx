@@ -20,8 +20,8 @@ import { ServiceIcon } from "@/components/ds/ServiceIcon";
 import { CtaBand } from "@/components/ds/CtaBand";
 import {
   absoluteUrl,
+  blogPostingDateFields,
   buildBreadcrumbSchema,
-  toPacificDateTime,
   type StructuredDataNode,
 } from "@/lib/structuredData";
 
@@ -355,18 +355,15 @@ const BlogPost = ({ params, initialPosts = [] }: BlogPostPageProps) => {
   const blogOgImage = getSeoForPath("/blog").ogImage;
   const pageUrl = absoluteUrl(`/blog/${slug}`);
   const resolvedBlogImage = resolveBlogImagePath(post);
-  const postIsoDate = toPacificDateTime(post.date);
-  if (!postIsoDate) {
-    throw new Error(`Blog post ${slug} has an unparseable date`);
-  }
+  const dateFields = blogPostingDateFields(post.date);
+  const postIsoDate = "datePublished" in dateFields ? dateFields.datePublished : undefined;
   const blogSchema: StructuredDataNode = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: post.title,
     description: pageDescription,
     image: absoluteUrl(resolvedBlogImage ?? blogOgImage ?? "/images/dr_wong_polaroids.png"),
-    datePublished: postIsoDate,
-    dateModified: postIsoDate,
+    ...dateFields,
     author: {
       "@type": "Organization",
       name: "Christopher B. Wong, DDS",

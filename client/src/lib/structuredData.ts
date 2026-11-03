@@ -5,6 +5,21 @@ import { toPacificDateTime, unixSecondsToIsoDateTime } from "@shared/isoDateTime
 
 export { toIsoDateString, toPacificDateTime } from "@shared/isoDateTime";
 
+/**
+ * BlogPosting datePublished/dateModified, or an empty object when the
+ * source date cannot be expanded to a timezone DateTime. Callers must
+ * spread this and must not throw — an unparseable date drops both
+ * fields so the article can still render in the browser.
+ */
+export function blogPostingDateFields(date: string): {
+  readonly datePublished: string;
+  readonly dateModified: string;
+} | Record<string, never> {
+  const iso = toPacificDateTime(date);
+  if (!iso) return {};
+  return { datePublished: iso, dateModified: iso };
+}
+
 export type FAQEntry = {
   question: string;
   answer: string;
