@@ -214,7 +214,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <Link
             href="/"
-            className="ui-focus-premium min-w-0 rounded-xl"
+            className="ui-focus-premium flex min-h-11 min-w-0 items-center rounded-xl"
             aria-label="Christopher B. Wong, DDS home"
           >
             <Wordmark compact />
