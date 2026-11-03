@@ -37,16 +37,21 @@ export function googleReviewStatsNegativeCacheKey(placeId: string): string[] {
   return ["google-place-review-stats-miss", placeId];
 }
 
+function negativeCacheStorageKey(placeId: string): string {
+  return googleReviewStatsNegativeCacheKey(placeId).join(":");
+}
+
 const negativeCacheUntil = new Map<string, number>();
 
 export function readGoogleReviewStatsNegativeCache(
   placeId: string,
   nowMs: number = Date.now(),
 ): boolean {
-  const expiresAt = negativeCacheUntil.get(placeId);
+  const storageKey = negativeCacheStorageKey(placeId);
+  const expiresAt = negativeCacheUntil.get(storageKey);
   if (expiresAt === undefined) return false;
   if (expiresAt <= nowMs) {
-    negativeCacheUntil.delete(placeId);
+    negativeCacheUntil.delete(storageKey);
     return false;
   }
   return true;
@@ -57,7 +62,7 @@ export function writeGoogleReviewStatsNegativeCache(
   nowMs: number = Date.now(),
 ): void {
   negativeCacheUntil.set(
-    placeId,
+    negativeCacheStorageKey(placeId),
     nowMs + GOOGLE_REVIEW_STATS_NEGATIVE_REVALIDATE_SECONDS * 1_000,
   );
 }
@@ -277,13 +282,13 @@ export async function getResolvedGoogleReviewStats(
     return withPublishedReviewCount(fallbackGoogleReviewSnapshot());
   }
 
-  if (await readNegative(placeId)) {
-    return withPublishedReviewCount(fallbackGoogleReviewSnapshot());
-  }
-
   const cached = deps.readLiveCache ? await deps.readLiveCache(placeId) : null;
   if (cached?.source === "live") {
     return withPublishedReviewCount(assertUsableGoogleReviewStats(cached));
+  }
+
+  if (await readNegative(placeId)) {
+    return withPublishedReviewCount(fallbackGoogleReviewSnapshot());
   }
 
   const stats = assertUsableGoogleReviewStats(

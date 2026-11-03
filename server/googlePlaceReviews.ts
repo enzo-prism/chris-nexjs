@@ -19,6 +19,10 @@ import {
 } from "@shared/googlePlaceReviews";
 
 async function fetchLiveOrThrow(): Promise<GoogleReviewStats> {
+  const placeId = defaultGooglePlaceId();
+  if (readGoogleReviewStatsNegativeCache(placeId)) {
+    throw new Error("google-review-stats-recent-miss");
+  }
   const stats = assertUsableGoogleReviewStats(await loadGoogleReviewStats());
   if (stats.source !== "live") {
     throw new Error("google-review-stats-not-live");
@@ -27,11 +31,11 @@ async function fetchLiveOrThrow(): Promise<GoogleReviewStats> {
 }
 
 /**
- * Daily-cached Google review totals. Only successful live reads enter the
- * 24h cache (keyed by place ID). Timeouts, missing keys, and unusable
- * payloads return the committed fallback. Misses are remembered for five
- * minutes in a separate process-local cache so the next request does not
- * re-hit Places; fallback is never stored as live data.
+ * Daily-cached Google review totals. The 24h `unstable_cache` is consulted
+ * first so a cached live snapshot wins over a process-local miss. Only a
+ * successful live read is stored there (the callback throws on fallback).
+ * Misses are remembered for five minutes so the next cold read does not
+ * re-hit Places.
  */
 export async function getGoogleReviewStats(
   deps?: ResolveGoogleReviewStatsDeps,
@@ -42,10 +46,6 @@ export async function getGoogleReviewStats(
 
   const placeId = defaultGooglePlaceId();
   if (!readGooglePlacesApiKey() || !placeId) {
-    return withPublishedReviewCount(fallbackGoogleReviewSnapshot());
-  }
-
-  if (readGoogleReviewStatsNegativeCache(placeId)) {
     return withPublishedReviewCount(fallbackGoogleReviewSnapshot());
   }
 

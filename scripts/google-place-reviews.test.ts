@@ -1,10 +1,15 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { beforeEach, describe, it } from "node:test";
+import { afterEach, beforeEach, describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
 import {
+  clearUnstableCacheForTests,
+  peekUnstableCacheForTests,
+} from "next/cache";
+import {
   clearGoogleReviewStatsNegativeCache,
+  defaultGooglePlaceId,
   displayedAggregateRating,
   fallbackGoogleReviewSnapshot,
   GOOGLE_PLACES_API_KEY_ENV,
@@ -350,33 +355,137 @@ describe("Places request contract", () => {
 });
 
 describe("server wrapper cache policy", () => {
+  const originalFetch = globalThis.fetch;
+  let previousPlacesKey: string | undefined;
+  let placesCalls = 0;
+
+  function installPlacesFetch(
+    handler: () => Response | Promise<Response>,
+  ): void {
+    placesCalls = 0;
+    globalThis.fetch = (async () => {
+      placesCalls += 1;
+      return handler();
+    }) as typeof fetch;
+  }
+
   beforeEach(() => {
     clearGoogleReviewStatsNegativeCache();
+    clearUnstableCacheForTests();
+    previousPlacesKey = process.env[GOOGLE_PLACES_API_KEY_ENV];
+    process.env[GOOGLE_PLACES_API_KEY_ENV] = "test-key";
+    placesCalls = 0;
   });
 
-  it("includes the place ID in the live cache key", () => {
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
+    if (previousPlacesKey === undefined) {
+      delete process.env[GOOGLE_PLACES_API_KEY_ENV];
+    } else {
+      process.env[GOOGLE_PLACES_API_KEY_ENV] = previousPlacesKey;
+    }
+    clearGoogleReviewStatsNegativeCache();
+    clearUnstableCacheForTests();
+  });
+
+  it("includes the place ID in the live 24h cache key", () => {
     assert.deepEqual(googleReviewStatsCacheKey("ChIJ-test"), [
       "google-place-review-stats",
       "ChIJ-test",
     ]);
   });
 
-  it("keeps the miss cache on a separate key and a 5-minute window", () => {
-    assert.deepEqual(googleReviewStatsNegativeCacheKey("ChIJ-test"), [
+  it("stores process-local misses under googleReviewStatsNegativeCacheKey", () => {
+    const placeId = "ChIJ-test";
+    assert.deepEqual(googleReviewStatsNegativeCacheKey(placeId), [
       "google-place-review-stats-miss",
-      "ChIJ-test",
+      placeId,
     ]);
     assert.notDeepEqual(
-      googleReviewStatsNegativeCacheKey("ChIJ-test"),
-      googleReviewStatsCacheKey("ChIJ-test"),
+      googleReviewStatsNegativeCacheKey(placeId),
+      googleReviewStatsCacheKey(placeId),
     );
+    writeGoogleReviewStatsNegativeCache(placeId);
+    assert.equal(readGoogleReviewStatsNegativeCache(placeId), true);
+    assert.equal(readGoogleReviewStatsNegativeCache("ChIJ-other"), false);
     assert.equal(GOOGLE_REVIEW_STATS_NEGATIVE_REVALIDATE_SECONDS, 300);
     assert.ok(
       GOOGLE_REVIEW_STATS_NEGATIVE_REVALIDATE_SECONDS < GOOGLE_REVIEW_STATS_REVALIDATE_SECONDS,
     );
   });
 
-  it("does not write a fallback into the live cache", async () => {
+  it("wrapper throw guard keeps fallback out of the 24h unstable_cache", async () => {
+    let mode: "miss" | "live" = "miss";
+    installPlacesFetch(() => {
+      if (mode === "miss") return jsonResponse({ error: { message: "denied" } }, 403);
+      return jsonResponse({ rating: 4.9, userRatingCount: 405 });
+    });
+
+    const first = await getGoogleReviewStats();
+    assert.equal(first.source, "fallback");
+    assert.equal(first.reviewCount, GOOGLE_REVIEW_COUNT);
+    assert.equal(placesCalls, 1);
+    assert.equal(
+      peekUnstableCacheForTests(googleReviewStatsCacheKey(defaultGooglePlaceId())),
+      undefined,
+    );
+
+    clearGoogleReviewStatsNegativeCache();
+    mode = "live";
+    const second = await getGoogleReviewStats();
+    assert.equal(second.source, "live");
+    assert.equal(second.reviewCount, 405);
+    assert.equal(placesCalls, 2);
+    const cached = peekUnstableCacheForTests(
+      googleReviewStatsCacheKey(defaultGooglePlaceId()),
+    ) as { readonly source?: string; readonly reviewCount?: number } | undefined;
+    assert.equal(cached?.source, "live");
+    assert.equal(cached?.reviewCount, 405);
+  });
+
+  it("wrapper miss cache skips Places after a recent failure", async () => {
+    installPlacesFetch(() => jsonResponse({ error: { message: "denied" } }, 403));
+
+    const first = await getGoogleReviewStats();
+    assert.equal(first.source, "fallback");
+    assert.equal(placesCalls, 1);
+    assert.equal(readGoogleReviewStatsNegativeCache(defaultGooglePlaceId()), true);
+
+    const second = await getGoogleReviewStats();
+    assert.equal(second.source, "fallback");
+    assert.equal(placesCalls, 1, "a recent miss must not re-hit Places");
+
+    writeGoogleReviewStatsNegativeCache(
+      defaultGooglePlaceId(),
+      Date.now() - (GOOGLE_REVIEW_STATS_NEGATIVE_REVALIDATE_SECONDS * 1_000 + 1),
+    );
+    const third = await getGoogleReviewStats();
+    assert.equal(third.source, "fallback");
+    assert.equal(placesCalls, 2, "an expired miss must retry Places");
+    assert.equal(
+      peekUnstableCacheForTests(googleReviewStatsCacheKey(defaultGooglePlaceId())),
+      undefined,
+    );
+  });
+
+  it("wrapper 24h live cache wins over a process-local miss", async () => {
+    installPlacesFetch(() => jsonResponse({ rating: 4.9, userRatingCount: 401 }));
+
+    const first = await getGoogleReviewStats();
+    assert.equal(first.source, "live");
+    assert.equal(first.reviewCount, 401);
+    assert.equal(placesCalls, 1);
+
+    writeGoogleReviewStatsNegativeCache(defaultGooglePlaceId());
+    assert.equal(readGoogleReviewStatsNegativeCache(defaultGooglePlaceId()), true);
+
+    const second = await getGoogleReviewStats();
+    assert.equal(second.source, "live");
+    assert.equal(second.reviewCount, 401);
+    assert.equal(placesCalls, 1, "cached live must not fall back to 382 after a miss");
+  });
+
+  it("injectable resolver does not call writeLiveCache for fallback", async () => {
     const writes: string[] = [];
     const stats = await getGoogleReviewStats({
       apiKey: "test-key",
@@ -389,98 +498,5 @@ describe("server wrapper cache policy", () => {
     assert.equal(stats.source, "fallback");
     assert.equal(stats.reviewCount, GOOGLE_REVIEW_COUNT);
     assert.deepEqual(writes, []);
-  });
-
-  it("remembers a Places miss for five minutes without storing fallback as live data", async () => {
-    clearGoogleReviewStatsNegativeCache();
-    let loads = 0;
-    const liveWrites: Array<{ readonly source: string }> = [];
-
-    const first = await getGoogleReviewStats({
-      apiKey: "test-key",
-      placeId: officeInfo.googlePlaceId,
-      load: async () => {
-        loads += 1;
-        return fallbackGoogleReviewSnapshot();
-      },
-      writeLiveCache: (_placeId, stats) => {
-        liveWrites.push(stats);
-      },
-    });
-    assert.equal(first.source, "fallback");
-    assert.equal(loads, 1);
-    assert.deepEqual(liveWrites, []);
-    assert.equal(readGoogleReviewStatsNegativeCache(officeInfo.googlePlaceId), true);
-
-    const second = await getGoogleReviewStats({
-      apiKey: "test-key",
-      placeId: officeInfo.googlePlaceId,
-      load: async () => {
-        loads += 1;
-        return fallbackGoogleReviewSnapshot();
-      },
-      writeLiveCache: (_placeId, stats) => {
-        liveWrites.push(stats);
-      },
-    });
-    assert.equal(second.source, "fallback");
-    assert.equal(loads, 1, "a recent miss must not re-hit Places");
-    assert.deepEqual(liveWrites, []);
-
-    writeGoogleReviewStatsNegativeCache(
-      officeInfo.googlePlaceId,
-      Date.now() - (GOOGLE_REVIEW_STATS_NEGATIVE_REVALIDATE_SECONDS * 1_000 + 1),
-    );
-    const third = await getGoogleReviewStats({
-      apiKey: "test-key",
-      placeId: officeInfo.googlePlaceId,
-      load: async () => {
-        loads += 1;
-        return fallbackGoogleReviewSnapshot();
-      },
-      writeLiveCache: (_placeId, stats) => {
-        liveWrites.push(stats);
-      },
-    });
-    assert.equal(third.source, "fallback");
-    assert.equal(loads, 2, "an expired miss must retry Places");
-    assert.deepEqual(liveWrites, []);
-    clearGoogleReviewStatsNegativeCache();
-  });
-
-  it("caches only a successful live snapshot, keyed by place ID", async () => {
-    const cache = new Map<string, ReturnType<typeof fallbackGoogleReviewSnapshot>>();
-    const live = {
-      ratingValue: 4.9,
-      reviewCount: 401,
-      lastUpdated: "2026-10-23",
-      source: "live" as const,
-    };
-    const first = await getGoogleReviewStats({
-      apiKey: "test-key",
-      placeId: officeInfo.googlePlaceId,
-      load: async () => live,
-      readLiveCache: async (placeId) => cache.get(placeId) ?? null,
-      writeLiveCache: (placeId, stats) => {
-        cache.set(placeId, stats);
-      },
-    });
-    assert.equal(first.source, "live");
-    assert.equal(first.reviewCount, 401);
-    assert.equal(cache.get(officeInfo.googlePlaceId)?.source, "live");
-
-    let loaded = 0;
-    const second = await getGoogleReviewStats({
-      apiKey: "test-key",
-      placeId: officeInfo.googlePlaceId,
-      load: async () => {
-        loaded += 1;
-        return fallbackGoogleReviewSnapshot();
-      },
-      readLiveCache: async (placeId) => cache.get(placeId) ?? null,
-    });
-    assert.equal(loaded, 0);
-    assert.equal(second.reviewCount, 401);
-    assert.equal(second.source, "live");
   });
 });
