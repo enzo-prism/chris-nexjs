@@ -3,7 +3,8 @@
  *
  * Google's DateTime fields (ProfilePage dateModified/datePublished,
  * BlogPosting dates, VideoObject uploadDate) reject date-only values and
- * anything Date.parse would silently overflow (Feb 30, month 13, …).
+ * anything a Date parser would silently overflow (Feb 30, month 13, …).
+ * Calendar and offset checks use validated numeric parts, not Date.parse.
  */
 
 export const STRUCTURED_DATA_TIME_ZONE = "America/Los_Angeles";
@@ -112,29 +113,109 @@ function normalizeGmtOffset(raw: string): string | null {
   return `${match[1]}${match[2].padStart(2, "0")}:${match[3] ?? "00"}`;
 }
 
+const WALL_CLOCK_OPTIONS: Intl.DateTimeFormatOptions = {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hourCycle: "h23",
+};
+
+function partsMap(
+  instant: Date,
+  timeZone: string,
+  extra: Intl.DateTimeFormatOptions = {},
+): Record<string, string> {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    ...WALL_CLOCK_OPTIONS,
+    ...extra,
+  });
+  return Object.fromEntries(
+    formatter.formatToParts(instant).map((part) => [part.type, part.value]),
+  );
+}
+
+function offsetFromUtcVsLocal(instant: Date, timeZone: string): string | null {
+  const local = partsMap(instant, timeZone);
+  const utc = partsMap(instant, "UTC");
+  const localMs = Date.UTC(
+    Number(local.year),
+    Number(local.month) - 1,
+    Number(local.day),
+    Number(local.hour),
+    Number(local.minute),
+    Number(local.second),
+  );
+  const utcMs = Date.UTC(
+    Number(utc.year),
+    Number(utc.month) - 1,
+    Number(utc.day),
+    Number(utc.hour),
+    Number(utc.minute),
+    Number(utc.second),
+  );
+  if (!Number.isFinite(localMs) || !Number.isFinite(utcMs)) return null;
+  const diffMin = Math.round((localMs - utcMs) / 60_000);
+  const sign = diffMin >= 0 ? "+" : "-";
+  const abs = Math.abs(diffMin);
+  return `${sign}${pad2(Math.floor(abs / 60))}:${pad2(abs % 60)}`;
+}
+
+function resolveTimeZoneOffset(instant: Date, timeZone: string): string | null {
+  for (const timeZoneName of ["shortOffset", "short"] as const) {
+    try {
+      const offset = normalizeGmtOffset(
+        partsMap(instant, timeZone, { timeZoneName }).timeZoneName ?? "",
+      );
+      if (offset) return offset;
+    } catch {
+      // Safari <15.4 / Chrome <95 / Firefox <91 reject longOffset and
+      // some also reject shortOffset. Fall through.
+    }
+  }
+  try {
+    return offsetFromUtcVsLocal(instant, timeZone);
+  } catch {
+    return null;
+  }
+}
+
 export function formatInstantInTimeZone(
   instant: Date,
   timeZone: string = STRUCTURED_DATA_TIME_ZONE,
 ): string | null {
-  if (Number.isNaN(instant.getTime())) return null;
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hourCycle: "h23",
-    timeZoneName: "longOffset",
-  });
-  const parts = Object.fromEntries(
-    formatter.formatToParts(instant).map((part) => [part.type, part.value]),
+  try {
+    if (Number.isNaN(instant.getTime())) return null;
+    const offset = resolveTimeZoneOffset(instant, timeZone);
+    if (!offset) return null;
+    const parts = partsMap(instant, timeZone);
+    const iso = `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}${offset}`;
+    return isValidIsoDateTime(iso) ? iso : null;
+  } catch {
+    return null;
+  }
+}
+
+function instantAtOffsetLocalMidnight(
+  date: CalendarDate,
+  offset: "-08:00" | "-07:00",
+): Date {
+  const sign = offset.startsWith("-") ? 1 : -1;
+  const hours = Number(offset.slice(1, 3));
+  const minutes = Number(offset.slice(4, 6));
+  return new Date(
+    Date.UTC(
+      date.year,
+      date.month - 1,
+      date.day,
+      sign * hours,
+      sign * minutes,
+      0,
+    ),
   );
-  const offset = normalizeGmtOffset(parts.timeZoneName ?? "");
-  if (!offset) return null;
-  const iso = `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}${offset}`;
-  return isValidIsoDateTime(iso) ? iso : null;
 }
 
 function pacificOffsetAtLocalMidnight(
@@ -142,8 +223,9 @@ function pacificOffsetAtLocalMidnight(
 ): "-08:00" | "-07:00" | null {
   const ymd = `${date.year}-${pad2(date.month)}-${pad2(date.day)}`;
   for (const offset of ["-08:00", "-07:00"] as const) {
-    const instant = new Date(`${ymd}T00:00:00${offset}`);
-    const formatted = formatInstantInTimeZone(instant);
+    const formatted = formatInstantInTimeZone(
+      instantAtOffsetLocalMidnight(date, offset),
+    );
     if (formatted === `${ymd}T00:00:00${offset}`) {
       return offset;
     }

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  formatInstantInTimeZone,
   isValidIsoDateTime,
   parseCalendarDate,
   toIsoDateString,
@@ -35,6 +36,23 @@ describe("isValidIsoDateTime", () => {
     assert.equal(isValidIsoDateTime("2026-10-28T00:00:60Z"), false);
     assert.equal(isValidIsoDateTime("2026-10-28T00:00:00-99:00"), false);
   });
+
+  it("rejects hour 24, a naive leap day, lowercase z, and multiline values", () => {
+    assert.equal(isValidIsoDateTime("2026-10-28T24:00:00Z"), false);
+    assert.equal(
+      isValidIsoDateTime("1900-02-29T00:00:00Z"),
+      false,
+      "1900 is not a leap year (naive year%4 would accept it)",
+    );
+    assert.equal(isValidIsoDateTime("2000-02-29T12:00:00Z"), true);
+    assert.equal(isValidIsoDateTime("2026-06-23T00:00:00z"), false);
+    assert.equal(isValidIsoDateTime("2026-06-23T00:00:00Z\n"), false);
+    assert.equal(isValidIsoDateTime("\n2026-06-23T00:00:00Z"), false);
+    assert.equal(
+      isValidIsoDateTime("2026-06-23T00:00:00Z\n2026-06-24T00:00:00Z"),
+      false,
+    );
+  });
 });
 
 describe("parseCalendarDate", () => {
@@ -61,6 +79,15 @@ describe("toPacificDateTime", () => {
       toPacificDateTime("2026-10-16T09:00:00-07:00"),
       "2026-10-16T09:00:00-07:00",
     );
+    assert.equal(
+      toPacificDateTime("  2026-10-16T09:00:00-07:00  "),
+      "2026-10-16T09:00:00-07:00",
+    );
+  });
+
+  it("trims date-only input before expanding to midnight Pacific", () => {
+    assert.equal(toPacificDateTime("  2026-06-23  "), "2026-06-23T00:00:00-07:00");
+    assert.equal(toPacificDateTime("  March 29, 2026  "), "2026-03-29T00:00:00-07:00");
   });
 
   it("expands date-only and named dates to midnight Pacific with the DST offset", () => {
@@ -102,5 +129,63 @@ describe("toIsoDateString", () => {
     assert.equal(toIsoDateString("March 29, 2026"), "2026-03-29");
     assert.equal(toIsoDateString("2026-10-28T00:00:00-07:00"), "2026-10-28");
     assert.equal(toIsoDateString("2026-02-30"), null);
+  });
+});
+
+describe("formatInstantInTimeZone without longOffset", () => {
+  const OriginalDateTimeFormat = Intl.DateTimeFormat;
+
+  function installStub(
+    impl: (
+      locales?: string | string[],
+      options?: Intl.DateTimeFormatOptions,
+    ) => Intl.DateTimeFormat,
+  ): () => void {
+    const Stub = function (
+      this: unknown,
+      locales?: string | string[],
+      options?: Intl.DateTimeFormatOptions,
+    ) {
+      return impl(locales, options);
+    } as unknown as typeof Intl.DateTimeFormat;
+    Object.defineProperty(Stub, "supportedLocalesOf", {
+      value: OriginalDateTimeFormat.supportedLocalesOf.bind(OriginalDateTimeFormat),
+    });
+    Intl.DateTimeFormat = Stub;
+    return () => {
+      Intl.DateTimeFormat = OriginalDateTimeFormat;
+    };
+  }
+
+  it("still formats when longOffset is rejected", () => {
+    const restore = installStub((locales, options) => {
+      if (options?.timeZoneName === "longOffset") {
+        throw new RangeError("Invalid option : longOffset");
+      }
+      return new OriginalDateTimeFormat(locales, options);
+    });
+    try {
+      const iso = formatInstantInTimeZone(new Date(1772057711 * 1000));
+      assert.equal(iso, "2026-02-25T14:15:11-08:00");
+      assert.equal(toPacificDateTime("2026-06-23"), "2026-06-23T00:00:00-07:00");
+      assert.equal(unixSecondsToIsoDateTime(1772057711), "2026-02-25T14:15:11-08:00");
+    } finally {
+      restore();
+    }
+  });
+
+  it("returns null instead of throwing when Intl.DateTimeFormat is unavailable", () => {
+    const restore = installStub(() => {
+      throw new RangeError("Intl.DateTimeFormat is broken");
+    });
+    try {
+      assert.equal(formatInstantInTimeZone(new Date(1772057711 * 1000)), null);
+      assert.equal(
+        toPacificDateTime("2026-10-16T09:00:00-07:00"),
+        "2026-10-16T09:00:00-07:00",
+      );
+    } finally {
+      restore();
+    }
   });
 });

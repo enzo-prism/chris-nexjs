@@ -70,25 +70,30 @@ function useTodayHours(): string | null {
   return label;
 }
 
+const WORDMARK_SUBLINE_FULL = "Family & Cosmetic Dentistry · Palo Alto";
+const WORDMARK_SUBLINE_SHORT = "Palo Alto Dentistry";
+
 function Wordmark({ compact = false }: { readonly compact?: boolean }) {
   return (
     <span
       className={cn(
         "flex items-center gap-2.5",
-        compact ? "min-w-0" : "min-w-0 min-[1440px]:min-w-max",
+        compact ? "min-w-0" : "shrink-0",
       )}
     >
       <LogoMark className={cn("shrink-0 text-evergreen-800", compact ? "h-8 w-8 min-[400px]:h-9 min-[400px]:w-9" : "h-11 w-11")} />
       <span
         className={cn(
           "flex flex-col leading-none",
-          compact ? "min-w-0" : "min-w-0 min-[1440px]:min-w-max",
+          compact ? "min-w-0" : "shrink-0",
         )}
       >
         <span
           className={cn(
-            "truncate font-heading font-medium tracking-[-0.01em] text-ink",
-            compact ? "text-[1rem] min-[400px]:text-[1.06rem]" : "text-[1.3rem]",
+            "font-heading font-medium tracking-[-0.01em] text-ink",
+            compact
+              ? "truncate text-[1rem] min-[400px]:text-[1.06rem]"
+              : "whitespace-nowrap text-[1.3rem]",
           )}
         >
           Christopher B. Wong, DDS
@@ -98,10 +103,17 @@ function Wordmark({ compact = false }: { readonly compact?: boolean }) {
             "mt-1 font-semibold uppercase tracking-[0.18em] text-evergreen-600",
             compact
               ? "truncate text-[0.6rem]"
-              : "truncate text-[0.66rem] min-[1440px]:overflow-visible min-[1440px]:text-clip",
+              : "whitespace-nowrap text-[0.66rem]",
           )}
         >
-          {compact ? "Palo Alto Dentistry" : "Family & Cosmetic Dentistry · Palo Alto"}
+          {compact ? (
+            WORDMARK_SUBLINE_SHORT
+          ) : (
+            <>
+              <span className="hidden min-[1440px]:inline">{WORDMARK_SUBLINE_FULL}</span>
+              <span className="min-[1440px]:hidden">{WORDMARK_SUBLINE_SHORT}</span>
+            </>
+          )}
         </span>
       </span>
     </span>
@@ -380,7 +392,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
         <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6 lg:h-[4.75rem] lg:px-8">
           <Link
             href="/"
-            className="ui-focus-premium -ml-1 min-w-0 rounded-2xl p-1 min-[1440px]:min-w-max"
+            className="ui-focus-premium -ml-1 min-w-0 rounded-2xl p-1 min-[1440px]:min-w-max lg:min-w-0 lg:shrink-0"
             aria-label="Christopher B. Wong, DDS home"
           >
             <span className="lg:hidden">

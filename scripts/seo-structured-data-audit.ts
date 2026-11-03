@@ -127,7 +127,14 @@ function validateStructuredDates(nodes: JsonRecord[], path: string, failures: Fa
     if (nodeHasType(record, "BlogPosting") || nodeHasType(record, "Article")) {
       const typeName = nodeHasType(record, "BlogPosting") ? "BlogPosting" : "Article";
       for (const key of ARTICLE_DATE_KEYS) {
-        assertIsoDateTime(path, typeName, key, record[key], failures);
+        assertIsoDateTime(
+          path,
+          typeName,
+          key,
+          record[key],
+          failures,
+          typeName === "BlogPosting" && key === "datePublished",
+        );
       }
     }
     if (nodeHasType(record, "VideoObject")) {
