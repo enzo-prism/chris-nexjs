@@ -1,8 +1,13 @@
+const isProd = process.env.NODE_ENV === "production";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   distDir: process.env.NEXT_DIST_DIR || ".next",
+  // `page.dev.tsx` is only a route in development so fixture previews never
+  // enter the production app-paths manifest.
+  pageExtensions: isProd ? ["tsx", "ts"] : ["tsx", "ts", "dev.tsx"],
   compiler: {
-    removeConsole: process.env.NODE_ENV === "production",
+    removeConsole: isProd,
   },
   experimental: {
     optimizePackageImports: ["lucide-react"],
@@ -13,7 +18,11 @@ const nextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
-      { protocol: "https", hostname: "res.cloudinary.com" },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        pathname: "/dhqpqfw6w/**",
+      },
     ],
   },
   poweredByHeader: false,

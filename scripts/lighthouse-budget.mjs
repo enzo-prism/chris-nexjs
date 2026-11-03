@@ -1,4 +1,10 @@
 import { execSync } from "node:child_process";
+import { mkdtempSync, realpathSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { killChromeForUserDataDir } from "./lighthouse-chrome.mjs";
 
 const DEFAULT_CHROME_FLAGS =
   "--headless --no-sandbox --disable-dev-shm-usage";
@@ -9,6 +15,23 @@ const baseUrl = (
 
 const runsPerRoute = Number.parseInt(process.env.LIGHTHOUSE_RUNS || "3", 10);
 const skipPrecheck = process.env.LIGHTHOUSE_SKIP_PRECHECK === "1";
+const DEFAULT_LAUNCH_RETRIES = 3;
+
+function parseLaunchRetries(raw) {
+  if (raw == null || raw === "") {
+    return DEFAULT_LAUNCH_RETRIES;
+  }
+  const parsed = Number.parseInt(String(raw), 10);
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    console.warn(
+      `LIGHTHOUSE_LAUNCH_RETRIES=${JSON.stringify(raw)} is not a valid count; using ${DEFAULT_LAUNCH_RETRIES}.`,
+    );
+    return DEFAULT_LAUNCH_RETRIES;
+  }
+  return parsed;
+}
+
+const launchRetries = parseLaunchRetries(process.env.LIGHTHOUSE_LAUNCH_RETRIES);
 
 const budgets = [
   {
@@ -101,11 +124,20 @@ const budgets = [
   },
 ];
 
-function runLighthouse(url) {
+function isChromeLaunchFlake(error) {
+  const message = `${error?.message ?? ""} ${error?.stderr ?? ""}`;
+  return /waiting for dynamic debugging port/i.test(message);
+}
+
+export async function runLighthouseOnce(url, options = {}) {
+  const userDataDir =
+    options.userDataDir ?? mkdtempSync(join(tmpdir(), "lighthouse-cw-"));
+  const runCommand = options.execSync ?? execSync;
+  const cleanup = options.cleanup ?? killChromeForUserDataDir;
   const command = [
     "npx --yes lighthouse",
     url,
-    `--chrome-flags='${DEFAULT_CHROME_FLAGS}'`,
+    `--chrome-flags='${DEFAULT_CHROME_FLAGS} --user-data-dir=${userDataDir}'`,
     "--only-categories=performance,seo",
     "--throttling-method=provided",
     "--output=json",
@@ -113,13 +145,37 @@ function runLighthouse(url) {
     "--quiet",
   ].join(" ");
 
-  const stdout = execSync(command, {
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"],
-    maxBuffer: 16 * 1024 * 1024,
-  });
+  try {
+    const stdout = runCommand(command, {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+      maxBuffer: 16 * 1024 * 1024,
+    });
+    return JSON.parse(stdout);
+  } finally {
+    await cleanup(userDataDir);
+  }
+}
 
-  return JSON.parse(stdout);
+async function runLighthouse(url) {
+  const attempts = Math.max(1, launchRetries);
+  let lastError;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      return await runLighthouseOnce(url);
+    } catch (error) {
+      lastError = error;
+      if (!isChromeLaunchFlake(error) || attempt === attempts) {
+        throw error;
+      }
+      console.warn(
+        `Lighthouse Chrome launch failed (attempt ${attempt}/${attempts}), retrying...`,
+      );
+    }
+  }
+
+  throw lastError;
 }
 
 function fmtMs(value) {
@@ -184,11 +240,11 @@ async function assertPrecheck() {
   }
 }
 
-function summarizeRuns(url, runCount) {
+async function summarizeRuns(url, runCount) {
   const samples = [];
 
   for (let index = 0; index < runCount; index += 1) {
-    const report = runLighthouse(url);
+    const report = await runLighthouse(url);
     samples.push({
       performance: report.categories.performance.score ?? 0,
       lcp:
@@ -215,7 +271,7 @@ async function main() {
 
   for (const budget of budgets) {
     const targetUrl = `${baseUrl}${budget.path}`;
-    const summary = summarizeRuns(targetUrl, Math.max(1, runsPerRoute));
+    const summary = await summarizeRuns(targetUrl, Math.max(1, runsPerRoute));
     const performance = summary.performance;
     const lcp = summary.lcp;
     const cls = summary.cls;
@@ -259,7 +315,19 @@ async function main() {
   console.log("\nLighthouse budget passed.");
 }
 
-main().catch((error) => {
-  console.error("Lighthouse budget failed:", error);
-  process.exit(1);
-});
+function isMainModule() {
+  const entry = process.argv[1];
+  if (!entry) return false;
+  try {
+    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(entry);
+  } catch {
+    return false;
+  }
+}
+
+if (isMainModule()) {
+  main().catch((error) => {
+    console.error("Lighthouse budget failed:", error);
+    process.exit(1);
+  });
+}

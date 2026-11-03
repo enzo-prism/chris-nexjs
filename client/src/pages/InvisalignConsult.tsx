@@ -206,6 +206,8 @@ const InvisalignConsult = ({ reviewPreview = false }: { readonly reviewPreview?:
         <StepList steps={visitSteps} columns={4} className="mt-10" />
       </Section>
 
+      {/* Media band stays unimported until approved assets land. */}
+
       <CostPanel
         id="invisalign-cost"
         tone="paper"

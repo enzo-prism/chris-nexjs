@@ -4,6 +4,11 @@ import assert from "node:assert/strict";
 
 import { seoByPath } from "../shared/seo";
 import { getStorage } from "../server/storage/repository";
+import {
+  imageAuditExitCode,
+  verifyImageUrl,
+  type ImageAuditFailure,
+} from "./image-audit-retry";
 
 const BASE_URL = (process.env.IMAGE_AUDIT_BASE_URL || "http://localhost:3000").replace(
   /\/+$/,
@@ -14,11 +19,7 @@ const IMAGE_EXTENSIONS = /\.(png|jpe?g|webp|avif|gif|svg|ico)(?:[?#].*)?$/i;
 const SOURCE_DIRS = ["client/src", "app", "shared"] as const;
 const SOURCE_EXTENSIONS = new Set([".ts", ".tsx", ".js", ".jsx", ".css"]);
 
-type Failure = {
-  scope: "source" | "runtime" | "budget";
-  target: string;
-  reason: string;
-};
+type Failure = ImageAuditFailure;
 
 const CRITICAL_IMAGE_BUDGETS: Record<string, number> = {
   "/": 200 * 1024,
@@ -195,69 +196,6 @@ async function fetchText(url: string): Promise<{ status: number; body: string }>
   return { status: response.status, body };
 }
 
-async function verifyImageUrl(url: string): Promise<Failure | null> {
-  try {
-    const response = await fetch(url, {
-      redirect: "follow",
-      signal: AbortSignal.timeout(45_000),
-      headers: {
-        Accept: "image/*,*/*;q=0.8",
-        "User-Agent": "chris-nextjs-image-audit/1.0",
-      },
-    });
-
-    if (response.status >= 400) {
-      response.body?.cancel();
-      return {
-        scope: "runtime",
-        target: url,
-        reason: `Image request returned status ${response.status}`,
-      };
-    }
-
-    const contentType = (response.headers.get("content-type") || "").toLowerCase();
-
-    if (contentType.includes("text/html")) {
-      response.body?.cancel();
-      return {
-        scope: "runtime",
-        target: url,
-        reason: "URL responded with HTML instead of image bytes",
-      };
-    }
-
-    if (
-      contentType &&
-      !contentType.startsWith("image/") &&
-      !contentType.startsWith("application/octet-stream")
-    ) {
-      response.body?.cancel();
-      return {
-        scope: "runtime",
-        target: url,
-        reason: `Unexpected content-type for image: ${contentType}`,
-      };
-    }
-
-    const imageBytes = await response.arrayBuffer();
-    if (imageBytes.byteLength === 0) {
-      return {
-        scope: "runtime",
-        target: url,
-        reason: "Image response contained no bytes",
-      };
-    }
-
-    return null;
-  } catch (error) {
-    return {
-      scope: "runtime",
-      target: url,
-      reason: `Image request failed: ${error instanceof Error ? error.message : String(error)}`,
-    };
-  }
-}
-
 async function getImageSizeBytes(url: string): Promise<number | null> {
   const headResponse = await fetch(url, {
     method: "HEAD",
@@ -421,7 +359,7 @@ async function main() {
   const runtimeFailures = await validateRuntimeImages();
   const failures = [...sourceFailures, ...runtimeFailures];
 
-  if (failures.length > 0) {
+  if (imageAuditExitCode(failures) !== 0) {
     console.error("Image audit failed:");
     for (const failure of failures) {
       console.error(`- [${failure.scope}] ${failure.target}: ${failure.reason}`);
