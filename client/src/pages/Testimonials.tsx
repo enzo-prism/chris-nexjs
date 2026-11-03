@@ -199,7 +199,7 @@ const Testimonials = ({ initialTestimonials }: TestimonialsProps) => {
                 priority
                 fetchPriority="high"
                 sizes="(max-width: 1024px) 100vw, 42vw"
-                className="aspect-[4/3] h-auto w-full object-cover object-[50%_10%]"
+                className="aspect-[4/5] h-auto w-full object-cover object-[50%_30%] lg:aspect-[5/6]"
               />
               <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-evergreen-950/85 via-evergreen-950/20 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-5 text-cream-50 sm:p-7">
