@@ -66,6 +66,6 @@ The root client review verified production GA4 ingestion of October 27
 ingestion after the contact safeguard, actual office receipt, front-desk
 owner/backup and private outcome tracker adoption remain separate operating
 checks.
-Already-confirmed capacity is 2–3 new consults/week and one-business-day response
-when delivered like Formspree. The tracker is blank. No live form was submitted,
+Weekly capacity and a response deadline remain unconfirmed; Dr. Wong provides a
+number. The tracker is blank. No live form was submitted,
 patient outcome invented, ad activated, or SMS sent in this preparation.

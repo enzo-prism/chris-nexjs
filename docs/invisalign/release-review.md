@@ -12,11 +12,9 @@ does not deploy or change office systems.
   appointment type, change-visit disclosure, direct form CTA and office phone.
 - Existing `/invisalign`: indexable informational page remains unchanged.
 - [Office follow-up workflow](office-follow-up.md) and [blank tracker](outcome-tracker.csv).
-- Capacity is confirmed at 2–3 new consults per week. Front desk can respond
-  within one business day if inquiries arrive like Formspree.
-- Named owner/backup, approved private tracker location, exact ad variants,
-  approved asset access and budget cap remain unresolved. No campaign is launched
-  by this change.
+- Exact ad variants, approved asset access, weekly capacity and budget cap remain
+  subject to the existing client review. No campaign is launched by this change.
+- Named owner/backup and approved private tracker location remain unresolved.
 
 ## Tracking contract
 
@@ -54,9 +52,8 @@ both remain unresolved. Do not create fake production conversions to fill that g
 3. Retain the October 24 release evidence. Verify public routes read-only;
    establish actual office-delivery and GA ingestion proof from a genuine,
    authorized inquiry without generating fake acquisition conversions.
-4. Name the inquiry owner/backup and approve a private tracker location. Plan
-   around 2–3 new consults per week and the confirmed one-business-day response
-   target, conditional on Formspree-like inquiry delivery.
+4. Office confirms capacity, inquiry owner/backup and response target. No exact
+   response deadline is promised on the campaign page while this is unconfirmed.
 5. Separately approve exact ads, assets and budget before paid traffic starts.
 
 ## Scope boundaries
