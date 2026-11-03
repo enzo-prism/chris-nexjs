@@ -166,18 +166,88 @@ test("contact honeypot acknowledgement stays quiet without a lead", async ({ pag
   assertGoogleHostsBlocked();
 });
 
-test("an explicit accepted contact emits generate_lead once with contact params", async ({ page }) => {
-  await page.route("**/api/contact", (route) => route.fulfill({
-    status: 201, contentType: "application/json", body: JSON.stringify({ ok: true, accepted: true }),
-  }));
+test("an explicit accepted contact emits generate_lead once with the main payload", async ({ page }) => {
+  const posts: Array<Record<string, unknown>> = [];
+  await page.route("**/api/contact", async (route) => {
+    posts.push(route.request().postDataJSON() as Record<string, unknown>);
+    await route.fulfill({
+      status: 201, contentType: "application/json", body: JSON.stringify({ ok: true, accepted: true }),
+    });
+  });
   await submitContact(page);
   await expect(page).toHaveURL(/\/thank-you$/);
+  expect(posts).toHaveLength(1);
+  expect(posts[0]?.company).toBe("");
   const names = await eventNames(page);
   expect(names.filter((name) => name === "generate_lead")).toHaveLength(1);
   expect(names.filter((name) => name === "contact_form_submit")).toHaveLength(1);
-  expect(await generateLeadPayloads(page)).toEqual([
-    { form_name: "contact", lead_source: "contact_form" },
-  ]);
+  const payloads = await generateLeadPayloads(page);
+  expect(payloads).toHaveLength(1);
+  expect(payloads[0]).toMatchObject({
+    form_name: "contact_form",
+    lead_type: "contact_request",
+    lead_source: "contact_form",
+    page_path: "/contact",
+    page_category: "trust",
+  });
+  expect(typeof payloads[0]?.lead_channel).toBe("string");
+  assertGoogleHostsBlocked();
+});
+
+test("a network abort does not fire generate_lead", async ({ page }) => {
+  await page.route("**/api/contact", (route) => route.abort());
+  await submitContact(page);
+  await expect(page.getByRole("alert").filter({ hasText: /we could not send your message/i })).toBeVisible();
+  expect(await eventNames(page)).not.toContain("generate_lead");
+  expect(await eventNames(page)).not.toContain("contact_form_submit");
+  assertGoogleHostsBlocked();
+});
+
+test("a double click posts once and emits each lead event once", async ({ page }) => {
+  let posts = 0;
+  await page.route("**/api/contact", async (route) => {
+    posts += 1;
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    await route.fulfill({
+      status: 201, contentType: "application/json", body: JSON.stringify({ ok: true, accepted: true }),
+    });
+  });
+  await page.goto("https://www.chriswongdds.com/contact", { waitUntil: "networkidle" });
+  await page.getByLabel("Full name", { exact: true }).fill("Contact Example");
+  await page.getByLabel("Email address", { exact: true }).fill("contact.example@example.com");
+  await page.getByLabel("Phone number", { exact: true }).fill("6505550100");
+  await page.getByRole("combobox").click();
+  await page.getByRole("option", { name: "Services and treatment options", exact: true }).click();
+  await page.getByRole("textbox", { name: "Message", exact: true }).fill("Synthetic intercepted browser check.");
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Send message", exact: true }).dblclick();
+  await expect(page).toHaveURL(/\/thank-you$/);
+  expect(posts).toBe(1);
+  const names = await eventNames(page);
+  expect(names.filter((name) => name === "generate_lead")).toHaveLength(1);
+  expect(names.filter((name) => name === "contact_form_submit")).toHaveLength(1);
+  assertGoogleHostsBlocked();
+});
+
+test("a filled honeypot does not fire generate_lead", async ({ page }) => {
+  await page.route("**/api/contact", (route) => route.fulfill({
+    status: 201, contentType: "application/json", body: JSON.stringify({ ok: true, accepted: false }),
+  }));
+  await page.goto("https://www.chriswongdds.com/contact", { waitUntil: "networkidle" });
+  await page.getByLabel("Full name", { exact: true }).fill("Contact Example");
+  await page.getByLabel("Email address", { exact: true }).fill("contact.example@example.com");
+  await page.getByLabel("Phone number", { exact: true }).fill("6505550100");
+  await page.getByRole("combobox").click();
+  await page.getByRole("option", { name: "Services and treatment options", exact: true }).click();
+  await page.getByRole("textbox", { name: "Message", exact: true }).fill("Synthetic intercepted browser check.");
+  await page.getByRole("checkbox").check();
+  await page.locator("#contact-company").evaluate((el) => {
+    (el as HTMLInputElement).value = "Acme Bot Corp";
+  });
+  await page.getByRole("button", { name: "Send message", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: /^Message sent\.$/ })).toBeVisible();
+  expect(await eventNames(page)).not.toContain("generate_lead");
+  expect(await eventNames(page)).not.toContain("contact_form_submit");
   assertGoogleHostsBlocked();
 });
 

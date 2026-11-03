@@ -204,37 +204,19 @@ const leadCalls: unknown[][] = [];
 (globalThis as any).window.gtag = (...args: unknown[]) => {
   leadCalls.push(args);
 };
-trackLeadConversion(
-  ANALYTICS_EVENTS.contactFormSubmit,
-  {
-    form_name: "contact_form",
-    lead_type: "contact_request",
-    lead_source: "contact_form",
-  },
-  {
-    generateLeadProperties: {
-      form_name: "contact",
-      lead_source: "contact_form",
-    },
-  },
-);
+const mainLeadProperties = {
+  form_name: "contact_form",
+  lead_type: "contact_request",
+  lead_source: "contact_form",
+};
+trackLeadConversion(ANALYTICS_EVENTS.contactFormSubmit, mainLeadProperties);
 assert.deepStrictEqual(
   leadCalls.filter((args) => args[0] === "event" && args[1] === "contact_form_submit"),
-  [
-    [
-      "event",
-      "contact_form_submit",
-      {
-        form_name: "contact_form",
-        lead_type: "contact_request",
-        lead_source: "contact_form",
-      },
-    ],
-  ],
+  [["event", "contact_form_submit", mainLeadProperties]],
 );
 assert.deepStrictEqual(
   leadCalls.filter((args) => args[0] === "event" && args[1] === "generate_lead"),
-  [["event", "generate_lead", { form_name: "contact", lead_source: "contact_form" }]],
+  [["event", "generate_lead", mainLeadProperties]],
 );
 
 console.log("analytics tests passed");

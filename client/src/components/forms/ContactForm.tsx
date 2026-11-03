@@ -53,6 +53,8 @@ const ContactForm = () => {
   const [privacyError, setPrivacyError] = useState(false);
   const honeypotRef = useRef<HTMLInputElement>(null);
   const privacyRef = useRef<HTMLButtonElement>(null);
+  const submitLockRef = useRef(false);
+  const leadEmittedRef = useRef(false);
   const errorSummaryRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<ContactFormValues>({
@@ -86,11 +88,11 @@ const ContactForm = () => {
         pagePath: pageContext.page_path,
         pageCategory: pageContext.page_category,
       });
-      if (leadEvents) {
+      if (leadEvents && !leadEmittedRef.current) {
+        leadEmittedRef.current = true;
         trackLeadConversion(
           leadEvents.contactFormSubmit.eventName,
           leadEvents.contactFormSubmit.properties,
-          { generateLeadProperties: leadEvents.generateLead.properties },
         );
       }
       if (result.preview || result.test) {
@@ -108,6 +110,7 @@ const ContactForm = () => {
     },
     onError: (error) => {
       console.error("Error sending message:", error);
+      submitLockRef.current = false;
       setSubmissionState("error");
       window.requestAnimationFrame(() => errorSummaryRef.current?.focus());
     },
@@ -120,9 +123,11 @@ const ContactForm = () => {
       window.requestAnimationFrame(() => privacyRef.current?.focus());
       return;
     }
+    if (submitLockRef.current) return;
 
     setPrivacyError(false);
     setSubmissionState("submitting");
+    submitLockRef.current = true;
     contactMutation.mutate({
       ...data,
       [HONEYPOT_FIELD]: honeypotRef.current?.value ?? "",
