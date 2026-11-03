@@ -1,0 +1,567 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { afterEach, beforeEach, describe, it } from "node:test";
+import { fileURLToPath } from "node:url";
+
+import {
+  clearUnstableCacheForTests,
+  peekUnstableCacheForTests,
+  peekUnstableCacheOptionsForTests,
+} from "next/cache";
+import {
+  clearGoogleReviewStatsNegativeCache,
+  defaultGooglePlaceId,
+  displayedAggregateRating,
+  fallbackGoogleReviewSnapshot,
+  GOOGLE_PLACE_ID_ENV,
+  GOOGLE_PLACES_API_KEY_ENV,
+  GOOGLE_PLACES_FIELD_MASK,
+  GOOGLE_REVIEW_STATS_NEGATIVE_REVALIDATE_SECONDS,
+  GOOGLE_REVIEW_STATS_REVALIDATE_SECONDS,
+  googleReviewStatsCacheKey,
+  googleReviewStatsNegativeCacheKey,
+  isUsableRating,
+  isUsableReviewCount,
+  loadGoogleReviewStats,
+  parsePlacesReviewFields,
+  placesDetailsUrl,
+  readGooglePlacesApiKey,
+  readGoogleReviewStatsNegativeCache,
+  resolveGoogleReviewStats,
+  withPublishedReviewCount,
+  writeGoogleReviewStatsNegativeCache,
+} from "../shared/googlePlaceReviews";
+import { getGoogleReviewStats } from "../server/googlePlaceReviews";
+import {
+  GOOGLE_REVIEW_COUNT,
+  MAX_GOOGLE_REVIEW_COUNT,
+  PUBLISHED_REVIEW_COUNT,
+  PUBLISHED_REVIEW_RATING,
+  REVIEW_STATS_LAST_UPDATED,
+  publishedTestimonialAggregateRating,
+} from "../shared/reviewStats";
+import { officeInfo } from "../shared/officeInfo";
+
+const NOW = new Date("2026-10-23T12:00:00.000Z");
+
+function jsonResponse(body: unknown, status = 200): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+function hangingPlacesFetch(_input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  return new Promise((_resolve, reject) => {
+    const fail = () => {
+      const error = new Error("The operation was aborted");
+      error.name = "TimeoutError";
+      reject(error);
+    };
+    const timer = setTimeout(fail, 250);
+    const signal = init?.signal;
+    if (!signal || signal.aborted) {
+      clearTimeout(timer);
+      fail();
+      return;
+    }
+    signal.addEventListener(
+      "abort",
+      () => {
+        clearTimeout(timer);
+        fail();
+      },
+      { once: true },
+    );
+  });
+}
+
+describe("committed review stats", () => {
+  it("keeps the published aggregate aligned with the displayed constants", () => {
+    assert.equal(publishedTestimonialAggregateRating.ratingValue, PUBLISHED_REVIEW_RATING);
+    assert.equal(publishedTestimonialAggregateRating.reviewCount, PUBLISHED_REVIEW_COUNT);
+    assert.equal(REVIEW_STATS_LAST_UPDATED, "2026-09-23");
+    assert.ok(GOOGLE_REVIEW_COUNT > 0);
+    assert.ok(PUBLISHED_REVIEW_COUNT >= GOOGLE_REVIEW_COUNT);
+  });
+});
+
+describe("isUsableReviewCount", () => {
+  it("accepts only finite integers between the fallback and fallback*3", () => {
+    assert.equal(isUsableReviewCount(GOOGLE_REVIEW_COUNT), true);
+    assert.equal(isUsableReviewCount(401), true);
+    assert.equal(isUsableReviewCount(MAX_GOOGLE_REVIEW_COUNT), true);
+    assert.equal(isUsableReviewCount(GOOGLE_REVIEW_COUNT - 1), false);
+    assert.equal(isUsableReviewCount(MAX_GOOGLE_REVIEW_COUNT + 1), false);
+    assert.equal(isUsableReviewCount(0), false);
+    assert.equal(isUsableReviewCount(12.5), false);
+    assert.equal(isUsableReviewCount("400"), false);
+    assert.equal(isUsableReviewCount("382"), false);
+    assert.equal(isUsableReviewCount(null), false);
+  });
+});
+
+describe("parsePlacesReviewFields", () => {
+  it("reads Places API (New) fields", () => {
+    assert.deepEqual(parsePlacesReviewFields({ rating: 5, userRatingCount: 401 }), {
+      ratingValue: 5,
+      reviewCount: 401,
+    });
+  });
+
+  it("reads legacy Place Details fields", () => {
+    assert.deepEqual(
+      parsePlacesReviewFields({ result: { rating: 4.9, user_ratings_total: 399 } }),
+      { ratingValue: 4.9, reviewCount: 399 },
+    );
+  });
+
+  it("returns null for an empty or unrelated payload", () => {
+    assert.equal(parsePlacesReviewFields(null), null);
+    assert.equal(parsePlacesReviewFields({}), null);
+    assert.equal(parsePlacesReviewFields("nope"), null);
+  });
+});
+
+describe("resolveGoogleReviewStats fallback path", () => {
+  it("falls back when live data is missing", () => {
+    const stats = resolveGoogleReviewStats({ live: null });
+    assert.equal(stats.source, "fallback");
+    assert.equal(stats.reviewCount, GOOGLE_REVIEW_COUNT);
+    assert.equal(stats.ratingValue, PUBLISHED_REVIEW_RATING);
+    assert.ok(stats.reviewCount > 0);
+  });
+
+  it("falls back when the live count is 0, blank, a string, or out of bounds", () => {
+    const zeros = [
+      { ratingValue: 5, reviewCount: 0 },
+      { ratingValue: 5, reviewCount: null },
+      { ratingValue: 5, reviewCount: "" },
+      { ratingValue: 5, reviewCount: "400" },
+      { ratingValue: 5, reviewCount: -1 },
+      { ratingValue: 5, reviewCount: 12.5 },
+      { ratingValue: 5, reviewCount: GOOGLE_REVIEW_COUNT - 1 },
+      { ratingValue: 5, reviewCount: MAX_GOOGLE_REVIEW_COUNT + 1 },
+    ];
+    for (const live of zeros) {
+      const stats = resolveGoogleReviewStats({ live });
+      assert.equal(stats.source, "fallback", JSON.stringify(live));
+      assert.equal(stats.reviewCount, GOOGLE_REVIEW_COUNT);
+      assert.notEqual(stats.reviewCount, 0);
+    }
+  });
+
+  it("falls back when the live rating is 0, blank, or out of range", () => {
+    const badRatings = [
+      { ratingValue: 0, reviewCount: 400 },
+      { ratingValue: null, reviewCount: 400 },
+      { ratingValue: "", reviewCount: 400 },
+      { ratingValue: 6, reviewCount: 400 },
+      { ratingValue: Number.NaN, reviewCount: 400 },
+    ];
+    for (const live of badRatings) {
+      const stats = resolveGoogleReviewStats({ live });
+      assert.equal(stats.source, "fallback", JSON.stringify(live));
+      assert.equal(stats.ratingValue, PUBLISHED_REVIEW_RATING);
+    }
+  });
+
+  it("accepts a usable live payload, uses Pacific lastUpdated, and keeps aggregateRating in lockstep", () => {
+    const stats = resolveGoogleReviewStats({
+      live: { ratingValue: 4.9, reviewCount: 401 },
+      now: NOW,
+    });
+    assert.equal(stats.source, "live");
+    assert.equal(stats.reviewCount, 401);
+    assert.equal(stats.ratingValue, 4.9);
+    assert.equal(stats.lastUpdated, "2026-10-23");
+    assert.deepEqual(displayedAggregateRating(stats), {
+      ratingValue: 4.9,
+      reviewCount: 401,
+    });
+  });
+
+  it("computes lastUpdated in America/Los_Angeles, not UTC", () => {
+    // 06:30 UTC on Oct 24 is still Oct 23 in Pacific Daylight Time.
+    const stats = resolveGoogleReviewStats({
+      live: { ratingValue: 4.9, reviewCount: 401 },
+      now: new Date("2026-10-24T06:30:00.000Z"),
+    });
+    assert.equal(stats.lastUpdated, "2026-10-23");
+  });
+});
+
+describe("loadGoogleReviewStats fallback path", () => {
+  it("returns the committed snapshot when no API key is set", async () => {
+    const stats = await loadGoogleReviewStats({
+      apiKey: null,
+      placeId: officeInfo.googlePlaceId,
+      fetchImpl: () => {
+        throw new Error("fetch should not run without a key");
+      },
+    });
+    assert.deepEqual(stats, fallbackGoogleReviewSnapshot());
+    assert.ok(stats.reviewCount > 0);
+  });
+
+  it("returns the committed snapshot when the place id is blank", async () => {
+    const stats = await loadGoogleReviewStats({
+      apiKey: "test-key",
+      placeId: "   ",
+      fetchImpl: () => {
+        throw new Error("fetch should not run without a place id");
+      },
+    });
+    assert.equal(stats.source, "fallback");
+    assert.equal(stats.reviewCount, GOOGLE_REVIEW_COUNT);
+  });
+
+  it("falls back when fetch throws", async () => {
+    const stats = await loadGoogleReviewStats({
+      apiKey: "test-key",
+      placeId: officeInfo.googlePlaceId,
+      fetchImpl: () => {
+        throw new Error("network down");
+      },
+    });
+    assert.equal(stats.source, "fallback");
+    assert.equal(stats.reviewCount, GOOGLE_REVIEW_COUNT);
+    assert.notEqual(stats.reviewCount, 0);
+  });
+
+  it("falls back on a non-OK Places response", async () => {
+    const stats = await loadGoogleReviewStats({
+      apiKey: "test-key",
+      placeId: officeInfo.googlePlaceId,
+      fetchImpl: async () => jsonResponse({ error: { message: "denied" } }, 403),
+    });
+    assert.equal(stats.source, "fallback");
+    assert.equal(stats.reviewCount, GOOGLE_REVIEW_COUNT);
+  });
+
+  it("falls back when Places returns a 0 count", async () => {
+    const stats = await loadGoogleReviewStats({
+      apiKey: "test-key",
+      placeId: officeInfo.googlePlaceId,
+      fetchImpl: async () => jsonResponse({ rating: 5, userRatingCount: 0 }),
+    });
+    assert.equal(stats.source, "fallback");
+    assert.equal(stats.reviewCount, GOOGLE_REVIEW_COUNT);
+    assert.ok(isUsableReviewCount(stats.reviewCount));
+    assert.ok(isUsableRating(stats.ratingValue));
+  });
+
+  it("falls back when a hanging Places fetch times out or aborts", async () => {
+    const started = Date.now();
+    const stats = await loadGoogleReviewStats({
+      apiKey: "test-key",
+      placeId: officeInfo.googlePlaceId,
+      timeoutMs: 40,
+      fetchImpl: hangingPlacesFetch,
+    });
+    assert.ok(Date.now() - started < 1000, "hanging fetch must not stall the render");
+    assert.equal(stats.source, "fallback");
+    assert.equal(stats.reviewCount, GOOGLE_REVIEW_COUNT);
+  });
+
+  it("bounds the entire Places read when response headers arrive but the body hangs", async () => {
+    const stats = await Promise.race([
+      loadGoogleReviewStats({
+        apiKey: "test-key",
+        placeId: officeInfo.googlePlaceId,
+        timeoutMs: 20,
+        fetchImpl: async () => ({
+          ok: true,
+          json: () => new Promise(() => {}),
+        }) as Response,
+      }),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 250)),
+    ]);
+    assert.ok(stats, "a stalled response body must not stall the render");
+    assert.equal(stats.source, "fallback");
+    assert.equal(stats.reviewCount, GOOGLE_REVIEW_COUNT);
+  });
+
+  it("uses the live count when Places returns a usable payload", async () => {
+    const stats = await loadGoogleReviewStats({
+      apiKey: "test-key",
+      placeId: officeInfo.googlePlaceId,
+      now: NOW,
+      fetchImpl: async (input) => {
+        assert.equal(String(input), placesDetailsUrl(officeInfo.googlePlaceId));
+        return jsonResponse({ rating: 5, userRatingCount: 405 });
+      },
+    });
+    assert.equal(stats.source, "live");
+    assert.equal(stats.reviewCount, 405);
+    assert.equal(stats.ratingValue, 5);
+    const published = withPublishedReviewCount(stats);
+    assert.equal(published.publishedReviewCount, PUBLISHED_REVIEW_COUNT);
+    assert.deepEqual(displayedAggregateRating(stats), {
+      ratingValue: 5,
+      reviewCount: 405,
+    });
+  });
+});
+
+describe("Places request contract", () => {
+  it("keeps the field mask exactly rating,userRatingCount", async () => {
+    assert.equal(GOOGLE_PLACES_FIELD_MASK, "rating,userRatingCount");
+    assert.doesNotMatch(GOOGLE_PLACES_FIELD_MASK, /reviews/i);
+    assert.deepEqual(GOOGLE_PLACES_FIELD_MASK.split(","), ["rating", "userRatingCount"]);
+
+    let fieldMask: string | null = null;
+    await loadGoogleReviewStats({
+      apiKey: "test-key",
+      placeId: officeInfo.googlePlaceId,
+      now: NOW,
+      fetchImpl: async (_input, init) => {
+        fieldMask = new Headers(init?.headers).get("X-Goog-FieldMask");
+        return jsonResponse({ rating: 5, userRatingCount: 405 });
+      },
+    });
+    assert.equal(fieldMask, "rating,userRatingCount");
+    assert.doesNotMatch(fieldMask ?? "", /reviews/i);
+  });
+
+  it("does not read the Places key from a NEXT_PUBLIC_ env var", () => {
+    assert.equal(GOOGLE_PLACES_API_KEY_ENV, "GOOGLE_PLACES_API_KEY");
+    assert.ok(!GOOGLE_PLACES_API_KEY_ENV.startsWith("NEXT_PUBLIC_"));
+    assert.equal(
+      readGooglePlacesApiKey({
+        NEXT_PUBLIC_GOOGLE_PLACES_API_KEY: "should-not-be-read",
+      }),
+      null,
+    );
+    assert.equal(
+      readGooglePlacesApiKey({
+        NEXT_PUBLIC_GOOGLE_PLACES_API_KEY: "should-not-be-read",
+        GOOGLE_PLACES_API_KEY: "  test-key  ",
+      }),
+      "test-key",
+    );
+  });
+
+  it("marks both Places modules as server-only", () => {
+    const shared = readFileSync(
+      fileURLToPath(new URL("../shared/googlePlaceReviews.ts", import.meta.url)),
+      "utf8",
+    );
+    const server = readFileSync(
+      fileURLToPath(new URL("../server/googlePlaceReviews.ts", import.meta.url)),
+      "utf8",
+    );
+    assert.match(shared, /^import ["']server-only["'];/m);
+    assert.match(server, /^import ["']server-only["'];/m);
+  });
+});
+
+describe("server wrapper cache policy", () => {
+  const originalFetch = globalThis.fetch;
+  let previousPlacesKey: string | undefined;
+  let previousPlaceId: string | undefined;
+  let placesCalls = 0;
+
+  function installPlacesFetch(
+    handler: () => Response | Promise<Response>,
+  ): void {
+    placesCalls = 0;
+    globalThis.fetch = (async () => {
+      placesCalls += 1;
+      return handler();
+    }) as typeof fetch;
+  }
+
+  beforeEach(() => {
+    clearGoogleReviewStatsNegativeCache();
+    clearUnstableCacheForTests();
+    previousPlacesKey = process.env[GOOGLE_PLACES_API_KEY_ENV];
+    previousPlaceId = process.env[GOOGLE_PLACE_ID_ENV];
+    process.env[GOOGLE_PLACES_API_KEY_ENV] = "test-key";
+    placesCalls = 0;
+  });
+
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
+    if (previousPlacesKey === undefined) {
+      delete process.env[GOOGLE_PLACES_API_KEY_ENV];
+    } else {
+      process.env[GOOGLE_PLACES_API_KEY_ENV] = previousPlacesKey;
+    }
+    if (previousPlaceId === undefined) {
+      delete process.env[GOOGLE_PLACE_ID_ENV];
+    } else {
+      process.env[GOOGLE_PLACE_ID_ENV] = previousPlaceId;
+    }
+    clearGoogleReviewStatsNegativeCache();
+    clearUnstableCacheForTests();
+  });
+
+  it("includes the place ID in the live 24h cache key", () => {
+    assert.deepEqual(googleReviewStatsCacheKey("ChIJ-test"), [
+      "google-place-review-stats",
+      "ChIJ-test",
+    ]);
+  });
+
+  it("stores process-local misses under googleReviewStatsNegativeCacheKey", () => {
+    const placeId = "ChIJ-test";
+    assert.deepEqual(googleReviewStatsNegativeCacheKey(placeId), [
+      "google-place-review-stats-miss",
+      placeId,
+    ]);
+    assert.notDeepEqual(
+      googleReviewStatsNegativeCacheKey(placeId),
+      googleReviewStatsCacheKey(placeId),
+    );
+    writeGoogleReviewStatsNegativeCache(placeId);
+    assert.equal(readGoogleReviewStatsNegativeCache(placeId), true);
+    assert.equal(readGoogleReviewStatsNegativeCache("ChIJ-other"), false);
+    assert.equal(GOOGLE_REVIEW_STATS_NEGATIVE_REVALIDATE_SECONDS, 300);
+    assert.ok(
+      GOOGLE_REVIEW_STATS_NEGATIVE_REVALIDATE_SECONDS < GOOGLE_REVIEW_STATS_REVALIDATE_SECONDS,
+    );
+  });
+
+  it("wrapper throw guard keeps fallback out of the 24h unstable_cache", async () => {
+    let mode: "miss" | "live" = "miss";
+    installPlacesFetch(() => {
+      if (mode === "miss") return jsonResponse({ error: { message: "denied" } }, 403);
+      return jsonResponse({ rating: 4.9, userRatingCount: 405 });
+    });
+
+    const first = await getGoogleReviewStats();
+    assert.equal(first.source, "fallback");
+    assert.equal(first.reviewCount, GOOGLE_REVIEW_COUNT);
+    assert.equal(placesCalls, 1);
+    assert.equal(
+      peekUnstableCacheForTests(googleReviewStatsCacheKey(defaultGooglePlaceId())),
+      undefined,
+    );
+
+    clearGoogleReviewStatsNegativeCache();
+    mode = "live";
+    const second = await getGoogleReviewStats();
+    assert.equal(second.source, "live");
+    assert.equal(second.reviewCount, 405);
+    assert.equal(placesCalls, 2);
+    const cached = peekUnstableCacheForTests(
+      googleReviewStatsCacheKey(defaultGooglePlaceId()),
+    ) as { readonly source?: string; readonly reviewCount?: number } | undefined;
+    assert.equal(cached?.source, "live");
+    assert.equal(cached?.reviewCount, 405);
+  });
+
+  it("wrapper miss cache skips Places after a recent failure", async () => {
+    installPlacesFetch(() => jsonResponse({ error: { message: "denied" } }, 403));
+
+    const first = await getGoogleReviewStats();
+    assert.equal(first.source, "fallback");
+    assert.equal(placesCalls, 1);
+    assert.equal(readGoogleReviewStatsNegativeCache(defaultGooglePlaceId()), true);
+
+    const second = await getGoogleReviewStats();
+    assert.equal(second.source, "fallback");
+    assert.equal(placesCalls, 1, "a recent miss must not re-hit Places");
+
+    writeGoogleReviewStatsNegativeCache(
+      defaultGooglePlaceId(),
+      Date.now() - (GOOGLE_REVIEW_STATS_NEGATIVE_REVALIDATE_SECONDS * 1_000 + 1),
+    );
+    const third = await getGoogleReviewStats();
+    assert.equal(third.source, "fallback");
+    assert.equal(placesCalls, 2, "an expired miss must retry Places");
+    assert.equal(
+      peekUnstableCacheForTests(googleReviewStatsCacheKey(defaultGooglePlaceId())),
+      undefined,
+    );
+  });
+
+  it("wrapper 24h live cache wins over a process-local miss", async () => {
+    installPlacesFetch(() => jsonResponse({ rating: 4.9, userRatingCount: 401 }));
+
+    const first = await getGoogleReviewStats();
+    assert.equal(first.source, "live");
+    assert.equal(first.reviewCount, 401);
+    assert.equal(placesCalls, 1);
+
+    writeGoogleReviewStatsNegativeCache(defaultGooglePlaceId());
+    assert.equal(readGoogleReviewStatsNegativeCache(defaultGooglePlaceId()), true);
+
+    const second = await getGoogleReviewStats();
+    assert.equal(second.source, "live");
+    assert.equal(second.reviewCount, 401);
+    assert.equal(placesCalls, 1, "cached live must not fall back to 382 after a miss");
+  });
+
+  it("wrapper miss expiry is not extended by a later sentinel throw", async () => {
+    const placeId = defaultGooglePlaceId();
+    const now = Date.now();
+    writeGoogleReviewStatsNegativeCache(placeId, now - 240_000);
+    installPlacesFetch(() => {
+      throw new Error("Places must not run during a live miss window");
+    });
+
+    const stats = await getGoogleReviewStats();
+    assert.equal(stats.source, "fallback");
+    assert.equal(placesCalls, 0);
+    assert.equal(
+      readGoogleReviewStatsNegativeCache(placeId, now + 120_000),
+      false,
+      "a sentinel miss must not push expiry past the original five minutes",
+    );
+  });
+
+  it("records a 86400s revalidate window and the google-review-stats tag", async () => {
+    installPlacesFetch(() => jsonResponse({ rating: 4.9, userRatingCount: 401 }));
+    await getGoogleReviewStats();
+    assert.deepEqual(
+      peekUnstableCacheOptionsForTests(googleReviewStatsCacheKey(defaultGooglePlaceId())),
+      {
+        revalidate: GOOGLE_REVIEW_STATS_REVALIDATE_SECONDS,
+        tags: ["google-review-stats"],
+      },
+    );
+    assert.equal(GOOGLE_REVIEW_STATS_REVALIDATE_SECONDS, 86_400);
+  });
+
+  it("keeps the 24h cache keyed by place ID", async () => {
+    process.env[GOOGLE_PLACE_ID_ENV] = "place-a";
+    installPlacesFetch(() => jsonResponse({ rating: 4.9, userRatingCount: 401 }));
+    const firstA = await getGoogleReviewStats();
+    assert.equal(firstA.reviewCount, 401);
+
+    process.env[GOOGLE_PLACE_ID_ENV] = "place-b";
+    installPlacesFetch(() => jsonResponse({ rating: 4.8, userRatingCount: 410 }));
+    const firstB = await getGoogleReviewStats();
+    assert.equal(firstB.reviewCount, 410);
+    assert.notEqual(
+      peekUnstableCacheForTests(googleReviewStatsCacheKey("place-a")),
+      peekUnstableCacheForTests(googleReviewStatsCacheKey("place-b")),
+    );
+
+    process.env[GOOGLE_PLACE_ID_ENV] = "place-a";
+    installPlacesFetch(() => {
+      throw new Error("cached place-a must not re-hit Places");
+    });
+    const secondA = await getGoogleReviewStats();
+    assert.equal(secondA.source, "live");
+    assert.equal(secondA.reviewCount, 401);
+    assert.equal(placesCalls, 0);
+  });
+
+  it("injectable resolver does not call writeLiveCache for fallback", async () => {
+    const writes: string[] = [];
+    const stats = await getGoogleReviewStats({
+      apiKey: "test-key",
+      placeId: officeInfo.googlePlaceId,
+      load: async () => fallbackGoogleReviewSnapshot(),
+      writeLiveCache: (placeId) => {
+        writes.push(placeId);
+      },
+    });
+    assert.equal(stats.source, "fallback");
+    assert.equal(stats.reviewCount, GOOGLE_REVIEW_COUNT);
+    assert.deepEqual(writes, []);
+  });
+});

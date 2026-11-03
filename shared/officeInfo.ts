@@ -11,6 +11,9 @@ export const officeInfo = {
   },
   mapUrl:
     "https://www.google.com/maps/place/Christopher+B.+Wong,+DDS/@37.426868,-122.1480673,17z/data=!3m1!4b1!4m6!3m5!1s0x808fbae5dc7c3f7d:0x4f5fe523f9acd432!8m2!3d37.426868!4d-122.145487!16s%2Fg%2F1tvw54x_",
+  // Public Google Place ID for the same Business Profile as mapUrl / reviewUrl.
+  // A Places API key is still required before this can fetch a live count.
+  googlePlaceId: "ChIJfT983OW6j4ARMtSs-SPlX08",
   // Opens the Google review dialog for the practice's Business Profile
   // (place id derived from the same listing as mapUrl).
   reviewUrl:

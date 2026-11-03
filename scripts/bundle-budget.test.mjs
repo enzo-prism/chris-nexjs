@@ -1,4 +1,5 @@
 import { execSync } from "node:child_process";
+import { parseRouteLine } from "./bundle-budget-lib.mjs";
 
 // Next.js 15 and React 19 add roughly 13KB of framework runtime to every route
 // compared with the previous Next.js 14 baseline. These ceilings preserve the
@@ -30,18 +31,6 @@ const CRITICAL_ROUTE_BUDGETS = new Map([
   ["/dentist-menlo-park", LOCATION_HUB_MAX_KB],
   ["/analytics", ANALYTICS_MAX_KB],
 ]);
-
-function parseRouteLine(line) {
-  const match = line.match(
-    /^\s*[┌├└│]\s*[○ƒ]\s+(\S+)\s+.*?(\d+(?:\.\d+)?)\s*kB\s*$/,
-  );
-  if (!match) return null;
-
-  return {
-    route: match[1],
-    firstLoadKb: Number.parseFloat(match[2]),
-  };
-}
 
 function getBudgetForRoute(route) {
   if (CRITICAL_ROUTE_BUDGETS.has(route)) {

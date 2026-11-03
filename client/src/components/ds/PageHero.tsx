@@ -4,9 +4,8 @@ import { CalendarDays, Phone } from "lucide-react";
 
 import { officeInfo } from "@/lib/data";
 import { cn } from "@/lib/utils";
-import { GOOGLE_REVIEW_COUNT } from "@shared/reviewStats";
 import PageBreadcrumbs, { type BreadcrumbTrailItem } from "@/components/common/PageBreadcrumbs";
-import { StarRow } from "./Reviews";
+import { GoogleReviewProof } from "@/components/reviews/GoogleReviewProof";
 import { ServiceIcon, type ServiceIconName } from "./ServiceIcon";
 
 type PageHeroProps = {
@@ -117,8 +116,7 @@ export function PageHero({
                   href="/testimonials"
                   className={cn("pill transition-colors hover:border-gold-400", reviewLinkClassName)}
                 >
-                  <StarRow size="h-3.5 w-3.5" />
-                  {GOOGLE_REVIEW_COUNT} five-star Google reviews
+                  <GoogleReviewProof surface="page-hero" variant="chip" />
                 </Link>
               ) : null}
               {chips.map((chip, i) => (

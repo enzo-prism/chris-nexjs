@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 
 import { officeInfo } from "@/lib/data";
-import { GOOGLE_REVIEW_COUNT } from "@shared/reviewStats";
+import { GoogleReviewProof } from "@/components/reviews/GoogleReviewProof";
 import { Section } from "@/components/ds/Section";
 import { SectionHeading } from "@/components/ds/SectionHeading";
 import { ServiceIcon } from "@/components/ds/ServiceIcon";
@@ -73,7 +73,7 @@ export function ReviewRibbon() {
         <div>
           <p className="eyebrow">In their words</p>
           <h2 id="ribbon-title" className="h-section mt-3 text-[1.9rem] sm:text-[2.4rem]">
-            {GOOGLE_REVIEW_COUNT} five-star reviews, <em>and counting</em>
+            <GoogleReviewProof surface="home-sections" variant="heading" />
           </h2>
         </div>
         <Link href="/testimonials" className="btn btn-outline self-start sm:self-auto">

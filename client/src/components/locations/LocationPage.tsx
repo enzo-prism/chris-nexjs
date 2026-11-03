@@ -2,13 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CalendarDays, MapPin, Phone } from "lucide-react";
 
-import { GOOGLE_REVIEW_COUNT } from "@shared/reviewStats";
 import { officeInfo } from "@/lib/data";
+import { GoogleReviewProof } from "@/components/reviews/GoogleReviewProof";
 import StructuredData from "@/components/seo/StructuredData";
 import PageBreadcrumbs from "@/components/common/PageBreadcrumbs";
 import { CtaBand } from "@/components/ds/CtaBand";
 import { FaqList } from "@/components/ds/FaqList";
-import { StarRow } from "@/components/ds/Reviews";
 import { Section } from "@/components/ds/Section";
 import { SectionHeading } from "@/components/ds/SectionHeading";
 import { ServiceIcon } from "@/components/ds/ServiceIcon";
@@ -78,8 +77,7 @@ export function LocationPage({ location }: { readonly location: LocationContent 
             </div>
             <div className="rise-in rise-in-4 mt-6 flex flex-wrap items-center gap-2">
               <Link href="/testimonials" className="pill min-h-11 transition-colors hover:border-gold-400">
-                <StarRow size="h-3.5 w-3.5" />
-                {GOOGLE_REVIEW_COUNT} five-star Google reviews
+                <GoogleReviewProof surface="location-page" variant="chip" />
               </Link>
               {location.chips.map((chip) => (
                 <span key={chip} className="pill">

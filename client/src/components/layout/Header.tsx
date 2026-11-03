@@ -36,7 +36,7 @@ import {
   serviceGroups,
   type NavItem,
 } from "@/data/siteNav";
-import { GOOGLE_REVIEW_COUNT } from "@shared/reviewStats";
+import { GoogleReviewProof } from "@/components/reviews/GoogleReviewProof";
 
 type MenuId = "services" | "about" | "patients";
 
@@ -342,7 +342,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
               className="inline-flex items-center gap-1.5 rounded-sm text-cream-100/85 hover:text-cream-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold-300"
             >
               <Star className="h-3.5 w-3.5 fill-gold-400 text-gold-400" aria-hidden="true" />
-              {GOOGLE_REVIEW_COUNT} five-star Google reviews
+              <GoogleReviewProof surface="header" variant="utility" />
             </Link>
             <a
               href={officeInfo.socialMedia.instagram}

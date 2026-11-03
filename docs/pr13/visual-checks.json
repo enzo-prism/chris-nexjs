@@ -1,0 +1,32 @@
+{
+  "checked": "2026-10-28",
+  "base": "local production build",
+  "checks": [
+    {
+      "route": "/about",
+      "width": 1280,
+      "horizontalOverflow": false,
+      "warriorsSections": 1,
+      "photoLoaded": true
+    },
+    {
+      "route": "/testimonials",
+      "width": 1280,
+      "horizontalOverflow": false,
+      "portraits": 3
+    },
+    {
+      "route": "/about",
+      "width": 390,
+      "horizontalOverflow": false,
+      "warriorsSections": 1,
+      "photoLoaded": true
+    },
+    {
+      "route": "/testimonials",
+      "width": 390,
+      "horizontalOverflow": false,
+      "portraits": 3
+    }
+  ]
+}

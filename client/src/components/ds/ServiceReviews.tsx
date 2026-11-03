@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-import { GOOGLE_REVIEW_COUNT } from "@shared/reviewStats";
 import { cn } from "@/lib/utils";
+import { GoogleReviewProof } from "@/components/reviews/GoogleReviewProof";
 import { reviewsFor, type ReviewTag } from "@/data/serviceReviews";
 import { ReviewCard } from "./Reviews";
 
@@ -39,7 +39,7 @@ export function ServiceReviews({
             {note ? <p className="mt-3 text-[15px] text-ink-muted">{note}</p> : null}
           </div>
           <Link href="/testimonials" className="btn btn-outline self-start sm:self-auto">
-            All {GOOGLE_REVIEW_COUNT} Google reviews
+            <GoogleReviewProof surface="service-reviews" variant="all-link" />
             <ArrowRight aria-hidden="true" />
           </Link>
         </div>
