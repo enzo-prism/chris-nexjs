@@ -311,6 +311,18 @@ async function main(): Promise<void> {
       } else if (!mainEntity || !nodeHasType(mainEntity, "Person")) {
         failures.push({ path, message: "ProfilePage mainEntity should be a Person" });
       }
+      // Google reads ProfilePage dateCreated/dateModified as DateTime: a bare
+      // YYYY-MM-DD triggers "Invalid datetime value" in Search Console.
+      for (const key of ["dateCreated", "dateModified"] as const) {
+        const value = profile?.[key];
+        if (
+          value !== undefined &&
+          (typeof value !== "string" ||
+            !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})$/.test(value))
+        ) {
+          failures.push({ path, message: `ProfilePage ${key} must be an ISO 8601 DateTime with timezone` });
+        }
+      }
     }
 
     if (path === "/services") {
