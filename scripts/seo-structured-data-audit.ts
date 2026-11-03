@@ -13,9 +13,14 @@
  *     be a favicon; VideoObject needs name, description, thumbnailUrl,
  *     uploadDate and contentUrl/embedUrl; Person.name must not repeat "Dr.".
  *   - /about must expose a ProfilePage whose mainEntity is a Person.
+ *   - Every ProfilePage (not only /about), BlogPosting/Article, and
+ *     VideoObject date field must be a full ISO 8601 DateTime with an
+ *     explicit offset or Z. Date.parse is not used — it accepts overflow
+ *     dates such as 2026-02-30.
  */
 import { getStorage } from "../server/storage/repository";
 import { generateMetadata } from "../app/[...slug]/page";
+import { isValidIsoDateTime } from "../shared/isoDateTime";
 import { getIndexablePaths, getSeoForPath } from "../shared/seo";
 
 type Failure = {
@@ -72,6 +77,70 @@ function walkObjects(value: unknown, visit: (record: JsonRecord) => void): void 
     visit(record);
     Object.values(record).forEach((entry) => walkObjects(entry, visit));
   }
+}
+
+const PROFILE_DATE_KEYS = ["dateCreated", "datePublished", "dateModified"] as const;
+const ARTICLE_DATE_KEYS = ["datePublished", "dateModified"] as const;
+
+type DateTimeSighting = {
+  path: string;
+  type: string;
+  field: string;
+  value: string;
+  ok: boolean;
+};
+
+const dateTimeReport: DateTimeSighting[] = [];
+
+function assertIsoDateTime(
+  path: string,
+  nodeType: string,
+  field: string,
+  value: unknown,
+  failures: Failure[],
+  required = false,
+): void {
+  if (value === undefined || value === null) {
+    if (required) {
+      failures.push({ path, message: `${nodeType} is missing ${field}` });
+    }
+    return;
+  }
+  const asString = typeof value === "string" ? value : JSON.stringify(value);
+  const ok = typeof value === "string" && isValidIsoDateTime(value);
+  dateTimeReport.push({ path, type: nodeType, field, value: asString, ok });
+  if (!ok) {
+    failures.push({
+      path,
+      message: `${nodeType} ${field} must be a full ISO 8601 DateTime with timezone (got ${asString})`,
+    });
+  }
+}
+
+function validateStructuredDates(nodes: JsonRecord[], path: string, failures: Failure[]): void {
+  walkObjects(nodes, (record) => {
+    if (nodeHasType(record, "ProfilePage")) {
+      for (const key of PROFILE_DATE_KEYS) {
+        assertIsoDateTime(path, "ProfilePage", key, record[key], failures);
+      }
+    }
+    if (nodeHasType(record, "BlogPosting") || nodeHasType(record, "Article")) {
+      const typeName = nodeHasType(record, "BlogPosting") ? "BlogPosting" : "Article";
+      for (const key of ARTICLE_DATE_KEYS) {
+        assertIsoDateTime(
+          path,
+          typeName,
+          key,
+          record[key],
+          failures,
+          typeName === "BlogPosting" && key === "datePublished",
+        );
+      }
+    }
+    if (nodeHasType(record, "VideoObject")) {
+      assertIsoDateTime(path, "VideoObject", "uploadDate", record.uploadDate, failures, true);
+    }
+  });
 }
 
 function validateNodeContracts(nodes: JsonRecord[], path: string, failures: Failure[]): void {
@@ -241,6 +310,7 @@ async function main(): Promise<void> {
     const types = getNodeTypes(nodes);
     validateCanonicalUrls(nodes, path, failures);
     validateNodeContracts(nodes, path, failures);
+    validateStructuredDates(nodes, path, failures);
     const isClientRenderedRoute = html.includes("BAILOUT_TO_CLIENT_SIDE_RENDERING");
 
     if (path === "/") {
@@ -303,25 +373,14 @@ async function main(): Promise<void> {
       }
     }
 
-    if (path === "/about") {
-      const profile = nodes.find((node) => nodeHasType(node, "ProfilePage"));
-      const mainEntity = profile?.mainEntity as JsonRecord | undefined;
-      if (!profile) {
-        failures.push({ path, message: "About page should include ProfilePage schema" });
-      } else if (!mainEntity || !nodeHasType(mainEntity, "Person")) {
+    const profiles = nodes.filter((node) => nodeHasType(node, "ProfilePage"));
+    if (path === "/about" && profiles.length === 0) {
+      failures.push({ path, message: "About page should include ProfilePage schema" });
+    }
+    for (const profile of profiles) {
+      const mainEntity = profile.mainEntity as JsonRecord | undefined;
+      if (!mainEntity || !nodeHasType(mainEntity, "Person")) {
         failures.push({ path, message: "ProfilePage mainEntity should be a Person" });
-      }
-      // Google reads ProfilePage dateCreated/dateModified as DateTime: a bare
-      // YYYY-MM-DD triggers "Invalid datetime value" in Search Console.
-      for (const key of ["dateCreated", "dateModified"] as const) {
-        const value = profile?.[key];
-        if (
-          value !== undefined &&
-          (typeof value !== "string" ||
-            !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})$/.test(value))
-        ) {
-          failures.push({ path, message: `ProfilePage ${key} must be an ISO 8601 DateTime with timezone` });
-        }
       }
     }
 
@@ -367,6 +426,22 @@ async function main(): Promise<void> {
       }
     }
   }
+
+  const profileCount = dateTimeReport.filter((row) => row.type === "ProfilePage").length;
+  const blogCount = dateTimeReport.filter(
+    (row) => row.type === "BlogPosting" || row.type === "Article",
+  ).length;
+  const videoCount = dateTimeReport.filter((row) => row.type === "VideoObject").length;
+
+  console.log("SEO structured-data datetime report:");
+  for (const row of dateTimeReport) {
+    console.log(
+      `- [${row.ok ? "ok" : "FAIL"}] ${row.type} ${row.field} ${row.path} ${row.value}`,
+    );
+  }
+  console.log(
+    `datetime fields: profile=${profileCount} blog=${blogCount} video=${videoCount}`,
+  );
 
   if (failures.length > 0) {
     console.error("SEO structured-data audit failed:");

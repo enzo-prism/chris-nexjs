@@ -70,26 +70,50 @@ function useTodayHours(): string | null {
   return label;
 }
 
+const WORDMARK_SUBLINE_FULL = "Family & Cosmetic Dentistry · Palo Alto";
+const WORDMARK_SUBLINE_SHORT = "Palo Alto Dentistry";
+
 function Wordmark({ compact = false }: { readonly compact?: boolean }) {
   return (
-    <span className="flex min-w-0 items-center gap-2.5">
+    <span
+      className={cn(
+        "flex items-center gap-2.5",
+        compact ? "min-w-0" : "shrink-0",
+      )}
+    >
       <LogoMark className={cn("shrink-0 text-evergreen-800", compact ? "h-8 w-8 min-[400px]:h-9 min-[400px]:w-9" : "h-11 w-11")} />
-      <span className="flex min-w-0 flex-col leading-none">
+      <span
+        className={cn(
+          "flex flex-col leading-none",
+          compact ? "min-w-0" : "shrink-0",
+        )}
+      >
         <span
           className={cn(
-            "truncate font-heading font-medium tracking-[-0.01em] text-ink",
-            compact ? "text-[1rem] min-[400px]:text-[1.06rem]" : "text-[1.3rem]",
+            "font-heading font-medium tracking-[-0.01em] text-ink",
+            compact
+              ? "truncate text-[1rem] min-[400px]:text-[1.06rem]"
+              : "whitespace-nowrap text-[1.3rem]",
           )}
         >
           Christopher B. Wong, DDS
         </span>
         <span
           className={cn(
-            "mt-1 truncate font-semibold uppercase tracking-[0.18em] text-evergreen-600",
-            compact ? "text-[0.6rem]" : "text-[0.66rem]",
+            "mt-1 font-semibold uppercase tracking-[0.18em] text-evergreen-600",
+            compact
+              ? "truncate text-[0.6rem]"
+              : "whitespace-nowrap text-[0.66rem]",
           )}
         >
-          {compact ? "Palo Alto Dentistry" : "Family & Cosmetic Dentistry · Palo Alto"}
+          {compact ? (
+            WORDMARK_SUBLINE_SHORT
+          ) : (
+            <>
+              <span className="hidden min-[1440px]:inline">{WORDMARK_SUBLINE_FULL}</span>
+              <span className="min-[1440px]:hidden">{WORDMARK_SUBLINE_SHORT}</span>
+            </>
+          )}
         </span>
       </span>
     </span>
@@ -214,7 +238,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <Link
             href="/"
-            className="ui-focus-premium min-w-0 rounded-xl"
+            className="ui-focus-premium flex min-h-11 min-w-0 items-center rounded-xl"
             aria-label="Christopher B. Wong, DDS home"
           >
             <Wordmark compact />
@@ -368,7 +392,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
         <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6 lg:h-[4.75rem] lg:px-8">
           <Link
             href="/"
-            className="ui-focus-premium -ml-1 min-w-0 rounded-2xl p-1"
+            className="ui-focus-premium -ml-1 min-w-0 rounded-2xl p-1 min-[1440px]:min-w-max lg:min-w-0 lg:shrink-0"
             aria-label="Christopher B. Wong, DDS home"
           >
             <span className="lg:hidden">
@@ -499,10 +523,10 @@ const Header = ({ variant = "default" }: HeaderProps) => {
               href={phoneHref}
               aria-label={`Call Dr. Wong's office at ${officeInfo.phone}`}
               data-analytics-context="header-call"
-              className="hidden h-11 items-center gap-2 rounded-full px-3 text-[15px] font-semibold text-evergreen-800 transition-colors hover:bg-evergreen-50 xl:inline-flex"
+              className="hidden h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-3 text-[15px] font-semibold text-evergreen-800 transition-colors hover:bg-evergreen-50 xl:inline-flex"
             >
-              <Phone className="h-4 w-4" aria-hidden="true" />
-              {officeInfo.phone}
+              <Phone className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <span className="whitespace-nowrap">{officeInfo.phone}</span>
             </a>
             <Link
               href="/schedule#appointment"

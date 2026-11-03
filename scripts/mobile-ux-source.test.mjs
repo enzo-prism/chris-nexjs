@@ -205,6 +205,12 @@ assert(
 // panel clears the iOS home indicator. Runtime focus entry/return is covered by
 // the Playwright navigation spec.
 const header = read("client/src/components/layout/Header.tsx");
+const conversionHeader = header.match(/variant === "conversion"[\s\S]*?^  \}/m)?.[0] ?? "";
+assert(
+  "Header: conversion logo link has a >=44px tap target",
+  /href="\/"[\s\S]{0,180}min-h-11/.test(conversionHeader),
+  "the stripped Invisalign/schedule header logo link must include min-h-11 without shrinking the mark",
+);
 assert(
   "Header: mobile navigation has modal dialog semantics",
   /id="mobile-nav"[\s\S]{0,360}(?=[\s\S]*?role="dialog")(?=[\s\S]*?aria-modal="true")/.test(
