@@ -122,6 +122,7 @@ export const buildImageObject = (image: SchemaImageInput): StructuredDataNode =>
     ...(image.caption ? { caption: image.caption } : {}),
     creditText: officeInfo.name,
     copyrightNotice: officeInfo.name,
+    creator: buildPracticeReference(),
   };
 };
 
@@ -353,7 +354,7 @@ export const buildPersonSchema = () => ({
  * Render alongside buildTeamPersonSchemas(team) and the existing breadcrumb.
  */
 export const buildProfilePageSchema = (options?: {
-  /** ISO date the profile content last changed (e.g. the route's lastmod). */
+  /** ISO 8601 DateTime with timezone; a bare YYYY-MM-DD fails Google's ProfilePage parser. */
   dateModified?: string;
 }): StructuredDataNode => ({
   "@context": "https://schema.org",
