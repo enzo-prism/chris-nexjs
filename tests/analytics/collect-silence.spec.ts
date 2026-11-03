@@ -2,15 +2,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test, expect } from "@playwright/test";
 import { ANALYTICS_IMMEDIATE_LOAD_FLAG } from "../../shared/analyticsHosts";
-
-const TRACKING_HOSTS = ["google-analytics.com", "googletagmanager.com"] as const;
-
-function isTrackingHost(hostname: string): boolean {
-  const host = hostname.toLowerCase();
-  return TRACKING_HOSTS.some(
-    (root) => host === root || host.endsWith(`.${root}`),
-  );
-}
+import { isBlockedGoogleMeasurementUrl } from "./googleHosts";
 
 function isHotjarHost(hostname: string): boolean {
   const host = hostname.toLowerCase();
@@ -25,16 +17,6 @@ function isVercelInsightsUrl(url: URL): boolean {
     return true;
   }
   return host.includes("vercel-insights");
-}
-
-function isCollectPath(pathname: string): boolean {
-  return (
-    pathname === "/collect" ||
-    pathname.endsWith("/collect") ||
-    pathname.includes("/g/collect") ||
-    pathname.includes("/r/collect") ||
-    pathname.includes("/j/collect")
-  );
 }
 
 function redactShareToken(url: string): string {
@@ -59,18 +41,32 @@ function isAppHost(hostname: string): boolean {
 
 test("non-production hosts do not load or collect to GA4/GTM", async ({
   page,
+  context,
 }, testInfo) => {
   const allRequests: string[] = [];
-  const trackingRequests: string[] = [];
-  const collectRequests: string[] = [];
+  const googleMeasurementRequests: string[] = [];
   const hotjarRequests: string[] = [];
   const vercelInsightsRequests: string[] = [];
 
-  await page.addInitScript((flag: string) => {
+  await context.addInitScript((flag: string) => {
     (window as Window & Record<string, unknown>)[flag] = true;
   }, ANALYTICS_IMMEDIATE_LOAD_FLAG);
 
-  page.on("request", (request) => {
+  // Record at the browser context so iframe/worker hits are included, and
+  // stub Google measurement hosts so a missed host gate cannot phone home.
+  await context.route("**/*", async (route) => {
+    if (isBlockedGoogleMeasurementUrl(route.request().url())) {
+      await route.fulfill({
+        status: 204,
+        contentType: "text/plain",
+        body: "",
+      });
+      return;
+    }
+    await route.continue();
+  });
+
+  context.on("request", (request) => {
     allRequests.push(request.url());
     let parsed: URL;
     try {
@@ -78,11 +74,8 @@ test("non-production hosts do not load or collect to GA4/GTM", async ({
     } catch {
       return;
     }
-    if (isTrackingHost(parsed.hostname)) {
-      trackingRequests.push(request.url());
-      if (isCollectPath(parsed.pathname)) {
-        collectRequests.push(request.url());
-      }
+    if (isBlockedGoogleMeasurementUrl(request.url())) {
+      googleMeasurementRequests.push(request.url());
     }
     if (isHotjarHost(parsed.hostname)) {
       hotjarRequests.push(request.url());
@@ -126,18 +119,11 @@ test("non-production hosts do not load or collect to GA4/GTM", async ({
     pageURL: redactShareToken(page.url()),
     runtime,
     requestCount: allRequests.length,
-    trackingRequests: trackingRequests.map(redactShareToken),
-    collectRequests: collectRequests.map(redactShareToken),
+    googleMeasurementRequests: googleMeasurementRequests.map(redactShareToken),
     hotjarRequests: hotjarRequests.map(redactShareToken),
     vercelInsightsRequests: vercelInsightsRequests.map(redactShareToken),
     firstPartySample: allRequests
-      .filter((url) => {
-        try {
-          return !isTrackingHost(new URL(url).hostname);
-        } catch {
-          return false;
-        }
-      })
+      .filter((url) => !isBlockedGoogleMeasurementUrl(url))
       .slice(0, 12)
       .map(redactShareToken),
   };
@@ -159,7 +145,7 @@ test("non-production hosts do not load or collect to GA4/GTM", async ({
       runtime.hostname === "www.chriswongdds.com",
     `This spec is a silence check for non-production hosts; got ${runtime.hostname}`,
   ).toBe(false);
-  expect(allRequests.length, "request listener captured no traffic").toBeGreaterThan(0);
+  expect(allRequests.length, "context request listener captured no traffic").toBeGreaterThan(0);
   expect(runtime.gtagType).toBe("undefined");
   expect(runtime.gtagScriptCount).toBe(0);
   expect(
@@ -179,11 +165,7 @@ test("non-production hosts do not load or collect to GA4/GTM", async ({
     `Vercel insights requests:\n${vercelInsightsRequests.join("\n")}`,
   ).toEqual([]);
   expect(
-    collectRequests,
-    `Collect hits:\n${collectRequests.join("\n")}`,
-  ).toEqual([]);
-  expect(
-    trackingRequests,
-    `GA/GTM requests:\n${trackingRequests.join("\n")}`,
+    googleMeasurementRequests,
+    `Google measurement requests:\n${googleMeasurementRequests.join("\n")}`,
   ).toEqual([]);
 });
