@@ -18,10 +18,18 @@ import {
   type PublishedReviewStats,
 } from "@shared/googlePlaceReviews";
 
+export class GoogleReviewStatsRecentMissError extends Error {
+  override readonly name = "GoogleReviewStatsRecentMissError";
+
+  constructor() {
+    super("google-review-stats-recent-miss");
+  }
+}
+
 async function fetchLiveOrThrow(): Promise<GoogleReviewStats> {
   const placeId = defaultGooglePlaceId();
   if (readGoogleReviewStatsNegativeCache(placeId)) {
-    throw new Error("google-review-stats-recent-miss");
+    throw new GoogleReviewStatsRecentMissError();
   }
   const stats = assertUsableGoogleReviewStats(await loadGoogleReviewStats());
   if (stats.source !== "live") {
@@ -34,8 +42,8 @@ async function fetchLiveOrThrow(): Promise<GoogleReviewStats> {
  * Daily-cached Google review totals. The 24h `unstable_cache` is consulted
  * first so a cached live snapshot wins over a process-local miss. Only a
  * successful live read is stored there (the callback throws on fallback).
- * Misses are remembered for five minutes so the next cold read does not
- * re-hit Places.
+ * A Places failure is remembered for five minutes from that failure; later
+ * requests in the window return fallback without extending the expiry.
  */
 export async function getGoogleReviewStats(
   deps?: ResolveGoogleReviewStatsDeps,
@@ -55,8 +63,10 @@ export async function getGoogleReviewStats(
       tags: ["google-review-stats"],
     })();
     return withPublishedReviewCount(assertUsableGoogleReviewStats(live));
-  } catch {
-    writeGoogleReviewStatsNegativeCache(placeId);
+  } catch (error) {
+    if (!(error instanceof GoogleReviewStatsRecentMissError)) {
+      writeGoogleReviewStatsNegativeCache(placeId);
+    }
     return withPublishedReviewCount(fallbackGoogleReviewSnapshot());
   }
 }

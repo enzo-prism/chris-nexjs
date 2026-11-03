@@ -6,12 +6,14 @@ import { fileURLToPath } from "node:url";
 import {
   clearUnstableCacheForTests,
   peekUnstableCacheForTests,
+  peekUnstableCacheOptionsForTests,
 } from "next/cache";
 import {
   clearGoogleReviewStatsNegativeCache,
   defaultGooglePlaceId,
   displayedAggregateRating,
   fallbackGoogleReviewSnapshot,
+  GOOGLE_PLACE_ID_ENV,
   GOOGLE_PLACES_API_KEY_ENV,
   GOOGLE_PLACES_FIELD_MASK,
   GOOGLE_REVIEW_STATS_NEGATIVE_REVALIDATE_SECONDS,
@@ -357,6 +359,7 @@ describe("Places request contract", () => {
 describe("server wrapper cache policy", () => {
   const originalFetch = globalThis.fetch;
   let previousPlacesKey: string | undefined;
+  let previousPlaceId: string | undefined;
   let placesCalls = 0;
 
   function installPlacesFetch(
@@ -373,6 +376,7 @@ describe("server wrapper cache policy", () => {
     clearGoogleReviewStatsNegativeCache();
     clearUnstableCacheForTests();
     previousPlacesKey = process.env[GOOGLE_PLACES_API_KEY_ENV];
+    previousPlaceId = process.env[GOOGLE_PLACE_ID_ENV];
     process.env[GOOGLE_PLACES_API_KEY_ENV] = "test-key";
     placesCalls = 0;
   });
@@ -383,6 +387,11 @@ describe("server wrapper cache policy", () => {
       delete process.env[GOOGLE_PLACES_API_KEY_ENV];
     } else {
       process.env[GOOGLE_PLACES_API_KEY_ENV] = previousPlacesKey;
+    }
+    if (previousPlaceId === undefined) {
+      delete process.env[GOOGLE_PLACE_ID_ENV];
+    } else {
+      process.env[GOOGLE_PLACE_ID_ENV] = previousPlaceId;
     }
     clearGoogleReviewStatsNegativeCache();
     clearUnstableCacheForTests();
@@ -483,6 +492,62 @@ describe("server wrapper cache policy", () => {
     assert.equal(second.source, "live");
     assert.equal(second.reviewCount, 401);
     assert.equal(placesCalls, 1, "cached live must not fall back to 382 after a miss");
+  });
+
+  it("wrapper miss expiry is not extended by a later sentinel throw", async () => {
+    const placeId = defaultGooglePlaceId();
+    const now = Date.now();
+    writeGoogleReviewStatsNegativeCache(placeId, now - 240_000);
+    installPlacesFetch(() => {
+      throw new Error("Places must not run during a live miss window");
+    });
+
+    const stats = await getGoogleReviewStats();
+    assert.equal(stats.source, "fallback");
+    assert.equal(placesCalls, 0);
+    assert.equal(
+      readGoogleReviewStatsNegativeCache(placeId, now + 120_000),
+      false,
+      "a sentinel miss must not push expiry past the original five minutes",
+    );
+  });
+
+  it("records a 86400s revalidate window and the google-review-stats tag", async () => {
+    installPlacesFetch(() => jsonResponse({ rating: 4.9, userRatingCount: 401 }));
+    await getGoogleReviewStats();
+    assert.deepEqual(
+      peekUnstableCacheOptionsForTests(googleReviewStatsCacheKey(defaultGooglePlaceId())),
+      {
+        revalidate: GOOGLE_REVIEW_STATS_REVALIDATE_SECONDS,
+        tags: ["google-review-stats"],
+      },
+    );
+    assert.equal(GOOGLE_REVIEW_STATS_REVALIDATE_SECONDS, 86_400);
+  });
+
+  it("keeps the 24h cache keyed by place ID", async () => {
+    process.env[GOOGLE_PLACE_ID_ENV] = "place-a";
+    installPlacesFetch(() => jsonResponse({ rating: 4.9, userRatingCount: 401 }));
+    const firstA = await getGoogleReviewStats();
+    assert.equal(firstA.reviewCount, 401);
+
+    process.env[GOOGLE_PLACE_ID_ENV] = "place-b";
+    installPlacesFetch(() => jsonResponse({ rating: 4.8, userRatingCount: 410 }));
+    const firstB = await getGoogleReviewStats();
+    assert.equal(firstB.reviewCount, 410);
+    assert.notEqual(
+      peekUnstableCacheForTests(googleReviewStatsCacheKey("place-a")),
+      peekUnstableCacheForTests(googleReviewStatsCacheKey("place-b")),
+    );
+
+    process.env[GOOGLE_PLACE_ID_ENV] = "place-a";
+    installPlacesFetch(() => {
+      throw new Error("cached place-a must not re-hit Places");
+    });
+    const secondA = await getGoogleReviewStats();
+    assert.equal(secondA.source, "live");
+    assert.equal(secondA.reviewCount, 401);
+    assert.equal(placesCalls, 0);
   });
 
   it("injectable resolver does not call writeLiveCache for fallback", async () => {
