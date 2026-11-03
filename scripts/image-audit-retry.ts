@@ -33,7 +33,6 @@ export function shouldRetryImageFailure(failure: ImageAuditFailure): boolean {
   const statusMatch = /returned status (\d+)/.exec(failure.reason);
   if (statusMatch) {
     const status = Number(statusMatch[1]);
-    if (!Number.isInteger(status)) return false;
     if (status >= 400 && status < 500) return false;
     return isTransientImageStatus(status);
   }
