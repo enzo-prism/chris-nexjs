@@ -179,20 +179,52 @@ function stripTsComments(inner: string): string {
   return out;
 }
 
+function evalTemplateLiteral(
+  node: ts.TemplateExpression | ts.NoSubstitutionTemplateLiteral,
+): string | null {
+  if (ts.isNoSubstitutionTemplateLiteral(node)) return node.text;
+  let out = node.head.text;
+  for (const span of node.templateSpans) {
+    const expr = span.expression;
+    if (ts.isStringLiteral(expr) || ts.isNoSubstitutionTemplateLiteral(expr)) {
+      out += expr.text;
+    } else if (ts.isNumericLiteral(expr)) {
+      out += expr.text;
+    } else {
+      return null;
+    }
+    out += span.literal.text;
+  }
+  return out;
+}
+
+function flattenJsxExpression(node: ts.JsxExpression, source: string, sf: ts.SourceFile): string | null {
+  const start = node.getStart(sf);
+  const end = node.getEnd();
+  const inner = source.slice(start + 1, end - 1);
+  const stripped = stripTsComments(inner);
+  if (node.expression && (ts.isTemplateExpression(node.expression) || ts.isNoSubstitutionTemplateLiteral(node.expression))) {
+    const evaluated = evalTemplateLiteral(node.expression);
+    if (evaluated !== null) return evaluated;
+    return null;
+  }
+  if (inner !== stripped) {
+    return stripped.trim() === "" ? "" : `{${stripped}}`;
+  }
+  return null;
+}
+
 function stripJsxComments(source: string): string {
   const sf = ts.createSourceFile("sms.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
   const replacements: { start: number; end: number; text: string }[] = [];
   const visit = (node: ts.Node): void => {
     if (ts.isJsxExpression(node)) {
-      const start = node.getStart(sf);
-      const end = node.getEnd();
-      const inner = source.slice(start + 1, end - 1);
-      const stripped = stripTsComments(inner);
-      if (inner !== stripped) {
+      const flattened = flattenJsxExpression(node, source, sf);
+      if (flattened !== null) {
         replacements.push({
-          start,
-          end,
-          text: stripped.trim() === "" ? "" : `{${stripped}}`,
+          start: node.getStart(sf),
+          end: node.getEnd(),
+          text: flattened,
         });
       }
     }
@@ -412,6 +444,27 @@ function assertSourceGuardUnits(): void {
   );
   assert.match(stripJsxComments(jsx("{/* } */}Consent")), /<p>Consent<\/p>/);
   assert.match(stripJsxComments(jsx("{}Consent")), /<p>\{\}Consent<\/p>/);
+  assert.equal(
+    normalizeSource(jsx("{`Consent isn${\"'\"}t required to receive care.`}")).includes(
+      "Consent isn't required to receive care",
+    ),
+    true,
+    "JSX template ${\"'\"} evaluates to an apostrophe",
+  );
+  assert.equal(
+    normalizeSource(jsx("{`Consent isn${/*x*/\"'\"}t required to receive care.`}")).includes(
+      "Consent isn't required to receive care",
+    ),
+    true,
+    "JSX template ${/*x*/\"'\"} evaluates after comment strip",
+  );
+  assert.equal(
+    stripJsxComments(jsx("{`Consent isn${foo}t required to receive care.`}")).includes(
+      "Consent isn't required to receive care",
+    ),
+    false,
+    "non-constant JSX template interpolations are rejected, not guessed",
+  );
 }
 
 assertSourceGuardUnits();
@@ -503,6 +556,47 @@ assert.match(readWorkspace("client/src/pages/PrivacyPolicy.tsx"), /href="#sharin
 assert.match(readWorkspace("client/src/pages/SmsTerms.tsx"), /#sharing/);
 assertTwilioSourceSections("client/src/pages/PrivacyPolicy.tsx", ["sharing", "text-messaging"]);
 assertTwilioSourceSections("client/src/pages/SmsTerms.tsx", ["mobile-numbers"]);
+
+const SOURCE_HIDE_TRICKS = [
+  "truncate",
+  "line-clamp-1",
+  "max-h-6",
+  "[filter:opacity(0)]",
+  "blur-xl",
+  "after:absolute",
+  "oklch(",
+  "-webkit-text-fill-color",
+  "mask-image",
+  "text-[0.5px]",
+] as const;
+
+function assertConsentPassagesHaveNoHideTricks(relativePath: string): void {
+  const source = readWorkspace(relativePath);
+  const tagRe = /<p\b([^>]*)>/g;
+  let match = tagRe.exec(source);
+  while (match) {
+    const attrs = match[1] ?? "";
+    const after = source.slice(match.index, match.index + 900);
+    const isConsent =
+      after.includes("SMS_PRIVACY_NO_MARKETING_SHARE") ||
+      after.includes("Consent to receive text messages") ||
+      after.includes("Message frequency varies") ||
+      after.includes("Reply <strong>STOP</strong>");
+    if (isConsent) {
+      for (const trick of SOURCE_HIDE_TRICKS) {
+        assert.equal(
+          attrs.includes(trick),
+          false,
+          `${relativePath} consent passage must not use ${trick}`,
+        );
+      }
+    }
+    match = tagRe.exec(source);
+  }
+}
+
+assertConsentPassagesHaveNoHideTricks("client/src/pages/PrivacyPolicy.tsx");
+assertConsentPassagesHaveNoHideTricks("client/src/pages/SmsTerms.tsx");
 
 const unusedCopyHits: string[] = [];
 const scannedFiles: string[] = [];

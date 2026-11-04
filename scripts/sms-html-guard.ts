@@ -12,13 +12,14 @@ type Template = DefaultTreeAdapterMap["template"];
  * leading `!`) with no variants, or with any variant that is not ignored.
  * Ignored only: print, dark, hover, focus* (focus, focus-visible,
  * focus-within), motion-reduce, and group- or peer- interaction variants
- * (hover, focus, focus-visible, focus-within, active).
- * Everything else — including motion-safe, supports-*, portrait, landscape,
- * ltr, rtl, *, and arbitrary bracket variants — fails closed (counts as hiding).
+ * including named groups (group-hover/item, peer-focus/name).
+ * Arbitrary descendant variants such as [&_li:last-child]:hidden hide only
+ * the matched descendants. Unknown and self-targeted arbitrary variants
+ * fail closed.
  */
-const HIDING_UTILITIES = new Set(["hidden", "invisible", "sr-only"]);
+const HIDING_UTILITIES = new Set(["hidden", "invisible", "sr-only", "collapse"]);
 const IGNORED_VARIANT =
-  /^(?:print|dark|hover|focus(?:-visible|-within)?|motion-reduce|(?:group|peer)(?:\/[\w-]+)?-(?:hover|focus|focus-visible|focus-within|active))$/;
+  /^(?:print|dark|hover|focus(?:-visible|-within)?|motion-reduce|(?:group|peer)-(?:hover|focus|focus-visible|focus-within|active)(?:\/[\w-]+)?)$/;
 
 export function collapseWs(source: string): string {
   return source.replace(/\s+/g, " ");
@@ -72,10 +73,39 @@ function variantHides(variant: string): boolean {
   return !IGNORED_VARIANT.test(base);
 }
 
+export type ArbitraryVariantTarget = "self" | "descendants" | "unknown";
+
+export function arbitraryVariantTarget(variant: string): ArbitraryVariantTarget | null {
+  const base = stripImportant(variant);
+  if (!base.startsWith("[") || !base.endsWith("]")) return null;
+  const inner = base.slice(1, -1);
+  if (inner === "&") return "self";
+  if (inner.startsWith("&_") || inner.startsWith("& ")) return "descendants";
+  return "unknown";
+}
+
+export function descendantHideSelector(token: string): string | null {
+  const { variants, utility } = splitClassVariants(token);
+  const base = stripImportant(utility);
+  if (!HIDING_UTILITIES.has(base)) return null;
+  for (const variant of variants) {
+    if (arbitraryVariantTarget(variant) !== "descendants") continue;
+    const inner = stripImportant(variant).slice(1, -1);
+    return inner.startsWith("&_") ? inner.slice(2) : inner.slice(2);
+  }
+  return null;
+}
+
 export function isHidingClass(token: string): boolean {
   const { variants, utility } = splitClassVariants(token);
   const base = stripImportant(utility);
   if (!HIDING_UTILITIES.has(base)) return false;
+  const targets = variants
+    .map(arbitraryVariantTarget)
+    .filter((target): target is ArbitraryVariantTarget => target !== null);
+  if (targets.includes("descendants") && !targets.includes("self") && !targets.includes("unknown")) {
+    return false;
+  }
   return variants.every(variantHides);
 }
 
@@ -279,6 +309,49 @@ function walkElements(node: Node, visit: (el: Element) => void): void {
   for (const child of childNodesOf(node)) walkElements(child, visit);
 }
 
+type SimpleSelector = {
+  readonly tag: string | null;
+  readonly last: boolean;
+  readonly first: boolean;
+};
+
+export function parseSimpleSelector(selector: string): SimpleSelector | "fail-closed" {
+  const trimmed = selector.trim();
+  if (trimmed === "*") return { tag: "*", last: false, first: false };
+  const match = trimmed.match(/^([A-Za-z][\w-]*)?(?::(last-child|first-child))?$/);
+  if (!match || (!match[1] && !match[2])) return "fail-closed";
+  return {
+    tag: match[1] ? match[1].toLowerCase() : null,
+    last: match[2] === "last-child",
+    first: match[2] === "first-child",
+  };
+}
+
+function elementMatchesSimple(el: Element, selector: SimpleSelector): boolean {
+  if (selector.tag && selector.tag !== "*" && el.tagName.toLowerCase() !== selector.tag) {
+    return false;
+  }
+  const parent = el.parentNode;
+  if (!parent || !("childNodes" in parent)) {
+    return !selector.last && !selector.first;
+  }
+  const siblings = parent.childNodes.filter(isElement);
+  if (selector.last && siblings[siblings.length - 1] !== el) return false;
+  if (selector.first && siblings[0] !== el) return false;
+  return true;
+}
+
+export function findMatchingDescendants(root: Element, selector: string): Element[] | "fail-closed" {
+  const parsed = parseSimpleSelector(selector);
+  if (parsed === "fail-closed") return "fail-closed";
+  const matches: Element[] = [];
+  walkElements(root, (el) => {
+    if (el === root) return;
+    if (elementMatchesSimple(el, parsed)) matches.push(el);
+  });
+  return matches;
+}
+
 function closedDetailsHiddenText(details: Element): string {
   return collapseWs(
     details.childNodes
@@ -294,6 +367,18 @@ export function hiddenScopeText(root: Element): string[] {
     if (elementHidesItself(el)) {
       scopes.push(collapseWs(collectText(el, " ")));
       return;
+    }
+    for (const token of classTokens(el)) {
+      const selector = descendantHideSelector(token);
+      if (!selector) continue;
+      const matches = findMatchingDescendants(el, selector);
+      if (matches === "fail-closed") {
+        scopes.push(collapseWs(collectText(el, " ")));
+        continue;
+      }
+      for (const match of matches) {
+        scopes.push(collapseWs(collectText(match, " ")));
+      }
     }
     if (el.tagName.toLowerCase() === "details" && !hasAttr(el, "open")) {
       scopes.push(closedDetailsHiddenText(el));

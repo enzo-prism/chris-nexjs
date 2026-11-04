@@ -1,0 +1,2 @@
+sms-scan-fixture: public/cache is walked by the staged SMS static scan.
+This file must not contain staged opt-in, HELP, STOP, or pending-approval copy.

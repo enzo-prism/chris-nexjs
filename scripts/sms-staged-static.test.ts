@@ -21,6 +21,7 @@ import {
   closedDetailsHidesSummaryText,
   countOccurrences,
   decodeRenderable,
+  descendantHideSelector,
   elementHidesItself,
   findElementById,
   findSectionById,
@@ -62,7 +63,15 @@ const STAGED_FRAGMENTS = [
   SMS_COPY_EFFECTIVE_DATE_LABEL,
 ] as const;
 
-const SKIP_DIR_NAMES = new Set(["cache", "route-cache"]);
+function isSkippedScanDir(fullPath: string): boolean {
+  const rel = toPosix(fullPath);
+  return (
+    rel === ".next/cache" ||
+    rel.startsWith(".next/cache/") ||
+    rel === ".next/server/route-cache" ||
+    rel.startsWith(".next/server/route-cache/")
+  );
+}
 const PUBLIC_TEXT_EXTENSIONS = new Set([
   ".txt",
   ".md",
@@ -90,7 +99,7 @@ function walkFiles(dir: string, files: string[], publicTree: boolean): void {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const fullPath = join(dir, entry.name);
     if (entry.isDirectory()) {
-      if (SKIP_DIR_NAMES.has(entry.name)) continue;
+      if (isSkippedScanDir(fullPath)) continue;
       walkFiles(fullPath, files, publicTree);
       continue;
     }
@@ -244,9 +253,16 @@ function assertHiddenGuardUnits(): void {
   assert.equal(isHidingClass("focus:hidden"), false);
   assert.equal(isHidingClass("focus-visible:hidden"), false);
   assert.equal(isHidingClass("motion-reduce:hidden"), false);
+  assert.equal(isHidingClass("collapse"), true);
+  assert.equal(isHidingClass("group-hover/item:hidden"), false);
+  assert.equal(isHidingClass("peer-focus/name:hidden"), false);
+  assert.equal(isHidingClass("[&]:hidden"), true);
+  assert.equal(isHidingClass("[&_li:last-child]:hidden"), false);
+  assert.equal(descendantHideSelector("[&_li:last-child]:hidden"), "li:last-child");
   assert.equal(isHidingClass("motion-safe:hidden"), true);
   assert.equal(isHidingClass("[&]:hidden"), true);
-  assert.equal(isHidingClass("[&_p]:hidden"), true);
+  assert.equal(isHidingClass("[&_p]:hidden"), false);
+  assert.equal(descendantHideSelector("[&_p]:hidden"), "p");
   assert.equal(isHidingClass("supports-[display:grid]:hidden"), true);
   assert.equal(isHidingClass("portrait:hidden"), true);
   assert.equal(isHidingClass("landscape:hidden"), true);
@@ -444,6 +460,23 @@ function assertHiddenGuardUnits(): void {
     hiddenNeedleCount(shell(`<p class="sr-only">${run}</p>`)) > 0,
     "sr-only hides",
   );
+  assert.ok(
+    hiddenNeedleCount(shell(`<p class="collapse">${run}</p>`)) > 0,
+    "collapse hides",
+  );
+  assert.equal(
+    hiddenNeedleCount(
+      shell(`<ul class="[&_li:last-child]:hidden"><li><p>${run}</p></li><li>other</li></ul>`),
+    ),
+    0,
+    "[&_li:last-child]:hidden does not hide a first-child run",
+  );
+  assert.ok(
+    hiddenNeedleCount(
+      shell(`<ul class="[&_li:last-child]:hidden"><li>other</li><li><p>${run}</p></li></ul>`),
+    ) > 0,
+    "[&_li:last-child]:hidden hides a last-child run",
+  );
   assert.equal(
     closedDetailsHidesSummaryText(
       parseHtml(
@@ -512,6 +545,11 @@ for (const fullPath of files) {
     }
   }
 }
+
+assert.ok(
+  files.some((fullPath) => toPosix(fullPath) === "public/cache/sms-scan-fixture.txt"),
+  "public/cache is scanned; only .next/cache and .next/server/route-cache are skipped",
+);
 
 assert.equal(
   hits.length,
