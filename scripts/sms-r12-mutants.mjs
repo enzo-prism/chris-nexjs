@@ -1,3 +1,6 @@
+// Source-guard mutants only. Each trick edits PrivacyPolicy.tsx and runs
+// scripts/sms-copy.test.ts. This script does not build the app or run the
+// Playwright visibility spec.
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 
