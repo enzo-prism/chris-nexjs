@@ -1,3 +1,0 @@
-sms-scan-fixture: public/cache is walked by the staged SMS static scan.
-This file used to live at public/cache/sms-scan-fixture.txt and must not ship there.
-This file must not contain staged opt-in, HELP, STOP, or pending-approval copy.
