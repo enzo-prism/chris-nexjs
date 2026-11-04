@@ -159,6 +159,16 @@ async function run(): Promise<void> {
     "TimeoutError",
     "DOMException numeric code 23 is not SQLSTATE and must be dropped",
   );
+  assert.equal(
+    describeContactLogError({ name: "Error", code: "23505" }),
+    "Error",
+    "top-level code must not be logged; SQLSTATE comes from cause only",
+  );
+  assert.equal(
+    describeContactLogError({ name: "Error", cause: { code: "23505" } }),
+    "Error 23505",
+    "Postgres-set cause.code SQLSTATE must still be logged",
+  );
   const inboxOk: typeof fetch = async () =>
     new Response(JSON.stringify({ ok: true }), {
       status: 200,
@@ -220,18 +230,21 @@ async function run(): Promise<void> {
       });
     const lateLogs = captureAllConsole();
     const lateTimers = installFakeTimers();
-    runAfterResponse(async () => {
-      await persistContactMessageAfterResponse(persistPayload);
-    });
-    const lateFlush = flushContactAfterTasksForTests();
-    await yieldMicrotasks(10);
-    await lateTimers.tick(2_000);
-    assert.ok(rejectLate, "late persist must start");
-    rejectLate(drizzleError);
-    await yieldMicrotasks(8);
-    await lateFlush;
-    lateTimers.restore();
-    lateLogs.restore();
+    try {
+      runAfterResponse(async () => {
+        await persistContactMessageAfterResponse(persistPayload);
+      });
+      const lateFlush = flushContactAfterTasksForTests();
+      await yieldMicrotasks(10);
+      await lateTimers.tick(2_000);
+      assert.ok(rejectLate, "late persist must start");
+      rejectLate(drizzleError);
+      await yieldMicrotasks(8);
+      await lateFlush;
+    } finally {
+      lateTimers.restore();
+      lateLogs.restore();
+    }
     assertNoPayload(lateLogs.lines.join("\n"), "late persist fail :138");
     assert.ok(
       lateLogs.lines.some((line) => line.includes("[contact] persist failed:")),
@@ -245,19 +258,22 @@ async function run(): Promise<void> {
       });
     const abandonLogs = captureAllConsole();
     const abandonTimers = installFakeTimers();
-    runAfterResponse(async () => {
-      await persistContactMessageAfterResponse(persistPayload);
-    });
-    const abandonFlush = flushContactAfterTasksForTests();
-    await yieldMicrotasks(10);
-    await abandonTimers.tick(25_000);
-    await yieldMicrotasks(8);
-    await abandonFlush;
-    assert.ok(rejectAbandoned, "abandoned persist must start");
-    rejectAbandoned(drizzleError);
-    await yieldMicrotasks(8);
-    abandonTimers.restore();
-    abandonLogs.restore();
+    try {
+      runAfterResponse(async () => {
+        await persistContactMessageAfterResponse(persistPayload);
+      });
+      const abandonFlush = flushContactAfterTasksForTests();
+      await yieldMicrotasks(10);
+      await abandonTimers.tick(25_000);
+      await yieldMicrotasks(8);
+      await abandonFlush;
+      assert.ok(rejectAbandoned, "abandoned persist must start");
+      rejectAbandoned(drizzleError);
+      await yieldMicrotasks(8);
+    } finally {
+      abandonTimers.restore();
+      abandonLogs.restore();
+    }
     assertNoPayload(abandonLogs.lines.join("\n"), "after-cap persist fail :133");
     assert.ok(
       abandonLogs.lines.some((line) => line.includes("[contact] persist abandoned")),
