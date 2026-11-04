@@ -13,6 +13,14 @@ describe("isBlockedGoogleMeasurementUrl", () => {
       true,
     );
     assert.equal(
+      isBlockedGoogleMeasurementUrl("https://region1.google-analytics.com/g/collect"),
+      true,
+    );
+    assert.equal(
+      isBlockedGoogleMeasurementUrl("https://analytics.google.com/g/collect"),
+      true,
+    );
+    assert.equal(
       isBlockedGoogleMeasurementUrl("https://www.googletagservices.com/tag/js/gpt.js"),
       true,
     );
