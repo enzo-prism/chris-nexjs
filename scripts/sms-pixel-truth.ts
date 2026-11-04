@@ -15,6 +15,7 @@ export const CONSENT_OCR_PHRASES = [
 
 export const TWILIO_OCR_PHRASES = [
   "no mobile information will be shared",
+  "with third parties/affiliates for marketing/promotional purposes",
   "information sharing to subcontractors",
   "will not be shared with any third parties",
 ] as const;
@@ -87,6 +88,9 @@ export function phrasesRecognized(
     distances[phrase] = distance;
     const negations = phraseNegationTokens(phrase);
     if (negations.length > 0) {
+      // Exact phrase + exact negation tokens. A one-character OCR error on a
+      // negated phrase is a known miss: Levenshtein <= 0.1 would also accept
+      // a dropped "not" when another "not" appears elsewhere.
       const exactPhrase = hay.includes(needle);
       const exactNegation = negations.every((token) => hayTokens.has(token));
       if (!exactPhrase || !exactNegation) missed.push(phrase);

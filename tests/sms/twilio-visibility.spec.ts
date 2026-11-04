@@ -170,6 +170,34 @@ async function collectReadability(locator: Locator): Promise<Readability> {
     const selfFill = canvasColor(style.webkitTextFillColor || style.color);
     if (selfFill.a < 0.5) reasons.push(`text-fill alpha ${selfFill.a}`);
 
+    const channelLin = (channel: number): number => {
+      const value = channel / 255;
+      return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+    };
+    const luminanceOf = (rgb: { r: number; g: number; b: number }): number =>
+      0.2126 * channelLin(rgb.r) + 0.7152 * channelLin(rgb.g) + 0.0722 * channelLin(rgb.b);
+    const contrastOf = (
+      fg: { r: number; g: number; b: number },
+      bg: { r: number; g: number; b: number },
+    ): number => {
+      const left = luminanceOf(fg);
+      const right = luminanceOf(bg);
+      const hi = Math.max(left, right);
+      const lo = Math.min(left, right);
+      return (hi + 0.05) / (lo + 0.05);
+    };
+    const effectiveBackground = (
+      start: HTMLElement,
+    ): { r: number; g: number; b: number; a: number } => {
+      let current: HTMLElement | null = start;
+      while (current) {
+        const bg = canvasColor(window.getComputedStyle(current).backgroundColor);
+        if (bg.a >= 0.5) return bg;
+        current = current.parentElement;
+      }
+      return { r: 255, g: 255, b: 255, a: 1 };
+    };
+
     let textArea = 0;
     const range = document.createRange();
     const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
@@ -180,12 +208,30 @@ async function collectReadability(locator: Locator): Promise<Readability> {
       const parent = textNode.parentElement;
       if (parent) {
         const computed = window.getComputedStyle(parent);
+        const snippet = raw.replace(/\s+/g, " ").trim().slice(0, 48);
         const color = canvasColor(computed.color);
         const fill = canvasColor(computed.webkitTextFillColor || computed.color);
         const alpha = Math.min(color.a, fill.a);
         if (alpha < 0.5) {
-          const snippet = raw.replace(/\s+/g, " ").trim().slice(0, 48);
           reasons.push(`descendant color alpha ${alpha} on "${snippet}"`);
+        }
+        const opacity = Number.parseFloat(computed.opacity);
+        if (Number.isFinite(opacity) && opacity < 0.5) {
+          reasons.push(`descendant opacity ${opacity} on "${snippet}"`);
+        }
+        if (computed.visibility === "hidden" || computed.visibility === "collapse") {
+          reasons.push(`descendant visibility ${computed.visibility} on "${snippet}"`);
+        }
+        const descendantFont = Number.parseFloat(computed.fontSize);
+        if (Number.isFinite(descendantFont) && descendantFont < 10) {
+          reasons.push(`descendant font-size ${descendantFont} on "${snippet}"`);
+        }
+        if (alpha >= 0.5) {
+          const bg = effectiveBackground(parent);
+          const paintedContrast = Math.min(contrastOf(color, bg), contrastOf(fill, bg));
+          if (paintedContrast < 3) {
+            reasons.push(`descendant contrast ${paintedContrast.toFixed(2)} on "${snippet}"`);
+          }
         }
       }
       range.selectNodeContents(textNode);
@@ -531,34 +577,43 @@ test("pixel-truth kills Eggbot's ten hide tricks", async ({ page }) => {
   }
 });
 
+const MARKETING_QUALIFIER = "with third parties/affiliates for marketing/promotional purposes";
+
+async function wrapSnippet(
+  locator: Locator,
+  needle: string,
+  style: Record<string, string>,
+): Promise<void> {
+  await locator.evaluate(
+    (el, args) => {
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      while (walker.nextNode()) {
+        const text = walker.currentNode as Text;
+        const value = text.nodeValue ?? "";
+        const idx = value.indexOf(args.target);
+        if (idx < 0) continue;
+        const span = document.createElement("span");
+        Object.assign(span.style, args.style);
+        span.textContent = args.target;
+        const parent = text.parentNode;
+        if (!parent) return;
+        if (idx > 0) parent.insertBefore(document.createTextNode(value.slice(0, idx)), text);
+        parent.insertBefore(span, text);
+        text.nodeValue = value.slice(idx + args.target.length);
+        break;
+      }
+    },
+    { target: needle, style },
+  );
+}
+
 test("a transparent span over not or the exclusion prefix fails readability", async ({
   page,
 }) => {
   await gotoLegal(page, "/privacy-policy");
 
-  const wrapSnippet = async (locator: Locator, needle: string): Promise<void> => {
-    await locator.evaluate((el, target) => {
-      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-      while (walker.nextNode()) {
-        const text = walker.currentNode as Text;
-        const value = text.nodeValue ?? "";
-        const idx = value.indexOf(target);
-        if (idx < 0) continue;
-        const span = document.createElement("span");
-        span.style.color = "transparent";
-        span.textContent = target;
-        const parent = text.parentNode;
-        if (!parent) return;
-        if (idx > 0) parent.insertBefore(document.createTextNode(value.slice(0, idx)), text);
-        parent.insertBefore(span, text);
-        text.nodeValue = value.slice(idx + target.length);
-        break;
-      }
-    }, needle);
-  };
-
   const sharing = await runLocator(page, "sharing");
-  await wrapSnippet(sharing, "not ");
+  await wrapSnippet(sharing, "not ", { color: "transparent" });
   const notMetrics = await collectReadability(sharing);
   expect(notMetrics.ok, `transparent "not " span should fail: ${notMetrics.reasons.join("; ")}`).toBe(
     false,
@@ -570,7 +625,7 @@ test("a transparent span over not or the exclusion prefix fails readability", as
 
   await page.reload({ waitUntil: "domcontentloaded" });
   const exclusion = await runLocator(page, "sharing");
-  await wrapSnippet(exclusion, "will not be shared");
+  await wrapSnippet(exclusion, "will not be shared", { color: "transparent" });
   const exclusionMetrics = await collectReadability(exclusion);
   expect(
     exclusionMetrics.ok,
@@ -580,6 +635,32 @@ test("a transparent span over not or the exclusion prefix fails readability", as
     exclusionMetrics.reasons.some((reason) => reason.includes("descendant color alpha")),
     `expected descendant color failure, got: ${exclusionMetrics.reasons.join("; ")}`,
   ).toBe(true);
+});
+
+const QUALIFIER_HIDES = [
+  { id: "opacity-0", style: { opacity: "0" }, reason: "descendant opacity" },
+  { id: "visibility-hidden", style: { visibility: "hidden" }, reason: "descendant visibility" },
+  { id: "1px", style: { fontSize: "1px" }, reason: "descendant font-size" },
+  { id: "white", style: { color: "white" }, reason: "descendant contrast" },
+] as const;
+
+test("hiding the marketing qualifier on a descendant fails readability", async ({ page }) => {
+  await gotoLegal(page, "/privacy-policy");
+
+  for (const trick of QUALIFIER_HIDES) {
+    await page.reload({ waitUntil: "domcontentloaded" });
+    const locator = await runLocator(page, "sharing");
+    await wrapSnippet(locator, MARKETING_QUALIFIER, trick.style);
+    const metrics = await collectReadability(locator);
+    expect(
+      metrics.ok,
+      `${trick.id} qualifier span should fail: ${metrics.reasons.join("; ")}`,
+    ).toBe(false);
+    expect(
+      metrics.reasons.some((reason) => reason.includes(trick.reason)),
+      `${trick.id} expected ${trick.reason}, got: ${metrics.reasons.join("; ")}`,
+    ).toBe(true);
+  }
 });
 
 test("the retired SMS scan fixture is not a public URL", async ({ page }) => {

@@ -39,6 +39,27 @@ assert.ok(
 );
 assert.ok(
   phrasesRecognized(
+    "All other use case categories exclude text messaging originator opt-in data and consent; this information will be shared with any third parties. Consent is not required to receive care.",
+    TWILIO_OCR_PHRASES,
+  ).missed.includes("will not be shared with any third parties"),
+  "a second 'not' elsewhere must not satisfy exactPhrase for the exclusion",
+);
+assert.ok(
+  phrasesRecognized(
+    "this information will not be shared with any third partles",
+    TWILIO_OCR_PHRASES,
+  ).missed.includes("will not be shared with any third parties"),
+  "known limit: a one-character OCR error on a negated phrase is a miss",
+);
+assert.ok(
+  phrasesRecognized(
+    "No mobile information will be shared with third parties/affiliates for marketing/promotional purposes. Information sharing to subcontractors in support services, such as customer service is permitted. All other use case categories exclude text messaging originator opt-in data and consent; this information will not be shared with any third parties.",
+    TWILIO_OCR_PHRASES,
+  ).missed.length === 0,
+  "the marketing-qualifier phrase is required on a full Twilio run",
+);
+assert.ok(
+  phrasesRecognized(
     "Consent to receive text messages is required to receive care.",
     CONSENT_OCR_PHRASES,
   ).missed.includes("consent to receive text messages is not required to receive care"),
