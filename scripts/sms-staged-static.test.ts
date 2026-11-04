@@ -307,6 +307,33 @@ function assertHiddenGuardUnits(): void {
   assert.equal(styleHides("backface-visibility:hidden"), false);
   assert.equal(styleHides("fill-opacity:0"), false);
   assert.equal(styleHides("opacity:0.5"), false);
+  assert.equal(styleHides("opacity:0.1"), false);
+  assert.equal(styleHides("opacity:0.09"), true);
+  assert.equal(styleHides("opacity:0.001"), true);
+  assert.equal(styleHides("font-size:6px"), false);
+  assert.equal(styleHides("font-size:5.9px"), true);
+  assert.equal(styleHides("font-size:0.01px"), true);
+  assert.equal(styleHides("zoom:0.5"), false);
+  assert.equal(styleHides("zoom:0.49"), true);
+  assert.equal(styleHides("zoom:0.01"), true);
+  assert.equal(styleHides("transform:scaleX(0)"), true);
+  assert.equal(styleHides("transform:scaleY(0)"), true);
+  assert.equal(styleHides("transform:scale(0.0001)"), true);
+  assert.equal(styleHides("transform:scale(0.01)"), true);
+  assert.equal(styleHides("transform:scale(0.6)"), false);
+  assert.equal(styleHides("transform:scale3d(0.0001, 1, 1)"), true);
+  assert.equal(styleHides("transform:matrix(0.0001, 0, 0, 1, 0, 0)"), true);
+  assert.equal(styleHides("transform:rotateY(90deg)"), true);
+  assert.equal(styleHides("transform:rotateX(90deg)"), true);
+  assert.equal(styleHides("transform:rotateY(80deg)"), true);
+  assert.equal(styleHides("transform:rotateZ(90deg)"), false);
+  assert.equal(styleHides("position:absolute;left:-998px"), true);
+  assert.equal(styleHides("text-indent:-9999px"), true);
+  assert.equal(styleHides("transform:translateX(-100vw)"), true);
+  assert.equal(styleHides("transform:translateY(-100vh)"), true);
+  assert.equal(styleHides("transform:translateX(-1000px)"), true);
+  assert.equal(styleHides("transform:translateX(500px)"), false);
+  assert.equal(styleHides("transform:translateX(-500px)"), false);
 
   assert.equal(elementHidesItself(fragmentElement('<p title="Nothing is hidden here">x</p>')), false);
   assert.equal(elementHidesItself(fragmentElement('<p class="overflow-hidden">x</p>')), false);
@@ -471,6 +498,55 @@ function assertHiddenGuardUnits(): void {
     "inline scale(0) hides",
   );
   assert.ok(
+    hiddenNeedleCount(shell(`<p style="transform:scaleX(0)">${run}</p>`)) > 0,
+    "X53 scaleX(0) hides",
+  );
+  assert.ok(
+    hiddenNeedleCount(shell(`<p style="transform:scale(0.0001)">${run}</p>`)) > 0,
+    "X54 scale(0.0001) hides",
+  );
+  assert.ok(
+    hiddenNeedleCount(shell(`<p style="zoom:0.01">${run}</p>`)) > 0,
+    "X63 zoom:0.01 hides",
+  );
+  assert.ok(
+    hiddenNeedleCount(shell(`<p style="transform:scaleY(0)">${run}</p>`)) > 0,
+    "scaleY(0) hides",
+  );
+  assert.ok(
+    hiddenNeedleCount(shell(`<p style="transform:scale(0.01)">${run}</p>`)) > 0,
+    "scale(0.01) hides",
+  );
+  assert.ok(
+    hiddenNeedleCount(shell(`<p style="font-size:0.01px">${run}</p>`)) > 0,
+    "font-size:0.01px hides",
+  );
+  assert.ok(
+    hiddenNeedleCount(shell(`<p style="opacity:0.001">${run}</p>`)) > 0,
+    "opacity:0.001 hides",
+  );
+  assert.ok(
+    hiddenNeedleCount(shell(`<p style="transform:rotateY(90deg)">${run}</p>`)) > 0,
+    "rotateY(90deg) hides",
+  );
+  assert.ok(
+    hiddenNeedleCount(shell(`<p style="position:absolute;left:-998px">${run}</p>`)) > 0,
+    "left:-998px hides",
+  );
+  assert.ok(
+    hiddenNeedleCount(shell(`<p style="transform:translateX(-100vw)">${run}</p>`)) > 0,
+    "translateX(-100vw) hides",
+  );
+  assert.ok(
+    hiddenNeedleCount(shell(`<p style="text-indent:-9999px">${run}</p>`)) > 0,
+    "text-indent:-9999px hides",
+  );
+  assert.equal(
+    hiddenNeedleCount(shell(`<p style="transform:translateX(500px)">${run}</p>`)),
+    0,
+    "translateX(500px) stays on screen and is not a hide",
+  );
+  assert.ok(
     hiddenNeedleCount(shell(`<p style="max-height:0">${run}</p>`)) > 0,
     "inline max-height:0 hides",
   );
@@ -587,6 +663,7 @@ try {
   );
 } finally {
   rmSync(cacheProbeAbs, { force: true });
+  rmSync(dirname(cacheProbeAbs), { recursive: true, force: true });
 }
 
 console.log(
