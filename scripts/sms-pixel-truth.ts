@@ -13,12 +13,17 @@ export const CONSENT_OCR_PHRASES = [
   "consent to receive text messages is not required to receive care",
 ] as const;
 
+export const MARKETING_QUALIFIER_OCR_PHRASE =
+  "with third parties/affiliates for marketing/promotional purposes";
+
 export const TWILIO_OCR_PHRASES = [
   "no mobile information will be shared",
-  "with third parties/affiliates for marketing/promotional purposes",
+  MARKETING_QUALIFIER_OCR_PHRASE,
   "information sharing to subcontractors",
   "will not be shared with any third parties",
 ] as const;
+
+export const OCR_MAX_DISTANCE = 0.1;
 
 export function normalizeOcr(source: string): string {
   return source
@@ -76,7 +81,7 @@ export function isCriticalOcrPhrase(phrase: string): boolean {
 export function phrasesRecognized(
   ocrText: string,
   phrases: readonly string[],
-  maxDistance = 0.1,
+  maxDistance = OCR_MAX_DISTANCE,
 ): { readonly missed: readonly string[]; readonly distances: Readonly<Record<string, number>> } {
   const hay = normalizeOcr(ocrText);
   const hayTokens = new Set(hay.split(" ").filter(Boolean));
@@ -91,6 +96,7 @@ export function phrasesRecognized(
       // Exact phrase + exact negation tokens. A one-character OCR error on a
       // negated phrase is a known miss: Levenshtein <= 0.1 would also accept
       // a dropped "not" when another "not" appears elsewhere.
+      // U3: `!(exactPhrase && exactNegation)` is equivalent to this check.
       const exactPhrase = hay.includes(needle);
       const exactNegation = negations.every((token) => hayTokens.has(token));
       if (!exactPhrase || !exactNegation) missed.push(phrase);
