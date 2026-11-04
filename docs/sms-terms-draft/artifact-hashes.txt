@@ -1,0 +1,40 @@
+SMS visibility artifacts (r14). sha256 of files written by
+`PLAYWRIGHT_BASE_URL=http://localhost:3212 pnpm run test:sms-visibility`
+on 2026-11-04. 10 passed at 390 and 1440.
+
+Generated with:
+`(cd /opt/cursor/artifacts && sha256sum sms-*.png sms-*.txt | sort -k2)`
+
+This list is committed so the hashes are readable without Actions or
+agent-artifact auth. It does not include patient or lead data.
+
+b03a08f9f457fc18649573efa825d968d8db7e6a56d280a90052a8b7ebc06e93  sms-ocr-mobile-numbers-1440.txt
+a73512bca09a3eed0b606174199153a2bf6ca1d06137440cb140d867a784e707  sms-ocr-mobile-numbers-390.txt
+1e07def7783e0e23e3101a82811e437eea00c6148ed059fdc40eaf1572cc9f27  sms-ocr-sharing-1440.txt
+5dd79b87c5e4b67c163ee768cafc2ba361fac5848a560872fdc288c33188acfa  sms-ocr-sharing-390.txt
+7260c137c1d62f8c2b1bbdb6eb28dee7eae8c769784c403fb243ca8b97207322  sms-ocr-terms-consent-1440.txt
+9da979627754cdcd28c1ea0bf849ee91dc35daa7cee59f175ae7ecf95550afb0  sms-ocr-terms-consent-390.txt
+1d847f939c9de69023e180fadab6cbb316960fdbc994bd815c3a38da106d32ee  sms-ocr-terms-frequency-1440.txt
+31867215522f37d020ff47e5b18d2b09ee1b320698efbfc228b0173e3ae3645a  sms-ocr-terms-frequency-390.txt
+685090354328d5bee15d0d7f58848ccc8417ec9de6823c4d8923fa19299fed68  sms-ocr-terms-opt-out-1440.txt
+9d4a0855d7eea4d913728323acc780bad8f425aed8374f1d19285d5d1ed4be98  sms-ocr-terms-opt-out-390.txt
+5ddf27dd30ea1561cf57c90e1ccda51daf734436de67dd3c5807e72e834ca36d  sms-ocr-text-messaging-1440.txt
+c88b90feb28811f4d59d9e2d13691c7c4a3c08e6bf92c4440e29344d9798fd13  sms-ocr-text-messaging-390.txt
+ced4bd3330e5c0b6aa6be40d41e0f714348e72e17198ec7463faec7bf36b8fc7  sms-pixel-mobile-numbers-1440.png
+22dd279042ffaeb40437ba254a00bab7720c753b4cb5242209a347c7a5d77166  sms-pixel-mobile-numbers-390.png
+6d8e4555b1cd6afddb9d8c8d93f8e17a0ed85856fcf25a03eb4a34feae9b61fa  sms-pixel-sharing-1440.png
+86aa0e87df3038acc7f9bef99e7b28c75f0289338b46487831cf13e03efabd0a  sms-pixel-sharing-390.png
+eea1fb0b57c83beb89e3e1bfe33e8ee6e96081b35054e95d9e9ed8e5026e0db7  sms-pixel-terms-consent-1440.png
+9dd95668e7075291cf3d4d9468d155dbe1bc221bd76f3ab4620d090721fede2a  sms-pixel-terms-consent-390.png
+b11871fd7814c3fda74e9287cde419858e8470f321753b0fc3b86fcfc6e64d71  sms-pixel-terms-frequency-1440.png
+1c068a17bd1e19778deb9a0b6135d10b6aae81417ae163e10665c2f0215a877b  sms-pixel-terms-frequency-390.png
+fdccac22abfdbd45285ef4900158aa2826b45e703b318eb93b63028665c67337  sms-pixel-terms-opt-out-1440.png
+e051325f0e34329cb29fd098c67d79713c4761b733b83e91a7dfe6d4b91563c8  sms-pixel-terms-opt-out-390.png
+de9413dedfecdfde76a10bd2652e1e1329f7fac7db75c383900fa2d92110cbae  sms-pixel-text-messaging-1440.png
+95e42dca492867b85d5fd9655921c51da9cd63e85e7519dd54d00c6cfeb74f2d  sms-pixel-text-messaging-390.png
+7c0a00387c55338e590f776e1ea3a0439fa5f14e0b6bbea8f4cbb57ba8e9d2fe  sms-twilio-mobile-numbers-1440.png
+5c56673a279923c9cfffe78b471a9943a3599bac2fded5e2132d812d275806b7  sms-twilio-mobile-numbers-390.png
+cbd5f741037819036a3b29048050a5972f9ca7e2a2814e1a891bcf7c1a70fe83  sms-twilio-sharing-1440.png
+254bfc5462c0df7f11bb5c0c1e79794380487d326364dc75b0ab208b7a6f70c9  sms-twilio-sharing-390.png
+213361cec9e942022ba3514b0493eec8f1ccf50051c69df3bc01f06700e78c09  sms-twilio-text-messaging-1440.png
+f5de47cd87d5687a7fbcf89e5dd766733097d696b2b21a0c289524ea769a0233  sms-twilio-text-messaging-390.png
