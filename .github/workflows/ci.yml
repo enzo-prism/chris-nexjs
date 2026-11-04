@@ -99,6 +99,27 @@ jobs:
           FIXTURE_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3200/cache/sms-scan-fixture.txt)
           test "$FIXTURE_STATUS" = "404"
 
+      - name: Hash SMS visibility artifacts
+        if: always()
+        run: |
+          mkdir -p test-results/sms-visibility
+          if [ -d /opt/cursor/artifacts ]; then
+            shopt -s nullglob
+            for file in /opt/cursor/artifacts/sms-*.png /opt/cursor/artifacts/sms-*.txt; do
+              cp -f "$file" test-results/sms-visibility/
+            done
+          fi
+          chmod +x scripts/sms-hash-artifacts.sh
+          scripts/sms-hash-artifacts.sh test-results/sms-visibility | tee test-results/sms-visibility/artifact-hashes.txt
+
+      - name: Upload SMS visibility artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sms-visibility
+          path: test-results/sms-visibility/
+          if-no-files-found: warn
+
       - name: Analytics host-silence network spec
         run: |
           pnpm exec next start -p 3200 &

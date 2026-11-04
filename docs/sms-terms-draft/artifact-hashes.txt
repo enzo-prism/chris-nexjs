@@ -1,13 +1,3 @@
-SMS visibility artifacts (r14). sha256 of files written by
-`PLAYWRIGHT_BASE_URL=http://localhost:3212 pnpm run test:sms-visibility`
-on 2026-11-04. 10 passed at 390 and 1440.
-
-Generated with:
-`(cd /opt/cursor/artifacts && sha256sum sms-*.png sms-*.txt | sort -k2)`
-
-This list is committed so the hashes are readable without Actions or
-agent-artifact auth. It does not include patient or lead data.
-
 b03a08f9f457fc18649573efa825d968d8db7e6a56d280a90052a8b7ebc06e93  sms-ocr-mobile-numbers-1440.txt
 a73512bca09a3eed0b606174199153a2bf6ca1d06137440cb140d867a784e707  sms-ocr-mobile-numbers-390.txt
 1e07def7783e0e23e3101a82811e437eea00c6148ed059fdc40eaf1572cc9f27  sms-ocr-sharing-1440.txt
@@ -18,7 +8,7 @@ a73512bca09a3eed0b606174199153a2bf6ca1d06137440cb140d867a784e707  sms-ocr-mobile
 31867215522f37d020ff47e5b18d2b09ee1b320698efbfc228b0173e3ae3645a  sms-ocr-terms-frequency-390.txt
 685090354328d5bee15d0d7f58848ccc8417ec9de6823c4d8923fa19299fed68  sms-ocr-terms-opt-out-1440.txt
 9d4a0855d7eea4d913728323acc780bad8f425aed8374f1d19285d5d1ed4be98  sms-ocr-terms-opt-out-390.txt
-5ddf27dd30ea1561cf57c90e1ccda51daf734436de67dd3c5807e72e834ca36d  sms-ocr-text-messaging-1440.txt
+5ddf27dd30ea1561cf57c90e1ccda51daf734436de67dd3c5807e72d834ca36d  sms-ocr-text-messaging-1440.txt
 c88b90feb28811f4d59d9e2d13691c7c4a3c08e6bf92c4440e29344d9798fd13  sms-ocr-text-messaging-390.txt
 ced4bd3330e5c0b6aa6be40d41e0f714348e72e17198ec7463faec7bf36b8fc7  sms-pixel-mobile-numbers-1440.png
 22dd279042ffaeb40437ba254a00bab7720c753b4cb5242209a347c7a5d77166  sms-pixel-mobile-numbers-390.png
