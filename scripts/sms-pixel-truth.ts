@@ -62,17 +62,37 @@ export function normalizedPhraseDistance(haystack: string, phrase: string): numb
   return best;
 }
 
+const NEGATION_TOKENS = new Set(["no", "not"]);
+
+export function phraseNegationTokens(phrase: string): readonly string[] {
+  return normalizeOcr(phrase).split(" ").filter((token) => NEGATION_TOKENS.has(token));
+}
+
+export function isCriticalOcrPhrase(phrase: string): boolean {
+  return phraseNegationTokens(phrase).length > 0;
+}
+
 export function phrasesRecognized(
   ocrText: string,
   phrases: readonly string[],
   maxDistance = 0.1,
 ): { readonly missed: readonly string[]; readonly distances: Readonly<Record<string, number>> } {
+  const hay = normalizeOcr(ocrText);
+  const hayTokens = new Set(hay.split(" ").filter(Boolean));
   const distances: Record<string, number> = {};
   const missed: string[] = [];
   for (const phrase of phrases) {
+    const needle = normalizeOcr(phrase);
     const distance = normalizedPhraseDistance(ocrText, phrase);
     distances[phrase] = distance;
-    if (distance > maxDistance) missed.push(phrase);
+    const negations = phraseNegationTokens(phrase);
+    if (negations.length > 0) {
+      const exactPhrase = hay.includes(needle);
+      const exactNegation = negations.every((token) => hayTokens.has(token));
+      if (!exactPhrase || !exactNegation) missed.push(phrase);
+    } else if (distance > maxDistance) {
+      missed.push(phrase);
+    }
   }
   return { missed, distances };
 }

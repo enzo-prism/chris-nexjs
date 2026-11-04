@@ -28,8 +28,8 @@ const SHOT_DIR = existsSync("/opt/cursor/artifacts")
 
 const MIN_BOX_PX = 1;
 const MIN_FONT_PX = 10;
-const MIN_PIXEL_RATIO = 0.003;
-const MIN_CHANGED_PIXELS = 60;
+/** Changed pixels must cover this fraction of the text bounding area (device pixels). */
+const MIN_TEXT_PIXEL_RATIO = 0.08;
 const MIN_CONTRAST = 3;
 
 type Readability = {
@@ -41,6 +41,8 @@ type Readability = {
   fontSize: number;
   textRgb: [number, number, number];
   textAlpha: number;
+  textArea: number;
+  devicePixelRatio: number;
 };
 
 type PixelProof = {
@@ -142,7 +144,9 @@ async function collectReadability(locator: Locator): Promise<Readability> {
     if (clip && clip !== "auto" && clip !== "none") reasons.push(`clip ${clip}`);
     const clipPath =
       style.clipPath || (style as CSSStyleDeclaration & { webkitClipPath?: string }).webkitClipPath;
-    if (clipPath && clipPath !== "none") reasons.push(`clip-path ${clipPath}`);
+    const clipPathNormalized = (clipPath || "").replace(/\s+/g, " ").trim();
+    const clipPathInsetZero = /^inset\(\s*(?:0(?:px|%)?\s*){1,4}\)$/.test(clipPathNormalized);
+    if (clipPath && clipPath !== "none" && !clipPathInsetZero) reasons.push(`clip-path ${clipPath}`);
     const indent = parseFloat(style.textIndent);
     if (Number.isFinite(indent) && Math.abs(indent) >= Math.max(box.width, 1)) {
       reasons.push(`text-indent ${style.textIndent}`);
@@ -163,6 +167,32 @@ async function collectReadability(locator: Locator): Promise<Readability> {
 
     const painted = canvasColor(style.color);
     if (painted.a < 0.5) reasons.push(`color alpha ${painted.a}`);
+    const selfFill = canvasColor(style.webkitTextFillColor || style.color);
+    if (selfFill.a < 0.5) reasons.push(`text-fill alpha ${selfFill.a}`);
+
+    let textArea = 0;
+    const range = document.createRange();
+    const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      const textNode = walker.currentNode as Text;
+      const raw = textNode.nodeValue ?? "";
+      if (!raw.trim()) continue;
+      const parent = textNode.parentElement;
+      if (parent) {
+        const computed = window.getComputedStyle(parent);
+        const color = canvasColor(computed.color);
+        const fill = canvasColor(computed.webkitTextFillColor || computed.color);
+        const alpha = Math.min(color.a, fill.a);
+        if (alpha < 0.5) {
+          const snippet = raw.replace(/\s+/g, " ").trim().slice(0, 48);
+          reasons.push(`descendant color alpha ${alpha} on "${snippet}"`);
+        }
+      }
+      range.selectNodeContents(textNode);
+      for (const rect of range.getClientRects()) {
+        textArea += Math.max(0, rect.width) * Math.max(0, rect.height);
+      }
+    }
 
     let cumulativeOpacity = Number.isFinite(parseFloat(style.opacity)) ? parseFloat(style.opacity) : 1;
     let current: HTMLElement | null = node;
@@ -209,8 +239,19 @@ async function collectReadability(locator: Locator): Promise<Readability> {
       fontSize,
       textRgb: [painted.r, painted.g, painted.b],
       textAlpha: painted.a,
+      textArea,
+      devicePixelRatio: window.devicePixelRatio || 1,
     };
   });
+}
+
+function textPixelThreshold(textArea: number, devicePixelRatio: number): number {
+  return textArea * devicePixelRatio * devicePixelRatio * MIN_TEXT_PIXEL_RATIO;
+}
+
+function passagePainted(proof: PixelProof, textArea: number, devicePixelRatio: number): boolean {
+  const needed = textPixelThreshold(textArea, devicePixelRatio);
+  return needed > 0 && proof.changed >= needed;
 }
 
 async function clipScreenshot(locator: Locator): Promise<Buffer> {
@@ -273,12 +314,19 @@ async function collectPixelProof(
   };
 }
 
-function writeProofFiles(name: string, width: number, proof: PixelProof, painted: Buffer): void {
+function writeProofFiles(
+  name: string,
+  width: number,
+  proof: PixelProof,
+  painted: Buffer,
+  textArea: number,
+  devicePixelRatio: number,
+): void {
   mkdirSync(SHOT_DIR, { recursive: true });
   writeFileSync(`${SHOT_DIR}/sms-pixel-${name}-${width}.png`, painted);
   writeFileSync(
     `${SHOT_DIR}/sms-ocr-${name}-${width}.txt`,
-    `${proof.ocrText}\nchanged=${proof.changed} ratio=${proof.ratio.toFixed(4)} contrast=${proof.contrast.toFixed(2)}\n${JSON.stringify(proof.distances, null, 2)}\n`,
+    `${proof.ocrText}\nchanged=${proof.changed} ratio=${proof.ratio.toFixed(4)} contrast=${proof.contrast.toFixed(2)} textArea=${textArea.toFixed(1)} dpr=${devicePixelRatio} need=${textPixelThreshold(textArea, devicePixelRatio).toFixed(1)}\n${JSON.stringify(proof.distances, null, 2)}\n`,
   );
 }
 
@@ -298,8 +346,8 @@ async function assertPassagePainted(
   expect(metrics.ok, `${label} readable: ${metrics.reasons.join("; ")}`).toBe(true);
   const proof = await collectPixelProof(locator, phrases, metrics.textRgb);
   expect(
-    proof.changed >= MIN_CHANGED_PIXELS || proof.ratio >= MIN_PIXEL_RATIO,
-    `${label} pixel-diff too small (${proof.changed} px, ${(proof.ratio * 100).toFixed(2)}%)`,
+    passagePainted(proof, metrics.textArea, metrics.devicePixelRatio),
+    `${label} pixel-diff too small (${proof.changed} px vs text area ${metrics.textArea.toFixed(1)} @ dpr ${metrics.devicePixelRatio})`,
   ).toBe(true);
   expect(proof.contrast, `${label} contrast ${proof.contrast}`).toBeGreaterThanOrEqual(MIN_CONTRAST);
   expect(proof.missed, `${label} OCR missed ${proof.missed.join("; ")} :: ${proof.ocrText}`).toEqual(
@@ -307,7 +355,14 @@ async function assertPassagePainted(
   );
   if (saveAs) {
     const painted = await clipScreenshot(locator);
-    writeProofFiles(saveAs, page.viewportSize()?.width ?? 0, proof, painted);
+    writeProofFiles(
+      saveAs,
+      page.viewportSize()?.width ?? 0,
+      proof,
+      painted,
+      metrics.textArea,
+      metrics.devicePixelRatio,
+    );
   }
   return proof;
 }
@@ -456,16 +511,11 @@ async function passageFails(page: Page, locator: Locator): Promise<boolean> {
   await scrollRun(locator);
   const metrics = await collectReadability(locator);
   if (!metrics.ok || metrics.fontSize < MIN_FONT_PX) return true;
-  try {
-    const proof = await collectPixelProof(locator, TWILIO_OCR_PHRASES, metrics.textRgb);
-    const painted = proof.changed >= MIN_CHANGED_PIXELS || proof.ratio >= MIN_PIXEL_RATIO;
-    if (!painted) return true;
-    if (proof.contrast < MIN_CONTRAST) return true;
-    if (proof.missed.length > 0) return true;
-    return false;
-  } catch {
-    return true;
-  }
+  const proof = await collectPixelProof(locator, TWILIO_OCR_PHRASES, metrics.textRgb);
+  if (!passagePainted(proof, metrics.textArea, metrics.devicePixelRatio)) return true;
+  if (proof.contrast < MIN_CONTRAST) return true;
+  if (proof.missed.length > 0) return true;
+  return false;
 }
 
 test("pixel-truth kills Eggbot's ten hide tricks", async ({ page }) => {
@@ -479,4 +529,62 @@ test("pixel-truth kills Eggbot's ten hide tricks", async ({ page }) => {
     await applyEggTrick(locator, trick);
     expect(await passageFails(page, locator), `${trick.id} must be killed`).toBe(true);
   }
+});
+
+test("a transparent span over not or the exclusion prefix fails readability", async ({
+  page,
+}) => {
+  await gotoLegal(page, "/privacy-policy");
+
+  const wrapSnippet = async (locator: Locator, needle: string): Promise<void> => {
+    await locator.evaluate((el, target) => {
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      while (walker.nextNode()) {
+        const text = walker.currentNode as Text;
+        const value = text.nodeValue ?? "";
+        const idx = value.indexOf(target);
+        if (idx < 0) continue;
+        const span = document.createElement("span");
+        span.style.color = "transparent";
+        span.textContent = target;
+        const parent = text.parentNode;
+        if (!parent) return;
+        if (idx > 0) parent.insertBefore(document.createTextNode(value.slice(0, idx)), text);
+        parent.insertBefore(span, text);
+        text.nodeValue = value.slice(idx + target.length);
+        break;
+      }
+    }, needle);
+  };
+
+  const sharing = await runLocator(page, "sharing");
+  await wrapSnippet(sharing, "not ");
+  const notMetrics = await collectReadability(sharing);
+  expect(notMetrics.ok, `transparent "not " span should fail: ${notMetrics.reasons.join("; ")}`).toBe(
+    false,
+  );
+  expect(
+    notMetrics.reasons.some((reason) => reason.includes("descendant color alpha")),
+    `expected descendant color failure, got: ${notMetrics.reasons.join("; ")}`,
+  ).toBe(true);
+
+  await page.reload({ waitUntil: "domcontentloaded" });
+  const exclusion = await runLocator(page, "sharing");
+  await wrapSnippet(exclusion, "will not be shared");
+  const exclusionMetrics = await collectReadability(exclusion);
+  expect(
+    exclusionMetrics.ok,
+    `transparent exclusion-prefix span should fail: ${exclusionMetrics.reasons.join("; ")}`,
+  ).toBe(false);
+  expect(
+    exclusionMetrics.reasons.some((reason) => reason.includes("descendant color alpha")),
+    `expected descendant color failure, got: ${exclusionMetrics.reasons.join("; ")}`,
+  ).toBe(true);
+});
+
+test("the retired SMS scan fixture is not a public URL", async ({ page }) => {
+  const response = await page.goto("/cache/sms-scan-fixture.txt", {
+    waitUntil: "domcontentloaded",
+  });
+  expect(response?.status(), "/cache/sms-scan-fixture.txt must 404").toBe(404);
 });

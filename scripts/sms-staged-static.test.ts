@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { execSync } from "node:child_process";
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { join, relative, sep } from "node:path";
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { dirname, join, relative, sep } from "node:path";
 
 import {
   SMS_PRIVACY_NO_MARKETING_SHARE,
@@ -284,6 +284,24 @@ function assertHiddenGuardUnits(): void {
   assert.equal(styleHides("clip-path:inset(100%)"), true);
   assert.equal(styleHides("color:transparent"), true);
   assert.equal(styleHides("transform:scale(0)"), true);
+  assert.equal(styleHides("transform:scale(0, 0)"), true);
+  assert.equal(styleHides("zoom:0"), true);
+  assert.equal(styleHides("color:#0000"), true);
+  assert.equal(styleHides("color:#00000000"), true);
+  assert.equal(styleHides("color:hsla(0, 0%, 0%, 0)"), true);
+  assert.equal(styleHides("color:hsl(0 0% 0% / 0)"), true);
+  assert.equal(styleHides("-webkit-text-fill-color:transparent"), true);
+  assert.equal(styleHides("-webkit-text-fill-color:#fff0"), true);
+  assert.equal(styleHides("height:0;overflow:hidden"), true);
+  assert.equal(styleHides("height:0px;overflow-y:hidden"), true);
+  assert.equal(styleHides("height:0"), false);
+  assert.equal(styleHides("position:absolute;left:-9999px"), true);
+  assert.equal(styleHides("position:fixed;top:-10000px"), true);
+  assert.equal(styleHides("transform:translateX(-9999px)"), true);
+  assert.equal(styleHides("position:relative;left:-9999px"), false);
+  assert.equal(styleHides("clip-path:inset(0)"), false);
+  assert.equal(styleHides("clip-path: inset(0px)"), false);
+  assert.equal(styleHides("clip-path:inset(0 0 0 0)"), false);
   assert.equal(styleHides("max-height:0"), true);
   assert.equal(styleHides("visibility:collapse"), true);
   assert.equal(styleHides("backface-visibility:hidden"), false);
@@ -529,33 +547,47 @@ for (const value of searched) {
   console.log(`- ${JSON.stringify(value)}`);
 }
 
+const cacheProbeRel = "public/cache/.sms-scan-probe.txt";
+const cacheProbeAbs = join(process.cwd(), cacheProbeRel);
+mkdirSync(dirname(cacheProbeAbs), { recursive: true });
+writeFileSync(cacheProbeAbs, "sms-scan-probe: walker must visit public/cache\n");
+
 const hits: string[] = [];
 const files: string[] = [];
-walkFiles(join(process.cwd(), ".next", "static"), files, false);
-walkFiles(join(process.cwd(), ".next", "server"), files, false);
-walkFiles(join(process.cwd(), "public"), files, true);
-walkFiles(join(process.cwd(), "client", "public"), files, true);
+try {
+  walkFiles(join(process.cwd(), ".next", "static"), files, false);
+  walkFiles(join(process.cwd(), ".next", "server"), files, false);
+  walkFiles(join(process.cwd(), "public"), files, true);
+  walkFiles(join(process.cwd(), "client", "public"), files, true);
 
-for (const fullPath of files) {
-  const relativePath = toPosix(fullPath);
-  const haystacks = markupHaystacks(readFileSync(fullPath, "utf8"), relativePath);
-  for (const value of searched) {
-    if (haystacks.some((haystack) => haystack.includes(value))) {
-      hits.push(`${relativePath} contains ${JSON.stringify(value)}`);
+  for (const fullPath of files) {
+    const relativePath = toPosix(fullPath);
+    const haystacks = markupHaystacks(readFileSync(fullPath, "utf8"), relativePath);
+    for (const value of searched) {
+      if (haystacks.some((haystack) => haystack.includes(value))) {
+        hits.push(`${relativePath} contains ${JSON.stringify(value)}`);
+      }
     }
   }
+
+  assert.ok(
+    files.some((fullPath) => toPosix(fullPath) === cacheProbeRel),
+    "public/cache is scanned; only .next/cache and .next/server/route-cache are skipped",
+  );
+  assert.equal(
+    existsSync(join(process.cwd(), "public/cache/sms-scan-fixture.txt")),
+    false,
+    "sms-scan-fixture must not ship under public/",
+  );
+
+  assert.equal(
+    hits.length,
+    0,
+    `Staged SMS copy must not appear in .next/static, .next/server, public/, or client/public/. Hits:\n${hits.join("\n")}`,
+  );
+} finally {
+  rmSync(cacheProbeAbs, { force: true });
 }
-
-assert.ok(
-  files.some((fullPath) => toPosix(fullPath) === "public/cache/sms-scan-fixture.txt"),
-  "public/cache is scanned; only .next/cache and .next/server/route-cache are skipped",
-);
-
-assert.equal(
-  hits.length,
-  0,
-  `Staged SMS copy must not appear in .next/static, .next/server, public/, or client/public/. Hits:\n${hits.join("\n")}`,
-);
 
 console.log(
   `sms-staged-static: scanned ${files.length} files under .next/static, .next/server, public/, and client/public/; no staged strings`,

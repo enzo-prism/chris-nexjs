@@ -8,7 +8,8 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    # OCR pins noble tesseract 5.3.4 + eng 4.1.0-2. ubuntu-latest is moving to 26.04.
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - name: Checkout
@@ -71,7 +72,13 @@ jobs:
         run: SMS_STAGED_SKIP_BUILD=1 pnpm run test:sms-staged-static
 
       - name: Install Tesseract for SMS OCR
-        run: sudo apt-get update && sudo apt-get install -y tesseract-ocr
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --allow-downgrades \
+            tesseract-ocr=5.3.4-1build5 \
+            tesseract-ocr-eng=1:4.1.0-2
+          echo "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2  /usr/share/tesseract-ocr/5/tessdata/eng.traineddata" | sha256sum -c -
+          tesseract --version
 
       - name: Runtime SEO, image, and Twilio visibility audits
         run: |
@@ -89,6 +96,8 @@ jobs:
           SEO_AUDIT_BASE_URL=http://localhost:3200 pnpm run test:seo:schema
           # Pixel-truth + OCR of SMS consent passages at 390 and 1440.
           PLAYWRIGHT_BASE_URL=http://localhost:3200 pnpm run test:sms-visibility
+          FIXTURE_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3200/cache/sms-scan-fixture.txt)
+          test "$FIXTURE_STATUS" = "404"
 
       - name: Analytics host-silence network spec
         run: |

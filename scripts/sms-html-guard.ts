@@ -109,69 +109,124 @@ export function isHidingClass(token: string): boolean {
   return variants.every(variantHides);
 }
 
-function colorAlpha(value: string): number | null {
+function parseAlphaChannel(raw: string): number | null {
+  if (!raw) return null;
+  return raw.endsWith("%") ? parseFloat(raw) / 100 : parseFloat(raw);
+}
+
+export function colorAlpha(value: string): number | null {
   const trimmed = value.trim().toLowerCase();
   if (trimmed === "transparent") return 0;
-  const slash = trimmed.match(/^rgba?\([^/]+\/\s*([\d.]+%?)\s*\)$/);
-  if (slash) {
-    const raw = slash[1] ?? "";
-    return raw.endsWith("%") ? parseFloat(raw) / 100 : parseFloat(raw);
+  if (trimmed.startsWith("#")) {
+    const hex = trimmed.slice(1);
+    if (hex.length === 4) {
+      const alpha = Number.parseInt(hex[3] ?? "", 16);
+      return Number.isFinite(alpha) ? alpha / 15 : null;
+    }
+    if (hex.length === 8) {
+      const alpha = Number.parseInt(hex.slice(6, 8), 16);
+      return Number.isFinite(alpha) ? alpha / 255 : null;
+    }
+    return 1;
   }
-  const comma = trimmed.match(
+  const slash = trimmed.match(/^(?:rgba?|hsla?|oklch|oklab)\([^/]+\/\s*([\d.]+%?)\s*\)$/);
+  if (slash) return parseAlphaChannel(slash[1] ?? "");
+  const rgbComma = trimmed.match(
     /^rgba?\(\s*[\d.]+\s*,\s*[\d.]+\s*,\s*[\d.]+(?:\s*,\s*([\d.]+%?))?\s*\)$/,
   );
-  if (comma) {
-    if (comma[1] === undefined) return 1;
-    const raw = comma[1];
-    return raw.endsWith("%") ? parseFloat(raw) / 100 : parseFloat(raw);
+  if (rgbComma) return rgbComma[1] === undefined ? 1 : parseAlphaChannel(rgbComma[1]);
+  const hslComma = trimmed.match(
+    /^hsla?\(\s*[\d.]+\s*,\s*[\d.]+%?\s*,\s*[\d.]+%?(?:\s*,\s*([\d.]+%?))?\s*\)$/,
+  );
+  if (hslComma) {
+    if (trimmed.startsWith("hsl(") && !trimmed.startsWith("hsla(") && hslComma[1] === undefined) {
+      return 1;
+    }
+    return hslComma[1] === undefined ? 1 : parseAlphaChannel(hslComma[1]);
   }
   return null;
 }
 
-export function styleHides(style: string): boolean {
+function isZeroLength(value: string): boolean {
+  return Number.isFinite(parseFloat(value)) && parseFloat(value) === 0;
+}
+
+function overflowClips(value: string | undefined): boolean {
+  if (!value) return false;
+  const first = value.split(/\s+/)[0] ?? "";
+  return first === "hidden" || first === "clip" || first === "scroll" || first === "auto";
+}
+
+function clipPathHides(value: string): boolean {
+  const trimmed = value.replace(/\s+/g, " ").trim();
+  const first = trimmed.split(/\s+/)[0] ?? "";
+  if (first === "" || first === "none" || first === "unset" || first === "initial") return false;
+  if (/^inset\(\s*(?:0(?:px|%)?\s*){1,4}\)$/.test(trimmed)) return false;
+  return true;
+}
+
+function isOffscreen(decls: ReadonlyMap<string, string>): boolean {
+  const position = decls.get("position") ?? "";
+  if (position === "absolute" || position === "fixed") {
+    for (const prop of ["left", "right", "top", "bottom"] as const) {
+      const raw = decls.get(prop);
+      if (!raw) continue;
+      const n = parseFloat(raw);
+      if (Number.isFinite(n) && n <= -999) return true;
+    }
+  }
+  const transform = decls.get("transform") ?? "";
+  if (/translate(?:3d|[xy])?\(\s*-?(?:[5-9]\d{2,}|\d{4,})/.test(transform)) return true;
+  return false;
+}
+
+function parseStyleDecls(style: string): Map<string, string> {
+  const decls = new Map<string, string>();
   const withoutComments = style.replace(/\/\*[\s\S]*?\*\//g, "");
   for (const decl of withoutComments.split(";")) {
     const colon = decl.indexOf(":");
     if (colon < 0) continue;
     const property = decl.slice(0, colon).trim().toLowerCase();
     const rawValue = decl.slice(colon + 1).trim().toLowerCase().replace(/!important/g, "").trim();
-    const first = rawValue.split(/\s+/)[0] ?? "";
-    switch (property) {
-      case "display":
-        if (first === "none") return true;
-        break;
-      case "visibility":
-        if (first === "hidden" || first === "collapse") return true;
-        break;
-      case "opacity":
-      case "font-size":
-      case "max-height":
-        if (Number.isFinite(parseFloat(rawValue)) && parseFloat(rawValue) === 0) return true;
-        break;
-      case "content-visibility":
-        if (first === "hidden") return true;
-        break;
-      case "clip-path":
-        if (first !== "" && first !== "none" && first !== "unset" && first !== "initial") return true;
-        break;
-      case "clip":
-        if (first !== "" && first !== "auto" && first !== "none" && first !== "unset") return true;
-        break;
-      case "color": {
-        const alpha = colorAlpha(rawValue);
-        if (alpha !== null && Number.isFinite(alpha) && alpha === 0) return true;
-        if (rawValue === "transparent") return true;
-        break;
-      }
-      case "transform":
-        if (/\bscale(?:3d)?\(\s*0(?:\.0+)?(?:\s*,\s*0(?:\.0+)?){0,2}\s*\)/.test(rawValue)) {
-          return true;
-        }
-        break;
-      default:
-        break;
-    }
+    if (property) decls.set(property, rawValue);
   }
+  return decls;
+}
+
+function paintAlphaHides(value: string): boolean {
+  const alpha = colorAlpha(value);
+  return value === "transparent" || (alpha !== null && Number.isFinite(alpha) && alpha === 0);
+}
+
+export function styleHides(style: string): boolean {
+  const decls = parseStyleDecls(style);
+  const display = (decls.get("display") ?? "").split(/\s+/)[0] ?? "";
+  if (display === "none") return true;
+  const visibility = (decls.get("visibility") ?? "").split(/\s+/)[0] ?? "";
+  if (visibility === "hidden" || visibility === "collapse") return true;
+  for (const prop of ["opacity", "font-size", "max-height", "zoom"] as const) {
+    const raw = decls.get(prop);
+    if (raw && isZeroLength(raw)) return true;
+  }
+  if ((decls.get("content-visibility") ?? "").split(/\s+/)[0] === "hidden") return true;
+  if (clipPathHides(decls.get("clip-path") ?? "")) return true;
+  const clip = (decls.get("clip") ?? "").split(/\s+/)[0] ?? "";
+  if (clip !== "" && clip !== "auto" && clip !== "none" && clip !== "unset") return true;
+  if (paintAlphaHides(decls.get("color") ?? "")) return true;
+  if (paintAlphaHides(decls.get("-webkit-text-fill-color") ?? "")) return true;
+  const transform = decls.get("transform") ?? "";
+  if (/\bscale(?:3d)?\(\s*0(?:\.0+)?(?:\s*,\s*0(?:\.0+)?){0,2}\s*\)/.test(transform)) return true;
+  const height = decls.get("height");
+  if (
+    height &&
+    isZeroLength(height) &&
+    (overflowClips(decls.get("overflow")) ||
+      overflowClips(decls.get("overflow-x")) ||
+      overflowClips(decls.get("overflow-y")))
+  ) {
+    return true;
+  }
+  if (isOffscreen(decls)) return true;
   return false;
 }
 
