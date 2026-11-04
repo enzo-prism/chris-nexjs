@@ -54,7 +54,7 @@ export function describeContactLogError(error: unknown): string {
   if (!record) return "unknown";
   const rawName = typeof record.name === "string" ? record.name : "";
   const name = CONTACT_LOG_ERROR_NAMES.has(rawName) ? rawName : "Error";
-  const code = pickSqlState(record.cause) ?? pickSqlState(record);
+  const code = pickSqlState(record.cause);
   const constraint =
     pickSafeToken(record.cause, "constraint") ??
     pickSafeToken(record.cause, "constraint_name") ??

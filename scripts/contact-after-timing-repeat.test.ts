@@ -59,37 +59,40 @@ async function run(): Promise<void> {
         originalError.apply(console, args);
       };
       const timers = installFakeTimers();
-      startCapturingVercelServerEventsForTests();
-      const accepted = await POST(
-        new NextRequest("https://www.chriswongdds.com/api/contact", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }),
-      );
-      assert.equal(accepted.status, 201);
-      const flush = flushContactAfterTasksForTests();
-      await yieldMicrotasks(10);
-      await timers.tick(1_999);
-      assert.equal(
-        hasStillPending(lines),
-        false,
-        `repeat ${i + 1}/${REPEAT} still-pending must not log at tick 1999`,
-      );
-      await timers.tick(1);
-      assert.equal(
-        hasStillPending(lines),
-        true,
-        `repeat ${i + 1}/${REPEAT} still-pending must log at tick 2000`,
-      );
-      assert.ok(rejectWrite, `repeat ${i + 1}/${REPEAT} persist never started`);
-      rejectWrite(new Error("slow DB must be bounded, not awaited to completion"));
-      await yieldMicrotasks(8);
-      await flush;
-      takeVercelServerEventsForTests();
-      timers.restore();
-      console.warn = originalWarn;
-      console.error = originalError;
+      try {
+        startCapturingVercelServerEventsForTests();
+        const accepted = await POST(
+          new NextRequest("https://www.chriswongdds.com/api/contact", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          }),
+        );
+        assert.equal(accepted.status, 201);
+        const flush = flushContactAfterTasksForTests();
+        await yieldMicrotasks(10);
+        await timers.tick(1_999);
+        assert.equal(
+          hasStillPending(lines),
+          false,
+          `repeat ${i + 1}/${REPEAT} still-pending must not log at tick 1999`,
+        );
+        await timers.tick(1);
+        assert.equal(
+          hasStillPending(lines),
+          true,
+          `repeat ${i + 1}/${REPEAT} still-pending must log at tick 2000`,
+        );
+        assert.ok(rejectWrite, `repeat ${i + 1}/${REPEAT} persist never started`);
+        rejectWrite(new Error("slow DB must be bounded, not awaited to completion"));
+        await yieldMicrotasks(8);
+        await flush;
+        takeVercelServerEventsForTests();
+      } finally {
+        timers.restore();
+        console.warn = originalWarn;
+        console.error = originalError;
+      }
     }
     console.log(`Contact after() still-pending timing: ${REPEAT}/${REPEAT} ok (fake 1999/2000).`);
   } finally {
