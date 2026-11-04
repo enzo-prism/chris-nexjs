@@ -249,23 +249,26 @@ async function run(): Promise<void> {
       originalError.apply(console, args);
     };
     const timers = installFakeTimers();
-    startCapturingVercelServerEventsForTests();
-    const preciseAccepted = await POST(request(payload));
-    assert.equal(preciseAccepted.status, 201);
-    const preciseFlush = flushContactAfterTasksForTests();
-    await yieldMicrotasks(10);
-    await timers.tick(1_999);
-    assert.equal(hasStillPending(preciseLines), false, "still-pending must not log at tick 1999");
-    await timers.tick(1);
-    assert.equal(hasStillPending(preciseLines), true, "still-pending must log at tick 2000");
-    assert.ok(rejectWrite, "precise persist must start the DB write");
-    rejectWrite(new Error("slow DB must be bounded, not awaited to completion"));
-    await yieldMicrotasks(8);
-    await preciseFlush;
-    takeVercelServerEventsForTests();
-    timers.restore();
-    console.warn = originalWarn;
-    console.error = originalError;
+    try {
+      startCapturingVercelServerEventsForTests();
+      const preciseAccepted = await POST(request(payload));
+      assert.equal(preciseAccepted.status, 201);
+      const preciseFlush = flushContactAfterTasksForTests();
+      await yieldMicrotasks(10);
+      await timers.tick(1_999);
+      assert.equal(hasStillPending(preciseLines), false, "still-pending must not log at tick 1999");
+      await timers.tick(1);
+      assert.equal(hasStillPending(preciseLines), true, "still-pending must log at tick 2000");
+      assert.ok(rejectWrite, "precise persist must start the DB write");
+      rejectWrite(new Error("slow DB must be bounded, not awaited to completion"));
+      await yieldMicrotasks(8);
+      await preciseFlush;
+      takeVercelServerEventsForTests();
+    } finally {
+      timers.restore();
+      console.warn = originalWarn;
+      console.error = originalError;
+    }
     storage.createContactMessage = originalCreate;
 
     const landedLogs = captureContactLogs();

@@ -27,7 +27,9 @@ async function run(): Promise<void> {
       () => timers.tick(10),
       (error: unknown) => {
         assert.ok(error instanceof AggregateError, "two throws must be an AggregateError");
-        assert.deepEqual(error.errors, [one, two]);
+        assert.equal(error.errors.length, 2, "two throws must keep both errors");
+        assert.equal(error.errors[0], one, "first callback error must keep identity");
+        assert.equal(error.errors[1], two, "second callback error must keep identity");
         return true;
       },
     );
