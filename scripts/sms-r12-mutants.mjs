@@ -19,6 +19,11 @@ const SOURCE_TRICKS = [
   ["text-fill", '<p className="[-webkit-text-fill-color:transparent]">\n          {SMS_PRIVACY_NO_MARKETING_SHARE}'],
   ["mask-image", '<p className="[mask-image:linear-gradient(transparent,transparent)]">\n          {SMS_PRIVACY_NO_MARKETING_SHARE}'],
   ["font-0-5px", '<p className="text-[0.5px]">\n          {SMS_PRIVACY_NO_MARKETING_SHARE}'],
+  ["S1-style-opacity", '<p style={{ opacity: 0 }}>\n          {SMS_PRIVACY_NO_MARKETING_SHARE}'],
+  ["S2-style-font", '<p style={{ fontSize: "0.01px" }}>\n          {SMS_PRIVACY_NO_MARKETING_SHARE}'],
+  ["S3-style-visibility", '<p style={{ visibility: "hidden" }}>\n          {SMS_PRIVACY_NO_MARKETING_SHARE}'],
+  ["S4-style-display", '<p style={{ display: "none" }}>\n          {SMS_PRIVACY_NO_MARKETING_SHARE}'],
+  ["S5-style-dynamic", '<p style={{ opacity: hideAmount }}>\n          {SMS_PRIVACY_NO_MARKETING_SHARE}'],
 ];
 
 function restore() {

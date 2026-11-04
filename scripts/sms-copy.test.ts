@@ -5,6 +5,8 @@ import { join, relative, sep } from "node:path";
 import { decodeHTML } from "entities";
 import ts from "typescript";
 
+import { styleHides } from "./sms-html-guard";
+
 import { officeInfo } from "../shared/officeInfo";
 import { CANONICAL_HOST } from "../shared/robots";
 import {
@@ -570,6 +572,86 @@ const SOURCE_HIDE_TRICKS = [
   "text-[0.5px]",
 ] as const;
 
+const CONSENT_SOURCE_MARKERS = [
+  "SMS_PRIVACY_NO_MARKETING_SHARE",
+  "SMS_PRIVACY_SUBCONTRACTOR_SHARING",
+  "SMS_PRIVACY_SHARING_EXCLUSION",
+  "Consent to receive text messages",
+  "Message frequency varies",
+  "Reply <strong>STOP</strong>",
+] as const;
+
+function camelToKebab(name: string): string {
+  const kebab = name.replace(/[A-Z]/g, (ch) => `-${ch.toLowerCase()}`);
+  return kebab.startsWith("webkit-") || kebab.startsWith("moz-") ? `-${kebab}` : kebab;
+}
+
+function literalCssValue(node: ts.Expression): string | null {
+  if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) return node.text;
+  if (ts.isNumericLiteral(node)) return node.text;
+  if (node.kind === ts.SyntaxKind.TrueKeyword) return "true";
+  if (node.kind === ts.SyntaxKind.FalseKeyword) return "false";
+  return null;
+}
+
+function jsxStyleToCss(obj: ts.ObjectLiteralExpression): { css: string; dynamic: boolean } {
+  const parts: string[] = [];
+  let dynamic = false;
+  for (const prop of obj.properties) {
+    if (!ts.isPropertyAssignment(prop)) {
+      dynamic = true;
+      continue;
+    }
+    const name = ts.isIdentifier(prop.name)
+      ? prop.name.text
+      : ts.isStringLiteral(prop.name)
+        ? prop.name.text
+        : null;
+    if (!name) {
+      dynamic = true;
+      continue;
+    }
+    const value = literalCssValue(prop.initializer);
+    if (value === null) {
+      dynamic = true;
+      continue;
+    }
+    parts.push(`${camelToKebab(name)}:${value}`);
+  }
+  return { css: parts.join(";"), dynamic };
+}
+
+function sourceHasConsentMarker(text: string): boolean {
+  return CONSENT_SOURCE_MARKERS.some((marker) => text.includes(marker));
+}
+
+function assertConsentInlineStyleSafe(
+  el: ts.JsxOpeningElement | ts.JsxSelfClosingElement,
+  sf: ts.SourceFile,
+  relativePath: string,
+): void {
+  for (const attr of el.attributes.properties) {
+    if (!ts.isJsxAttribute(attr) || attr.name.getText(sf) !== "style") continue;
+    const init = attr.initializer;
+    const where = `${relativePath}:${el.getStart(sf)}`;
+    assert.ok(init, `${where} consent style attribute is empty`);
+    if (ts.isStringLiteral(init)) {
+      assert.equal(styleHides(init.text), false, `${where} string style hides text: ${init.text}`);
+      continue;
+    }
+    assert.ok(ts.isJsxExpression(init), `${where} consent style must be a JSX expression or string`);
+    const expr = init.expression;
+    assert.ok(expr, `${where} consent style={ } is empty`);
+    assert.ok(
+      ts.isObjectLiteralExpression(expr),
+      `${where} consent style={...} is not a static object`,
+    );
+    const { css, dynamic } = jsxStyleToCss(expr);
+    assert.equal(dynamic, false, `${where} dynamic style object is not statically safe`);
+    assert.equal(styleHides(css), false, `${where} inline style hides text: ${css}`);
+  }
+}
+
 function assertConsentPassagesHaveNoHideTricks(relativePath: string): void {
   const source = readWorkspace(relativePath);
   const tagRe = /<p\b([^>]*)>/g;
@@ -577,11 +659,7 @@ function assertConsentPassagesHaveNoHideTricks(relativePath: string): void {
   while (match) {
     const attrs = match[1] ?? "";
     const after = source.slice(match.index, match.index + 900);
-    const isConsent =
-      after.includes("SMS_PRIVACY_NO_MARKETING_SHARE") ||
-      after.includes("Consent to receive text messages") ||
-      after.includes("Message frequency varies") ||
-      after.includes("Reply <strong>STOP</strong>");
+    const isConsent = sourceHasConsentMarker(after);
     if (isConsent) {
       for (const trick of SOURCE_HIDE_TRICKS) {
         assert.equal(
@@ -593,6 +671,30 @@ function assertConsentPassagesHaveNoHideTricks(relativePath: string): void {
     }
     match = tagRe.exec(source);
   }
+
+  const sf = ts.createSourceFile(relativePath, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const visit = (node: ts.Node, inConsentHost: boolean): void => {
+    if (ts.isJsxElement(node)) {
+      const tag = node.openingElement.tagName.getText(sf);
+      const text = node.getText(sf);
+      const host =
+        (tag === "p" || tag === "span" || tag === "li") &&
+        text.length <= 4000 &&
+        sourceHasConsentMarker(text);
+      const inspect = inConsentHost || host;
+      if (inspect) {
+        assertConsentInlineStyleSafe(node.openingElement, sf, relativePath);
+      }
+      for (const child of node.children) visit(child, inspect);
+      return;
+    }
+    if (ts.isJsxSelfClosingElement(node) && inConsentHost) {
+      assertConsentInlineStyleSafe(node, sf, relativePath);
+      return;
+    }
+    ts.forEachChild(node, (child) => visit(child, inConsentHost));
+  };
+  visit(sf, false);
 }
 
 assertConsentPassagesHaveNoHideTricks("client/src/pages/PrivacyPolicy.tsx");
