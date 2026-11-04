@@ -150,24 +150,87 @@ export function colorAlpha(value: string): number | null {
 const SCALE_HIDE = 0.5;
 const ZOOM_HIDE = 0.5;
 const FONT_SIZE_HIDE_PX = 6;
+const BOX_HIDE_PX = 6;
 const OPACITY_HIDE = 0.1;
 const OFFSCREEN_PX = 500;
-const OFFSCREEN_TRANSLATE_PX = 1000;
-const ROTATE_EDGE_DEG = 10;
+const OFFSCREEN_TRANSLATE_PX = 999;
+const ROTATE_EDGE_DEG = 15;
+const MATRIX_DET_HIDE = 0.01;
+const HIDING_STYLE_PROPS = [
+  "opacity",
+  "font-size",
+  "zoom",
+  "max-height",
+  "max-width",
+  "width",
+  "height",
+  "display",
+  "visibility",
+  "content-visibility",
+  "clip-path",
+  "clip",
+  "color",
+  "-webkit-text-fill-color",
+  "transform",
+  "-webkit-transform",
+  "overflow",
+  "overflow-x",
+  "overflow-y",
+  "position",
+  "left",
+  "right",
+  "top",
+  "bottom",
+  "inset",
+  "text-indent",
+  "margin",
+  "margin-left",
+  "margin-right",
+  "margin-top",
+  "margin-bottom",
+  "scale",
+  "translate",
+  "rotate",
+  "filter",
+] as const;
 
 type CssNumber = {
   readonly n: number;
   readonly unit: string;
 };
 
+function valueUnresolved(value: string): boolean {
+  return /(?:^|[^\w-])(?:calc|var)\s*\(/.test(value);
+}
+
 function parseCssNumber(value: string): CssNumber | null {
   const match = value
     .trim()
-    .match(/^(-?(?:\d+\.?\d*|\.\d+))(px|em|rem|%|vh|vw|vmin|vmax|deg|rad|turn)?$/i);
+    .match(/^(-?(?:\d+\.?\d*|\.\d+))(px|em|rem|pt|pc|in|%|vh|vw|vmin|vmax|deg|rad|turn)?$/i);
   if (!match) return null;
   const n = Number.parseFloat(match[1] ?? "");
   if (!Number.isFinite(n)) return null;
   return { n, unit: (match[2] ?? "").toLowerCase() };
+}
+
+function toPx(parsed: CssNumber): number | null {
+  switch (parsed.unit) {
+    case "":
+    case "px":
+      return parsed.n;
+    case "pt":
+      return parsed.n * (96 / 72);
+    case "pc":
+    case "em":
+    case "rem":
+      return parsed.n * 16;
+    case "in":
+      return parsed.n * 96;
+    case "%":
+      return (parsed.n / 100) * 16;
+    default:
+      return null;
+  }
 }
 
 function isZeroLength(value: string): boolean {
@@ -180,30 +243,59 @@ function unitlessOrPercent(parsed: CssNumber): number {
 }
 
 function opacityHides(value: string): boolean {
+  if (valueUnresolved(value)) return true;
   const parsed = parseCssNumber(value);
   return parsed !== null && unitlessOrPercent(parsed) < OPACITY_HIDE;
 }
 
 function zoomHides(value: string): boolean {
+  if (valueUnresolved(value)) return true;
   const parsed = parseCssNumber(value);
   return parsed !== null && unitlessOrPercent(parsed) < ZOOM_HIDE;
 }
 
+function filterHides(value: string): boolean {
+  if (valueUnresolved(value)) return true;
+  const re = /opacity\s*\(\s*([^)]+)\)/g;
+  let match = re.exec(value);
+  while (match) {
+    if (opacityHides((match[1] ?? "").trim())) return true;
+    match = re.exec(value);
+  }
+  return false;
+}
+
+function standaloneScaleHides(value: string): boolean {
+  if (valueUnresolved(value)) return true;
+  return value.trim().split(/\s+/).some((part) => axisScaleHides(part));
+}
+
+function standaloneTranslateHides(value: string): boolean {
+  if (valueUnresolved(value)) return true;
+  return value.trim().split(/\s+/).some((part) => translateOffsetHides(part));
+}
+
+function standaloneRotateHides(value: string): boolean {
+  if (valueUnresolved(value)) return true;
+  const deg = parseAngleDeg(value.trim().split(/\s+/)[0] ?? "");
+  return deg !== null && rotateEdgeOn(deg);
+}
+
 function fontSizeHides(value: string): boolean {
+  if (valueUnresolved(value)) return true;
   const parsed = parseCssNumber(value);
   if (!parsed) return false;
-  switch (parsed.unit) {
-    case "":
-    case "px":
-      return parsed.n < FONT_SIZE_HIDE_PX;
-    case "em":
-    case "rem":
-      return parsed.n < FONT_SIZE_HIDE_PX / 16;
-    case "%":
-      return parsed.n < (FONT_SIZE_HIDE_PX / 16) * 100;
-    default:
-      return parsed.n === 0;
-  }
+  const px = toPx(parsed);
+  return px !== null && px < FONT_SIZE_HIDE_PX;
+}
+
+function boxSizeHides(value: string): boolean {
+  if (valueUnresolved(value)) return true;
+  const parsed = parseCssNumber(value);
+  if (!parsed) return false;
+  if (parsed.unit === "%" ) return parsed.n === 0;
+  const px = toPx(parsed);
+  return px !== null && px < BOX_HIDE_PX;
 }
 
 function overflowClips(value: string | undefined): boolean {
@@ -213,19 +305,22 @@ function overflowClips(value: string | undefined): boolean {
 }
 
 function clipPathHides(value: string): boolean {
+  if (valueUnresolved(value)) return true;
   const trimmed = value.replace(/\s+/g, " ").trim();
   const first = trimmed.split(/\s+/)[0] ?? "";
   if (first === "" || first === "none" || first === "unset" || first === "initial") return false;
-  if (/^inset\(\s*(?:0(?:px|%)?\s*){1,4}\)$/.test(trimmed)) return false;
+  if (/^inset\(\s*(?:0(?:px|%)?\s*){1,4}(?:\s*round\b[^)]*)?\)$/.test(trimmed)) return false;
   return true;
 }
 
 function largeNegativeOffset(value: string, pxThreshold: number): boolean {
+  if (valueUnresolved(value)) return true;
   const parsed = parseCssNumber(value);
   if (!parsed) return false;
   if (parsed.unit === "vw" || parsed.unit === "vh" || parsed.unit === "vmin" || parsed.unit === "vmax") {
     return parsed.n <= -100;
   }
+  if (parsed.unit === "%") return parsed.n <= -100;
   if (parsed.unit === "px" || parsed.unit === "") {
     return parsed.n <= -pxThreshold;
   }
@@ -233,12 +328,14 @@ function largeNegativeOffset(value: string, pxThreshold: number): boolean {
 }
 
 function translateOffsetHides(value: string): boolean {
+  if (valueUnresolved(value)) return true;
   const parsed = parseCssNumber(value);
   if (!parsed) return false;
   const abs = Math.abs(parsed.n);
   if (parsed.unit === "vw" || parsed.unit === "vh" || parsed.unit === "vmin" || parsed.unit === "vmax") {
     return abs >= 100;
   }
+  if (parsed.unit === "%") return abs >= 100;
   if (parsed.unit === "px" || parsed.unit === "") {
     return abs >= OFFSCREEN_TRANSLATE_PX;
   }
@@ -275,11 +372,16 @@ function splitCssArgs(args: string): string[] {
 
 function axisScaleHides(value: string | undefined): boolean {
   if (value === undefined) return false;
+  if (valueUnresolved(value)) return true;
   const parsed = parseCssNumber(value);
   return parsed !== null && Math.abs(unitlessOrPercent(parsed)) < SCALE_HIDE;
 }
 
 function transformHides(transform: string): boolean {
+  if (!transform || transform === "none" || transform === "unset" || transform === "initial") {
+    return valueUnresolved(transform);
+  }
+  if (valueUnresolved(transform)) return true;
   const fnRe = /([a-z0-9-]+)\(([^)]*)\)/g;
   let match = fnRe.exec(transform);
   while (match) {
@@ -302,14 +404,15 @@ function transformHides(transform: string): boolean {
         if (axisScaleHides(args[0]) || axisScaleHides(args[1])) return true;
         break;
       case "matrix": {
-        const scaleX = Math.hypot(
-          Number.parseFloat(args[0] ?? "1"),
-          Number.parseFloat(args[1] ?? "0"),
-        );
-        const scaleY = Math.hypot(
-          Number.parseFloat(args[2] ?? "0"),
-          Number.parseFloat(args[3] ?? "1"),
-        );
+        if (args.some(valueUnresolved)) return true;
+        const a = Number.parseFloat(args[0] ?? "1");
+        const b = Number.parseFloat(args[1] ?? "0");
+        const c = Number.parseFloat(args[2] ?? "0");
+        const d = Number.parseFloat(args[3] ?? "1");
+        const det = a * d - b * c;
+        if (Number.isFinite(det) && Math.abs(det) < MATRIX_DET_HIDE) return true;
+        const scaleX = Math.hypot(a, b);
+        const scaleY = Math.hypot(c, d);
         if (scaleX < SCALE_HIDE || scaleY < SCALE_HIDE) return true;
         if (translateOffsetHides(args[4] ?? "0") || translateOffsetHides(args[5] ?? "0")) return true;
         break;
@@ -360,12 +463,18 @@ function transformHides(transform: string): boolean {
 }
 
 function isOffscreen(decls: ReadonlyMap<string, string>): boolean {
-  const position = decls.get("position") ?? "";
-  if (position === "absolute" || position === "fixed") {
-    for (const prop of ["left", "right", "top", "bottom"] as const) {
-      const raw = decls.get(prop);
-      if (raw && largeNegativeOffset(raw, OFFSCREEN_PX)) return true;
-    }
+  for (const prop of ["left", "right", "top", "bottom", "inset"] as const) {
+    const raw = decls.get(prop);
+    if (raw && largeNegativeOffset(raw, OFFSCREEN_PX)) return true;
+  }
+  for (const prop of ["margin-left", "margin-right", "margin-top", "margin-bottom"] as const) {
+    const raw = decls.get(prop);
+    if (raw && largeNegativeOffset(raw, OFFSCREEN_PX)) return true;
+  }
+  const margin = decls.get("margin");
+  if (margin) {
+    const parts = margin.trim().split(/\s+/).filter(Boolean);
+    if (parts.some((part) => largeNegativeOffset(part, OFFSCREEN_PX))) return true;
   }
   const indent = decls.get("text-indent");
   if (indent && largeNegativeOffset(indent, OFFSCREEN_PX)) return true;
@@ -392,6 +501,10 @@ function paintAlphaHides(value: string): boolean {
 
 export function styleHides(style: string): boolean {
   const decls = parseStyleDecls(style);
+  for (const prop of HIDING_STYLE_PROPS) {
+    const raw = decls.get(prop);
+    if (raw && valueUnresolved(raw)) return true;
+  }
   const display = (decls.get("display") ?? "").split(/\s+/)[0] ?? "";
   if (display === "none") return true;
   const visibility = (decls.get("visibility") ?? "").split(/\s+/)[0] ?? "";
@@ -403,25 +516,34 @@ export function styleHides(style: string): boolean {
   const zoom = decls.get("zoom");
   if (zoom && zoomHides(zoom)) return true;
   const maxHeight = decls.get("max-height");
-  if (maxHeight && isZeroLength(maxHeight)) return true;
+  if (maxHeight && (isZeroLength(maxHeight) || boxSizeHides(maxHeight))) return true;
+  const maxWidth = decls.get("max-width");
+  if (maxWidth && (isZeroLength(maxWidth) || boxSizeHides(maxWidth))) return true;
   if ((decls.get("content-visibility") ?? "").split(/\s+/)[0] === "hidden") return true;
   if (clipPathHides(decls.get("clip-path") ?? "")) return true;
   const clip = (decls.get("clip") ?? "").split(/\s+/)[0] ?? "";
   if (clip !== "" && clip !== "auto" && clip !== "none" && clip !== "unset") return true;
   if (paintAlphaHides(decls.get("color") ?? "")) return true;
   if (paintAlphaHides(decls.get("-webkit-text-fill-color") ?? "")) return true;
-  const transform = decls.get("transform") ?? decls.get("-webkit-transform") ?? "";
-  if (transform && transformHides(transform)) return true;
-  const height = decls.get("height");
-  if (
-    height &&
-    isZeroLength(height) &&
-    (overflowClips(decls.get("overflow")) ||
-      overflowClips(decls.get("overflow-x")) ||
-      overflowClips(decls.get("overflow-y")))
-  ) {
+  if (transformHides(decls.get("transform") ?? "") || transformHides(decls.get("-webkit-transform") ?? "")) {
     return true;
   }
+  const scale = decls.get("scale");
+  if (scale && standaloneScaleHides(scale)) return true;
+  const translate = decls.get("translate");
+  if (translate && standaloneTranslateHides(translate)) return true;
+  const rotate = decls.get("rotate");
+  if (rotate && standaloneRotateHides(rotate)) return true;
+  const filter = decls.get("filter");
+  if (filter && filterHides(filter)) return true;
+  const overflowHidden =
+    overflowClips(decls.get("overflow")) ||
+    overflowClips(decls.get("overflow-x")) ||
+    overflowClips(decls.get("overflow-y"));
+  const height = decls.get("height");
+  if (height && overflowHidden && (isZeroLength(height) || boxSizeHides(height))) return true;
+  const width = decls.get("width");
+  if (width && overflowHidden && (isZeroLength(width) || boxSizeHides(width))) return true;
   if (isOffscreen(decls)) return true;
   return false;
 }

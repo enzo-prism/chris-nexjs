@@ -93,6 +93,19 @@ const TWILIO_SUBCONTRACTOR = SMS_PRIVACY_SUBCONTRACTOR_SHARING;
 const TWILIO_EXCLUSION = SMS_PRIVACY_SHARING_EXCLUSION;
 const TWILIO_RUN = `${TWILIO_NO_MARKETING} ${TWILIO_SUBCONTRACTOR} ${TWILIO_EXCLUSION}`;
 const TWILIO_NEEDLES = [TWILIO_NO_MARKETING, TWILIO_SUBCONTRACTOR, TWILIO_EXCLUSION] as const;
+const TWILIO_HIDDEN_PHRASES = [
+  ...TWILIO_NEEDLES,
+  "with third parties/affiliates for marketing/promotional purposes",
+  "will not be shared",
+] as const;
+
+function hiddenPhraseHits(scope: string): number {
+  let hits = 0;
+  for (const phrase of TWILIO_HIDDEN_PHRASES) {
+    hits += countOccurrences(scope, phrase);
+  }
+  return hits;
+}
 
 function walkFiles(dir: string, files: string[], publicTree: boolean): void {
   if (!existsSync(dir)) return;
@@ -130,9 +143,7 @@ function hiddenNeedleCount(html: string): number {
     hits += 1;
   }
   for (const scope of hiddenScopeText(section)) {
-    for (const needle of TWILIO_NEEDLES) {
-      hits += countOccurrences(scope, needle);
-    }
+    hits += hiddenPhraseHits(scope);
   }
   return hits;
 }
@@ -167,11 +178,9 @@ function assertTwilioRunNotHidden(label: string, html: string, id: string): void
   assert.equal(elementHidesItself(section), false, `${label} section is hidden from readers`);
   for (const hidden of hiddenScopeText(section)) {
     assert.equal(
-      countOccurrences(hidden, TWILIO_NO_MARKETING) +
-        countOccurrences(hidden, TWILIO_SUBCONTRACTOR) +
-        countOccurrences(hidden, TWILIO_EXCLUSION),
+      hiddenPhraseHits(hidden),
       0,
-      `${label} hides a Twilio sentence from readers`,
+      `${label} hides a required Twilio phrase or qualifier from readers`,
     );
   }
 }
@@ -298,10 +307,28 @@ function assertHiddenGuardUnits(): void {
   assert.equal(styleHides("position:absolute;left:-9999px"), true);
   assert.equal(styleHides("position:fixed;top:-10000px"), true);
   assert.equal(styleHides("transform:translateX(-9999px)"), true);
-  assert.equal(styleHides("position:relative;left:-9999px"), false);
+  assert.equal(styleHides("position:relative;left:-9999px"), true);
   assert.equal(styleHides("clip-path:inset(0)"), false);
   assert.equal(styleHides("clip-path: inset(0px)"), false);
   assert.equal(styleHides("clip-path:inset(0 0 0 0)"), false);
+  assert.equal(styleHides("clip-path:inset(0 round 8px)"), false);
+  assert.equal(styleHides("margin-left:-9999px"), true);
+  assert.equal(styleHides("width:0;overflow:hidden"), true);
+  assert.equal(styleHides("width:0"), false);
+  assert.equal(styleHides("height:1px;overflow:hidden"), true);
+  assert.equal(styleHides("transform:rotateY(79deg)"), true);
+  assert.equal(styleHides("transform:rotateY(74deg)"), false);
+  assert.equal(styleHides("transform:matrix(1,1,1,1,0,0)"), true);
+  assert.equal(styleHides("transform:translateX(-999px)"), true);
+  assert.equal(styleHides("transform:translateX(999px)"), true);
+  assert.equal(styleHides("transform:translateX(-200%)"), true);
+  assert.equal(styleHides("opacity:calc(0)"), true);
+  assert.equal(styleHides("font-size:var(--hide)"), true);
+  assert.equal(styleHides("scale:0"), true);
+  assert.equal(styleHides("translate:-100vw"), true);
+  assert.equal(styleHides("transform:none;-webkit-transform:scale(0)"), true);
+  assert.equal(styleHides("font-size:1pt"), true);
+  assert.equal(styleHides("filter:opacity(0)"), true);
   assert.equal(styleHides("max-height:0"), true);
   assert.equal(styleHides("visibility:collapse"), true);
   assert.equal(styleHides("backface-visibility:hidden"), false);
@@ -545,6 +572,79 @@ function assertHiddenGuardUnits(): void {
     hiddenNeedleCount(shell(`<p style="transform:translateX(500px)">${run}</p>`)),
     0,
     "translateX(500px) stays on screen and is not a hide",
+  );
+  assert.ok(
+    hiddenNeedleCount(shell(`<p style="margin-left:-9999px">${run}</p>`)) > 0,
+    "margin-left:-9999px hides",
+  );
+  assert.ok(
+    hiddenNeedleCount(shell(`<p style="width:0;overflow:hidden">${run}</p>`)) > 0,
+    "width:0;overflow:hidden hides",
+  );
+  assert.ok(
+    hiddenNeedleCount(shell(`<p style="height:1px;overflow:hidden">${run}</p>`)) > 0,
+    "height:1px;overflow:hidden hides",
+  );
+  assert.ok(
+    hiddenNeedleCount(shell(`<p style="transform:rotateY(79deg)">${run}</p>`)) > 0,
+    "rotateY(79deg) hides",
+  );
+  assert.ok(
+    hiddenNeedleCount(shell(`<p style="transform:matrix(1,1,1,1,0,0)">${run}</p>`)) > 0,
+    "singular matrix hides",
+  );
+  assert.ok(
+    hiddenNeedleCount(shell(`<p style="transform:translateX(-999px)">${run}</p>`)) > 0,
+    "translateX(-999px) hides",
+  );
+  assert.ok(
+    hiddenNeedleCount(shell(`<p style="transform:translateX(-200%)">${run}</p>`)) > 0,
+    "translateX(-200%) hides",
+  );
+  assert.ok(
+    hiddenNeedleCount(shell(`<p style="opacity:calc(0)">${run}</p>`)) > 0,
+    "unresolved calc() fails closed",
+  );
+  assert.ok(
+    hiddenNeedleCount(shell(`<p style="font-size:var(--hide)">${run}</p>`)) > 0,
+    "unresolved var() fails closed",
+  );
+  assert.ok(
+    hiddenNeedleCount(shell(`<p style="scale:0">${run}</p>`)) > 0,
+    "standalone scale:0 hides",
+  );
+  assert.ok(
+    hiddenNeedleCount(shell(`<p style="translate:-100vw">${run}</p>`)) > 0,
+    "standalone translate:-100vw hides",
+  );
+  assert.ok(
+    hiddenNeedleCount(shell(`<p style="transform:none;-webkit-transform:scale(0)">${run}</p>`)) > 0,
+    "webkit scale(0) hides even when transform is none",
+  );
+  assert.ok(
+    hiddenNeedleCount(shell(`<p style="position:relative;left:-9999px">${run}</p>`)) > 0,
+    "relative left:-9999px hides",
+  );
+  assert.ok(
+    hiddenNeedleCount(shell(`<p style="font-size:1pt">${run}</p>`)) > 0,
+    "font-size:1pt hides",
+  );
+  assert.ok(
+    hiddenNeedleCount(shell(`<p style="filter:opacity(0)">${run}</p>`)) > 0,
+    "filter:opacity(0) hides",
+  );
+  assert.equal(
+    hiddenNeedleCount(shell(`<p style="clip-path:inset(0 round 8px)">${run}</p>`)),
+    0,
+    "clip-path:inset(0 round 8px) is a visible rounded box, not a hide",
+  );
+  assert.ok(
+    hiddenNeedleCount(
+      shell(
+        `<p>No mobile information will be shared <span style="opacity:0">with third parties/affiliates for marketing/promotional purposes</span>.</p>`,
+      ),
+    ) > 0,
+    "hiding only the marketing qualifier is a hide",
   );
   assert.ok(
     hiddenNeedleCount(shell(`<p style="max-height:0">${run}</p>`)) > 0,
