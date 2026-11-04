@@ -31,6 +31,7 @@ import Schedule from "@/pages/Schedule";
 import ThankYou from "@/pages/ThankYou";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import TermsOfService from "@/pages/TermsOfService";
+import SmsTerms from "@/pages/SmsTerms";
 import HipaaNotice from "@/pages/HipaaNotice";
 import Accessibility from "@/pages/Accessibility";
 import DentalVeneers from "@/pages/DentalVeneers";
@@ -98,6 +99,7 @@ function Router() {
             <Route path="/thank-you" component={ThankYou} />
             <Route path="/privacy-policy" component={PrivacyPolicy} />
             <Route path="/terms" component={TermsOfService} />
+            <Route path="/sms-terms" component={SmsTerms} />
             <Route path="/hipaa" component={HipaaNotice} />
             <Route path="/accessibility" component={Accessibility} />
             <Route path="/dental-veneers" component={DentalVeneers} />

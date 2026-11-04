@@ -85,6 +85,7 @@
 - [Accessibility Statement](https://www.chriswongdds.com/accessibility)
 - [HIPAA Notice](https://www.chriswongdds.com/hipaa)
 - [Privacy Policy](https://www.chriswongdds.com/privacy-policy)
+- [SMS Terms](https://www.chriswongdds.com/sms-terms)
 - [Terms of Service](https://www.chriswongdds.com/terms)
 
 ## Machine-readable

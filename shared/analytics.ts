@@ -67,6 +67,7 @@ export function getAnalyticsPageCategory(pathname: string): AnalyticsPageCategor
   if (
     normalizedPath === "/privacy-policy" ||
     normalizedPath === "/terms" ||
+    normalizedPath === "/sms-terms" ||
     normalizedPath === "/hipaa" ||
     normalizedPath === "/accessibility"
   ) {

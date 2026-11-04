@@ -51,6 +51,7 @@ export const pageDescriptions = {
   accessibility: seoByPath["/accessibility"].description,
   hipaa: seoByPath["/hipaa"].description,
   privacyPolicy: seoByPath["/privacy-policy"].description,
+  smsTerms: seoByPath["/sms-terms"].description,
   terms: seoByPath["/terms"].description,
   thankYou: seoByPath["/thank-you"].description,
   gaTest: seoByPath["/ga-test"].description,
