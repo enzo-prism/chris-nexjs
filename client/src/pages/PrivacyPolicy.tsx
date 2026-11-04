@@ -1,7 +1,18 @@
-// Policy text is unchanged from the July 15, 2026 version; only the layout
-// moved to the Rooted LegalPage. Quiet page: no seasonal decoration.
+// Quiet page: no seasonal decoration. SMS wording is staged pending
+// Dr. Wong approval and must not be treated as live.
+import Link from "next/link";
+
 import { LegalPage, type LegalSection } from "@/components/patients/LegalPage";
 import { officeInfo } from "@/lib/data";
+import {
+  SMS_BRAND_NAME,
+  SMS_PRIVACY_NO_MARKETING_SHARE,
+  SMS_PRIVACY_SHARING_CATEGORIES,
+  SMS_PRIVACY_SHARING_CATEGORIES_INTRO,
+  SMS_PRIVACY_SHARING_EXCLUSION,
+  SMS_PRIVACY_SUBCONTRACTOR_SHARING,
+  SMS_TERMS_PATH,
+} from "@shared/sms";
 
 const sections: readonly LegalSection[] = [
   {
@@ -66,17 +77,18 @@ const sections: readonly LegalSection[] = [
     content: (
       <>
         <p>
-          We do not sell, trade, or rent your personal information to third parties. We may share your information
-          only in the following circumstances:
+          We do not sell, trade, or rent your personal information to third parties.{" "}
+          {SMS_PRIVACY_SHARING_CATEGORIES_INTRO}
         </p>
         <ul>
-          <li>With your explicit consent</li>
-          <li>With insurance companies for claims processing</li>
-          <li>With other healthcare providers involved in your care</li>
-          <li>With our business associates who assist in providing services</li>
-          <li>When required by law or legal process</li>
-          <li>To protect the rights, property, or safety of our practice or others</li>
+          {SMS_PRIVACY_SHARING_CATEGORIES.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
         </ul>
+        <p>
+          {SMS_PRIVACY_NO_MARKETING_SHARE} {SMS_PRIVACY_SUBCONTRACTOR_SHARING}{" "}
+          {SMS_PRIVACY_SHARING_EXCLUSION}
+        </p>
       </>
     ),
   },
@@ -135,6 +147,39 @@ const sections: readonly LegalSection[] = [
         Analytics). We are not responsible for the privacy practices of these third parties. We encourage you to
         review their privacy policies.
       </p>
+    ),
+  },
+  {
+    id: "text-messaging",
+    title: "Text Messaging",
+    content: (
+      <>
+        <p>
+          {SMS_BRAND_NAME} may send text messages for appointment reminders and a
+          short post-visit request for a review. Message frequency varies.
+          Message and data rates may apply.
+        </p>
+        <p>
+          Reply <strong>STOP</strong> to opt out of further texts. Reply{" "}
+          <strong>HELP</strong> for help. You can also contact the office at{" "}
+          <a href={`tel:${officeInfo.phoneE164}`}>{officeInfo.phone}</a> or{" "}
+          <a href={`mailto:${officeInfo.email}`}>{officeInfo.email}</a>.
+        </p>
+        <p>
+          Consent to receive text messages is not required to receive care.
+        </p>
+        <p>
+          {SMS_PRIVACY_NO_MARKETING_SHARE} {SMS_PRIVACY_SUBCONTRACTOR_SHARING}{" "}
+          {SMS_PRIVACY_SHARING_EXCLUSION} The practice's other information-sharing
+          categories are listed under{" "}
+          <a href="#sharing">Information Sharing and Disclosure</a>.
+        </p>
+        <p>
+          Mobile carriers are not liable for delayed or undelivered messages.
+          The full program terms are in our{" "}
+          <Link href={SMS_TERMS_PATH}>SMS Terms</Link>.
+        </p>
+      </>
     ),
   },
   {

@@ -1,5 +1,6 @@
 import { officeInfo } from "./officeInfo";
 import { stripMarkdownToPlainText } from "./blog";
+import { SMS_BRAND_NAME } from "./sms";
 
 export type SeoDefinition = {
   title: string;
@@ -501,6 +502,13 @@ const seoByPathSource: Record<string, SeoDefinitionInput> = {
     canonicalPath: "/privacy-policy",
     ogImage: DEFAULT_OG_IMAGE,
   },
+  "/sms-terms": {
+    title: "SMS Terms | Christopher B. Wong, DDS",
+    description:
+      `Read the texting terms for ${SMS_BRAND_NAME}, including appointment reminders, a short post-visit review request, STOP, HELP, and mobile-number privacy.`,
+    canonicalPath: "/sms-terms",
+    ogImage: DEFAULT_OG_IMAGE,
+  },
   "/terms": {
     title: "Terms of Service | Christopher B. Wong, DDS",
     description:
@@ -597,7 +605,9 @@ const LASTMOD_OVERRIDES: Partial<Record<string, string>> = {
   "/dental-veneers": REDESIGN_LAUNCH_DATE,
   "/accessibility": REDESIGN_LAUNCH_DATE,
   "/hipaa": REDESIGN_LAUNCH_DATE,
+  // Pending Dr. Wong's approval of SMS copy: do not stamp today's date.
   "/privacy-policy": REDESIGN_LAUNCH_DATE,
+  "/sms-terms": REDESIGN_LAUNCH_DATE,
   "/terms": REDESIGN_LAUNCH_DATE,
 };
 
@@ -635,6 +645,7 @@ function resolveSeoCluster(pathname: string): NonNullable<SeoDefinition["seoClus
   if (
     pathname === "/privacy-policy" ||
     pathname === "/terms" ||
+    pathname === "/sms-terms" ||
     pathname === "/hipaa" ||
     pathname === "/accessibility"
   ) {

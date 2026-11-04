@@ -67,7 +67,10 @@ jobs:
       - name: Confirm fixture preview is excluded from production
         run: pnpm run test:invisalign-media
 
-      - name: Runtime SEO and image audits
+      - name: Staged SMS strings must not appear in .next/static, .next/server, public/, or client/public/
+        run: SMS_STAGED_SKIP_BUILD=1 pnpm run test:sms-staged-static
+
+      - name: Runtime SEO, image, and Twilio visibility audits
         run: |
           pnpm exec next start -p 3200 &
           SERVER_PID=$!
@@ -81,6 +84,8 @@ jobs:
           SEO_AUDIT_BASE_URL=http://localhost:3200 pnpm run test:seo:onpage
           SEO_AUDIT_BASE_URL=http://localhost:3200 pnpm run test:seo:links
           SEO_AUDIT_BASE_URL=http://localhost:3200 pnpm run test:seo:schema
+          # Computed-style Twilio visibility at 390 and 1280; static scan does not cover stylesheets.
+          PLAYWRIGHT_BASE_URL=http://localhost:3200 pnpm run test:sms-visibility
 
       - name: Analytics host-silence network spec
         run: |

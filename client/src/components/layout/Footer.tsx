@@ -17,6 +17,7 @@ type FooterProps = {
 const legalLinks = [
   { href: "/privacy-policy", label: "Privacy Policy" },
   { href: "/terms", label: "Terms of Service" },
+  { href: "/sms-terms", label: "SMS Terms" },
   { href: "/hipaa", label: "HIPAA Notice" },
   { href: "/accessibility", label: "Accessibility" },
   { href: "/changelog", label: "Site updates" },
@@ -47,7 +48,7 @@ const dayRows = [
 
 // The seasonal greeting is drawn in CSS by `cw-season-footer` (app/globals.css).
 // Urgent-care, legal, and post-conversion pages opt out via data-cw-quiet.
-const QUIET_PATHS = /^\/(emergency-dental|thank-you|privacy-policy|hipaa|terms|accessibility)\/?$/;
+const QUIET_PATHS = /^\/(emergency-dental|thank-you|privacy-policy|hipaa|terms|sms-terms|accessibility)\/?$/;
 
 const Footer = ({ variant = "default" }: FooterProps) => {
   const currentYear = new Date().getFullYear();
@@ -76,7 +77,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
             </span>
           </div>
           <div className="flex flex-wrap gap-x-4 gap-y-1">
-            {legalLinks.slice(0, 4).map((link) => (
+            {legalLinks.filter((link) => link.href !== "/changelog").map((link) => (
               <Link key={link.href} href={link.href} className="inline-flex min-h-11 items-center hover:text-evergreen-800">
                 {link.label}
               </Link>

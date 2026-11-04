@@ -57,6 +57,7 @@ assert.strictEqual(isAnalyticsRuntimeEnabled(), true);
 assert.equal(getAnalyticsPageCategory("/"), "home");
 assert.equal(getAnalyticsPageCategory("/schedule"), "schedule");
 assert.equal(getAnalyticsPageCategory("/dentist-menlo-park"), "location");
+assert.equal(getAnalyticsPageCategory("/sms-terms"), "legal");
 assert.deepStrictEqual(getAnalyticsPageContext("/contact"), {
   page_path: "/contact",
   page_category: "trust",
