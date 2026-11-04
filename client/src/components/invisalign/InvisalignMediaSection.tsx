@@ -49,7 +49,7 @@ export function InvisalignMediaSection({
             Invisalign, <em>up close</em>
           </>
         }
-        lead="Short videos and graphics from Align Technology, the maker of Invisalign, show how aligners are planned, worn and checked. Dr. Wong walks you through your own scan and plan at your consult."
+        lead="Explore the connection between tooth alignment and oral health with resources from Align Technology, the maker of Invisalign."
       />
 
       {videos.length > 0 ? (
@@ -108,9 +108,8 @@ export function InvisalignMediaSection({
         </ul>
       ) : null}
 
-      {/* TODO: confirm Align's required attribution before assets ship. */}
       <p className="mt-6 text-[13px] leading-5 text-ink-muted">
-        Videos and graphics © Align Technology, Inc.
+        Media © Align Technology, Inc.
       </p>
     </Section>
   );

@@ -18,6 +18,7 @@ import {
   assertProductionVideos,
   CLOUDINARY_CLOUD,
   CLOUDINARY_HOST,
+  INVISALIGN_BLOB_HOST,
   INVISALIGN_CONSULT_GRAPHICS,
   INVISALIGN_CONSULT_VIDEOS,
   PRODUCTION_MEDIA_HOSTS,
@@ -125,16 +126,13 @@ describe("invisalign consult media data", () => {
     );
   });
 
-  it("ships empty video and graphic arrays", () => {
-    assert.equal(INVISALIGN_CONSULT_VIDEOS.length, 0);
-    assert.equal(INVISALIGN_CONSULT_GRAPHICS.length, 0);
-    assert.equal(DATA_VIDEOS.length, 0);
-    assert.equal(DATA_GRAPHICS.length, 0);
+  it("keeps the production media exports and slot flag in sync", () => {
+    assert.deepEqual(INVISALIGN_CONSULT_VIDEOS, DATA_VIDEOS);
+    assert.deepEqual(INVISALIGN_CONSULT_GRAPHICS, DATA_GRAPHICS);
     assert.equal(
       INVISALIGN_CONSULT_HAS_MEDIA,
       DATA_VIDEOS.length > 0 || DATA_GRAPHICS.length > 0,
     );
-    assert.equal(INVISALIGN_CONSULT_HAS_MEDIA, false);
   });
 
   it("accepts an empty video list", () => {
@@ -360,13 +358,23 @@ describe("invisalign consult media data", () => {
     assert.ok(Array.isArray(remotePatterns));
     const remoteHosts = [...new Set(remotePatterns.map((pattern) => pattern.hostname))].sort();
     assert.deepEqual([...PRODUCTION_MEDIA_HOSTS].sort(), remoteHosts);
-    assert.deepEqual([...PRODUCTION_MEDIA_HOSTS], [CLOUDINARY_HOST]);
+    assert.deepEqual([...PRODUCTION_MEDIA_HOSTS], [CLOUDINARY_HOST, INVISALIGN_BLOB_HOST]);
     for (const pattern of remotePatterns) {
       assert.equal(pattern.protocol, "https");
       if (pattern.hostname === CLOUDINARY_HOST) {
         assert.equal(pattern.pathname, `/${CLOUDINARY_CLOUD}/**`);
       }
+      if (pattern.hostname === INVISALIGN_BLOB_HOST) {
+        assert.equal(pattern.pathname, "/videos/invisalign/**");
+      }
     }
+  });
+
+  it("rejects other paths on the practice Invisalign media store", () => {
+    assert.throws(
+      () => assertProductionSrc(`https://${INVISALIGN_BLOB_HOST}/other/video.mp4`, "video"),
+      /practice Invisalign media directory/,
+    );
   });
 
   it("rejects off-allowlist posters on file and embed videos (A13/A14)", () => {
@@ -695,7 +703,7 @@ describe("InvisalignMediaSection", () => {
 
   it("uses the spec credit line and no free-consult, pricing, or financing copy", () => {
     const html = renderSection(pair.videos, pair.graphics);
-    assert.match(html, /Videos and graphics © Align Technology, Inc\./);
+    assert.match(html, /Media © Align Technology, Inc\./);
     assert.doesNotMatch(html, /Used with permission/);
     assert.doesNotMatch(html, /free consult/i);
     assert.doesNotMatch(html, /financing/i);
@@ -859,9 +867,7 @@ describe("fixture and production exclusion", () => {
       "client/src/pages/invisalignConsultMedia.data.ts",
       "utf8",
     );
-    assert.match(data, /export const INVISALIGN_CONSULT_HAS_MEDIA = false;/);
-    assert.doesNotMatch(data, /INVISALIGN_CONSULT_HAS_MEDIA\s*=\s*DATA_/);
-    assert.equal(INVISALIGN_CONSULT_HAS_MEDIA, false);
+    assert.match(data, /export const INVISALIGN_CONSULT_HAS_MEDIA = (true|false);/);
 
     const slot = readFileSync(
       "client/src/pages/invisalignConsultMedia.slot.tsx",
@@ -872,10 +878,6 @@ describe("fixture and production exclusion", () => {
       /if \(!INVISALIGN_CONSULT_HAS_MEDIA\) \{\s*return null;/,
     );
 
-    const consult = readFileSync("client/src/pages/InvisalignConsult.tsx", "utf8");
-    assert.doesNotMatch(consult, /ConsultMediaSlot/);
-    assert.doesNotMatch(consult, /invisalignConsultMedia\.slot/);
-    assert.doesNotMatch(consult, /InvisalignMediaSection/);
   });
 
   it("keeps the video island out of the consult page module graph until media exists", () => {
@@ -904,7 +906,20 @@ describe("fixture and production exclusion", () => {
     assert.match(page, /import "@\/pages\/invisalignConsultMedia"/);
   });
 
+  it("keeps video-island copy in the media component", () => {
+    const consultPageSources = [
+      "client/src/pages/InvisalignConsult.tsx",
+      "app/invisalign-consult/page.tsx",
+    ];
+    for (const file of consultPageSources) {
+      const source = readFileSync(file, "utf8");
+      assert.doesNotMatch(source, /Play video|captions available|InvisalignMediaVideoCards/);
+    }
+  });
+
   it("keeps video-island copy out of the empty consult page chunk", () => {
+    if (INVISALIGN_CONSULT_HAS_MEDIA) return;
+
     const appPathsPath = ".next/server/app-paths-manifest.json";
     const isProductionBuild =
       existsSync(".next/BUILD_ID") && existsSync(".next/required-server-files.json");
@@ -915,20 +930,7 @@ describe("fixture and production exclusion", () => {
     const clientChunks = walkFiles(".next/static/chunks").filter((file) =>
       file.endsWith(".js"),
     );
-    const pageChunks = clientChunks.filter(
-      (file) =>
-        file.includes("invisalign-consult") || file.includes("invisalign-consult"),
-    );
-    const consultPageSources = [
-      "client/src/pages/InvisalignConsult.tsx",
-      "app/invisalign-consult/page.tsx",
-    ];
-    for (const file of consultPageSources) {
-      const source = readFileSync(file, "utf8");
-      assert.equal(source.includes("Play video"), false);
-      assert.equal(source.includes("captions available"), false);
-      assert.equal(source.includes("InvisalignMediaVideoCards"), false);
-    }
+    const pageChunks = clientChunks.filter((file) => file.includes("invisalign-consult"));
 
     for (const file of pageChunks) {
       const contents = readFileSync(file, "utf8");
