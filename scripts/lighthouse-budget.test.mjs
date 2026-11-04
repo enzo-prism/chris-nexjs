@@ -3,6 +3,7 @@ import { execFileSync, spawn } from "node:child_process";
 import { createServer } from "node:net";
 import {
   existsSync,
+  lstatSync,
   mkdirSync,
   mkdtempSync,
   readdirSync,
@@ -143,9 +144,14 @@ function seven() {
   return out;
 }
 
+const gnuMktempSkip =
+  process.platform === "linux"
+    ? false
+    : "GNU mktemp -t lighthouse.XXXXXXX is Linux-only; BSD mktemp -t appends its own suffix";
+
 function mkGnuLauncherDir() {
   // chrome-launcher 1.2.2 uses GNU `mktemp -d -t lighthouse.XXXXXXX` (7 chars).
-  // BSD `mktemp -t` appends its own suffix; this suite pins the Linux shape.
+  // Tests that call this are skipped on non-Linux (`gnuMktempSkip`).
   const dir = execFileSync("mktemp", ["-d", "-t", "lighthouse.XXXXXXX"], {
     encoding: "utf8",
   }).trim();
@@ -192,11 +198,25 @@ async function reap(kids, dirs, scratchBefore = new Set()) {
   }
 }
 
+function unrefResolve(ms, value) {
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => resolve(value), ms);
+    timer.unref();
+  });
+}
+
+function unrefReject(ms, message) {
+  return new Promise((_, reject) => {
+    const timer = setTimeout(() => reject(new Error(message)), ms);
+    timer.unref();
+  });
+}
+
 describe("lighthouse chrome cleanup", { concurrency: false }, () => {
   it("bounds waitForPidsToExit wait-phase elapsed time", { timeout: 3_000 }, async () => {
     const timeoutMs = 80;
-    const slackMs = 150;
-    const raceMs = 2 * timeoutMs + 400;
+    const slackMs = 150; // elapsed cap 310ms
+    const raceMs = 2 * timeoutMs + 400; // 560ms
     let hold = true;
     const started = Date.now();
     const finished = waitForPidsToExit([99], {
@@ -208,17 +228,13 @@ describe("lighthouse chrome cleanup", { concurrency: false }, () => {
     const timedOut = Symbol("timeout");
     const winner = await Promise.race([
       finished,
-      new Promise((resolve) => {
-        setTimeout(() => resolve(timedOut), raceMs);
-      }),
+      unrefResolve(raceMs, timedOut),
     ]);
     const elapsed = Date.now() - started;
     hold = false;
     await Promise.race([
       finished,
-      new Promise((resolve) => {
-        setTimeout(resolve, 100);
-      }),
+      unrefResolve(100),
     ]);
     assert.notEqual(winner, timedOut, `wait exceeded race cap (${elapsed}ms)`);
     assert.ok(
@@ -228,8 +244,9 @@ describe("lighthouse chrome cleanup", { concurrency: false }, () => {
     assert.ok(elapsed >= timeoutMs - 20, `elapsed ${elapsed}ms skipped the wait deadline`);
   });
 
-  it("SIGKILLs leftovers after the first wait when the re-list is empty", async () => {
+  it("SIGKILLs leftovers after the first wait when the re-list is empty", { timeout: 3_000 }, async () => {
     const dirs = [];
+    let hold = true;
     try {
       const userDataDir = mkdtempSync(join(tmpdir(), "lighthouse-cw-"));
       dirs.push(userDataDir);
@@ -239,9 +256,13 @@ describe("lighthouse chrome cleanup", { concurrency: false }, () => {
       const argv = ["chrome", `--user-data-dir=${userDataDir}`];
       const signals = [];
       let listed = 0;
-      await killChromeForUserDataDir(userDataDir, {
-        exitTimeoutMs: 40,
-        isAlive: () => true,
+      const exitTimeoutMs = 40;
+      const slackMs = 150;
+      const raceMs = 2 * exitTimeoutMs + 400;
+      const started = Date.now();
+      const finished = killChromeForUserDataDir(userDataDir, {
+        exitTimeoutMs,
+        isAlive: () => hold,
         listLines: () => {
           listed += 1;
           return listed === 1 ? [line] : [];
@@ -251,18 +272,36 @@ describe("lighthouse chrome cleanup", { concurrency: false }, () => {
           signals.push(signal);
         },
       });
+      const timedOut = Symbol("timeout");
+      const winner = await Promise.race([
+        finished,
+        unrefResolve(raceMs, timedOut),
+      ]);
+      const elapsed = Date.now() - started;
+      hold = false;
+      await Promise.race([
+        finished,
+        unrefResolve(100),
+      ]);
+      assert.notEqual(winner, timedOut, `cleanup exceeded race cap (${elapsed}ms)`);
+      assert.ok(
+        elapsed <= 2 * exitTimeoutMs + slackMs,
+        `elapsed ${elapsed}ms exceeded ${2 * exitTimeoutMs + slackMs}ms`,
+      );
       assert.ok(
         signals.includes("SIGKILL"),
         `first-wait SIGKILL missing; signals=${signals.join(",")}`,
       );
       assert.equal(existsSync(userDataDir), false);
     } finally {
+      hold = false;
       await reap([], dirs);
     }
   });
 
-  it("SIGKILLs leftover PIDs that appeared dead during the first wait", async () => {
+  it("SIGKILLs leftover PIDs that appeared dead during the first wait", { timeout: 3_000 }, async () => {
     const dirs = [];
+    let hold = true;
     try {
       const userDataDir = mkdtempSync(join(tmpdir(), "lighthouse-cw-"));
       dirs.push(userDataDir);
@@ -273,9 +312,11 @@ describe("lighthouse chrome cleanup", { concurrency: false }, () => {
       const signals = [];
       let termSeen = false;
       let leftoverListed = false;
-      await killChromeForUserDataDir(userDataDir, {
+      const timedOut = Symbol("timeout");
+      const finished = killChromeForUserDataDir(userDataDir, {
         exitTimeoutMs: 40,
         isAlive: () => {
+          if (!hold) return false;
           if (!termSeen) return true;
           if (!leftoverListed) return false;
           return true;
@@ -290,12 +331,18 @@ describe("lighthouse chrome cleanup", { concurrency: false }, () => {
           if (signal === "SIGTERM") termSeen = true;
         },
       });
+      const winner = await Promise.race([
+        finished,
+        unrefResolve(1_000, timedOut),
+      ]);
+      assert.notEqual(winner, timedOut, "leftover-wait cleanup exceeded 1s race");
       assert.ok(
         signals.includes("SIGKILL"),
         `leftover SIGKILL missing; signals=${signals.join(",")}`,
       );
       assert.equal(existsSync(userDataDir), false);
     } finally {
+      hold = false;
       await reap([], dirs);
     }
   });
@@ -317,9 +364,12 @@ describe("lighthouse chrome cleanup", { concurrency: false }, () => {
       await waitUntil(() => existsSync(readyFile));
       assert.equal(isPidAlive(hung.pid), true);
       const started = Date.now();
-      const killed = await killChromeForUserDataDir(userDataDir, {
-        exitTimeoutMs: 400,
-      });
+      const killed = await Promise.race([
+        killChromeForUserDataDir(userDataDir, {
+          exitTimeoutMs: 400,
+        }),
+        unrefReject(3_000, "cleanup exceeded 3s race"),
+      ]);
       assert.ok(
         Date.now() - started >= 300,
         "cleanup must wait out SIGTERM before SIGKILL",
@@ -333,7 +383,7 @@ describe("lighthouse chrome cleanup", { concurrency: false }, () => {
     }
   });
 
-  it("removes this run's argv launcher dir and leaves a during-attempt lighthouse.* Chrome", async () => {
+  it("removes this run's argv launcher dir and leaves a during-attempt lighthouse.* Chrome", { skip: gnuMktempSkip }, async () => {
     const kids = [];
     const dirs = [];
     const scratchBefore = new Set(chromiumScratchDirs());
@@ -467,13 +517,14 @@ describe("lighthouse chrome cleanup", { concurrency: false }, () => {
       const timedOut = Symbol("timeout");
       const winner = await Promise.race([
         finished,
-        new Promise((resolve) => {
-          setTimeout(() => resolve(timedOut), boundMs);
-        }),
+        unrefResolve(boundMs, timedOut),
       ]);
       const elapsed = Date.now() - started;
       hold = false;
-      await finished;
+      await Promise.race([
+        finished,
+        unrefResolve(100),
+      ]);
       assert.notEqual(winner, timedOut, `cleanup exceeded bound (${elapsed}ms)`);
       assert.ok(elapsed <= boundMs, `elapsed ${elapsed}ms exceeded ${boundMs}ms`);
       assert.equal(existsSync(userDataDir), false);
@@ -483,7 +534,7 @@ describe("lighthouse chrome cleanup", { concurrency: false }, () => {
     }
   });
 
-  it("does not delete a truncated parent when TMPDIR contains a space", { timeout: 8_000 }, async () => {
+  it("does not delete a truncated parent when TMPDIR contains a space", { timeout: 8_000, skip: gnuMktempSkip }, async () => {
     const dirs = [];
     try {
       const sandbox = mkdtempSync(join(tmpdir(), "cw-space-sandbox-"));
@@ -673,6 +724,8 @@ describe("lighthouse chrome cleanup", { concurrency: false }, () => {
         exitTimeoutMs: 20,
       });
       assert.equal(existsSync(join(target, "Keep")), true);
+      assert.equal(existsSync(link), true);
+      assert.equal(lstatSync(link).isSymbolicLink(), true);
       assert.equal(isOwnedTempProfile(link), false);
       assert.equal(existsSync(attemptDir), false);
     } finally {
