@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
@@ -22,9 +22,9 @@ const RUNS = [
   { path: "/sms-terms", sectionId: "mobile-numbers", label: "/sms-terms #mobile-numbers" },
 ] as const;
 
-const SHOT_DIR = existsSync("/opt/cursor/artifacts")
-  ? "/opt/cursor/artifacts"
-  : "test-results/sms-visibility";
+const LOCAL_SHOT_DIR = "test-results/sms-visibility";
+const ARTIFACT_SHOT_DIR = existsSync("/opt/cursor/artifacts") ? "/opt/cursor/artifacts" : null;
+const SHOT_DIRS = ARTIFACT_SHOT_DIR ? [LOCAL_SHOT_DIR, ARTIFACT_SHOT_DIR] : [LOCAL_SHOT_DIR];
 
 const MIN_BOX_PX = 1;
 const MIN_FONT_PX = 10;
@@ -145,7 +145,8 @@ async function collectReadability(locator: Locator): Promise<Readability> {
     const clipPath =
       style.clipPath || (style as CSSStyleDeclaration & { webkitClipPath?: string }).webkitClipPath;
     const clipPathNormalized = (clipPath || "").replace(/\s+/g, " ").trim();
-    const clipPathInsetZero = /^inset\(\s*(?:0(?:px|%)?\s*){1,4}\)$/.test(clipPathNormalized);
+    const clipPathInsetZero =
+      /^inset\(\s*(?:0(?:px|%)?\s*){1,4}(?:\s*round\b[^)]*)?\)$/.test(clipPathNormalized);
     if (clipPath && clipPath !== "none" && !clipPathInsetZero) reasons.push(`clip-path ${clipPath}`);
     const indent = parseFloat(style.textIndent);
     if (Number.isFinite(indent) && Math.abs(indent) >= Math.max(box.width, 1)) {
@@ -215,9 +216,15 @@ async function collectReadability(locator: Locator): Promise<Readability> {
         if (alpha < 0.5) {
           reasons.push(`descendant color alpha ${alpha} on "${snippet}"`);
         }
-        const opacity = Number.parseFloat(computed.opacity);
-        if (Number.isFinite(opacity) && opacity < 0.5) {
-          reasons.push(`descendant opacity ${opacity} on "${snippet}"`);
+        let effectiveOpacity = 1;
+        let opacityNode: HTMLElement | null = parent;
+        while (opacityNode) {
+          const own = Number.parseFloat(window.getComputedStyle(opacityNode).opacity);
+          effectiveOpacity *= Number.isFinite(own) ? own : 1;
+          opacityNode = opacityNode.parentElement;
+        }
+        if (effectiveOpacity < 0.5) {
+          reasons.push(`descendant opacity ${effectiveOpacity} on "${snippet}"`);
         }
         if (computed.visibility === "hidden" || computed.visibility === "collapse") {
           reasons.push(`descendant visibility ${computed.visibility} on "${snippet}"`);
@@ -360,6 +367,13 @@ async function collectPixelProof(
   };
 }
 
+function writeToShotDirs(filename: string, data: Buffer | string): void {
+  for (const dir of SHOT_DIRS) {
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(`${dir}/${filename}`, data);
+  }
+}
+
 function writeProofFiles(
   name: string,
   width: number,
@@ -368,10 +382,9 @@ function writeProofFiles(
   textArea: number,
   devicePixelRatio: number,
 ): void {
-  mkdirSync(SHOT_DIR, { recursive: true });
-  writeFileSync(`${SHOT_DIR}/sms-pixel-${name}-${width}.png`, painted);
-  writeFileSync(
-    `${SHOT_DIR}/sms-ocr-${name}-${width}.txt`,
+  writeToShotDirs(`sms-pixel-${name}-${width}.png`, painted);
+  writeToShotDirs(
+    `sms-ocr-${name}-${width}.txt`,
     `${proof.ocrText}\nchanged=${proof.changed} ratio=${proof.ratio.toFixed(4)} contrast=${proof.contrast.toFixed(2)} textArea=${textArea.toFixed(1)} dpr=${devicePixelRatio} need=${textPixelThreshold(textArea, devicePixelRatio).toFixed(1)}\n${JSON.stringify(proof.distances, null, 2)}\n`,
   );
 }
@@ -440,20 +453,29 @@ async function shotRun(page: Page, locator: Locator, name: string, width: number
   const box = await locator.boundingBox();
   expect(box, `${name} bounding box for screenshot`).toBeTruthy();
   const pad = 18;
-  await page.screenshot({
-    path: `${SHOT_DIR}/sms-twilio-${name}-${width}.png`,
-    clip: {
-      x: Math.max(0, (box?.x ?? 0) - pad),
-      y: Math.max(0, (box?.y ?? 0) - pad),
-      width: (box?.width ?? 0) + pad * 2,
-      height: (box?.height ?? 0) + pad * 2,
-    },
-  });
+  const clip = {
+    x: Math.max(0, (box?.x ?? 0) - pad),
+    y: Math.max(0, (box?.y ?? 0) - pad),
+    width: (box?.width ?? 0) + pad * 2,
+    height: (box?.height ?? 0) + pad * 2,
+  };
+  const first = SHOT_DIRS[0];
+  if (!first) return;
+  mkdirSync(first, { recursive: true });
+  const path = `${first}/sms-twilio-${name}-${width}.png`;
+  await page.screenshot({ path, clip });
+  if (SHOT_DIRS.length > 1) {
+    const bytes = readFileSync(path);
+    for (const dir of SHOT_DIRS.slice(1)) {
+      mkdirSync(dir, { recursive: true });
+      writeFileSync(`${dir}/sms-twilio-${name}-${width}.png`, bytes);
+    }
+  }
 }
 
 test("the required SMS consent passages are painted and readable", async ({ page }) => {
   const width = page.viewportSize()?.width ?? 0;
-  mkdirSync(SHOT_DIR, { recursive: true });
+  for (const dir of SHOT_DIRS) mkdirSync(dir, { recursive: true });
 
   await gotoLegal(page, "/privacy-policy");
   const sharing = await runLocator(page, "sharing");
@@ -643,6 +665,41 @@ const QUALIFIER_HIDES = [
   { id: "1px", style: { fontSize: "1px" }, reason: "descendant font-size" },
   { id: "white", style: { color: "white" }, reason: "descendant contrast" },
 ] as const;
+
+test("nested ancestor opacities multiply for descendants", async ({ page }) => {
+  await gotoLegal(page, "/privacy-policy");
+  const locator = await runLocator(page, "sharing");
+  await locator.evaluate((el, target) => {
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      const text = walker.currentNode as Text;
+      const value = text.nodeValue ?? "";
+      const idx = value.indexOf(target);
+      if (idx < 0) continue;
+      const outer = document.createElement("span");
+      outer.style.opacity = "0.6";
+      const inner = document.createElement("span");
+      inner.style.opacity = "0.6";
+      inner.textContent = target;
+      outer.appendChild(inner);
+      const parent = text.parentNode;
+      if (!parent) return;
+      if (idx > 0) parent.insertBefore(document.createTextNode(value.slice(0, idx)), text);
+      parent.insertBefore(outer, text);
+      text.nodeValue = value.slice(idx + target.length);
+      break;
+    }
+  }, MARKETING_QUALIFIER);
+  const metrics = await collectReadability(locator);
+  expect(
+    metrics.ok,
+    `0.6 * 0.6 effective opacity should fail: ${metrics.reasons.join("; ")}`,
+  ).toBe(false);
+  expect(
+    metrics.reasons.some((reason) => reason.includes("descendant opacity")),
+    `expected descendant opacity product, got: ${metrics.reasons.join("; ")}`,
+  ).toBe(true);
+});
 
 test("hiding the marketing qualifier on a descendant fails readability", async ({ page }) => {
   await gotoLegal(page, "/privacy-policy");
