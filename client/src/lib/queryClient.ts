@@ -7,17 +7,45 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
+export const CONTACT_REQUEST_TIMEOUT_MS = 15_000;
+
+function isContactRequest(url: string): boolean {
+  return url === "/api/contact" || url.endsWith("/api/contact");
+}
+
+async function fetchWithDeadline(
+  url: string,
+  init: RequestInit,
+  timeoutMs: number,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => {
+    controller.abort();
+  }, timeoutMs);
+  try {
+    return await fetch(url, {
+      ...init,
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  const res = await fetch(url, {
+  const init: RequestInit = {
     method,
     headers: data ? { "Content-Type": "application/json" } : {},
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
-  });
+  };
+  const res = isContactRequest(url)
+    ? await fetchWithDeadline(url, init, CONTACT_REQUEST_TIMEOUT_MS)
+    : await fetch(url, init);
 
   await throwIfResNotOk(res);
   return res;

@@ -1,53 +1,109 @@
 import { test, expect, type Locator } from "@playwright/test";
 import { gotoAndHydrate } from "./_helpers";
 
-type OverflowState = {
-  readonly text: string;
+type ClipperState = {
+  readonly overflowX: string;
+  readonly overflowY: string;
+  readonly textOverflow: string;
+  readonly clipPath: string;
   readonly scrollWidth: number;
   readonly clientWidth: number;
-  readonly textOverflow: string;
-  readonly overflowX: string;
+  readonly scrollHeight: number;
+  readonly clientHeight: number;
+  readonly textLeft: number;
+  readonly textRight: number;
+  readonly textTop: number;
+  readonly textBottom: number;
+  readonly clipLeft: number;
+  readonly clipRight: number;
+  readonly clipTop: number;
+  readonly clipBottom: number;
+};
+
+type OverflowState = {
+  readonly text: string;
+  readonly clippers: readonly ClipperState[];
 };
 
 async function overflowState(locator: Locator): Promise<OverflowState> {
   return locator.evaluate((el) => {
-    const measure = (node: Element) => {
+    const isNonVisible = (value: string): boolean =>
+      value === "hidden" || value === "clip" || value === "auto";
+    const header = el.closest("header");
+    const textBox = el.getBoundingClientRect();
+    const clippers: ClipperState[] = [];
+    for (
+      let node: Element | null = el;
+      node;
+      node = node.parentElement
+    ) {
       const style = getComputedStyle(node);
-      return {
-        scrollWidth: node.scrollWidth,
-        clientWidth: node.clientWidth,
-        textOverflow: style.textOverflow,
-        overflowX: style.overflowX,
-      };
-    };
-    // Inline text nodes report 0x0; inherited nowrap is not an overflow box.
-    // Prefer the ancestor that actually clips or ellipsizes.
-    let target: Element = el;
-    for (let node: Element | null = el; node && node !== document.body; node = node.parentElement) {
-      const style = getComputedStyle(node);
+      const clipsOverflow =
+        isNonVisible(style.overflowX) || isNonVisible(style.overflowY);
+      const hasClipPath = style.clipPath !== "none";
       if (
-        node.clientWidth > 0 &&
-        (style.textOverflow === "ellipsis" || style.overflowX === "hidden")
+        (clipsOverflow || hasClipPath) &&
+        (node.clientWidth > 0 || node.clientHeight > 0)
       ) {
-        target = node;
-        break;
+        const clipBox = node.getBoundingClientRect();
+        clippers.push({
+          overflowX: style.overflowX,
+          overflowY: style.overflowY,
+          textOverflow: style.textOverflow,
+          clipPath: style.clipPath,
+          scrollWidth: node.scrollWidth,
+          clientWidth: node.clientWidth,
+          scrollHeight: node.scrollHeight,
+          clientHeight: node.clientHeight,
+          textLeft: textBox.left,
+          textRight: textBox.right,
+          textTop: textBox.top,
+          textBottom: textBox.bottom,
+          clipLeft: clipBox.left,
+          clipRight: clipBox.right,
+          clipTop: clipBox.top,
+          clipBottom: clipBox.bottom,
+        });
       }
-      if (node.clientWidth > 0) target = node;
+      if (node === header || node.tagName === "HEADER") break;
     }
     return {
       text: (el.textContent ?? "").trim(),
-      ...measure(target),
+      clippers,
     };
   });
 }
 
 function assertSublineFits(state: OverflowState, expectedText: string, label: string): void {
   expect(state.text, `${label} text`).toBe(expectedText);
-  expect(
-    state.scrollWidth,
-    `${label} scrollWidth ${state.scrollWidth} must fit clientWidth ${state.clientWidth}`,
-  ).toBeLessThanOrEqual(state.clientWidth);
-  expect(state.textOverflow, `${label} must not ellipsize`).not.toBe("ellipsis");
+  for (const clipper of state.clippers) {
+    expect(
+      clipper.scrollWidth,
+      `${label} overflow:${clipper.overflowX}/${clipper.overflowY} scrollWidth ${clipper.scrollWidth} must fit clientWidth ${clipper.clientWidth}`,
+    ).toBeLessThanOrEqual(clipper.clientWidth);
+    expect(
+      clipper.scrollHeight,
+      `${label} overflow:${clipper.overflowX}/${clipper.overflowY} scrollHeight ${clipper.scrollHeight} must fit clientHeight ${clipper.clientHeight}`,
+    ).toBeLessThanOrEqual(clipper.clientHeight);
+    expect(clipper.textOverflow, `${label} ancestor must not ellipsize`).not.toBe("ellipsis");
+    expect(clipper.clipPath, `${label} ancestor must not clip-path`).toBe("none");
+    expect(
+      clipper.textLeft,
+      `${label} text left ${clipper.textLeft} must stay inside clip left ${clipper.clipLeft}`,
+    ).toBeGreaterThanOrEqual(clipper.clipLeft - 0.5);
+    expect(
+      clipper.textRight,
+      `${label} text right ${clipper.textRight} must stay inside clip right ${clipper.clipRight}`,
+    ).toBeLessThanOrEqual(clipper.clipRight + 0.5);
+    expect(
+      clipper.textTop,
+      `${label} text top ${clipper.textTop} must stay inside clip top ${clipper.clipTop}`,
+    ).toBeGreaterThanOrEqual(clipper.clipTop - 0.5);
+    expect(
+      clipper.textBottom,
+      `${label} text bottom ${clipper.textBottom} must stay inside clip bottom ${clipper.clipBottom}`,
+    ).toBeLessThanOrEqual(clipper.clipBottom + 0.5);
+  }
 }
 
 test("main header phone stays on one line and the subline is full at 1440", async ({
@@ -100,6 +156,7 @@ test("390 compact header still shows the short subline", async ({ page }) => {
     .getByText("Palo Alto Dentistry", { exact: true })
     .locator("visible=true");
   await expect(compact).toHaveCount(1);
+  assertSublineFits(await overflowState(compact), "Palo Alto Dentistry", "390 compact subline");
   await expect(page.locator("header").getByText("Family & Cosmetic Dentistry · Palo Alto")).toBeHidden();
   await expect(page.locator('header a[data-analytics-context="header-call"]')).toBeHidden();
 });

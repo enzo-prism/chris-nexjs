@@ -102,7 +102,7 @@ function Wordmark({ compact = false }: { readonly compact?: boolean }) {
           className={cn(
             "mt-1 font-semibold uppercase tracking-[0.18em] text-evergreen-600",
             compact
-              ? "truncate text-[0.6rem]"
+              ? "whitespace-nowrap text-[0.6rem]"
               : "whitespace-nowrap text-[0.66rem]",
           )}
         >

@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import { register } from "node:module";
 import { describe, it } from "node:test";
+import React, { createElement } from "react";
+import { renderToString } from "react-dom/server";
 import { blogIndex } from "../client/src/data/blogIndex";
 import { galleryItems, heroVideo } from "../client/src/data/galleryMedia";
 import {
@@ -10,6 +13,13 @@ import {
   buildVideoObjectSchemas,
 } from "../client/src/lib/structuredData";
 import { isValidIsoDateTime, toPacificDateTime } from "../shared/isoDateTime";
+
+register("./ssr-next-stub-loader.mjs", import.meta.url);
+(globalThis as { React?: typeof React }).React = React;
+
+function stripComments(source: string): string {
+  return source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+}
 
 describe("buildProfilePageSchema dates", () => {
   it("passes DateTime fields through and omits date-only lastmod guesses", () => {
@@ -39,14 +49,38 @@ describe("blogPostingDateFields", () => {
     });
   });
 
-  it("keeps the BlogPost render path from throwing on a bad date", () => {
-    const source = fs.readFileSync("client/src/pages/BlogPost.tsx", "utf8");
-    assert.match(source, /blogPostingDateFields\(post\.date\)/);
+  it("BlogPost.tsx executable source has no throw keyword", () => {
+    const source = stripComments(fs.readFileSync("client/src/pages/BlogPost.tsx", "utf8"));
     assert.match(source, /const dateFields = blogPostingDateFields\(post\.date\)/);
-    assert.doesNotMatch(
-      source,
-      /throw new Error\(`Blog post \$\{slug\} has an unparseable date`\)/,
+    assert.doesNotMatch(source, /\bthrow\b/);
+  });
+
+  it("renders BlogPost with an unparseable date without throwing", async () => {
+    const post = {
+      id: 9001,
+      title: "Synthetic bad date",
+      content: "Synthetic article body.",
+      image: "/images/dr_wong_polaroids.png",
+      date: "not a date",
+      slug: "synthetic-bad-date",
+      category: "family",
+      readTime: 3,
+      relatedServices: [] as string[],
+    };
+    assert.throws(
+      () => new Date(post.date).toISOString(),
+      RangeError,
+      "control: the #30 Date.toISOString crash class still throws",
     );
+    const { default: BlogPost } = await import("../client/src/pages/BlogPost");
+    assert.doesNotThrow(() => {
+      renderToString(
+        createElement(BlogPost, {
+          params: { slug: post.slug },
+          initialPosts: [post],
+        }),
+      );
+    });
   });
 });
 

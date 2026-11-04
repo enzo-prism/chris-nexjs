@@ -7,7 +7,7 @@ const nextConfig = {
   // enter the production app-paths manifest.
   pageExtensions: isProd ? ["tsx", "ts"] : ["tsx", "ts", "dev.tsx"],
   compiler: {
-    removeConsole: isProd,
+    removeConsole: isProd ? { exclude: ["error", "warn"] } : false,
   },
   experimental: {
     optimizePackageImports: ["lucide-react"],
