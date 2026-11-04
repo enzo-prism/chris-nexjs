@@ -12,7 +12,7 @@ export default defineConfig({
   retries: 0,
   workers: 1,
   reporter: [["list"]],
-  timeout: 90_000,
+  timeout: 180_000,
   expect: { timeout: 15_000 },
   use: {
     baseURL,
@@ -27,10 +27,10 @@ export default defineConfig({
       },
     },
     {
-      name: "sms-1280",
+      name: "sms-1440",
       use: {
         ...devices["Desktop Chrome"],
-        viewport: { width: 1280, height: 800 },
+        viewport: { width: 1440, height: 900 },
       },
     },
   ],

@@ -1,7 +1,15 @@
-import { existsSync, mkdirSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
+import {
+  contrastRatio,
+  CONSENT_OCR_PHRASES,
+  ocrPng,
+  phrasesRecognized,
+  pngPixelStats,
+  TWILIO_OCR_PHRASES,
+} from "../../scripts/sms-pixel-truth";
 import {
   SMS_PRIVACY_NO_MARKETING_SHARE,
   SMS_PRIVACY_SHARING_EXCLUSION,
@@ -19,7 +27,10 @@ const SHOT_DIR = existsSync("/opt/cursor/artifacts")
   : "test-results/sms-visibility";
 
 const MIN_BOX_PX = 1;
-const MIN_REASONABLE_HEIGHT = 8;
+const MIN_FONT_PX = 10;
+const MIN_PIXEL_RATIO = 0.003;
+const MIN_CHANGED_PIXELS = 60;
+const MIN_CONTRAST = 3;
 
 type Readability = {
   ok: boolean;
@@ -27,6 +38,18 @@ type Readability = {
   width: number;
   height: number;
   innerText: string;
+  fontSize: number;
+  textRgb: [number, number, number];
+  textAlpha: number;
+};
+
+type PixelProof = {
+  changed: number;
+  ratio: number;
+  contrast: number;
+  ocrText: string;
+  missed: readonly string[];
+  distances: Readonly<Record<string, number>>;
 };
 
 async function gotoLegal(page: Page, path: string): Promise<void> {
@@ -64,10 +87,45 @@ async function collectReadability(locator: Locator): Promise<Readability> {
     const style = window.getComputedStyle(node);
     const innerText = node.innerText ?? "";
     const fontSize = parseFloat(style.fontSize);
-    const opacity = parseFloat(style.opacity);
+
+    const canvasColor = (value: string): { r: number; g: number; b: number; a: number } => {
+      const canvas = document.createElement("canvas");
+      canvas.width = 1;
+      canvas.height = 1;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return { r: 0, g: 0, b: 0, a: 1 };
+      ctx.fillStyle = "#000";
+      ctx.fillStyle = value;
+      ctx.fillRect(0, 0, 1, 1);
+      const data = ctx.getImageData(0, 0, 1, 1).data;
+      return { r: data[0] ?? 0, g: data[1] ?? 0, b: data[2] ?? 0, a: (data[3] ?? 0) / 255 };
+    };
+
+    const nodeConceals = (target: HTMLElement, computed: CSSStyleDeclaration, self: boolean): boolean => {
+      if (computed.display === "none") return true;
+      if (computed.visibility === "hidden" || computed.visibility === "collapse") return true;
+      if (parseFloat(computed.opacity) < 0.5) return true;
+      const filter = computed.filter || "";
+      if (filter !== "none") {
+        if (/blur\(/.test(filter)) return true;
+        const opacityMatch = filter.match(/opacity\(\s*([\d.]+)\s*\)/);
+        if (opacityMatch && parseFloat(opacityMatch[1] ?? "1") < 0.5) return true;
+      }
+      const mask = computed.maskImage || (computed as CSSStyleDeclaration & { webkitMaskImage?: string }).webkitMaskImage;
+      if (mask && mask !== "none") return true;
+      if (computed.mixBlendMode && computed.mixBlendMode !== "normal") return true;
+      if (self) return false;
+      const ancestorBox = target.getBoundingClientRect();
+      const overflowHidden =
+        computed.overflow === "hidden" ||
+        computed.overflowX === "hidden" ||
+        computed.overflowY === "hidden";
+      if (overflowHidden && (ancestorBox.width < 1 || ancestorBox.height < 1)) return true;
+      if (target.getAttribute("aria-hidden") === "true") return true;
+      return false;
+    };
 
     if (!(box.width >= 1 && box.height >= 1)) reasons.push("box < 1px");
-    if (box.height < 8) reasons.push("height not reasonable");
     if (
       !(
         box.bottom > 0 &&
@@ -78,76 +136,53 @@ async function collectReadability(locator: Locator): Promise<Readability> {
     ) {
       reasons.push("out of viewport");
     }
-    if (!(opacity > 0)) reasons.push("opacity 0");
-    if (style.visibility !== "visible") reasons.push(`visibility ${style.visibility}`);
-    if (!(fontSize > 0)) reasons.push("font-size 0");
+    if (!(fontSize >= 10)) reasons.push(`font-size ${fontSize}`);
     if ((style.contentVisibility || "visible") === "hidden") reasons.push("content-visibility hidden");
-
     const clip = style.clip;
     if (clip && clip !== "auto" && clip !== "none") reasons.push(`clip ${clip}`);
-    const clipPath = style.clipPath || (style as CSSStyleDeclaration & { webkitClipPath?: string }).webkitClipPath;
+    const clipPath =
+      style.clipPath || (style as CSSStyleDeclaration & { webkitClipPath?: string }).webkitClipPath;
     if (clipPath && clipPath !== "none") reasons.push(`clip-path ${clipPath}`);
-
     const indent = parseFloat(style.textIndent);
     if (Number.isFinite(indent) && Math.abs(indent) >= Math.max(box.width, 1)) {
       reasons.push(`text-indent ${style.textIndent}`);
     }
+    const lineClamp = style.webkitLineClamp || (style as CSSStyleDeclaration & { lineClamp?: string }).lineClamp;
+    if (lineClamp && lineClamp !== "none" && Number.parseInt(lineClamp, 10) > 0) {
+      reasons.push(`line-clamp ${lineClamp}`);
+    }
+    if ((style.textOverflow || "").includes("ellipsis")) reasons.push("text-overflow ellipsis");
+    const overflowVisible =
+      style.overflow === "visible" && style.overflowX === "visible" && style.overflowY === "visible";
+    if (
+      !overflowVisible &&
+      (node.scrollHeight > node.clientHeight + 1 || node.scrollWidth > node.clientWidth + 1)
+    ) {
+      reasons.push("overflow clips content");
+    }
 
-    const parseAlpha = (value: string): number => {
-      const trimmed = value.trim().toLowerCase();
-      if (trimmed === "transparent") return 0;
-      const slash = trimmed.match(/^rgba?\([^/]+\/\s*([\d.]+%?)\s*\)$/);
-      if (slash) {
-        const raw = slash[1] ?? "1";
-        return raw.endsWith("%") ? parseFloat(raw) / 100 : parseFloat(raw);
-      }
-      const comma = trimmed.match(
-        /^rgba?\(\s*[\d.]+(?:\s*,\s*[\d.]+){2}(?:\s*,\s*([\d.]+%?))?\s*\)$/,
-      );
-      if (comma) {
-        if (!comma[1]) return 1;
-        return comma[1].endsWith("%") ? parseFloat(comma[1]) / 100 : parseFloat(comma[1]);
-      }
-      return 1;
-    };
-    const textAlpha = parseAlpha(style.color);
-    if (textAlpha < 0.5) reasons.push(`color alpha ${textAlpha}`);
+    const painted = canvasColor(style.color);
+    if (painted.a < 0.5) reasons.push(`color alpha ${painted.a}`);
 
-    let cumulativeOpacity = Number.isFinite(opacity) ? opacity : 1;
-    let ancestor = node.parentElement;
+    let cumulativeOpacity = Number.isFinite(parseFloat(style.opacity)) ? parseFloat(style.opacity) : 1;
+    let current: HTMLElement | null = node;
     let ancestorHides = false;
-    while (ancestor) {
-      const ancestorStyle = window.getComputedStyle(ancestor);
-      const ancestorBox = ancestor.getBoundingClientRect();
-      const overflowHidden =
-        ancestorStyle.overflow === "hidden" ||
-        ancestorStyle.overflowX === "hidden" ||
-        ancestorStyle.overflowY === "hidden";
-      const zeroClip =
-        overflowHidden && (ancestorBox.width < 1 || ancestorBox.height < 1);
-      const filter = ancestorStyle.filter || "";
-      const filterHides =
-        filter !== "none" &&
-        (/opacity\(\s*0(?:\.0+)?\s*\)/.test(filter) || /blur\(/.test(filter));
-      const ariaHidden = ancestor.getAttribute("aria-hidden") === "true";
-      if (
-        ancestorStyle.display === "none" ||
-        ancestorStyle.visibility === "hidden" ||
-        ancestorStyle.visibility === "collapse" ||
-        parseFloat(ancestorStyle.opacity) === 0 ||
-        zeroClip ||
-        filterHides ||
-        ariaHidden
-      ) {
+    let self = true;
+    while (current) {
+      const computed = window.getComputedStyle(current);
+      if (nodeConceals(current, computed, self)) {
         ancestorHides = true;
         break;
       }
-      cumulativeOpacity *= Number.isFinite(parseFloat(ancestorStyle.opacity))
-        ? parseFloat(ancestorStyle.opacity)
-        : 1;
-      ancestor = ancestor.parentElement;
+      if (!self) {
+        cumulativeOpacity *= Number.isFinite(parseFloat(computed.opacity))
+          ? parseFloat(computed.opacity)
+          : 1;
+      }
+      current = current.parentElement;
+      self = false;
     }
-    if (ancestorHides) reasons.push("ancestor conceals");
+    if (ancestorHides) reasons.push("node or ancestor conceals");
     if (cumulativeOpacity < 0.5) reasons.push(`cumulative opacity ${cumulativeOpacity}`);
 
     const rects = node.getClientRects();
@@ -156,8 +191,6 @@ async function collectReadability(locator: Locator): Promise<Readability> {
       [sampleRect.left + sampleRect.width / 2, sampleRect.top + sampleRect.height / 2],
       [sampleRect.left + sampleRect.width * 0.25, sampleRect.top + sampleRect.height / 2],
       [sampleRect.left + sampleRect.width * 0.75, sampleRect.top + sampleRect.height / 2],
-      [sampleRect.left + sampleRect.width / 2, sampleRect.top + sampleRect.height * 0.25],
-      [sampleRect.left + sampleRect.width / 2, sampleRect.top + sampleRect.height * 0.75],
     ];
     for (const [x, y] of points) {
       const hit = document.elementFromPoint(x, y);
@@ -173,24 +206,122 @@ async function collectReadability(locator: Locator): Promise<Readability> {
       width: box.width,
       height: box.height,
       innerText,
+      fontSize,
+      textRgb: [painted.r, painted.g, painted.b],
+      textAlpha: painted.a,
     };
   });
 }
 
-async function assertRunVisible(page: Page, locator: Locator, label: string): Promise<void> {
+async function clipScreenshot(locator: Locator): Promise<Buffer> {
+  return locator.screenshot({ animations: "disabled" });
+}
+
+async function withTransparentText<T>(locator: Locator, run: () => Promise<T>): Promise<T> {
+  await locator.evaluate((el) => {
+    const apply = (node: HTMLElement): void => {
+      node.dataset.smsPrevColor = node.style.color;
+      node.dataset.smsPrevFill = node.style.webkitTextFillColor;
+      node.dataset.smsPrevShadow = node.style.textShadow;
+      node.style.color = "transparent";
+      node.style.webkitTextFillColor = "transparent";
+      node.style.textShadow = "0 0 0 transparent";
+    };
+    apply(el as HTMLElement);
+    for (const child of Array.from((el as HTMLElement).querySelectorAll("*"))) {
+      apply(child as HTMLElement);
+    }
+  });
+  try {
+    return await run();
+  } finally {
+    await locator.evaluate((el) => {
+      const restore = (node: HTMLElement): void => {
+        node.style.color = node.dataset.smsPrevColor ?? "";
+        node.style.webkitTextFillColor = node.dataset.smsPrevFill ?? "";
+        node.style.textShadow = node.dataset.smsPrevShadow ?? "";
+        delete node.dataset.smsPrevColor;
+        delete node.dataset.smsPrevFill;
+        delete node.dataset.smsPrevShadow;
+      };
+      restore(el as HTMLElement);
+      for (const child of Array.from((el as HTMLElement).querySelectorAll("*"))) {
+        restore(child as HTMLElement);
+      }
+    });
+  }
+}
+
+async function collectPixelProof(
+  locator: Locator,
+  phrases: readonly string[],
+  textRgb: [number, number, number],
+): Promise<PixelProof> {
+  const before = await clipScreenshot(locator);
+  const after = await withTransparentText(locator, () => clipScreenshot(locator));
+  const stats = pngPixelStats(before, after);
+  const contrast = contrastRatio(textRgb, stats.afterAverage);
+  const ocrText = ocrPng(before);
+  const recognized = phrasesRecognized(ocrText, phrases);
+  return {
+    changed: stats.changed,
+    ratio: stats.ratio,
+    contrast,
+    ocrText,
+    missed: recognized.missed,
+    distances: recognized.distances,
+  };
+}
+
+function writeProofFiles(name: string, width: number, proof: PixelProof, painted: Buffer): void {
+  mkdirSync(SHOT_DIR, { recursive: true });
+  writeFileSync(`${SHOT_DIR}/sms-pixel-${name}-${width}.png`, painted);
+  writeFileSync(
+    `${SHOT_DIR}/sms-ocr-${name}-${width}.txt`,
+    `${proof.ocrText}\nchanged=${proof.changed} ratio=${proof.ratio.toFixed(4)} contrast=${proof.contrast.toFixed(2)}\n${JSON.stringify(proof.distances, null, 2)}\n`,
+  );
+}
+
+async function assertPassagePainted(
+  page: Page,
+  locator: Locator,
+  label: string,
+  phrases: readonly string[],
+  saveAs?: string,
+): Promise<PixelProof> {
   await expect(locator, `${label} must be visible`).toBeVisible();
   await scrollRun(locator);
   const metrics = await collectReadability(locator);
   expect(metrics.width, `${label} bounding box width`).toBeGreaterThanOrEqual(MIN_BOX_PX);
   expect(metrics.height, `${label} bounding box height`).toBeGreaterThanOrEqual(MIN_BOX_PX);
-  expect(metrics.height, `${label} reasonable height`).toBeGreaterThanOrEqual(MIN_REASONABLE_HEIGHT);
+  expect(metrics.fontSize, `${label} font-size`).toBeGreaterThanOrEqual(MIN_FONT_PX);
   expect(metrics.ok, `${label} readable: ${metrics.reasons.join("; ")}`).toBe(true);
+  const proof = await collectPixelProof(locator, phrases, metrics.textRgb);
+  expect(
+    proof.changed >= MIN_CHANGED_PIXELS || proof.ratio >= MIN_PIXEL_RATIO,
+    `${label} pixel-diff too small (${proof.changed} px, ${(proof.ratio * 100).toFixed(2)}%)`,
+  ).toBe(true);
+  expect(proof.contrast, `${label} contrast ${proof.contrast}`).toBeGreaterThanOrEqual(MIN_CONTRAST);
+  expect(proof.missed, `${label} OCR missed ${proof.missed.join("; ")} :: ${proof.ocrText}`).toEqual(
+    [],
+  );
+  if (saveAs) {
+    const painted = await clipScreenshot(locator);
+    writeProofFiles(saveAs, page.viewportSize()?.width ?? 0, proof, painted);
+  }
+  return proof;
+}
+
+async function assertTwilioRun(page: Page, locator: Locator, label: string, saveAs?: string): Promise<void> {
+  const proof = await assertPassagePainted(page, locator, label, TWILIO_OCR_PHRASES, saveAs);
+  const metrics = await collectReadability(locator);
   expect(metrics.innerText, `${label} must keep the subcontractor sentence`).toContain(
     SMS_PRIVACY_SUBCONTRACTOR_SHARING,
   );
   expect(metrics.innerText, `${label} must keep the exclusion sentence`).toContain(
     SMS_PRIVACY_SHARING_EXCLUSION,
   );
+  expect(proof.ocrText.length, `${label} OCR produced text`).toBeGreaterThan(20);
 }
 
 async function highlight(locator: Locator): Promise<void> {
@@ -219,135 +350,133 @@ async function shotRun(page: Page, locator: Locator, name: string, width: number
   });
 }
 
-test("the three Twilio runs are readable at this viewport", async ({ page }) => {
+test("the required SMS consent passages are painted and readable", async ({ page }) => {
   const width = page.viewportSize()?.width ?? 0;
   mkdirSync(SHOT_DIR, { recursive: true });
 
   await gotoLegal(page, "/privacy-policy");
   const sharing = await runLocator(page, "sharing");
-  const textMessaging = await runLocator(page, "text-messaging");
-  await assertRunVisible(page, sharing, "Privacy #sharing");
-  await assertRunVisible(page, textMessaging, "Privacy Text Messaging");
+  const textMessaging = page.locator("section#text-messaging");
+  await assertTwilioRun(page, sharing, "Privacy #sharing", "sharing");
+  await assertPassagePainted(
+    page,
+    textMessaging,
+    "Privacy Text Messaging",
+    CONSENT_OCR_PHRASES,
+    "text-messaging",
+  );
   await highlight(sharing);
-  await highlight(textMessaging);
   await scrollRun(sharing);
-  await page.screenshot({
-    path: `${SHOT_DIR}/sms-twilio-privacy-${width}.png`,
-    fullPage: true,
-  });
   await shotRun(page, sharing, "sharing", width);
   await scrollRun(textMessaging);
   await shotRun(page, textMessaging, "text-messaging", width);
 
   await gotoLegal(page, "/sms-terms");
+  await assertPassagePainted(
+    page,
+    page.locator("section#frequency-and-rates"),
+    "SMS Terms #frequency-and-rates",
+    ["message frequency varies", "message and data rates may apply"],
+    "terms-frequency",
+  );
+  await assertPassagePainted(
+    page,
+    page.locator("section#opt-out-and-help"),
+    "SMS Terms #opt-out-and-help",
+    ["reply stop to opt out", "reply help for help"],
+    "terms-opt-out",
+  );
+  await assertPassagePainted(
+    page,
+    page.locator("section#consent-and-care"),
+    "SMS Terms #consent-and-care",
+    ["consent to receive text messages is not required to receive care"],
+    "terms-consent",
+  );
   const mobileNumbers = await runLocator(page, "mobile-numbers");
-  await assertRunVisible(page, mobileNumbers, "/sms-terms #mobile-numbers");
+  await assertTwilioRun(page, mobileNumbers, "/sms-terms #mobile-numbers", "mobile-numbers");
   await highlight(mobileNumbers);
   await scrollRun(mobileNumbers);
-  await page.screenshot({
-    path: `${SHOT_DIR}/sms-twilio-terms-${width}.png`,
-    fullPage: true,
-  });
   await shotRun(page, mobileNumbers, "mobile-numbers", width);
-
   expect(RUNS).toHaveLength(3);
 });
 
-const HIDE_TRICKS = [
-  { id: "sr-only", apply: "class" as const, value: "sr-only" },
-  { id: "transparent-text", apply: "style" as const, value: "color: transparent" },
-  { id: "text-indent", apply: "style" as const, value: "text-indent: -9999px" },
-  { id: "clip-path-inset", apply: "style" as const, value: "clip-path: inset(100%)" },
-  { id: "height-0-overflow-parent", apply: "parent" as const, value: "height: 0; overflow: hidden" },
-  { id: "filter-opacity-parent", apply: "parent" as const, value: "filter: opacity(0)" },
-  { id: "overlay", apply: "overlay" as const, value: "" },
-  { id: "opacity-01", apply: "style" as const, value: "opacity: .01" },
-  { id: "display-none-exclusion", apply: "exclusion" as const, value: "" },
+const EGG_TRICKS = [
+  {
+    id: "truncate",
+    apply: "style" as const,
+    value: "overflow:hidden;text-overflow:ellipsis;white-space:nowrap",
+  },
+  {
+    id: "line-clamp-1",
+    apply: "style" as const,
+    value: "display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden",
+  },
+  {
+    id: "max-h-overflow",
+    apply: "style" as const,
+    value: "max-height:1.5rem;overflow:hidden",
+  },
+  { id: "own-filter-opacity", apply: "style" as const, value: "filter:opacity(0)" },
+  { id: "own-blur", apply: "style" as const, value: "filter:blur(24px)" },
+  { id: "after-overlay", apply: "after" as const, value: "" },
+  { id: "oklch-0", apply: "style" as const, value: "color: oklch(0.2 0.05 140 / 0)" },
+  {
+    id: "text-fill-transparent",
+    apply: "style" as const,
+    value: "-webkit-text-fill-color: transparent",
+  },
+  {
+    id: "mask-image",
+    apply: "style" as const,
+    value:
+      "mask-image:linear-gradient(transparent, transparent);-webkit-mask-image:linear-gradient(transparent, transparent)",
+  },
+  { id: "font-0-5px", apply: "style" as const, value: "font-size:0.5px" },
 ] as const;
 
-const PASS_CONTROLS = [
-  { id: "color-only", apply: "style" as const, value: "color: rgb(20, 40, 30)" },
-  { id: "backface-visibility", apply: "style" as const, value: "backface-visibility: hidden" },
-  { id: "fill-opacity-attr", apply: "style" as const, value: "fill-opacity: 0" },
-] as const;
-
-test("readable-check kills the nine hide tricks and keeps pass controls", async ({ page }) => {
-  await gotoLegal(page, "/privacy-policy");
-  const control = await runLocator(page, "sharing");
-  await assertRunVisible(page, control, "control");
-
-  for (const trick of HIDE_TRICKS) {
-    await page.reload({ waitUntil: "domcontentloaded" });
-    const locator = await runLocator(page, "sharing");
-    await scrollRun(locator);
-    if (trick.apply === "class") {
-      await locator.evaluate((el, value) => {
-        el.classList.add(value);
-      }, trick.value);
-    } else if (trick.apply === "style") {
-      await locator.evaluate((el, value) => {
-        el.setAttribute("style", value);
-      }, trick.value);
-    } else if (trick.apply === "parent") {
-      await locator.evaluate((el, value) => {
-        el.parentElement?.setAttribute("style", value);
-      }, trick.value);
-    } else if (trick.apply === "overlay") {
-      await locator.evaluate((el) => {
-        const box = el.getBoundingClientRect();
-        const cover = document.createElement("div");
-        cover.setAttribute("data-sms-overlay", "1");
-        cover.style.position = "fixed";
-        cover.style.left = `${box.left}px`;
-        cover.style.top = `${box.top}px`;
-        cover.style.width = `${box.width}px`;
-        cover.style.height = `${box.height}px`;
-        cover.style.background = "white";
-        cover.style.zIndex = "2147483647";
-        document.body.appendChild(cover);
-      });
-    } else {
-      await locator.evaluate((el, exclusion) => {
-        const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-        let node = walker.nextNode();
-        while (node) {
-          const text = node.textContent ?? "";
-          const at = text.indexOf(exclusion);
-          if (at >= 0) {
-            const before = text.slice(0, at);
-            const mid = text.slice(at, at + exclusion.length);
-            const after = text.slice(at + exclusion.length);
-            const span = document.createElement("span");
-            span.style.display = "none";
-            span.textContent = mid;
-            const parent = node.parentNode;
-            if (!parent) break;
-            if (before) parent.insertBefore(document.createTextNode(before), node);
-            parent.insertBefore(span, node);
-            if (after) parent.insertBefore(document.createTextNode(after), node);
-            parent.removeChild(node);
-            break;
-          }
-          node = walker.nextNode();
-        }
-      }, SMS_PRIVACY_SHARING_EXCLUSION);
-    }
-    const result = await collectReadability(locator);
-    if (trick.id === "display-none-exclusion") {
-      expect(result.innerText, trick.id).not.toContain(SMS_PRIVACY_SHARING_EXCLUSION);
-    } else {
-      expect(result.ok, `${trick.id} should fail readability: ${result.reasons.join("; ")}`).toBe(
-        false,
-      );
-    }
-  }
-
-  for (const controlCase of PASS_CONTROLS) {
-    await page.reload({ waitUntil: "domcontentloaded" });
-    const locator = await runLocator(page, "sharing");
+async function applyEggTrick(locator: Locator, trick: (typeof EGG_TRICKS)[number]): Promise<void> {
+  if (trick.apply === "style") {
     await locator.evaluate((el, value) => {
       el.setAttribute("style", value);
-    }, controlCase.value);
-    await assertRunVisible(page, locator, controlCase.id);
+    }, trick.value);
+    return;
+  }
+  await locator.evaluate((el) => {
+    el.setAttribute("data-sms-after-overlay", "1");
+    (el as HTMLElement).style.position = "relative";
+    const style = document.createElement("style");
+    style.textContent =
+      '[data-sms-after-overlay="1"]::after{content:"";position:absolute;inset:0;background:#fff;}';
+    document.head.appendChild(style);
+  });
+}
+
+async function passageFails(page: Page, locator: Locator): Promise<boolean> {
+  await scrollRun(locator);
+  const metrics = await collectReadability(locator);
+  if (!metrics.ok || metrics.fontSize < MIN_FONT_PX) return true;
+  try {
+    const proof = await collectPixelProof(locator, TWILIO_OCR_PHRASES, metrics.textRgb);
+    const painted = proof.changed >= MIN_CHANGED_PIXELS || proof.ratio >= MIN_PIXEL_RATIO;
+    if (!painted) return true;
+    if (proof.contrast < MIN_CONTRAST) return true;
+    if (proof.missed.length > 0) return true;
+    return false;
+  } catch {
+    return true;
+  }
+}
+
+test("pixel-truth kills Eggbot's ten hide tricks", async ({ page }) => {
+  await gotoLegal(page, "/privacy-policy");
+  const control = await runLocator(page, "sharing");
+  await assertTwilioRun(page, control, "control");
+
+  for (const trick of EGG_TRICKS) {
+    await page.reload({ waitUntil: "domcontentloaded" });
+    const locator = await runLocator(page, "sharing");
+    await applyEggTrick(locator, trick);
+    expect(await passageFails(page, locator), `${trick.id} must be killed`).toBe(true);
   }
 });

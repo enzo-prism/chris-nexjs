@@ -70,6 +70,9 @@ jobs:
       - name: Staged SMS strings must not appear in .next/static, .next/server, public/, or client/public/
         run: SMS_STAGED_SKIP_BUILD=1 pnpm run test:sms-staged-static
 
+      - name: Install Tesseract for SMS OCR
+        run: sudo apt-get update && sudo apt-get install -y tesseract-ocr
+
       - name: Runtime SEO, image, and Twilio visibility audits
         run: |
           pnpm exec next start -p 3200 &
@@ -84,7 +87,7 @@ jobs:
           SEO_AUDIT_BASE_URL=http://localhost:3200 pnpm run test:seo:onpage
           SEO_AUDIT_BASE_URL=http://localhost:3200 pnpm run test:seo:links
           SEO_AUDIT_BASE_URL=http://localhost:3200 pnpm run test:seo:schema
-          # Computed-style Twilio visibility at 390 and 1280; static scan does not cover stylesheets.
+          # Pixel-truth + OCR of SMS consent passages at 390 and 1440.
           PLAYWRIGHT_BASE_URL=http://localhost:3200 pnpm run test:sms-visibility
 
       - name: Analytics host-silence network spec
