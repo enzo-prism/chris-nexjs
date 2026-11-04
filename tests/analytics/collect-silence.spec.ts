@@ -1,35 +1,16 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import { ANALYTICS_IMMEDIATE_LOAD_FLAG } from "../../shared/analyticsHosts";
-import { isBlockedGoogleMeasurementUrl } from "./googleHosts";
-
-function isHotjarHost(hostname: string): boolean {
-  const host = hostname.toLowerCase();
-  return host === "hotjar.com" || host.endsWith(".hotjar.com") || host.endsWith(".hotjar.io");
-}
-
-function isVercelInsightsUrl(url: URL): boolean {
-  const host = url.hostname.toLowerCase();
-  const path = url.pathname;
-  if (path.includes("/_vercel/insights")) return true;
-  if (host === "va.vercel-scripts.com" || host.endsWith(".va.vercel-scripts.com")) {
-    return true;
-  }
-  return host.includes("vercel-insights");
-}
-
-function redactShareToken(url: string): string {
-  try {
-    const parsed = new URL(url);
-    if (parsed.searchParams.has("_vercel_share")) {
-      parsed.searchParams.set("_vercel_share", "[redacted]");
-    }
-    return parsed.toString();
-  } catch {
-    return url;
-  }
-}
+import {
+  APP_MARKER,
+  LOOKALIKE_HOSTS,
+  installDefaultDeny,
+  localOrigin,
+  originForHost,
+  summarizeLedger,
+  type NetworkLedger,
+} from "./networkGuard";
 
 function isAppHost(hostname: string): boolean {
   return (
@@ -39,67 +20,37 @@ function isAppHost(hostname: string): boolean {
   );
 }
 
-test("non-production hosts do not load or collect to GA4/GTM", async ({
-  page,
-  context,
-}, testInfo) => {
-  const allRequests: string[] = [];
-  const googleMeasurementRequests: string[] = [];
-  const hotjarRequests: string[] = [];
-  const vercelInsightsRequests: string[] = [];
-
-  await context.addInitScript((flag: string) => {
-    (window as Window & Record<string, unknown>)[flag] = true;
-  }, ANALYTICS_IMMEDIATE_LOAD_FLAG);
-
-  // Record at the browser context so iframe/worker hits are included, and
-  // stub Google measurement hosts so a missed host gate cannot phone home.
-  await context.route("**/*", async (route) => {
-    if (isBlockedGoogleMeasurementUrl(route.request().url())) {
-      await route.fulfill({
-        status: 204,
-        contentType: "text/plain",
-        body: "",
-      });
-      return;
-    }
-    await route.continue();
-  });
-
-  context.on("request", (request) => {
-    allRequests.push(request.url());
-    let parsed: URL;
-    try {
-      parsed = new URL(request.url());
-    } catch {
-      return;
-    }
-    if (isBlockedGoogleMeasurementUrl(request.url())) {
-      googleMeasurementRequests.push(request.url());
-    }
-    if (isHotjarHost(parsed.hostname)) {
-      hotjarRequests.push(request.url());
-    }
-    if (isVercelInsightsUrl(parsed)) {
-      vercelInsightsRequests.push(request.url());
-    }
-  });
-
-  const startPath = process.env.ANALYTICS_START_PATH?.trim() || "/";
-  await page.goto(startPath, { waitUntil: "networkidle" });
+async function assertBlockedHost(
+  page: Page,
+  ledger: NetworkLedger,
+  expectedHostname: string,
+  startUrl: string,
+): Promise<{
+  hostname: string;
+  gtagType: string;
+  gtagScriptCount: number;
+  hotjarScriptCount: number;
+}> {
+  const home = await page.goto(startUrl, { waitUntil: "networkidle" });
+  expect(home?.ok(), `home status ${home?.status()} at ${page.url()}`).toBe(true);
+  await expect(page.locator(APP_MARKER)).toBeAttached();
   await page.locator("body").click({ position: { x: 12, y: 12 } });
   await page.mouse.wheel(0, 600);
-  // Production Hotjar waits 8s + idle (HotjarTracking.tsx). The init script
-  // sets ANALYTICS_IMMEDIATE_LOAD_FLAG so a missing host guard loads now
-  // instead of after that window.
   await page.waitForTimeout(1500);
-  await page.goto("/about", { waitUntil: "networkidle" });
+
+  const about = await page.goto(
+    new URL("/about", startUrl).toString(),
+    { waitUntil: "networkidle" },
+  );
+  expect(about?.ok(), `about status ${about?.status()} at ${page.url()}`).toBe(
+    true,
+  );
+  await expect(page.locator(APP_MARKER)).toBeAttached();
   await page.waitForTimeout(800);
 
   const runtime = await page.evaluate(() => ({
     hostname: window.location.hostname,
     gtagType: typeof (window as Window & { gtag?: unknown }).gtag,
-    dataLayerType: typeof (window as Window & { dataLayer?: unknown }).dataLayer,
     gtagScriptCount: document.querySelectorAll(
       'script[src*="googletagmanager.com/gtag/js"]',
     ).length,
@@ -111,61 +62,117 @@ test("non-production hosts do not load or collect to GA4/GTM", async ({
     ).length,
   }));
 
+  expect(runtime.hostname).toBe(expectedHostname);
+  expect(runtime.gtagType).toBe("undefined");
+  expect(runtime.gtagScriptCount).toBe(0);
+  expect(runtime.hotjarScriptCount).toBe(0);
+  expect(runtime.vercelInsightsScriptCount).toBe(0);
+  expect(
+    ledger.hotjar,
+    `Hotjar must never be requested on ${expectedHostname}:\n${ledger.hotjar
+      .map((item) => item.url)
+      .join("\n")}`,
+  ).toEqual([]);
+  expect(
+    ledger.gtagScript,
+    `gtag.js must never be requested on ${expectedHostname}`,
+  ).toEqual([]);
+  expect(
+    ledger.googleMeasurement,
+    `Google measurement must never be requested on ${expectedHostname}`,
+  ).toEqual([]);
+  expect(
+    ledger.stubbed.map((item) => item.url),
+    `No third-party request may be attempted on ${expectedHostname}`,
+  ).toEqual([]);
+
+  return runtime;
+}
+
+test("non-production hosts do not load or collect to GA4/GTM", async ({
+  page,
+  context,
+}, testInfo) => {
+  const local = localOrigin(testInfo.project.use.baseURL);
+
+  await context.addInitScript((flag: string) => {
+    (window as Window & Record<string, unknown>)[flag] = true;
+  }, ANALYTICS_IMMEDIATE_LOAD_FLAG);
+
+  const ledger = await installDefaultDeny(context, local);
+  const startPath = process.env.ANALYTICS_START_PATH?.trim() || "/";
+  const runtime = await assertBlockedHost(
+    page,
+    ledger,
+    new URL(local.toString()).hostname,
+    new URL(startPath, local).toString(),
+  );
+
+  expect(
+    isAppHost(runtime.hostname),
+    `Expected the app host (localhost or *.vercel.app). Got ${runtime.hostname}`,
+  ).toBe(true);
+  expect(
+    runtime.hostname === "chriswongdds.com" ||
+      runtime.hostname === "www.chriswongdds.com",
+  ).toBe(false);
+
   const artifactDir =
     process.env.ANALYTICS_NETWORK_ARTIFACT_DIR?.trim() || testInfo.outputDir;
   mkdirSync(artifactDir, { recursive: true });
-  const report = {
-    baseURL: testInfo.project.use.baseURL,
-    pageURL: redactShareToken(page.url()),
-    runtime,
-    requestCount: allRequests.length,
-    googleMeasurementRequests: googleMeasurementRequests.map(redactShareToken),
-    hotjarRequests: hotjarRequests.map(redactShareToken),
-    vercelInsightsRequests: vercelInsightsRequests.map(redactShareToken),
-    firstPartySample: allRequests
-      .filter((url) => !isBlockedGoogleMeasurementUrl(url))
-      .slice(0, 12)
-      .map(redactShareToken),
-  };
   writeFileSync(
     join(artifactDir, "ga-collect-silence.json"),
-    `${JSON.stringify(report, null, 2)}\n`,
+    `${JSON.stringify(
+      {
+        baseURL: testInfo.project.use.baseURL,
+        pageURL: page.url(),
+        runtime,
+        network: summarizeLedger(ledger),
+      },
+      null,
+      2,
+    )}\n`,
   );
   await page.screenshot({
     path: join(artifactDir, "ga-collect-silence.png"),
     fullPage: true,
   });
-
-  expect(
-    isAppHost(runtime.hostname),
-    `Expected the app host (localhost or *.vercel.app), not a protection login. Got ${runtime.hostname} at ${redactShareToken(page.url())}`,
-  ).toBe(true);
-  expect(
-    runtime.hostname === "chriswongdds.com" ||
-      runtime.hostname === "www.chriswongdds.com",
-    `This spec is a silence check for non-production hosts; got ${runtime.hostname}`,
-  ).toBe(false);
-  expect(allRequests.length, "context request listener captured no traffic").toBeGreaterThan(0);
-  expect(runtime.gtagType).toBe("undefined");
-  expect(runtime.gtagScriptCount).toBe(0);
-  expect(
-    runtime.hotjarScriptCount,
-    "Hotjar script tags on a blocked host",
-  ).toBe(0);
-  expect(
-    hotjarRequests,
-    `Hotjar requests:\n${hotjarRequests.join("\n")}`,
-  ).toEqual([]);
-  expect(
-    runtime.vercelInsightsScriptCount,
-    "Vercel insights script tags on a blocked host",
-  ).toBe(0);
-  expect(
-    vercelInsightsRequests,
-    `Vercel insights requests:\n${vercelInsightsRequests.join("\n")}`,
-  ).toEqual([]);
-  expect(
-    googleMeasurementRequests,
-    `Google measurement requests:\n${googleMeasurementRequests.join("\n")}`,
-  ).toEqual([]);
 });
+
+for (const lookalike of LOOKALIKE_HOSTS) {
+  test(`${lookalike} does not load gtag or Hotjar`, async ({
+    page,
+    context,
+  }, testInfo) => {
+    const local = localOrigin(testInfo.project.use.baseURL);
+
+    await context.addInitScript((flag: string) => {
+      (window as Window & Record<string, unknown>)[flag] = true;
+    }, ANALYTICS_IMMEDIATE_LOAD_FLAG);
+
+    const ledger = await installDefaultDeny(context, local);
+    const runtime = await assertBlockedHost(
+      page,
+      ledger,
+      lookalike,
+      `${originForHost(local, lookalike)}/`,
+    );
+
+    const artifactDir =
+      process.env.ANALYTICS_NETWORK_ARTIFACT_DIR?.trim() || testInfo.outputDir;
+    mkdirSync(artifactDir, { recursive: true });
+    writeFileSync(
+      join(artifactDir, `ga-collect-lookalike-${lookalike}.json`),
+      `${JSON.stringify(
+        {
+          baseURL: testInfo.project.use.baseURL,
+          pageURL: page.url(),
+          runtime,
+          network: summarizeLedger(ledger),
+        },
+        null,
+        2,
+      )}\n`,
+    );
+  });
+}

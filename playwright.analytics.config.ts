@@ -5,9 +5,10 @@ const remoteBase =
   process.env.SEO_AUDIT_BASE_URL?.trim() ||
   "";
 
-const PORT = 3211;
+const PORT = Number(process.env.ANALYTICS_E2E_PORT || 3211);
 const localBase = `http://localhost:${PORT}`;
 const baseURL = remoteBase || localBase;
+const reuseExistingServer = process.env.ANALYTICS_MUTANT_E2E === "1" ? false : true;
 
 export default defineConfig({
   testDir: "./tests/analytics",
@@ -29,6 +30,11 @@ export default defineConfig({
       use: {
         ...devices["Desktop Chrome"],
         channel: process.env.CI ? undefined : "chrome",
+        launchOptions: {
+          args: [
+            "--host-resolver-rules=MAP www.chriswongdds.com 127.0.0.1,MAP chriswongdds.com 127.0.0.1,MAP chriswongdds.com.evil.com 127.0.0.1,MAP evilchriswongdds.com 127.0.0.1",
+          ],
+        },
       },
     },
   ],
@@ -37,7 +43,7 @@ export default defineConfig({
     : {
         command: `pnpm run build && pnpm exec next start -p ${PORT}`,
         url: localBase,
-        reuseExistingServer: true,
+        reuseExistingServer,
         timeout: 240_000,
         stdout: "pipe",
         stderr: "pipe",

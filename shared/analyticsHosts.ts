@@ -20,8 +20,13 @@ export function normalizeAnalyticsHostname(hostname: string): string {
   return withPort ? withPort[1] : trimmed;
 }
 
-export function isAllowedAnalyticsHost(hostname: string): boolean {
-  return ANALYTICS_ALLOWED_HOST_SET.has(normalizeAnalyticsHostname(hostname));
+export function isAllowedAnalyticsHost(
+  hostname: string | null | undefined,
+): boolean {
+  if (typeof hostname !== "string") return false;
+  const normalized = normalizeAnalyticsHostname(hostname);
+  if (!normalized) return false;
+  return ANALYTICS_ALLOWED_HOST_SET.has(normalized);
 }
 
 /**
@@ -60,5 +65,9 @@ export function canSendServerAnalytics(
  */
 export function analyticsHostAllowlistGuardSnippet(): string {
   return `var __cwAnalyticsAllowedHosts = ${JSON.stringify(ANALYTICS_ALLOWED_HOSTS)};
-    if (__cwAnalyticsAllowedHosts.indexOf(String(location.hostname || "").toLowerCase()) === -1) return;`;
+    var __cwAnalyticsHost = "";
+    try {
+      __cwAnalyticsHost = String(location.hostname || "").toLowerCase();
+    } catch (_error) {}
+    if (__cwAnalyticsAllowedHosts.indexOf(__cwAnalyticsHost) === -1) return;`;
 }

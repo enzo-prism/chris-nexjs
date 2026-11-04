@@ -6,6 +6,7 @@
 const HOST_SUFFIXES = [
   "googletagmanager.com",
   "google-analytics.com",
+  "analytics.google.com",
   "googletagservices.com",
   "doubleclick.net",
 ] as const;

@@ -39,6 +39,7 @@ jobs:
           git diff --exit-code -- public/llms.txt client/public/llms.txt
           pnpm run test:api
           pnpm run test:analytics
+          pnpm run test:analytics:mutants
           pnpm run test:routes
           pnpm run test:seo
           pnpm run test:design-system

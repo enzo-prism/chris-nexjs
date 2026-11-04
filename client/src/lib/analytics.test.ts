@@ -1,14 +1,5 @@
 import assert from "assert";
 import {
-  getAnalyticsConsentState,
-  hasAnalyticsConsent,
-  isAnalyticsRuntimeEnabled,
-  isAnalyticsTestHookEnabled,
-  trackGAEvent,
-  trackLeadConversion,
-  trackVercelEvent,
-} from "./analytics";
-import {
   ANALYTICS_EVENTS,
   getAnalyticsPageCategory,
   getAnalyticsPageContext,
@@ -17,6 +8,17 @@ import {
   sanitizeVercelEventProperties,
 } from "@shared/analytics";
 import { isAllowedAnalyticsHost } from "@shared/analyticsHosts";
+
+process.env.NEXT_PUBLIC_GOOGLE_ADS_ID = "AW-SYNTHETIC000";
+const {
+  getAnalyticsConsentState,
+  hasAnalyticsConsent,
+  isAnalyticsRuntimeEnabled,
+  isAnalyticsTestHookEnabled,
+  trackGAEvent,
+  trackLeadConversion,
+  trackVercelEvent,
+} = await import("./analytics");
 
 const waitForAnalyticsFlush = () => new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -217,6 +219,32 @@ assert.deepStrictEqual(
 assert.deepStrictEqual(
   leadCalls.filter((args) => args[0] === "event" && args[1] === "generate_lead"),
   [["event", "generate_lead", mainLeadProperties]],
+);
+assert.deepStrictEqual(
+  leadCalls.filter((args) => args[0] === "event" && args[1] === "conversion"),
+  [["event", "conversion", { send_to: "AW-SYNTHETIC000" }]],
+);
+
+leadCalls.length = 0;
+(globalThis as any).window.location.hostname = "localhost";
+trackLeadConversion(ANALYTICS_EVENTS.contactFormSubmit, mainLeadProperties);
+assert.deepStrictEqual(leadCalls, []);
+assert.deepStrictEqual(
+  leadCalls.filter((args) => args[0] === "event" && args[1] === "conversion"),
+  [],
+);
+(globalThis as any).window.location.hostname = "chriswongdds.com.evil.com";
+trackLeadConversion(ANALYTICS_EVENTS.contactFormSubmit, mainLeadProperties);
+assert.deepStrictEqual(leadCalls, []);
+assert.deepStrictEqual(
+  leadCalls.filter((args) => args[0] === "event" && args[1] === "conversion"),
+  [],
+);
+(globalThis as any).window.location.hostname = "evilchriswongdds.com";
+trackLeadConversion(ANALYTICS_EVENTS.contactFormSubmit, mainLeadProperties);
+assert.deepStrictEqual(
+  leadCalls.filter((args) => args[0] === "event" && args[1] === "conversion"),
+  [],
 );
 
 console.log("analytics tests passed");
