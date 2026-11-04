@@ -15,7 +15,11 @@ import {
 } from "@shared/attribution";
 import { leadAttributionSchema } from "@shared/attributionSchema";
 import { isAcceptedContactInboxBody, isContactTestPayload } from "@shared/contactRequestPolicy";
-import { getStorage } from "../../../server/storage/repository";
+import {
+  describeContactLogError,
+  persistContactMessageAfterResponse,
+  runAfterResponse,
+} from "../../../server/contactFollowUp";
 import { trackVercelServerEvent } from "../../../server/vercelAnalytics";
 import { validateJsonRequest } from "../../../server/requestPolicy";
 import { z } from "zod";
@@ -29,6 +33,22 @@ const contactPayloadSchema = insertContactMessageSchema.extend({
 });
 
 type ContactPayload = z.infer<typeof contactPayloadSchema>;
+
+class ContactInboxRejectedError extends Error {
+  readonly status: number;
+
+  constructor(status: number) {
+    super(`Contact office inbox did not accept the request (${status}).`);
+    this.name = "ContactInboxRejectedError";
+    this.status = status;
+  }
+}
+
+function contactInboxStatus(error: unknown): number | undefined {
+  if (!error || typeof error !== "object") return undefined;
+  const status = (error as { status?: unknown }).status;
+  return typeof status === "number" && Number.isFinite(status) ? status : undefined;
+}
 
 const CONTACT_SUBJECT_LABELS: Record<string, string> = {
   appointment: "Appointment Question",
@@ -83,7 +103,7 @@ const postContactToFormspree = async (
   const acknowledgement: unknown = await response.json().catch(() => null);
   if (!response.ok || !isAcceptedContactInboxBody(acknowledgement)) {
     // Never log the provider body: it can contain contact details.
-    throw new Error(`Contact office inbox did not accept the request (${response.status}).`);
+    throw new ContactInboxRejectedError(response.status);
   }
 };
 
@@ -138,19 +158,16 @@ export async function POST(request: NextRequest) {
       attribution,
     });
 
-    // Best-effort persistence — never block lead delivery on DB availability.
-    try {
-      const storage = await getStorage();
-      await storage.createContactMessage(data);
-    } catch (storageError) {
-      console.error("[contact] Failed to persist contact message:", storageError);
-    }
-
-    await trackVercelServerEvent(request, ANALYTICS_EVENTS.contactFormSubmit, {
-      form_name: "contact_form",
-      lead_type: "contact_request",
-      lead_channel: attribution?.channel ?? "unknown",
-      page_path: pagePath,
+    runAfterResponse(async () => {
+      await Promise.allSettled([
+        persistContactMessageAfterResponse(data),
+        trackVercelServerEvent(request, ANALYTICS_EVENTS.contactFormSubmit, {
+          form_name: "contact_form",
+          lead_type: "contact_request",
+          lead_channel: attribution?.channel ?? "unknown",
+          page_path: pagePath,
+        }),
+      ]);
     });
 
     return NextResponse.json({ ok: true, accepted: true }, { status: 201 });
@@ -163,7 +180,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.error("[contact] Failed to deliver contact message:", error);
+    const status = contactInboxStatus(error);
+    if (status !== undefined) {
+      console.error(
+        "[contact] Failed to deliver contact message:",
+        describeContactLogError(error),
+        status,
+      );
+    } else {
+      console.error(
+        "[contact] Failed to deliver contact message:",
+        describeContactLogError(error),
+      );
+    }
     return NextResponse.json(
       {
         message:

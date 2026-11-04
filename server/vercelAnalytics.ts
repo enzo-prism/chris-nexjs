@@ -14,7 +14,14 @@ type CapturedServerEvent = {
   readonly properties: Record<string, unknown>;
 };
 
+type TrackFn = (
+  request: NextRequest,
+  eventName: string,
+  properties?: Record<string, unknown>,
+) => Promise<void>;
+
 let capturedServerEvents: CapturedServerEvent[] | null = null;
+let trackImpl: TrackFn = trackVercelServerEventBody;
 
 export function startCapturingVercelServerEventsForTests(): void {
   capturedServerEvents = [];
@@ -24,6 +31,10 @@ export function takeVercelServerEventsForTests(): CapturedServerEvent[] {
   const events = capturedServerEvents ?? [];
   capturedServerEvents = null;
   return events;
+}
+
+export function mockTrackVercelServerEventForTests(fn: TrackFn | null): void {
+  trackImpl = fn ?? trackVercelServerEventBody;
 }
 
 export function requestHostname(request: NextRequest): string {
@@ -37,7 +48,7 @@ export function canSendVercelServerAnalytics(request: NextRequest): boolean {
   return canSendServerAnalytics(requestHostname(request), process.env);
 }
 
-export async function trackVercelServerEvent(
+async function trackVercelServerEventBody(
   request: NextRequest,
   eventName: string,
   properties: Record<string, unknown> = {},
@@ -54,13 +65,21 @@ export async function trackVercelServerEvent(
     properties,
   );
 
+  await track(sanitizedEventName, sanitizedProperties, {
+    request: {
+      headers: request.headers,
+    },
+  });
+}
+
+export async function trackVercelServerEvent(
+  request: NextRequest,
+  eventName: string,
+  properties: Record<string, unknown> = {},
+): Promise<void> {
   try {
-    await track(sanitizedEventName, sanitizedProperties, {
-      request: {
-        headers: request.headers,
-      },
-    });
+    await trackImpl(request, eventName, properties);
   } catch {
-    // Ignore analytics transport errors so request handling stays reliable.
+    // after() must not surface an unhandled rejection.
   }
 }

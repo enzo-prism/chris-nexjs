@@ -5,6 +5,7 @@ const formSource = fs.readFileSync(
   "client/src/components/forms/ContactForm.tsx",
   "utf8",
 );
+const querySource = fs.readFileSync("client/src/lib/queryClient.ts", "utf8");
 const pageSource = fs.readFileSync("client/src/pages/Contact.tsx", "utf8");
 
 assert.match(formSource, /contactFormSchema = insertContactMessageSchema\.extend/);
@@ -12,6 +13,11 @@ assert.match(formSource, /mode: "onBlur"/);
 assert.match(formSource, /role="alert"/);
 assert.match(formSource, /Your entries are still here/);
 assert.match(formSource, /The request took too long/);
+assert.match(querySource, /CONTACT_REQUEST_TIMEOUT_MS = 15_000/);
+assert.match(querySource, /new AbortController/);
+assert.match(querySource, /controller\.abort\(\)/);
+assert.match(querySource, /clearTimeout\(timeoutId\)/);
+assert.doesNotMatch(querySource, /AbortSignal\.timeout/);
 assert.match(formSource, /Try again/);
 assert.match(formSource, /aria-invalid=\{privacyError\}/);
 assert.match(formSource, /privacy policy/);

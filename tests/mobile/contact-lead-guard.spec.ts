@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type ConsoleMessage, type Page, type Request } from "@playwright/test";
 
 const GOOGLE_HOST_SUFFIXES = [
   "googletagmanager.com",
@@ -108,8 +108,47 @@ test.afterEach(async ({ page, context }) => {
   await page.unrouteAll({ behavior: "ignoreErrors" });
 });
 
+async function gotoContact(page: Page): Promise<void> {
+  const testInfo = test.info();
+  const nameField = page.getByLabel("Full name", { exact: true });
+  const failedRequests: string[] = [];
+  const consoleErrors: string[] = [];
+  const onFailed = (request: Request): void => {
+    failedRequests.push(`${request.failure()?.errorText ?? "failed"} ${request.url()}`);
+  };
+  const onConsole = (message: ConsoleMessage): void => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  };
+
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    if (attempt === 1) {
+      page.on("requestfailed", onFailed);
+      page.on("console", onConsole);
+    }
+    const started = Date.now();
+    await page.goto("https://www.chriswongdds.com/contact", { waitUntil: "domcontentloaded" });
+    try {
+      await nameField.waitFor({ state: "visible", timeout: 15_000 });
+      page.off("requestfailed", onFailed);
+      page.off("console", onConsole);
+      return;
+    } catch (error) {
+      const waitedMs = Date.now() - started;
+      page.off("requestfailed", onFailed);
+      page.off("console", onConsole);
+      if (attempt === 1) {
+        testInfo.annotations.push({
+          type: "hydration-retry",
+          description: `attempt 1 missed Full name after ${waitedMs}ms. failedRequests=${JSON.stringify(failedRequests)} consoleErrors=${JSON.stringify(consoleErrors)}`,
+        });
+      }
+      if (attempt === 2) throw error;
+    }
+  }
+}
+
 async function submitContact(page: Page): Promise<void> {
-  await page.goto("https://www.chriswongdds.com/contact", { waitUntil: "networkidle" });
+  await gotoContact(page);
   await page.getByLabel("Full name", { exact: true }).fill("Contact Example");
   await page.getByLabel("Email address", { exact: true }).fill("contact.example@example.com");
   await page.getByLabel("Phone number", { exact: true }).fill("6505550100");
@@ -212,7 +251,7 @@ test("a double click posts once and emits each lead event once", async ({ page }
       status: 201, contentType: "application/json", body: JSON.stringify({ ok: true, accepted: true }),
     });
   });
-  await page.goto("https://www.chriswongdds.com/contact", { waitUntil: "networkidle" });
+  await gotoContact(page);
   await page.getByLabel("Full name", { exact: true }).fill("Contact Example");
   await page.getByLabel("Email address", { exact: true }).fill("contact.example@example.com");
   await page.getByLabel("Phone number", { exact: true }).fill("6505550100");
@@ -237,7 +276,7 @@ test("a filled honeypot does not POST or fire generate_lead", async ({ page }) =
       status: 201, contentType: "application/json", body: JSON.stringify({ ok: true, accepted: true }),
     });
   });
-  await page.goto("https://www.chriswongdds.com/contact", { waitUntil: "networkidle" });
+  await gotoContact(page);
   await page.getByLabel("Full name", { exact: true }).fill("Contact Example");
   await page.getByLabel("Email address", { exact: true }).fill("contact.example@example.com");
   await page.getByLabel("Phone number", { exact: true }).fill("6505550100");
@@ -253,6 +292,89 @@ test("a filled honeypot does not POST or fire generate_lead", async ({ page }) =
   expect(posted, "a filled honeypot must not POST /api/contact").toBe(false);
   expect(await eventNames(page)).not.toContain("generate_lead");
   expect(await eventNames(page)).not.toContain("contact_form_submit");
+  assertGoogleHostsBlocked();
+});
+
+test("a hung contact POST times out then retry emits generate_lead once", async ({
+  page,
+}) => {
+  test.setTimeout(60_000);
+  let attempts = 0;
+  await page.route("**/api/contact", async (route) => {
+    attempts += 1;
+    if (attempts === 1) {
+      await new Promise(() => {
+        // Stay pending past the timeout copy. afterEach unrouteAll releases this.
+      });
+      return;
+    }
+    await route.fulfill({
+      status: 201, contentType: "application/json", body: JSON.stringify({ ok: true, accepted: true }),
+    });
+  });
+  await submitContact(page);
+  const errorAlert = page.getByRole("alert").filter({ hasText: /we could not send your message/i });
+  await expect(errorAlert).toBeVisible({ timeout: 25_000 });
+  await expect(errorAlert).toContainText(/the request took too long/i);
+  expect(await eventNames(page)).not.toContain("generate_lead");
+  expect(await eventNames(page)).not.toContain("contact_form_submit");
+  // Drop the hanging route so later specs (and the retry) are independent of it.
+  await page.unroute("**/api/contact");
+  await page.route("**/api/contact", async (route) => {
+    attempts += 1;
+    await route.fulfill({
+      status: 201, contentType: "application/json", body: JSON.stringify({ ok: true, accepted: true }),
+    });
+  });
+  await page.getByRole("button", { name: "Try again", exact: true }).click();
+  await expect(page).toHaveURL(/\/thank-you$/);
+  expect(attempts).toBe(2);
+  const names = await eventNames(page);
+  expect(names.filter((name) => name === "generate_lead")).toHaveLength(1);
+  expect(names.filter((name) => name === "contact_form_submit")).toHaveLength(1);
+  assertGoogleHostsBlocked();
+});
+
+test("a slow first contact form chunk is annotated on retry", async ({ page }, testInfo) => {
+  test.setTimeout(60_000);
+  let delayedUrl: string | undefined;
+  await page.route("**/_next/static/**", async (route) => {
+    const url = route.request().url();
+    if (!delayedUrl && /\/_next\/static\/chunks\/app\/contact\//i.test(url)) {
+      delayedUrl = url;
+      await new Promise((resolve) => setTimeout(resolve, 20_000));
+    }
+    await route.fallback();
+  });
+  await gotoContact(page);
+  const retry = testInfo.annotations.find((annotation) => annotation.type === "hydration-retry");
+  expect(
+    retry,
+    `20s first-load contact page chunk delay must be annotated, not hidden. delayed=${delayedUrl ?? "none"}`,
+  ).toBeTruthy();
+  expect(retry?.description ?? "").toMatch(/attempt 1 missed Full name after 1[5-9]\d{3}ms/);
+});
+
+test("contact submit still works when AbortSignal.timeout is missing", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    const signal = AbortSignal as typeof AbortSignal & { timeout?: unknown };
+    delete signal.timeout;
+  });
+  let posts = 0;
+  await page.route("**/api/contact", async (route) => {
+    posts += 1;
+    await route.fulfill({
+      status: 201, contentType: "application/json", body: JSON.stringify({ ok: true, accepted: true }),
+    });
+  });
+  await submitContact(page);
+  await expect(page).toHaveURL(/\/thank-you$/);
+  expect(posts, "old browsers must still POST /api/contact").toBe(1);
+  const names = await eventNames(page);
+  expect(names.filter((name) => name === "generate_lead")).toHaveLength(1);
+  expect(names.filter((name) => name === "contact_form_submit")).toHaveLength(1);
   assertGoogleHostsBlocked();
 });
 
@@ -289,7 +411,7 @@ test("a validation error does not fire generate_lead", async ({ page }) => {
     posted = true;
     await route.abort();
   });
-  await page.goto("https://www.chriswongdds.com/contact", { waitUntil: "networkidle" });
+  await gotoContact(page);
   await page.getByRole("button", { name: "Send message", exact: true }).click();
   await expect(
     page.getByRole("alert").filter({ hasText: /please review the highlighted fields/i }),
