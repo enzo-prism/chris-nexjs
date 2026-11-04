@@ -23,6 +23,11 @@ const nextConfig = {
         hostname: "res.cloudinary.com",
         pathname: "/dhqpqfw6w/**",
       },
+      {
+        protocol: "https",
+        hostname: "ocq09yvkilexm759.public.blob.vercel-storage.com",
+        pathname: "/videos/invisalign/**",
+      },
     ],
   },
   poweredByHeader: false,

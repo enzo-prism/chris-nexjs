@@ -48,13 +48,15 @@ function FilePlayer({
       tabIndex={0}
     >
       <source src={video.src} type="video/mp4" />
-      <track
-        kind="captions"
-        srcLang="en"
-        label="English"
-        src={video.captions}
-        default
-      />
+      {video.captions ? (
+        <track
+          kind="captions"
+          srcLang="en"
+          label="English"
+          src={video.captions}
+          default
+        />
+      ) : null}
     </video>
   );
 }
@@ -123,7 +125,8 @@ export function InvisalignMediaVideo({
     }
     const player = videoRef.current;
     player?.focus();
-    void player?.play();
+    // If autoplay is blocked, the native controls still let the visitor play.
+    void player?.play().catch(() => {});
   }, [active, video.kind]);
 
   return (

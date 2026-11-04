@@ -12,6 +12,7 @@ import { FeatureGrid, type Feature } from "@/components/services/FeatureList";
 import { PhotoBadge, ServicePhoto } from "@/components/services/ServicePhoto";
 import { StepList } from "@/components/services/StepList";
 import ScheduleRequestFunnel from "@/components/sections/ScheduleRequestFunnel";
+import ConsultMediaSlot from "@/pages/invisalignConsultMedia.slot";
 import { INVISALIGN_CONSULT_FORM_NAME } from "@/lib/appointmentLead";
 import { officeInfo } from "@/lib/data";
 import {
@@ -206,7 +207,7 @@ const InvisalignConsult = ({ reviewPreview = false }: { readonly reviewPreview?:
         <StepList steps={visitSteps} columns={4} className="mt-10" />
       </Section>
 
-      {/* Media band stays unimported until approved assets land. */}
+      <ConsultMediaSlot />
 
       <CostPanel
         id="invisalign-cost"

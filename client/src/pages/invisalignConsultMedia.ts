@@ -5,12 +5,13 @@ import {
 
 export const CLOUDINARY_HOST = "res.cloudinary.com";
 export const CLOUDINARY_CLOUD = "dhqpqfw6w";
+export const INVISALIGN_BLOB_HOST = "ocq09yvkilexm759.public.blob.vercel-storage.com";
 
 type CloudinaryMediaSrc = `https://${typeof CLOUDINARY_HOST}/${typeof CLOUDINARY_CLOUD}/${string}`;
 
-export type ProductionMediaSrc = `/${string}` | CloudinaryMediaSrc;
-
-type AllowlistedHttpsSrc = CloudinaryMediaSrc;
+type InvisalignBlobMediaSrc = `https://${typeof INVISALIGN_BLOB_HOST}/videos/invisalign/${string}`;
+type AllowlistedHttpsSrc = CloudinaryMediaSrc | InvisalignBlobMediaSrc;
+export type ProductionMediaSrc = `/${string}` | AllowlistedHttpsSrc;
 
 export type RejectUnsafeProductionSrc<T extends string> = T extends
   | `${string}\\${string}`
@@ -39,9 +40,11 @@ export type MediaFileVideo = {
   readonly title: string;
   readonly src: ProductionMediaSrc;
   readonly poster: ProductionMediaSrc;
-  readonly captions: ProductionMediaSrc;
   readonly durationLabel: string;
-};
+} & (
+  | { readonly captions: ProductionMediaSrc; readonly captionsBuiltIn?: never }
+  | { readonly captionsBuiltIn: true; readonly captions?: never }
+);
 
 export type MediaEmbedVideo = {
   readonly kind: "embed";
@@ -97,7 +100,7 @@ const SITE_HOSTNAME = new URL(SITE_ORIGIN).hostname;
 const YOUTUBE_PRIVACY_HOST = "www.youtube-nocookie.com";
 const VIMEO_PRIVACY_HOST = "player.vimeo.com";
 
-export const PRODUCTION_MEDIA_HOSTS = [CLOUDINARY_HOST] as const;
+export const PRODUCTION_MEDIA_HOSTS = [CLOUDINARY_HOST, INVISALIGN_BLOB_HOST] as const;
 
 const PRODUCTION_MEDIA_HOST_SET: ReadonlySet<string> = new Set(
   PRODUCTION_MEDIA_HOSTS,
@@ -206,6 +209,9 @@ export function parseTrustedMediaUrl(src: string, label: string): URL {
     throw new Error(`${label} must use an allowlisted host`);
   }
   assertCloudinaryCloud(url, label);
+  if (url.hostname === INVISALIGN_BLOB_HOST && !url.pathname.startsWith("/videos/invisalign/")) {
+    throw new Error(`${label} must use the practice Invisalign media directory`);
+  }
   return url;
 }
 
@@ -272,11 +278,12 @@ export function assertProductionVideo(
 
   switch (video.kind) {
     case "file": {
+      assertProductionSrc(video.src, `${label} file`);
+      assertProductionSrc(video.poster, `${label} poster`);
+      if (video.captionsBuiltIn === true) return;
       if (typeof video.captions !== "string" || !video.captions.trim()) {
         throw new Error(`${label} is missing an English captions track`);
       }
-      assertProductionSrc(video.src, `${label} file`);
-      assertProductionSrc(video.poster, `${label} poster`);
       assertProductionSrc(video.captions, `${label} captions`);
       return;
     }
@@ -368,7 +375,7 @@ export function videoHasAvailableCaptions(video: RenderableVideo): boolean {
       if (isFixtureVideo(video)) {
         return Boolean(video.captions.trim());
       }
-      return isAllowlistedMediaUrl(video.captions);
+      return video.captionsBuiltIn === true || isAllowlistedMediaUrl(video.captions);
     default: {
       const _exhaustive: never = video;
       return _exhaustive;

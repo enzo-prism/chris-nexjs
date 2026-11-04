@@ -13,6 +13,46 @@ async function waitForMediaHeading(page: Page): Promise<void> {
   ).toBeVisible();
 }
 
+test("the consultation video only requests the full captioned file after play", async ({
+  page,
+}) => {
+  const videoPath = "/videos/invisalign/oral-health-captioned.mp4";
+  const mediaRequests: string[] = [];
+  page.on("request", (request) => {
+    const pathname = new URL(request.url()).pathname;
+    if (pathname === videoPath) mediaRequests.push(pathname);
+  });
+
+  await page.goto("/invisalign-consult");
+  const play = page.getByRole("button", {
+    name: "Play video: Invisalign and oral health (3:20, captions available)",
+  });
+  await play.scrollIntoViewIfNeeded();
+  await expect(play).toBeVisible();
+  const poster = page.locator("#invisalign-media img");
+  await expect
+    .poll(() => poster.evaluate((image: HTMLImageElement) => image.naturalWidth))
+    .toBeGreaterThan(0);
+  await expect(page.locator("#invisalign-media video")).toHaveCount(0);
+  expect(mediaRequests).toEqual([]);
+
+  const response = page.waitForResponse(
+    (result) => new URL(result.url()).pathname === videoPath && result.ok(),
+  );
+  await play.press("Enter");
+  await response;
+
+  const video = page.locator("#invisalign-media video");
+  await expect(video).toBeFocused();
+  await expect
+    .poll(() => video.evaluate((element: HTMLVideoElement) => element.currentTime))
+    .toBeGreaterThan(0);
+  expect(await video.evaluate((element: HTMLVideoElement) => element.duration)).toBeCloseTo(
+    199.625,
+    1,
+  );
+});
+
 test("file facade stays lazy and mounts English captions after click", async ({
   page,
 }) => {
