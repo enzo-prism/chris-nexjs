@@ -1,3 +1,4 @@
+import { PatientDecisionGuides } from "@/components/common/PatientDecisionGuides";
 import StructuredData from "@/components/seo/StructuredData";
 import { CtaBand } from "@/components/ds/CtaBand";
 import { FaqList } from "@/components/ds/FaqList";
@@ -51,6 +52,7 @@ const Home = () => {
       <CurrentPatientStrip />
       <ReviewRibbon />
       <CareFinder />
+      <PatientDecisionGuides id="home-decision-guides" />
       <StorySection />
       <TeamSection />
       <FeaturedQuote />

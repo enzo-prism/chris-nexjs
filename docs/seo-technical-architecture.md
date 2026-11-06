@@ -131,6 +131,29 @@ Builders live in `client/src/lib/structuredData.ts`; pages emit them through
 
 ## Automated SEO gates
 
+### Source provenance and article dates (2026-11-06)
+
+`shared/clinicalResources.ts` owns the small, explicit primary-source mapping.
+`ClinicalSources` renders it as visible reading links, and sourced articles
+also expose their URLs as `BlogPosting.citation`. Sources do not imply a new
+licensed clinical review or authorship by the linked organization.
+
+Original publication dates remain in storage. `articleUpdatedDate` supplies
+the actual editorial modification date only for the seven articles changed
+in this release. Blog HTML, schema, Open Graph and sitemap share that helper;
+schema/OG timestamps use the existing Pacific-time conversion. Existing
+service `lastReviewed` dates remain unchanged. New clinical-review dates
+require actual reviewer confirmation.
+
+`PatientDecisionGuides` adds plain, server-rendered links from the homepage
+and services hub without a new client data fetch or image payload.
+
+### Focused checks
+
+- `pnpm run test:seo:aeo`: source attribution, honest publication/modification dates, SSR links, and fetch-readiness failure cases.
+- `SEO_AUDIT_BASE_URL=http://127.0.0.1:3240 pnpm run test:seo:browser`: phone/desktop rendering, no-JavaScript guide links, visible FAQ/schema parity, cost CTAs, and source/date presentation against an already-running production build.
+- `SEO_AUDIT_BASE_URL=https://www.chriswongdds.com pnpm --silent run seo:indexing > readiness.csv`: timestamped HTTP/HTML readiness for eleven priority pages and three bot user-agent strings. This is a transport/content diagnostic, not an authenticated Google crawl or a GSC inspection. Google index state is emitted as `NOT_CHECKED` rather than inferred.
+
 - Static regression:
   - `pnpm run test:seo`
   - rejects `robots` configs that reintroduce `crawlDelay`

@@ -50,7 +50,10 @@
     "reviews:audit": "node scripts/reviews-audit.mjs",
     "test:reviews": "node scripts/reviews-audit.mjs --assert && tsx scripts/homepage-proof.test.ts && tsx --tsconfig scripts/tsconfig.reviews-render.json --test scripts/google-place-reviews.test.ts scripts/review-count-surfaces.test.tsx",
     "test:mobile": "playwright test",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "test:seo:aeo": "tsx --test scripts/seo-aeo.test.ts",
+    "seo:indexing": "tsx scripts/indexing-readiness.ts",
+    "test:seo:browser": "playwright test -c playwright.seo.config.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

@@ -77,6 +77,9 @@ Use this file as the central index for project documentation.
 
 ## SEO documentation
 
+- `release-2026-11-06-seo-aeo.md`
+  November audit implementation, source/date provenance, indexing-readiness diagnostics, validation, and outstanding practice/Google dependencies.
+
 - `seo-technical-architecture.md`
   Technical SEO architecture, crawl surfaces, metadata rules, and release checks.
 - `seo-growth-plan.md`  

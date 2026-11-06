@@ -8,6 +8,15 @@ Operational guide for GA4, Vercel Web Analytics, and custom lead-funnel events.
 - Vercel Web Analytics is installed for page views on Vercel plus a small set of custom events.
 - The retired `/analytics` and `/ga-test` routes return `404` and are excluded from analytics collection.
 
+## November 6 audit interpretation and clean baseline
+
+- The existing hostname guard in `shared/analyticsHosts.ts` permits the apex and `www` production hosts and blocks localhost and Vercel preview collection. This release preserves that fix rather than adding a second tracking system.
+- Filter historical GA4 reports to production hostnames (`www.chriswongdds.com`, `chriswongdds.com`) and report the hostname definition. The August 5–November 4, 2026 export contained 919 localhost sessions, one preview session, and 1,214 production-host sessions. Do not use the unfiltered total as patient demand.
+- Historical `generate_lead` included a GA4 contact-page-view rule and is not an accepted-request baseline. Review event configuration and separate pre/post-correction windows before attributing conversion changes to this release.
+- `schedule_submit_success`, `appointment_request_submit`, and the associated `generate_lead` can describe the same accepted submission. Choose one canonical request count; never add them together. `phone_call_click` is a tap, not an answered call or a booked visit.
+- Reconcile accepted requests with booked/attended outcomes through the existing office workflow. Keep patient identity and clinical details out of analytics. The software tests do not prove office bookings, calls answered, or vendor ingestion.
+- For the same comparison windows, use production organic sessions, GSC query/page clicks, accepted requests and office outcomes as separate measures. GSC AI impressions and GA4 ChatGPT/Gemini referrals have different attribution and denominators.
+
 ## Privacy model
 
 - There is no consent pop-up. Analytics storage defaults to granted unless the visitor has stored an explicit denial. Advertising storage, advertising user data, and advertising personalization default to denied because the site has no advertising-consent UI.
@@ -167,9 +176,9 @@ pnpm run test:seo:all
 Preview or production checks:
 
 1. Confirm the GA bootstrap sets `analytics_storage` from stored consent while all advertising consent fields default to `denied`.
-2. Verify GA4 receives a manual `page_view` on load and on route change when analytics consent is not denied.
-3. Confirm Vercel Web Analytics injects `/_vercel/insights/script.js` after hydration.
-4. Trigger and verify custom events:
+2. On a permitted production hostname, verify GA4 receives a manual `page_view` on load and on route change when analytics consent is not denied. Localhost and preview hosts must remain silent.
+3. On production, confirm Vercel Web Analytics injects `/_vercel/insights/script.js` after hydration; previews/local development must not collect.
+4. Verify custom events using intercepted browser tests or bona fide production workflows; do not submit synthetic inquiries to the live practice:
    - phone click
    - email click
    - appointment CTA click

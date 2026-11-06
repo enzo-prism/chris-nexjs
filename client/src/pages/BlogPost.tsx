@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CalendarDays, Check, Clock, ListOrdered, Phone } from "lucide-react";
+import { articleUpdatedDate, resourcesForArticle } from "@shared/clinicalResources";
+import { ClinicalSources } from "@/components/services/ClinicalSources";
 import { getBlogSeoMetadata } from "@shared/blogSeo";
 import { resolveBlogImagePath } from "@shared/blogArt";
 import type { BlogPost as BlogPostRecord } from "@shared/schema";
@@ -356,6 +358,9 @@ const BlogPost = ({ params, initialPosts = [] }: BlogPostPageProps) => {
   const pageUrl = absoluteUrl(`/blog/${slug}`);
   const resolvedBlogImage = resolveBlogImagePath(post);
   const dateFields = blogPostingDateFields(post.date);
+  const updatedDate = articleUpdatedDate(post.slug, post.date);
+  const updatedIsoDate = blogPostingDateFields(updatedDate);
+  const resources = resourcesForArticle(post.slug);
   const postIsoDate = "datePublished" in dateFields ? dateFields.datePublished : undefined;
   const blogSchema: StructuredDataNode = {
     "@context": "https://schema.org",
@@ -364,6 +369,8 @@ const BlogPost = ({ params, initialPosts = [] }: BlogPostPageProps) => {
     description: pageDescription,
     image: absoluteUrl(resolvedBlogImage ?? blogOgImage ?? "/images/dr_wong_polaroids.png"),
     ...dateFields,
+    ...("dateModified" in updatedIsoDate ? { dateModified: updatedIsoDate.dateModified } : {}),
+    ...(resources.length ? { citation: resources.map((resource) => resource.url) } : {}),
     author: {
       "@type": "Organization",
       name: "Christopher B. Wong, DDS",
@@ -492,8 +499,11 @@ const BlogPost = ({ params, initialPosts = [] }: BlogPostPageProps) => {
                 </span>
                 <span className="flex items-center gap-1.5">
                   <CalendarDays className="h-4 w-4 text-evergreen-600" aria-hidden="true" />
-                  <time dateTime={postIsoDate ?? undefined}>{post.date}</time>
+                  <span>Published <time dateTime={postIsoDate ?? undefined}>{post.date}</time></span>
                 </span>
+                {updatedDate !== post.date && resources.length ? (
+                  <span>Updated <time dateTime={updatedDate}>November 6, 2026</time></span>
+                ) : null}
                 {post.readTime ? (
                   <span className="flex items-center gap-1.5">
                     <Clock className="h-4 w-4 text-evergreen-600" aria-hidden="true" />
@@ -568,6 +578,7 @@ const BlogPost = ({ params, initialPosts = [] }: BlogPostPageProps) => {
                   ) : null}
                 </section>
 
+                <ClinicalSources resources={resources} />
                 <AuthorBox className="mt-10" />
 
                 <div className="mt-10 lg:hidden">{askCard}</div>

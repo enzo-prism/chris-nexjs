@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ArrowRight, Clock, MapPin, Phone, ShieldCheck, TriangleAlert, Users } from "lucide-react";
 
+import { clinicalResources } from "@shared/clinicalResources";
+import { ClinicalSources } from "@/components/services/ClinicalSources";
 import StructuredData from "@/components/seo/StructuredData";
 import FAQSection from "@/components/common/FAQSection";
 import OfficeHoursSummary from "@/components/common/OfficeHoursSummary";
@@ -39,6 +41,14 @@ const ENTRANCE_IMAGE = "/images/redesign/office-entrance-dr-wong.webp";
 
 const emergencyFaqs: FAQEntry[] = [
   {
+    question: "Does an online request confirm a same-day emergency appointment?",
+    answer: `No. An online form sends a request; the office must confirm the visit time. For urgent dental care, call ${officeInfo.phone} first. Same-day appointments depend on availability. Do not wait for an online reply if you have uncontrolled bleeding, trouble breathing, or rapidly worsening facial swelling; seek emergency medical care right away.`,
+  },
+  {
+    question: "How can I check your hours and emergency exam fee?",
+    answer: `Our Palo Alto office sees patients by appointment during its published office hours. Call ${officeInfo.phone} to confirm availability and the current examination fee. Treatment costs depend on the findings and are discussed before treatment. If the office is closed, do not assume an online request provides immediate care.`,
+  },
+  {
     question: "What counts as a dental emergency?",
     answer:
       "A dental emergency is any problem that causes significant pain, bleeding, swelling, or risk of losing a tooth. Examples include severe toothaches, a knocked‑out tooth, a broken tooth, facial swelling from infection, or trauma to the mouth. If you’re unsure, it’s always safer to call and ask.",
@@ -53,7 +63,7 @@ const emergencyFaqs: FAQEntry[] = [
       "We prioritize urgent cases and often can see patients the same day. The sooner you contact us, the more likely we can reserve a time to diagnose the issue and relieve pain quickly.",
   },
   {
-    question: "What should I do if I knock out a tooth?",
+    question: "What should I do if I knock out a permanent tooth?",
     answer:
       "Handle the tooth by the crown (not the root), gently rinse it if dirty, and keep it moist—either in milk or against your cheek. Time matters, so seek care right away. Prompt treatment can sometimes save the tooth.",
   },
@@ -93,7 +103,7 @@ const firstAid: readonly FirstAidItem[] = [
   },
   {
     id: "knocked-out-tooth",
-    title: "Knocked-out tooth",
+    title: "Knocked-out permanent tooth",
     icon: "tooth",
     urgency: "Time matters",
     signs: "A tooth fully out of its socket after trauma, with bleeding and pain.",
@@ -275,6 +285,7 @@ const EmergencyDental = () => {
           items={firstAid.map((item) => ({ href: `#${item.id}`, label: item.title }))}
         />
         <FirstAidGrid items={firstAid} className="mt-6" />
+        <ClinicalSources resources={[clinicalResources.emergencies]} />
         <p className="mt-6 rounded-[1.5rem] border border-cream-300/80 bg-cream-50 px-5 py-4 text-[15px] leading-6 text-ink-soft">
           <strong className="font-semibold text-ink">Call us right away</strong> for severe pain, a knocked-out or
           broken tooth, swelling, or a lost crown. If you’re unsure, it’s always safer to{" "}
@@ -388,7 +399,14 @@ const EmergencyDental = () => {
         coverage="Many PPO plans help cover emergency evaluations."
         scheduleHref={SCHEDULE_HREF}
         analyticsContext="emergency-cost"
-      />
+      >
+        <p className="mt-3 text-[15px] leading-7 text-ink-soft">
+          Call <a href={`tel:${officeInfo.phoneE164}`} className="link-rooted"
+          data-analytics-context="emergency-exam-fee-call">{officeInfo.phone}</a> to ask about the current
+          examination fee and available appointment times. An examination estimate and the cost of any treatment
+          are separate questions; ask what imaging or follow-up your plan may need.
+        </p>
+      </CostPanel>
 
       <ServiceReviews
         tags={["emergency", "gentle"]}

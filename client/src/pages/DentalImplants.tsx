@@ -1,5 +1,7 @@
 import { Award, CalendarCheck, Clock, Heart, ScanLine, Shield, ShieldCheck, Smile, Stethoscope, Users } from "lucide-react";
 
+import { clinicalResources } from "@shared/clinicalResources";
+import { ClinicalSources } from "@/components/services/ClinicalSources";
 import StructuredData from "@/components/seo/StructuredData";
 import FAQSection from "@/components/common/FAQSection";
 import RelatedServices, { type RelatedServiceLink } from "@/components/common/RelatedServices";
@@ -154,6 +156,16 @@ const costFactors = [
 ] as const;
 
 const faqs: FAQEntry[] = [
+  {
+    question: "Who places the implant and who restores my tooth?",
+    answer:
+      "Dr. Wong plans your implant treatment and restores the final crown at our Palo Alto office. Trusted surgical partners perform implant placement. Your plan should identify the surgical provider, the restoration steps, and follow-up responsibilities before treatment begins.",
+  },
+  {
+    question: "What costs should I compare in an implant treatment plan?",
+    answer:
+      "Ask for the full plan, including the examination and imaging, any grafting, surgical placement, the abutment and final crown, and follow-up. Confirm which fees come from our office and which come from the surgical partner. PPO benefits and your portion depend on the procedures and your individual plan.",
+  },
   {
     question: "Is the dental implant procedure painful?",
     answer:
@@ -427,7 +439,13 @@ const DentalImplants = () => {
         coverage="Implant benefits vary widely from plan to plan."
         scheduleHref={SCHEDULE_HREF}
         analyticsContext="implants-cost"
-      />
+      >
+        <p className="mt-3 text-[15px] leading-7 text-ink-soft">
+          Compare the complete plan, not just a price for an implant post. Ask which office provides each step,
+          whether imaging or grafting is needed, and how the surgical, abutment, crown, and follow-up fees fit together.
+        </p>
+        <ClinicalSources resources={[clinicalResources.implants]} />
+      </CostPanel>
 
       <ServiceReviews
         tags={["gentle", "honest"]}

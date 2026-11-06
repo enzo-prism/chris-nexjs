@@ -2,6 +2,23 @@
 
 Current technical and editorial SEO work for `chris-nexjs`.
 
+## Completed November 6, 2026
+
+- Added server-rendered patient decision guides on the homepage and services hub, linking directly to existing articles and their canonical service pages.
+- Clarified Invisalign fee questions, emergency request/fee expectations, and implant placement/restoration responsibilities with matching visible FAQ answers and JSON-LD.
+- Added visible primary-source reading lists to three service pages and seven existing articles. Preserved original publication dates and existing clinical-review provenance; actual editorial modification dates agree across article HTML, JSON-LD, Open Graph, and blog sitemap.
+- Added a repeatable fetch-readiness CSV for eleven priority URLs and three crawler user agents. It explicitly does not claim Google indexing or actual bot access.
+- Added AEO/date/source regressions and phone/desktop browser checks. See `release-2026-11-06-seo-aeo.md` for validation and release evidence.
+- Corrected the route inventory and shifted the operating plan from a fixed publication quota to improving and measuring existing high-intent pages first.
+
+### Remaining dependencies after this release
+
+1. Google: run actual GSC live inspections and selectively request indexing for excluded priority URLs, then record recrawl/selected-canonical changes. Fetch readiness is already testable; index selection remains Google's decision.
+2. Practice: approve exact consultation/emergency fees and inclusions, after-hours instructions, real case details with permissions, and any new clinician review. No estimates or review attestations were invented for this release.
+3. Operations: confirm GBP tagged website/appointment links, resolve Apple listing access, and maintain accurate entity details. Existing Apple access was blocked at login; this release does not claim the listing was corrected.
+4. Outcomes: reconcile accepted requests with booked and attended visits in the existing office workflow. Never upload patient fields to GA4 or count several events from one submission as several leads.
+5. Authority: obtain accurate local/professional citations through existing relationships. The limited GSC links report is not a complete backlink inventory; outreach/publication remains a separate authorized workflow.
+
 ## Completed July 15, 2026
 
 - Consolidated seven thin city pages into `/locations` with permanent one-hop redirects.
@@ -72,7 +89,7 @@ lockstep; `LASTMOD_OVERRIDES` bumped for touched Aug 12 routes; Invisalign /
    - Prioritize pages with strong impressions but weak click-through or conversion.
 
 5. Improve conversion evidence.
-   - Measure calls, contact submissions, and scheduling completions by landing page.
+   - Measure phone-link clicks, accepted requests, and confirmed office outcomes separately by landing page.
    - Test high-impact CTA and reassurance changes one at a time.
    - Do not send form fields or patient details to analytics platforms.
 
@@ -80,7 +97,9 @@ lockstep; `LASTMOD_OVERRIDES` bumped for touched Aug 12 routes; Invisalign /
 
 ```bash
 pnpm run check
+pnpm run test:api
 pnpm run test:routes
+pnpm run test:seo:aeo
 pnpm run test:seo:all
 SEO_AUDIT_BASE_URL=https://www.chriswongdds.com pnpm run test:seo:all
 ```

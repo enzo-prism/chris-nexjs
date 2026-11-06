@@ -9,6 +9,8 @@ import {
   buildExcerpt,
   NOINDEX_ROBOTS,
 } from "@shared/seo";
+import { articleUpdatedDate } from "@shared/clinicalResources";
+import { toPacificDateTime } from "@shared/isoDateTime";
 import { getBlogSeoMetadata } from "@shared/blogSeo";
 import LegacyShell from "./legacy-shell";
 
@@ -94,7 +96,7 @@ export async function generateMetadata({
           description: excerpt,
           images: [shareImage],
           publishedTime: published,
-          modifiedTime: published,
+          modifiedTime: toPacificDateTime(articleUpdatedDate(post.slug, post.date)) ?? published,
           authors: ["Christopher B. Wong, DDS"],
           siteName: "Christopher B. Wong, DDS",
         },

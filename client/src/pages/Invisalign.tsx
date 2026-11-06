@@ -10,6 +10,8 @@ import {
   UtensilsCrossed,
 } from "lucide-react";
 
+import { clinicalResources } from "@shared/clinicalResources";
+import { ClinicalSources } from "@/components/services/ClinicalSources";
 import StructuredData from "@/components/seo/StructuredData";
 import FAQSection from "@/components/common/FAQSection";
 import RelatedServices, { type RelatedServiceLink } from "@/components/common/RelatedServices";
@@ -50,6 +52,16 @@ const SCHEDULE_HREF = "/schedule?intent=invisalign&source=invisalign-page#appoin
 const HERO_IMAGE = "/images/redesign/jamal-itero-scan.webp";
 
 const invisalignFaqs: FAQEntry[] = [
+  {
+    question: "What happens at an Invisalign consultation with Dr. Wong?",
+    answer:
+      "At our Palo Alto office, Dr. Wong evaluates your teeth, gums, and bite, discusses your goals, and uses a digital scan to plan suitable treatment. You can review expected timing, attachments or refinements, retainers, and a written treatment estimate before deciding. Call the front desk to confirm the current consultation fee and what to bring.",
+  },
+  {
+    question: "Are refinements and retainers included in my Invisalign fee?",
+    answer:
+      "Ask us to confirm the inclusions in your individual written estimate. Review aligners, checkups, any refinement aligners, retainers, and replacement costs before starting. Do not assume that another provider’s advertised package or insurance estimate applies to your plan here.",
+  },
   {
     question: "How long does Invisalign treatment take?",
     answer:
@@ -544,6 +556,13 @@ const Invisalign = () => {
         analyticsContext="invisalign-cost"
       >
         <div className="mt-3 space-y-3">
+          <p className="text-[15px] leading-7 text-ink-soft">
+            Before you start, confirm which aligners, check-ins, refinements, and retainers your written estimate
+            includes. For the current consultation fee, <a href={`tel:${officeInfo.phoneE164}`} className="link-rooted"
+            data-analytics-context="invisalign-fee-call">call {officeInfo.phone}</a>. We check PPO benefits as an
+            out-of-network office; orthodontic coverage depends on your particular plan.
+          </p>
+          <ClinicalSources resources={[clinicalResources.invisalignCost]} />
           <Disclosure title="Your consultation checklist">
             <DotList items={[...consultationChecklist]} />
           </Disclosure>

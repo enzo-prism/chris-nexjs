@@ -4,6 +4,7 @@ import { ArrowRight, ClipboardList, ScanLine, Sprout } from "lucide-react";
 
 import type { Service } from "@shared/schema";
 import { GoogleReviewProof } from "@/components/reviews/GoogleReviewProof";
+import { PatientDecisionGuides } from "@/components/common/PatientDecisionGuides";
 import StructuredData from "@/components/seo/StructuredData";
 import FAQSection from "@/components/common/FAQSection";
 import ServiceCard from "@/components/common/ServiceCard";
@@ -316,6 +317,7 @@ const Services = (_props: ServicesProps) => {
         items={servicesFaqs}
       />
 
+      <PatientDecisionGuides id="services-decision-guides" />
       <KeepReading className="pt-12 sm:pt-16" />
 
       <ServicesCtaBand />

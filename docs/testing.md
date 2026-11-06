@@ -6,7 +6,7 @@ Command reference for contract, UI, SEO, and performance checks.
 
 - Use `pnpm run test:production` for a one-command baseline gate.
 - Run `pnpm audit --prod --audit-level=high` for the production dependency gate.
-- CI also runs the 34-test mobile browser suite plus focused mobile-source,
+- CI also runs the mobile browser suite plus focused mobile-source,
   contact-UX, OG metadata, gallery, and review-data guards.
 - Add `test:gallery` and perf checks when affected surfaces change.
 - Run `pnpm run test:gallery` whenever media inventory or gallery behavior changes.
@@ -75,6 +75,13 @@ Command reference for contract, UI, SEO, and performance checks.
     reviewer, and "named in N+ reviews" counts must not overstate.
 
 ### SEO checks
+
+- `pnpm run test:seo:aeo`
+  - Verifies source links, SSR decision-guide links, publication/modification-date consistency, and fetch-readiness rejection cases.
+- `SEO_AUDIT_BASE_URL=http://127.0.0.1:3240 pnpm run test:seo:browser`
+  - Uses an already-running build for phone/desktop checks of guide links without JavaScript, FAQ/schema parity, source/date presentation, cost CTAs, and horizontal overflow. Inquiry and acquisition-telemetry endpoints are blocked; no live form submission is required.
+- `SEO_AUDIT_BASE_URL=https://www.chriswongdds.com pnpm --silent run seo:indexing > readiness.csv`
+  - Emits a timestamped fetch-readiness ledger, explicitly leaving Google index state unchecked. It cannot replace Search Console URL Inspection.
 
 - `pnpm run test:seo`
   - Static SEO regression checks.

@@ -1,3 +1,4 @@
+import { articleUpdatedDate } from "@shared/clinicalResources";
 import { seoByPath, type SeoDefinition } from "@shared/seo";
 import { getStorage } from "../server/storage/repository";
 
@@ -76,7 +77,7 @@ export async function getSegmentEntries(
   const blogPosts = await storage.getBlogPosts();
   const postEntries: SitemapXmlEntry[] = blogPosts.map((post) => ({
     url: `${CANONICAL_BASE}/blog/${post.slug}`,
-    lastmod: toIsoDate(post.date),
+    lastmod: toIsoDate(articleUpdatedDate(post.slug, post.date)),
   }));
   return [...entries, ...postEntries];
 }

@@ -2,11 +2,15 @@
 
 Operational SEO plan for sustained local lead growth while preserving technical quality.
 
-## Current baseline snapshot
+## Current baseline snapshot (2026-11-06)
 
 - Canonical SEO definitions: `46`
-- Indexable routes: `35`
-- Noindex or retired routes: `11`
+- Indexable static routes: `31`, plus `29` blog articles: `60` sitemap URLs
+- Noindex or retired definitions: `15`
+  - `/changelog`
+  - `/invisalign-consult` (deliberate campaign landing page)
+  - `/invisalign/resources`
+  - `/zoom-whitening`
   - `/zoom-whitening/schedule`
   - `/thank-you`
   - `/analytics`
@@ -26,11 +30,14 @@ Sunnyvale, Cupertino, Redwood City, Redwood Shores, and Atherton. Menlo Park,
 Stanford, and Mountain View remain **indexable** nearby-city pages — they are
 not part of that retired set.
 
-## 90-day growth targets
+## Measurement and 90-day priorities
 
-1. Increase non-brand local organic clicks by 25%.
-2. Increase CTR on priority service/location pages by 15%.
-3. Increase organic conversions (calls + forms) by 20%.
+1. Improve discovery and indexing of existing, useful service pages before expanding article volume. The October 22 Search Console snapshot reported 18 indexed URLs and 52 excluded URLs; exclusions include legitimate redirects and are not all defects.
+2. Track non-brand clicks and query/page CTR for emergency dentistry, Invisalign, implants, veneers, and crowns. Compare consistent windows; page-level averages mix queries and positions.
+3. Measure production-host organic sessions, accepted requests, and office-confirmed booked/attended visits separately. A phone-link click is an intent signal; a request is not a booking. Do not sum diagnostic schedule success events and `appointment_request_submit` as separate leads.
+4. Establish a clean post-hostname-guard baseline. The August 5–November 4 export contained 919 localhost sessions and one preview session alongside 1,214 production-host sessions; unfiltered historical GA4 totals and the historical contact-page-view `generate_lead` rule cannot support conversion-lift claims.
+
+These are priorities, not promised percentage lifts. The November 6 audit and release evidence are recorded in `release-2026-11-06-seo-aeo.md` and the client's existing Notion Performance Dashboard.
 
 ## Technical success criteria
 
@@ -58,6 +65,7 @@ pnpm run test:seo:onpage
 pnpm run test:seo:links
 pnpm run test:seo:schema
 pnpm run test:seo:freshness
+pnpm run test:seo:aeo
 ```
 
 Runtime base URL:
@@ -84,8 +92,9 @@ SEO_AUDIT_BASE_URL=https://<preview-domain>.vercel.app pnpm run test:seo:all
 - create a standalone city page only when the practice can support genuinely
   distinct clinical, logistical, and local content for that location
 3. Blog:
-- publish 2 to 4 high-intent posts monthly
+- improve existing decision guides and their connection to canonical services first; publish only when query evidence, patient questions, and approved original practice information justify a new URL
 - each post must link to at least one service page and one related post
+- use visible primary sources where appropriate; adding a citation is an editorial update, not evidence of a new clinical review
 4. Gallery page:
 - preserve accessibility metadata (`alt`, `title`, `description`) in media data model
 - keep media performance behavior stable (hero autoplay muted; in-grid click-to-play)
@@ -105,6 +114,13 @@ SEO_AUDIT_BASE_URL=https://<preview-domain>.vercel.app pnpm run test:seo:all
 - update priority pages when Search Console, conversion evidence, or substantive
   clinical changes justify it
 - never change dates or copy solely to manufacture a freshness signal
+
+## Indexing and answer visibility workflow
+
+- `shared/indexingReadiness.ts` maintains eleven priority URLs, including implants. Run `SEO_AUDIT_BASE_URL=https://www.chriswongdds.com pnpm --silent run seo:indexing > readiness.csv` for a timestamped HTTP/HTML check using three crawler user-agent strings. `google_index_status=NOT_CHECKED` is deliberate: spoofing a user agent does not prove a real crawler visited, passed the firewall, or indexed a page.
+- For an excluded priority URL, record the actual GSC URL Inspection result, live test, declared/selected canonical, last crawl and decision date. Request indexing selectively after a successful live test; do not repeatedly resubmit unchanged URLs or promise acceptance. Inspect `/dental-veneers` and `/blog/how-long-does-invisalign-take` first (unknown/no recorded crawl in the November 6 inspection); `/invisalign` was indexed and self-canonical then.
+- Retain server-rendered content, clear answers, descriptive links, sources, and accurate entities. There is no separate guaranteed AEO schema or citation mechanism. GSC AI impressions and GA4 assistant referrals describe different populations and must not be treated as a conversion funnel.
+- Practice approval remains necessary for exact consultation/emergency fees, inclusions, after-hours instructions, case permissions, and any new clinical-review attribution. Maintain real local/professional references through genuine relationships; do not create fictitious affiliations or automate unsolicited outreach.
 
 ## Editorial guardrails
 

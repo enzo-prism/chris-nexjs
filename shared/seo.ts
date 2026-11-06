@@ -568,9 +568,9 @@ const CHANGEFREQ_OVERRIDES: Partial<
 // lastmod — they never appear in a sitemap.
 const REDESIGN_LAUNCH_DATE = "2026-10-16";
 const LASTMOD_OVERRIDES: Partial<Record<string, string>> = {
-  "/": "2026-11-01",
+  "/": "2026-11-06",
   "/about": "2026-10-28",
-  "/services": REDESIGN_LAUNCH_DATE,
+  "/services": "2026-11-06",
   "/preventive-dentistry": REDESIGN_LAUNCH_DATE,
   "/restorative-dentistry": REDESIGN_LAUNCH_DATE,
   "/pediatric-dentistry": REDESIGN_LAUNCH_DATE,
@@ -583,8 +583,8 @@ const LASTMOD_OVERRIDES: Partial<Record<string, string>> = {
   "/office-tour": "2026-10-26",
   "/contact": REDESIGN_LAUNCH_DATE,
   "/schedule": REDESIGN_LAUNCH_DATE,
-  "/invisalign": REDESIGN_LAUNCH_DATE,
-  "/emergency-dental": REDESIGN_LAUNCH_DATE,
+  "/invisalign": "2026-11-06",
+  "/emergency-dental": "2026-11-06",
   "/teeth-whitening-palo-alto": REDESIGN_LAUNCH_DATE,
   "/dental-cleaning-palo-alto": REDESIGN_LAUNCH_DATE,
   "/cavity-fillings-palo-alto": REDESIGN_LAUNCH_DATE,
@@ -593,7 +593,7 @@ const LASTMOD_OVERRIDES: Partial<Record<string, string>> = {
   "/dentist-stanford": REDESIGN_LAUNCH_DATE,
   "/dentist-mountain-view": REDESIGN_LAUNCH_DATE,
   "/locations": REDESIGN_LAUNCH_DATE,
-  "/dental-implants": REDESIGN_LAUNCH_DATE,
+  "/dental-implants": "2026-11-06",
   "/dental-veneers": REDESIGN_LAUNCH_DATE,
   "/accessibility": REDESIGN_LAUNCH_DATE,
   "/hipaa": REDESIGN_LAUNCH_DATE,
