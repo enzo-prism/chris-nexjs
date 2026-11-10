@@ -26,6 +26,15 @@ describe("analytics host gate wiring", () => {
     assert.match(layout, /from "@shared\/analyticsHosts"/);
   });
 
+  it("installs a no-op window.gtag in the shared snippet before returning", () => {
+    const snippet = readRepo("shared/analyticsHosts.ts");
+    assert.match(
+      snippet,
+      /window\.gtag = window\.gtag \|\| function \(\) \{\};/,
+    );
+    assert.match(snippet, /export function isProductionAnalyticsHost/);
+  });
+
   it("uses the shared helper at every analytics entry point", () => {
     const entryPoints: ReadonlyArray<{ path: string; needle: RegExp }> = [
       {

@@ -20,7 +20,7 @@ export function normalizeAnalyticsHostname(hostname: string): string {
   return withPort ? withPort[1] : trimmed;
 }
 
-export function isAllowedAnalyticsHost(
+export function isProductionAnalyticsHost(
   hostname: string | null | undefined,
 ): boolean {
   if (typeof hostname !== "string") return false;
@@ -28,6 +28,9 @@ export function isAllowedAnalyticsHost(
   if (!normalized) return false;
   return ANALYTICS_ALLOWED_HOST_SET.has(normalized);
 }
+
+/** Exact production-host allowlist. Alias of `isProductionAnalyticsHost`. */
+export const isAllowedAnalyticsHost = isProductionAnalyticsHost;
 
 /**
  * Test-only window flag. When set, deferred tag loaders skip their 8s/idle
@@ -52,7 +55,7 @@ export function canSendServerAnalytics(
   hostname: string,
   env: Record<string, string | undefined>,
 ): boolean {
-  if (!isAllowedAnalyticsHost(hostname)) return false;
+  if (!isProductionAnalyticsHost(hostname)) return false;
   return Boolean(
     env.VERCEL_URL?.trim() || env.VERCEL_WEB_ANALYTICS_ENDPOINT?.trim(),
   );
@@ -69,5 +72,8 @@ export function analyticsHostAllowlistGuardSnippet(): string {
     try {
       __cwAnalyticsHost = String(location.hostname || "").toLowerCase();
     } catch (_error) {}
-    if (__cwAnalyticsAllowedHosts.indexOf(__cwAnalyticsHost) === -1) return;`;
+    if (__cwAnalyticsAllowedHosts.indexOf(__cwAnalyticsHost) === -1) {
+      window.gtag = window.gtag || function () {};
+      return;
+    }`;
 }

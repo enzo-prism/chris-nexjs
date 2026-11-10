@@ -196,7 +196,10 @@ const mutants = [
       );
       apply(
         HELPER,
-        `    if (__cwAnalyticsAllowedHosts.indexOf(__cwAnalyticsHost) === -1) return;`,
+        `    if (__cwAnalyticsAllowedHosts.indexOf(__cwAnalyticsHost) === -1) {
+      window.gtag = window.gtag || function () {};
+      return;
+    }`,
         `    /* host gate removed */`,
       );
       apply(
@@ -219,8 +222,14 @@ const mutants = [
       );
       apply(
         HELPER,
-        `    if (__cwAnalyticsAllowedHosts.indexOf(__cwAnalyticsHost) === -1) return;`,
-        `    if (__cwAnalyticsHost.includes("chriswongdds.com") === false) return;`,
+        `    if (__cwAnalyticsAllowedHosts.indexOf(__cwAnalyticsHost) === -1) {
+      window.gtag = window.gtag || function () {};
+      return;
+    }`,
+        `    if (__cwAnalyticsHost.includes("chriswongdds.com") === false) {
+      window.gtag = window.gtag || function () {};
+      return;
+    }`,
       );
     },
   },
@@ -236,8 +245,14 @@ const mutants = [
       );
       apply(
         HELPER,
-        `    if (__cwAnalyticsAllowedHosts.indexOf(__cwAnalyticsHost) === -1) return;`,
-        `    if (__cwAnalyticsHost.endsWith("chriswongdds.com") === false) return;`,
+        `    if (__cwAnalyticsAllowedHosts.indexOf(__cwAnalyticsHost) === -1) {
+      window.gtag = window.gtag || function () {};
+      return;
+    }`,
+        `    if (__cwAnalyticsHost.endsWith("chriswongdds.com") === false) {
+      window.gtag = window.gtag || function () {};
+      return;
+    }`,
       );
     },
   },
@@ -270,9 +285,18 @@ const mutants = [
       );
       apply(
         HELPER,
-        `    if (__cwAnalyticsAllowedHosts.indexOf(__cwAnalyticsHost) === -1) return;`,
-        `    if (!__cwAnalyticsHost) return;
-    if (JSON.stringify(__cwAnalyticsAllowedHosts).includes(__cwAnalyticsHost) === false) return;`,
+        `    if (__cwAnalyticsAllowedHosts.indexOf(__cwAnalyticsHost) === -1) {
+      window.gtag = window.gtag || function () {};
+      return;
+    }`,
+        `    if (!__cwAnalyticsHost) {
+      window.gtag = window.gtag || function () {};
+      return;
+    }
+    if (JSON.stringify(__cwAnalyticsAllowedHosts).includes(__cwAnalyticsHost) === false) {
+      window.gtag = window.gtag || function () {};
+      return;
+    }`,
       );
     },
   },
