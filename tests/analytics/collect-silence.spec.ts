@@ -30,6 +30,7 @@ async function assertBlockedHost(
   gtagType: string;
   gtagScriptCount: number;
   hotjarScriptCount: number;
+  dataLayerDefined: boolean;
 }> {
   const home = await page.goto(startUrl, { waitUntil: "networkidle" });
   expect(home?.ok(), `home status ${home?.status()} at ${page.url()}`).toBe(true);
@@ -48,22 +49,35 @@ async function assertBlockedHost(
   await expect(page.locator(APP_MARKER)).toBeAttached();
   await page.waitForTimeout(800);
 
-  const runtime = await page.evaluate(() => ({
-    hostname: window.location.hostname,
-    gtagType: typeof (window as Window & { gtag?: unknown }).gtag,
-    gtagScriptCount: document.querySelectorAll(
-      'script[src*="googletagmanager.com/gtag/js"]',
-    ).length,
-    hotjarScriptCount: document.querySelectorAll(
-      'script[src*="static.hotjar.com"]',
-    ).length,
-    vercelInsightsScriptCount: document.querySelectorAll(
-      'script[src*="/_vercel/insights"], script[src*="va.vercel-scripts.com"]',
-    ).length,
-  }));
+  const runtime = await page.evaluate(() => {
+    const view = window as Window & {
+      gtag?: (...args: unknown[]) => void;
+      dataLayer?: unknown;
+    };
+    if (typeof view.gtag === "function") {
+      view.gtag("event", "generate_lead", { lead_type: "synthetic" });
+      view.gtag("config", "G-94WRBJY51J");
+      view.gtag("event", "page_view");
+    }
+    return {
+      hostname: window.location.hostname,
+      gtagType: typeof view.gtag,
+      gtagScriptCount: document.querySelectorAll(
+        'script[src*="googletagmanager.com/gtag/js"]',
+      ).length,
+      hotjarScriptCount: document.querySelectorAll(
+        'script[src*="static.hotjar.com"]',
+      ).length,
+      vercelInsightsScriptCount: document.querySelectorAll(
+        'script[src*="/_vercel/insights"], script[src*="va.vercel-scripts.com"]',
+      ).length,
+      dataLayerDefined: Array.isArray(view.dataLayer),
+    };
+  });
 
   expect(runtime.hostname).toBe(expectedHostname);
-  expect(runtime.gtagType).toBe("undefined");
+  expect(runtime.gtagType).toBe("function");
+  expect(runtime.dataLayerDefined).toBe(false);
   expect(runtime.gtagScriptCount).toBe(0);
   expect(runtime.hotjarScriptCount).toBe(0);
   expect(runtime.vercelInsightsScriptCount).toBe(0);

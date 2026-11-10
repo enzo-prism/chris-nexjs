@@ -6,21 +6,53 @@ import {
   canSendServerAnalytics,
   hostnameFromRequestHeaders,
   isAllowedAnalyticsHost,
+  isProductionAnalyticsHost,
   normalizeAnalyticsHostname,
 } from "./analyticsHosts";
 
-function evalHostGuard(hostname: string | undefined, hideLocation = false): unknown {
+type GuardEval = {
+  result: unknown;
+  gtagType: string;
+  threw: boolean;
+  dataLayerDefined: boolean;
+};
+
+function evalHostGuardState(
+  hostname: string | undefined,
+  hideLocation = false,
+): GuardEval {
   const snippet = analyticsHostAllowlistGuardSnippet();
   const body = `
     "use strict";
+    const window = {};
     const location = ${hideLocation ? "undefined" : "{ hostname }"};
-    return (function () {
-      ${snippet}
-      return "loaded";
-    })();
+    let result;
+    let threw = false;
+    try {
+      result = (function () {
+        ${snippet}
+        return "loaded";
+      })();
+      if (typeof window.gtag === "function") {
+        window.gtag("event", "generate_lead", { lead_type: "synthetic" });
+        window.gtag("config", "G-94WRBJY51J");
+      }
+    } catch (_error) {
+      threw = true;
+    }
+    return {
+      result,
+      gtagType: typeof window.gtag,
+      threw,
+      dataLayerDefined: Object.prototype.hasOwnProperty.call(window, "dataLayer"),
+    };
   `;
   const run = new Function("hostname", body);
-  return run(hostname);
+  return run(hostname) as GuardEval;
+}
+
+function evalHostGuard(hostname: string | undefined, hideLocation = false): unknown {
+  return evalHostGuardState(hostname, hideLocation).result;
 }
 
 describe("ANALYTICS_ALLOWED_HOSTS", () => {
@@ -29,6 +61,33 @@ describe("ANALYTICS_ALLOWED_HOSTS", () => {
       "chriswongdds.com",
       "www.chriswongdds.com",
     ]);
+  });
+});
+
+describe("isProductionAnalyticsHost", () => {
+  it("is the same exact-allowlist helper as isAllowedAnalyticsHost", () => {
+    assert.equal(isAllowedAnalyticsHost, isProductionAnalyticsHost);
+  });
+
+  it("allows only the two production hosts and blocks every other case in the spec", () => {
+    const cases: ReadonlyArray<readonly [string, boolean]> = [
+      ["chriswongdds.com", true],
+      ["www.chriswongdds.com", true],
+      ["localhost", false],
+      ["127.0.0.1", false],
+      ["chris-wong-dds-git-allowlist.vercel.app", false],
+      ["chriswongdds.com.evil.com", false],
+      ["sub.chriswongdds.com", false],
+      ["", false],
+    ];
+
+    for (const [hostname, allowed] of cases) {
+      assert.equal(
+        isProductionAnalyticsHost(hostname),
+        allowed,
+        hostname,
+      );
+    }
   });
 });
 
@@ -59,6 +118,7 @@ describe("isAllowedAnalyticsHost", () => {
     assert.equal(isAllowedAnalyticsHost("chris-nextjs.vercel.app"), false);
     assert.equal(isAllowedAnalyticsHost("chriswongdds.vercel.app"), false);
     assert.equal(isAllowedAnalyticsHost("preview.chriswongdds.com"), false);
+    assert.equal(isAllowedAnalyticsHost("sub.chriswongdds.com"), false);
     assert.equal(isAllowedAnalyticsHost("www.chriswongdds.com.evil.com"), false);
     assert.equal(isAllowedAnalyticsHost("chriswongdds.com."), false);
     assert.equal(isAllowedAnalyticsHost("com"), false);
@@ -108,6 +168,7 @@ describe("analyticsHostAllowlistGuardSnippet", () => {
     assert.equal(evalHostGuard("chriswongdds.com.evil.com"), undefined);
     assert.equal(evalHostGuard("evilchriswongdds.com"), undefined);
     assert.equal(evalHostGuard("preview.chriswongdds.com"), undefined);
+    assert.equal(evalHostGuard("sub.chriswongdds.com"), undefined);
     assert.equal(evalHostGuard(""), undefined);
     assert.equal(evalHostGuard(undefined, true), undefined);
     assert.equal(evalHostGuard("com"), undefined);
@@ -115,6 +176,31 @@ describe("analyticsHostAllowlistGuardSnippet", () => {
     assert.equal(evalHostGuard("chriswongdds"), undefined);
     assert.equal(evalHostGuard("www"), undefined);
     assert.equal(evalHostGuard("chriswongdds.com."), undefined);
+  });
+
+  it("installs a no-op window.gtag on blocked hosts and does not create dataLayer", () => {
+    const blocked = [
+      "localhost",
+      "127.0.0.1",
+      "chris-wong-dds-git-foo.vercel.app",
+      "chriswongdds.com.evil.com",
+      "sub.chriswongdds.com",
+      "",
+    ];
+
+    for (const hostname of blocked) {
+      const state = evalHostGuardState(hostname);
+      assert.equal(state.result, undefined, hostname);
+      assert.equal(state.gtagType, "function", hostname);
+      assert.equal(state.threw, false, hostname);
+      assert.equal(state.dataLayerDefined, false, hostname);
+    }
+
+    const allowed = evalHostGuardState("www.chriswongdds.com");
+    assert.equal(allowed.result, "loaded");
+    assert.equal(allowed.gtagType, "undefined");
+    assert.equal(allowed.threw, false);
+    assert.equal(allowed.dataLayerDefined, false);
   });
 });
 
