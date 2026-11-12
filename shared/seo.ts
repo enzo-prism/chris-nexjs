@@ -568,20 +568,20 @@ const CHANGEFREQ_OVERRIDES: Partial<
 // lastmod — they never appear in a sitemap.
 const REDESIGN_LAUNCH_DATE = "2026-10-16";
 const LASTMOD_OVERRIDES: Partial<Record<string, string>> = {
-  "/": "2026-11-06",
+  "/": "2026-11-12",
   "/about": "2026-10-28",
   "/services": "2026-11-06",
   "/preventive-dentistry": REDESIGN_LAUNCH_DATE,
   "/restorative-dentistry": REDESIGN_LAUNCH_DATE,
   "/pediatric-dentistry": REDESIGN_LAUNCH_DATE,
-  "/patient-resources": "2026-10-20",
+  "/patient-resources": "2026-11-12",
   "/insurance": REDESIGN_LAUNCH_DATE,
   "/testimonials": "2026-11-03",
   "/patient-stories": REDESIGN_LAUNCH_DATE,
   "/blog": REDESIGN_LAUNCH_DATE,
   "/gallery": "2026-10-26",
   "/office-tour": "2026-10-26",
-  "/contact": REDESIGN_LAUNCH_DATE,
+  "/contact": "2026-11-12",
   "/schedule": REDESIGN_LAUNCH_DATE,
   "/invisalign": "2026-11-06",
   "/emergency-dental": "2026-11-06",
