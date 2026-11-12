@@ -104,6 +104,30 @@ export const officeInfo = {
       validFrom: "2026-09-04",
       validThrough: "2026-09-04",
     },
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: "Wednesday",
+      opens: "08:00",
+      closes: "13:00",
+      validFrom: "2026-11-25",
+      validThrough: "2026-11-25",
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: "Thursday",
+      opens: "00:00",
+      closes: "00:00",
+      validFrom: "2026-11-26",
+      validThrough: "2026-11-26",
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: "Friday",
+      opens: "00:00",
+      closes: "00:00",
+      validFrom: "2026-11-27",
+      validThrough: "2026-11-27",
+    },
   ],
   phone: "(650) 326-6319",
   email: "chrisbwongdds@gmail.com",
@@ -155,7 +179,7 @@ export type HolidayHoursEntry = {
  */
 export const holidayHours = {
   active: true,
-  id: "office-hours-2026-09-04-closed",
+  id: "office-hours-thanksgiving-2026",
   footerNote:
     "Regular weekly hours apply outside these temporary schedule changes.",
   cta: {
@@ -210,6 +234,27 @@ export const holidayHours = {
       day: "Fri, Sep 4",
       hours: "Closed",
       status: "closed",
+    },
+    {
+      date: "2026-11-25",
+      day: "Wed, Nov 25",
+      hours: "8:00 AM - 1:00 PM",
+      status: "varies",
+      badge: "Thanksgiving week",
+    },
+    {
+      date: "2026-11-26",
+      day: "Thu, Nov 26",
+      hours: "Closed",
+      status: "closed",
+      badge: "Thanksgiving",
+    },
+    {
+      date: "2026-11-27",
+      day: "Fri, Nov 27",
+      hours: "Closed",
+      status: "closed",
+      badge: "Thanksgiving holiday",
     },
   ],
 } as const;
