@@ -115,8 +115,10 @@ export function AppPageShell({
         className="outline-none"
         data-cw-quiet={QUIET_PATHS.test(pathname) || undefined}
       >
-        {chromeVariant === "default" ? <HolidayHoursNotice /> : null}
         {children}
+        {/* The date-aware notice mounts after hydration. Keep it after the
+            page content so it cannot shift the hero or booking entry point. */}
+        {chromeVariant === "default" ? <HolidayHoursNotice /> : null}
         {chromeVariant === "default" ? <SupplementalContent /> : null}
       </main>
       <Footer variant={chromeVariant} />

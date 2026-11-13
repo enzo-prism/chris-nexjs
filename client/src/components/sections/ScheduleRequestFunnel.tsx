@@ -141,11 +141,6 @@ const ScheduleRequestFunnel = ({
             {officeInfo.phone}
           </a>
         </p>
-        {holiday ? (
-          <p className="mt-2 text-center text-xs leading-5 text-ink-muted">
-            {holiday.shortNotice}
-          </p>
-        ) : null}
 
         <div className="mt-4 rounded-[1.75rem] border border-cream-300/80 bg-white px-5 py-6 shadow-lift sm:px-8 sm:py-8">
           <AppointmentForm
@@ -158,6 +153,13 @@ const ScheduleRequestFunnel = ({
             reviewPreview={reviewPreview}
           />
         </div>
+        {/* Keep temporary hours visible without pushing the first choice
+            below the initial phone viewport. */}
+        {holiday ? (
+          <p className="mt-2 text-center text-xs leading-5 text-ink-muted">
+            {holiday.shortNotice}
+          </p>
+        ) : null}
       </div>
 
       {showReviews || showHelpLinks ? (
