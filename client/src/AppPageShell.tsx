@@ -9,7 +9,6 @@ import { Router as WouterRouter } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import SupplementalContent from "@/components/common/SupplementalContent";
-import StructuredData from "@/components/seo/StructuredData";
 import HolidayHoursNotice from "@/components/common/HolidayHoursNotice";
 
 // Loaded after hydration so the fixed quick-action bar stays out of every
@@ -22,11 +21,6 @@ const MobileActionBar = dynamic(
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import type { ChromeVariant } from "@/lib/chrome";
-import {
-  buildOrganizationSchema,
-  buildPersonSchema,
-  buildWebSiteSchema,
-} from "@/lib/structuredData";
 
 const GoogleAnalytics = dynamic(
   () => import("@/components/common/GoogleAnalytics"),
@@ -91,16 +85,7 @@ export function AppPageShell({
       <ScrollToTop />
       <GoogleAnalytics />
       <HotjarTracking />
-      {pathname === "/" ? (
-        <StructuredData
-          data={[
-            buildOrganizationSchema(),
-            buildPersonSchema(),
-            buildWebSiteSchema(),
-          ]}
-          id="homepage-entity-schema"
-        />
-      ) : null}
+      {/* Homepage entity schema lives in pages/Home.tsx (see note there). */}
       <a
         href="#main-content"
         className="skip-link"

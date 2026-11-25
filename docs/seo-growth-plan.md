@@ -2,7 +2,26 @@
 
 Operational SEO plan for sustained local lead growth while preserving technical quality.
 
-## Current baseline snapshot (2026-11-06)
+## November 24 release and measurement
+
+For October 26 through November 22, Google Web Search reported 84 clicks and about 4,970 impressions. The homepage had 65 clicks. Emergency had 654 impressions, two clicks and average position 13.5. Invisalign had 513 impressions, zero clicks and average position 13.1. The exact query “invisalign palo alto” had 131 impressions, zero clicks and average position 8.5. Implants had 290 impressions, zero clicks and average position 18.8. Production-host GA4 Organic Search recorded 118 sessions (85 engaged), compared with 128 (94 engaged) in the preceding 28 days.
+
+| URL inspected November 24 | Google index record | Action and evidence |
+| --- | --- | --- |
+| /dental-veneers | Unknown URL, no crawl or referring sitemap recorded | Live inspection passed. Google confirmed addition to the priority crawl queue. |
+| /dental-cleaning-palo-alto | Unknown URL, no crawl or referring sitemap recorded | Google tested the URL and confirmed addition to the priority crawl queue. |
+| /blog/how-long-does-invisalign-take | Discovered, no crawl recorded. Google lists the sitemap, services hub and Invisalign page. | Google tested the URL and confirmed addition to the priority crawl queue. |
+| /crowns-palo-alto | Indexed. Last crawl November 19 by Googlebot smartphone. Successful fetch, inspected URL selected as canonical. | Already indexed at its intended URL. |
+
+The Google Business Profile website and appointment links resolved to the production homepage and /schedule. Its editor showed the same regular hours as the site and its public listing showed November 25 open 8 AM–1 PM, November 26–27 closed. The existing Demandforce provider listing links to the canonical homepage.
+
+After Google recrawls the changed service pages, compare the first complete 28 days with the baseline, split exact nonbranded queries by device and check CTR at comparable positions. Record each priority page’s first crawl, accepted canonical and first impressions. Use the practice’s existing appointment workflow to verify booked visits where attribution is available. Search Console clicks, GA4 sessions, phone taps, submitted inquiries and confirmed visits are distinct measures.
+
+The office still needs to confirm any specific Invisalign consultation fee or duration, emergency fee or included imaging, plan-wide retainer/refinement terms, and any on-call service before publishing those as promises. Current copy uses the office’s published after-hours message response policy and an individual written estimate. Indexing decisions and subsequent traffic changes remain pending.
+
+Sources: [Search performance](https://search.google.com/search-console/performance/search-analytics?resource_id=sc-domain%3Achriswongdds.com), [Index coverage](https://search.google.com/search-console/index?resource_id=sc-domain%3Achriswongdds.com), [GA4](https://analytics.google.com/analytics/web/#/p503642498/reports/intelligenthome), [provider profile](https://local.demandforce.com/b/chris-wong-dds).
+
+## November 6 baseline snapshot
 
 - Canonical SEO definitions: `46`
 - Indexable static routes: `31`, plus `29` blog articles: `60` sitemap URLs

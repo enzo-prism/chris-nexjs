@@ -30,8 +30,10 @@ import { cn } from "@/lib/utils";
 import { useHolidayNotice } from "@/components/patients/useHolidayNotice";
 import {
   buildBreadcrumbSchema,
+  buildOrganizationSchema,
   type StructuredDataNode,
   absoluteUrl,
+  WEBSITE_ID,
 } from "@/lib/structuredData";
 
 const ContactForm = dynamic(() => import("@/components/forms/ContactForm"), {
@@ -219,14 +221,20 @@ const Contact = () => {
   const seo = getSeoForPath("/contact");
   const contactPageSchema: StructuredDataNode = {
     "@context": "https://schema.org",
-    "@type": "WebPage",
+    "@type": "ContactPage",
     "@id": `${absoluteUrl("/contact")}#webpage`,
     name: "Contact Our Palo Alto Dental Office",
     url: absoluteUrl("/contact"),
     description: seo.description,
-    about: {
-      "@id": `${absoluteUrl("/")}#organization`,
-    },
+    inLanguage: "en-US",
+    isPartOf: { "@id": WEBSITE_ID },
+    // The full practice node (address, geo, phone, hours, holiday hours) under
+    // the same @id as the homepage: answer engines often read the contact page
+    // for "hours / phone / address" questions, and Google does not reliably
+    // join @ids across pages.
+    mainEntity: (({ "@context": _context, ...practice }) => practice)(
+      buildOrganizationSchema(),
+    ),
   };
   const breadcrumbItems = [
     { name: "Home", path: "/" },

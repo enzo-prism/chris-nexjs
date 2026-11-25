@@ -14,7 +14,16 @@ import { ServiceIcon } from "@/components/ds/ServiceIcon";
 import { ServiceReviews } from "@/components/ds/ServiceReviews";
 import { renderInlineMarkdown } from "@/components/blog/InlineMarkdown";
 import { cityPages, type LocationContent } from "@/data/locations";
-import { buildBreadcrumbSchema, buildFAQSchema, type StructuredDataNode } from "@/lib/structuredData";
+import {
+  absoluteUrl,
+  buildBreadcrumbSchema,
+  buildFAQSchema,
+  buildImageObject,
+  buildPracticeReference,
+  schemaId,
+  WEBSITE_ID,
+  type StructuredDataNode,
+} from "@/lib/structuredData";
 import { RouteCard } from "./RouteCard";
 import { VisitCard } from "./VisitCard";
 import { emTitle } from "./emTitle";
@@ -34,7 +43,33 @@ export function LocationPage({ location }: { readonly location: LocationContent 
     { name: location.crumb, path: location.path },
   ];
 
-  const schemas: StructuredDataNode[] = [];
+  // Ties the city page to the practice entity and the city it serves, so the
+  // page is understood as "this Palo Alto practice, for Menlo Park patients"
+  // rather than a second office.
+  const schemas: StructuredDataNode[] = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "@id": schemaId(location.path, "webpage"),
+      url: absoluteUrl(location.path),
+      name: location.h1,
+      description: location.lead,
+      inLanguage: "en-US",
+      isPartOf: { "@id": WEBSITE_ID },
+      about: buildPracticeReference(),
+      spatialCoverage: {
+        "@type": "City",
+        name: location.city,
+        containedInPlace: { "@type": "State", name: "California" },
+      },
+      primaryImageOfPage: buildImageObject({
+        src: location.heroImage.src,
+        width: location.heroImage.width,
+        height: location.heroImage.height,
+        caption: location.heroImage.alt,
+      }),
+    },
+  ];
   const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbItems);
   if (breadcrumbSchema) schemas.push(breadcrumbSchema);
   const faqSchema = buildFAQSchema([...location.faqs], location.path);

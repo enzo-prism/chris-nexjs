@@ -307,7 +307,7 @@ const Invisalign = () => {
             Invisalign in <em>Palo Alto</em>
           </>
         }
-        lead="Clear aligner treatment for adults and teens, planned by Dr. Christopher B. Wong from a 3D digital scan, with check-ins built for busy schedules and retainers to keep your result."
+        lead="Considering clear aligners? Dr. Wong checks your teeth and bite, reviews a 3D scan with you and explains your written treatment estimate before you decide."
         scheduleHref={SCHEDULE_HREF}
         analyticsContext="invisalign-hero"
         chips={["PPO ortho benefits checked first"]}
@@ -325,7 +325,16 @@ const Invisalign = () => {
             }
           />
         }
-      />
+      >
+        <div className="mt-5 space-y-2 text-[15px] leading-6 text-ink-soft">
+          <p>When you call, ask about the consultation fee and how long to set aside.
+            Your written estimate is the place to check which refinements and retainers are included.</p>
+          <p><a href="#invisalign-cost" className="link-rooted">Compare costs and PPO coverage</a>
+            {" · "}<Link href="/patient-stories#invisalign-whitening-bonding-66yo" className="link-rooted">
+              See how one patient combined aligners and bonding
+            </Link></p>
+        </div>
+      </PageHero>
 
       <Section id="invisalign-candidacy" tone="white" labelledBy="invisalign-candidacy-title">
         <JumpNav

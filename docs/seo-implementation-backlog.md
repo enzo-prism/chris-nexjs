@@ -2,6 +2,21 @@
 
 Current technical and editorial SEO work for `chris-nexjs`.
 
+## November 24, 2026 release
+
+- The organic Invisalign page now foregrounds the consultation, scan, written estimate, fee and duration questions, and the existing published patient story. Its search title and description reflect that content. The paid consultation page retains its noindex directive.
+- The emergency page gives new and returning patients the phone-first path, regular and temporary hours, exam-fee questions and the existing next-business-day response policy. The emergency warning remains visible. The implant cost section identifies the surgical and restorative portions.
+- Only the three substantively revised service pages received a November 24 sitemap modification date. Clinical review dates retain their original values.
+- Local release checks passed for types, API and routes, the production build, bundle budget, design and seasonal guards, review integrity, SEO including schema on 60 URLs, and 71 image URLs. All eight phone and desktop SEO browser checks passed, including the booking details and published case link. The preparation below is included in this release.
+- Search Console accepted one indexing request each for veneers, cleaning and the Invisalign timeline article. Crowns was already indexed. See the [growth plan](seo-growth-plan.md) for inspection records, pending office details and how to measure this release.
+
+## November 20, 2026 preparation
+
+- Fixed a production regression: the homepage Dentist, Person and WebSite graph was missing on www.chriswongdds.com (live `test:seo:schema` failed). Vercel's background ISR regeneration renders `/` with `usePathname() === "/index"`, and the graph was gated on `pathname === "/"` in `AppPageShell`. It now renders from `pages/Home.tsx`, independent of the reported path. `pnpm test:seo:aeo` renders the homepage under both `/` and `/index`; the `/index` case fails on the old code.
+- `/contact` is now a `ContactPage` whose `mainEntity` is the full practice node (address, geo, phone, regular and holiday hours) under the homepage `@id`.
+- Menlo Park, Stanford and Mountain View pages add a `WebPage` node with the practice as `about` and the city as `spatialCoverage`. Schema-only changes; no copy or `lastmod` changed.
+- Note: `/index` returns 200 with a homepage canonical to `/`. Left as is; a middleware redirect could interfere with Vercel's ISR regeneration path.
+
 ## Completed November 6, 2026
 
 - Added server-rendered patient decision guides on the homepage and services hub, linking directly to existing articles and their canonical service pages.
@@ -11,7 +26,7 @@ Current technical and editorial SEO work for `chris-nexjs`.
 - Added AEO/date/source regressions and phone/desktop browser checks. See `release-2026-11-06-seo-aeo.md` for validation and release evidence.
 - Corrected the route inventory and shifted the operating plan from a fixed publication quota to improving and measuring existing high-intent pages first.
 
-### Remaining dependencies after this release
+### Dependencies recorded November 6 (see November 24 update above)
 
 1. Google: run actual GSC live inspections and selectively request indexing for excluded priority URLs, then record recrawl/selected-canonical changes. Fetch readiness is already testable; index selection remains Google's decision.
 2. Practice: approve exact consultation/emergency fees and inclusions, after-hours instructions, real case details with permissions, and any new clinician review. No estimates or review attestations were invented for this release.

@@ -68,3 +68,26 @@ describe("crawl readiness distinguishes fetchability from index status", () => {
     assert.ok(checkIndexableResponse({ ...input, html: html.replace('content="index, follow"', 'content="noindex, follow"') }).length);
   });
 });
+
+describe("homepage entity graph survives ISR regeneration", () => {
+  // Vercel's background ISR regeneration renders "/" with a pathname of
+  // "/index". The practice/Dr. Wong/WebSite graph was gated on
+  // `pathname === "/"` and disappeared from production. Outside Next,
+  // usePathname() is null, so AppPageShell falls back to `ssrPath`.
+  for (const ssrPath of ["/", "/index"]) {
+    it(`emits Dentist, Person and WebSite when the shell sees ${ssrPath}`, async () => {
+      const { AppPageShell } = await import("../client/src/AppPageShell");
+      const { default: Home } = await import("../client/src/pages/Home");
+      const html = renderToString(
+        createElement(AppPageShell, { ssrPath, enableQueryClient: false, enableHelmet: false }, createElement(Home)),
+      );
+      const nodes = [...html.matchAll(/<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)]
+        .flatMap((match) => JSON.parse(match[1]));
+      const types = new Set(nodes.map((node) => node["@type"]));
+      for (const type of ["Dentist", "Person", "WebSite", "FAQPage"]) {
+        assert.ok(types.has(type), `${type} missing for ${ssrPath}`);
+      }
+      assert.equal(html.match(/id="homepage-entity-schema"/g)?.length, 1);
+    });
+  }
+});

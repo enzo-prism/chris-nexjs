@@ -69,3 +69,28 @@ test("article sources are visible and editorial changes do not imply clinical re
   await expect(page.locator("article header")).not.toContainText("Clinically reviewed");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
 });
+
+test("service booking details appear with the first actions", async ({ page }, testInfo) => {
+  for (const path of ["/invisalign", "/emergency-dental"]) {
+    await page.goto(path);
+    const hero = page.locator("section").filter({ has: page.getByRole("heading", { level: 1 }) }).first();
+    await expect(hero.getByRole("link", { name: /Call Dr. Wong/ })).toHaveAttribute("href", "tel:+16503266319");
+    if (path === "/invisalign") {
+      await expect(page).toHaveTitle(/Invisalign in Palo Alto.*Cost & Consultation/);
+      await expect(hero).toContainText("consultation fee");
+      await expect(hero).toContainText("refinements and retainers");
+      const story = hero.getByRole("link", { name: /one patient combined/ });
+      await expect(story).toHaveAttribute("href", "/patient-stories#invisalign-whitening-bonding-66yo");
+      await story.click();
+      await expect(page.locator("#invisalign-whitening-bonding-66yo")).toBeVisible();
+      await page.goBack();
+    } else {
+      await expect(hero).toContainText("Regular hours");
+      await expect(hero).toContainText("next business day");
+      await expect(hero).toContainText("whether imaging costs extra");
+      await expect(hero.getByRole("link", { name: "Emergency visit costs" })).toHaveAttribute("href", "#emergency-cost");
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+    await hero.screenshot({ path: testInfo.outputPath(path.slice(1) + "-hero.png") });
+  }
+});

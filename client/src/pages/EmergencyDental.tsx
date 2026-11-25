@@ -46,7 +46,7 @@ const emergencyFaqs: FAQEntry[] = [
   },
   {
     question: "How can I check your hours and emergency exam fee?",
-    answer: `Our Palo Alto office sees patients by appointment during its published office hours. Call ${officeInfo.phone} to confirm availability and the current examination fee. Treatment costs depend on the findings and are discussed before treatment. If the office is closed, do not assume an online request provides immediate care.`,
+    answer: `Our Palo Alto office sees patients by appointment during its published office hours. Call ${officeInfo.phone} to confirm availability and the current examination fee. Treatment costs depend on the findings and are discussed before treatment. After-hours messages are returned the next business day. If you need urgent dental care before then, seek an available urgent dental provider.`,
   },
   {
     question: "What counts as a dental emergency?",
@@ -243,7 +243,7 @@ const EmergencyDental = () => {
             Emergency dentist in <em>Palo Alto</em>
           </>
         }
-        lead="In pain or dealing with a broken tooth? Call us. Dr. Christopher B. Wong sees urgent toothaches, swelling, and dental trauma, and we hold time to see you the same day whenever possible."
+        lead="New and returning patients can call for a toothache, swelling or a broken tooth. The front desk checks the next available visit and confirms whether Dr. Wong can see you today."
         callFirst
         scheduleHref={SCHEDULE_HREF}
         analyticsContext="emergency-hero"
@@ -266,6 +266,13 @@ const EmergencyDental = () => {
             breathing, or rapidly worsening facial swelling.
           </span>
         </p>
+        <div className="mt-4 space-y-2 text-[15px] leading-6 text-ink-soft">
+          <OfficeHoursSummary variant="inline" />
+          <p>After-hours messages are returned the next business day. If you need urgent care while
+            we are closed, seek care from an available urgent dental provider.</p>
+          <p>Ask for the current exam fee and whether imaging costs extra. We explain any
+            treatment costs before you decide. <a href="#emergency-cost" className="link-rooted">Emergency visit costs</a></p>
+        </div>
       </PageHero>
 
       <Section id="first-aid" tone="white" labelledBy="first-aid-title" className="pt-10 sm:pt-14 lg:pt-16">

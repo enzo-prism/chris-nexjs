@@ -434,15 +434,15 @@ const DentalImplants = () => {
             Dental implant cost in Palo Alto: <em>what affects it</em>
           </>
         }
-        lead="While dental implants may cost more initially than other tooth replacement options, their longevity and function often make them a sound long-term choice. During your consultation, we’ll provide a clear breakdown of costs for your treatment plan."
+        lead="Dr. Wong plans your restoration and restores the final tooth here. A surgical partner places the implant. Ask for the estimates from both offices so you can see the total before deciding."
         drivers={costFactors}
         coverage="Implant benefits vary widely from plan to plan."
         scheduleHref={SCHEDULE_HREF}
         analyticsContext="implants-cost"
       >
         <p className="mt-3 text-[15px] leading-7 text-ink-soft">
-          Compare the complete plan, not just a price for an implant post. Ask which office provides each step,
-          whether imaging or grafting is needed, and how the surgical, abutment, crown, and follow-up fees fit together.
+          Ask the surgical office about placement, imaging and any grafting. Ask our team about the abutment,
+          final crown and restoration visits. Check which follow-up visits each estimate includes.
         </p>
         <ClinicalSources resources={[clinicalResources.implants]} />
       </CostPanel>

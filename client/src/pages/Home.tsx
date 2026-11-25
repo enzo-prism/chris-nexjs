@@ -17,7 +17,13 @@ import {
   VisitSection,
 } from "@/components/home/HomeSections";
 import { CtaBandLeaves, FeastTipsSection } from "@/components/seasonal/HomeSeasonal";
-import { buildFAQSchema, type FAQEntry } from "@/lib/structuredData";
+import {
+  buildFAQSchema,
+  buildOrganizationSchema,
+  buildPersonSchema,
+  buildWebSiteSchema,
+  type FAQEntry,
+} from "@/lib/structuredData";
 
 const homeFaqs: FAQEntry[] = [
   {
@@ -47,6 +53,18 @@ const Home = () => {
 
   return (
     <>
+      {/* The practice, Dr. Wong and WebSite graph is rendered by the homepage
+          itself, never by a pathname check in the shell: Vercel's background
+          ISR regeneration renders "/" with usePathname() === "/index", which
+          silently dropped this graph from production (November 2026). */}
+      <StructuredData
+        data={[
+          buildOrganizationSchema(),
+          buildPersonSchema(),
+          buildWebSiteSchema(),
+        ]}
+        id="homepage-entity-schema"
+      />
       <StructuredData data={faqSchema ? [faqSchema] : []} />
       <HomeHero />
       <CurrentPatientStrip />
