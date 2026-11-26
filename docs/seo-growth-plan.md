@@ -195,13 +195,11 @@ request language across:
 
 ### Terminology
 
-- **in-house** = the dental plan product.
 - **in-office** = where care happens (location of treatment).
 
 ### Payments
 
-- Accepted methods in copy: Visa, MasterCard, FSA/HSA, and the in-house dental
-  plan.
+- Accepted methods in copy: Visa, MasterCard, and FSA/HSA.
 - Keep `Insurance.tsx`, the payment FAQ in `client/src/lib/data.ts`, and the
   Patient Resources payment FAQ in lockstep.
 - Do not list CareCredit, Amex, or Discover unless those methods are

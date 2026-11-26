@@ -288,7 +288,7 @@ const PatientResources = () => {
               <p className="mt-4 text-[15px] leading-7 text-evergreen-100">
                 We’re an out-of-network provider for PPO plans, and many PPO plans include out-of-network
                 benefits. Add your carrier when you request a visit and we’ll verify your benefits before you
-                arrive. No insurance? Ask about our in-house dental plan. We accept Visa, MasterCard, and FSA/HSA
+                arrive. If you’re paying directly, call to ask about visit fees. We accept Visa, MasterCard, and FSA/HSA
                 funds.
               </p>
               <Link

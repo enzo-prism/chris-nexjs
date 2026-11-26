@@ -19,7 +19,7 @@ const costCards = [
   {
     icon: PiggyBank,
     title: "No dental insurance?",
-    body: "Ask about our in-house dental plan, which offers savings on preventive care and treatment.",
+    body: "Call to ask about visit fees. We’ll review the estimated cost of any recommended treatment with you before you decide.",
   },
   {
     icon: CreditCard,

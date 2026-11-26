@@ -3,7 +3,7 @@
 // the URL without swapping the page).
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Check, CreditCard, MessageSquare, Phone, PiggyBank, ShieldCheck, Wallet } from "lucide-react";
+import { ArrowRight, Check, CreditCard, MessageSquare, ShieldCheck, Wallet } from "lucide-react";
 
 import StructuredData from "@/components/seo/StructuredData";
 import { PageHero } from "@/components/ds/PageHero";
@@ -13,7 +13,7 @@ import { ServiceIcon, type ServiceIconName } from "@/components/ds/ServiceIcon";
 import { ServiceReviews } from "@/components/ds/ServiceReviews";
 import { FaqList } from "@/components/ds/FaqList";
 import { CtaBand } from "@/components/ds/CtaBand";
-import { insuranceProviders, officeInfo } from "@/lib/data";
+import { insuranceProviders } from "@/lib/data";
 import {
   buildBreadcrumbSchema,
   buildFAQSchema,
@@ -21,8 +21,8 @@ import {
   type StructuredDataNode,
 } from "@/lib/structuredData";
 
-// AGENTS.md lockstep rule: accepted payment is Visa, MasterCard, FSA/HSA and
-// the in-house dental plan; PPO plans are out-of-network. Keep this page,
+// AGENTS.md lockstep rule: accepted payment is Visa, MasterCard, and FSA/HSA.
+// PPO plans are out-of-network. Keep this page,
 // the payment FAQ in lib/data.ts (faqItems), and InsuranceInfoSection in sync.
 const breadcrumbItems = [
   { name: "Home", path: "/" },
@@ -48,12 +48,12 @@ const faqs: FAQEntry[] = [
   {
     question: "What if I don't have dental insurance?",
     answer:
-      "We offer an in-house dental plan with savings on preventive care and treatments for patients without insurance, and we accept Visa, MasterCard, and FSA/HSA funds. Call our office for current plan details.",
+      "You can pay for your visit directly. Call to ask about the cost of your first visit. After your exam, we’ll review the estimated cost of any recommended treatment with you.",
   },
   {
-    question: "Do you offer payment plans or financing?",
+    question: "Which forms of payment do you accept?",
     answer:
-      "We accept Visa and MasterCard, along with flexible spending account (FSA) or health savings account (HSA) funds. Patients without insurance can also ask about our in-house dental plan. Our team can help you choose the option that fits your situation.",
+      "We accept Visa and MasterCard, along with flexible spending account (FSA) or health savings account (HSA) funds.",
   },
   {
     question: "Will you give me a cost estimate before treatment?",
@@ -124,7 +124,7 @@ const Insurance = () => {
         }
         lead="We’re out-of-network with PPO plans, and most still pay a share of your care here. We check your benefits first and tell you your portion before treatment begins."
         analyticsContext="insurance-hero"
-        chips={["PPO benefits checked first", "Visa · MasterCard · FSA/HSA", "In-house plan if uninsured"]}
+        chips={["PPO benefits checked first", "Visa · MasterCard · FSA/HSA"]}
         media={
           <figure className="relative mx-auto w-full max-w-xl overflow-hidden rounded-[2rem] bg-cream-200 shadow-lift lg:ml-auto lg:max-w-md">
             <div className="relative aspect-[16/11] sm:aspect-[4/3] lg:aspect-[4/5]">
@@ -253,9 +253,8 @@ const Insurance = () => {
               Every way <em>to pay</em>
             </>
           }
-          lead="Simple and predictable: insurance, two cards, your health accounts, or our in-house plan."
         />
-        <ul className="reveal-stagger mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="reveal-stagger mt-10 grid gap-4 md:grid-cols-3">
           {paymentMethods.map((method) => {
             const Icon = method.icon;
             return (
@@ -270,30 +269,6 @@ const Insurance = () => {
               </li>
             );
           })}
-          <li
-            id="in-house-plan"
-            className="surface-evergreen on-dark flex flex-wrap items-start gap-4 rounded-[1.75rem] p-5 shadow-lift sm:flex-col sm:flex-nowrap sm:p-6"
-          >
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-gold-300">
-              <PiggyBank className="h-6 w-6" aria-hidden="true" />
-            </span>
-            <div className="min-w-0 flex-1 sm:flex-none">
-              <h3 className="h-card text-[1.25rem]">In-house dental plan</h3>
-              <p className="mt-1.5 text-[15px] leading-6 text-evergreen-100">
-                No insurance? Our in-house plan offers savings on preventive care and treatment. Ask our team for
-                current details.
-              </p>
-            </div>
-            <a
-              href={`tel:${officeInfo.phoneE164}`}
-              className="btn btn-gold btn-sm ml-16 self-start sm:ml-0 sm:mt-auto"
-              data-analytics-context="insurance-plan-call"
-              aria-label={`Ask about the in-house plan: call ${officeInfo.phone}`}
-            >
-              <Phone aria-hidden="true" />
-              Ask about the plan
-            </a>
-          </li>
         </ul>
       </Section>
 
