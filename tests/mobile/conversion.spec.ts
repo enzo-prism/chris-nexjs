@@ -137,14 +137,23 @@ test("the homepage Full Circle film plays in the custom player", async ({ page }
   await expect(player.getByRole("button", { name: /full screen/i })).toBeVisible();
 });
 
+test("insurance page shows accepted payment methods without advertising a practice plan", async ({ page }) => {
+  await gotoAndHydrate(page, "/insurance");
+
+  await expect(page.getByText("Visa · MasterCard · FSA/HSA", { exact: true })).toBeVisible();
+  await expect(page.locator("#payment li")).toHaveCount(3);
+  await expect(page.locator("main")).not.toContainText(/in[- ]house (?:dental )?plan|ask about the plan/i);
+  await expect(page.locator('script[type="application/ld+json"]').filter({ hasText: /in[- ]house (?:dental )?plan/i })).toHaveCount(0);
+});
+
 test("homepage explains insurance and cost before the reviews", async ({ page }) => {
   await gotoAndHydrate(page, "/");
 
   const cost = page.locator("#insurance-and-cost");
   await expect(cost.getByRole("heading", { name: /know your cost before you commit/i })).toBeVisible();
   await expect(cost).toContainText("Visa, MasterCard, and FSA/HSA");
-  await expect(cost).toContainText("in-house dental plan");
-  await expect(cost).not.toContainText(/carecredit/i);
+  await expect(cost).toContainText("Call to ask about visit fees");
+  await expect(cost).not.toContainText(/carecredit|in[- ]house (?:dental )?plan/i);
 
   await expect(
     page.getByRole("navigation", { name: "For current patients" }).getByRole("link", {

@@ -45,7 +45,7 @@ const servicesFaqs: FAQEntry[] = [
   {
     question: "Do you accept dental insurance?",
     answer:
-      "We work with most major PPO plans as an out-of-network provider. Many plans include out-of-network benefits, and our team can verify coverage before treatment. We also accept Visa, MasterCard, FSA/HSA funds, and offer an in-house dental plan.",
+      "We work with most major PPO plans as an out-of-network provider. Many plans include out-of-network benefits, and our team can verify coverage before treatment. We also accept Visa, MasterCard, and FSA/HSA funds.",
   },
   {
     question: "Are dental X‑rays safe?",
@@ -277,7 +277,7 @@ const Services = (_props: ServicesProps) => {
             Insurance and <em>payment</em>
           </>
         }
-        lead="We work with most major PPO dental insurance plans as an out-of-network provider. Our team helps you understand your coverage and make the most of your benefits, and patients without insurance can join our in-house dental plan."
+        lead="We work with most major PPO dental insurance plans as an out-of-network provider. We can check your benefits and explain your expected costs before treatment."
         analyticsContext="services-cost"
       />
 

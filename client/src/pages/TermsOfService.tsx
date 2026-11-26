@@ -1,6 +1,6 @@
 // Terms text is unchanged from the July 15, 2026 version except the payment
-// and insurance lines, corrected on 2026-10-16 to match the accepted methods
-// in AGENTS.md (Visa, MasterCard, FSA/HSA, in-house plan; PPO out-of-network).
+// and insurance lines, corrected on 2026-11-25 to match the accepted methods
+// in AGENTS.md (Visa, MasterCard, FSA/HSA; PPO out-of-network).
 // Quiet page: no seasonal decoration.
 import Link from "next/link";
 
@@ -82,7 +82,7 @@ const sections: readonly LegalSection[] = [
         <ul>
           <li>Payment is due at the time of service unless prior arrangements have been made</li>
           <li>
-            We accept Visa, MasterCard, and FSA/HSA funds, and offer an in-house dental plan. We work with PPO
+            We accept Visa, MasterCard, and FSA/HSA funds. We work with PPO
             dental insurance plans as an out-of-network provider
           </li>
           <li>Patients are responsible for understanding their insurance benefits and coverage</li>
@@ -173,7 +173,7 @@ const TermsOfService = () => (
     eyebrow="Website terms"
     meta={
       <>
-        Website terms version: <time dateTime="2026-10-16">October 16, 2026</time>
+        Website terms version: <time dateTime="2026-11-25">November 25, 2026</time>
       </>
     }
     sections={sections}

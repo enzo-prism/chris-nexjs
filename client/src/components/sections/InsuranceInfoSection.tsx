@@ -12,8 +12,8 @@ type InsuranceInfoSectionProps = {
   readonly subtitle?: string;
 };
 
-// Payment copy must match AGENTS.md: Visa, MasterCard, FSA/HSA, and the
-// in-house dental plan; PPO plans are out-of-network. Keep in lockstep with
+// Payment copy must match AGENTS.md: Visa, MasterCard, and FSA/HSA.
+// PPO plans are out-of-network. Keep in lockstep with
 // pages/Insurance.tsx and the payment FAQ in lib/data.ts.
 const notes = [
   {
@@ -24,7 +24,7 @@ const notes = [
   {
     icon: PiggyBank,
     title: "No insurance?",
-    body: "Ask about our in-house dental plan, with savings on preventive care and treatment.",
+    body: "Call to ask about visit fees. We’ll review the estimated cost of any recommended treatment with you before you decide.",
   },
   {
     icon: CreditCard,

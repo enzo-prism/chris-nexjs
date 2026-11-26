@@ -24,7 +24,7 @@ type CostPanelProps = {
 
 /**
  * Cost, insurance & payment block shared by every service page. Payment copy
- * must match AGENTS.md exactly: PPO out-of-network, the in-house plan, and
+ * must match AGENTS.md exactly: PPO out-of-network and
  * Visa, MasterCard, FSA/HSA (no CareCredit).
  */
 export function CostPanel({
@@ -51,7 +51,7 @@ export function CostPanel({
     {
       icon: PiggyBank,
       title: "No dental insurance?",
-      body: "Ask about our in-house dental plan, which offers savings on preventive care and treatment.",
+      body: "Call to ask about visit fees. We’ll review the estimated cost of any recommended treatment with you before you decide.",
     },
     {
       icon: CreditCard,

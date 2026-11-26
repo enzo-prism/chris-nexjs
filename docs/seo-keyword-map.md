@@ -16,7 +16,7 @@ cluster defaults in `shared/seo.ts`; they are navigational, not ranking targets.
 | `/preventive-dentistry` | service | preventive dentistry palo alto | dental exam palo alto, oral cancer screening palo alto, fluoride and sealants for adults |
 | `/restorative-dentistry` | service | restorative dentistry palo alto | broken tooth repair, dental bridge palo alto, replace missing tooth |
 | `/pediatric-dentistry` | service | kids dentist palo alto | children's dentist palo alto, child's first dental visit, sealants for kids |
-| `/insurance` | trust | dental insurance palo alto | out-of-network ppo dentist, dentist without insurance palo alto, in-house dental plan |
+| `/insurance` | trust | dental insurance palo alto | out-of-network ppo dentist, dentist without insurance palo alto |
 | `/blog` | blog | dental health blog | dental health tips, oral health education |
 | `/invisalign` | service | invisalign palo alto | invisalign dentist palo alto, clear aligners palo alto, invisalign cost palo alto, invisalign for teens |
 | `/emergency-dental` | service | emergency dentist palo alto | same day dentist palo alto, toothache, broken tooth dentist, urgent dental care |

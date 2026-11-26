@@ -58,7 +58,7 @@ and chips, hairline `border-cream-300/80`, `shadow-soft` / `shadow-lift`.
 
 | Folder | Used by | Pieces |
 |---|---|---|
-| `components/services/` | cosmetic + urgent service pages (and reused by the others) | `ServicePhoto`, `QuickFacts`, `FitChecklist`, `OptionCards` / `FeatureList` (optional phone `rail`), `PhaseTrack`, `StepList`, `CompareTable`, `FirstAidGrid`, `CostPanel` (PPO out-of-network, in-house plan, Visa/MasterCard/FSA-HSA), `Disclosure`, `GuideLinks`, `JumpNav`, `NearbyLine`, `IconMedallion` |
+| `components/services/` | cosmetic + urgent service pages (and reused by the others) | `ServicePhoto`, `QuickFacts`, `FitChecklist`, `OptionCards` / `FeatureList` (optional phone `rail`), `PhaseTrack`, `StepList`, `CompareTable`, `FirstAidGrid`, `CostPanel` (PPO out-of-network, Visa/MasterCard/FSA-HSA), `Disclosure`, `GuideLinks`, `JumpNav`, `NearbyLine`, `IconMedallion` |
 | `components/services-hub/` | `/services` + preventive/restorative pages | `hubServices`, `ServiceBlocks` (`QuickFacts`, `FitAndDefinition`, `SpokeCards`, `IconPoints`, `AsideNote`), `ServiceSections`, `ServicesCtaBand` |
 | `components/trust/` | `/about`, `/testimonials`, `/patient-stories` | `PracticeLineage` (Kanemoto → Hamamoto → Wong, no invented years), `HandwrittenNote` |
 | `components/patients/` | contact, insurance, forms, legal | `MapFacade` (click-to-load map), `HoursTable`, `LegalPage`, `useHolidayNotice` (post-mount, hydration-safe) |
@@ -104,6 +104,6 @@ mobile menu, footer, homepage care finder).
 
 - Doctor name: `Dr. Christopher B. Wong` or `Christopher B. Wong, DDS` — never both in one line.
 - "Request", never "book": the site sends appointment requests the office confirms.
-- Payment: Visa, MasterCard, FSA/HSA, in-house dental plan; PPO is out-of-network. No CareCredit.
+- Payment: Visa, MasterCard, FSA/HSA; PPO is out-of-network. No CareCredit.
 - Quotes are verbatim (enforced by `pnpm test:reviews`); real photos only; no invented facts.
 - Address/phone/hours always render from `officeInfo` (`pnpm check:business-info`).

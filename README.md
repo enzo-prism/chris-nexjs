@@ -269,8 +269,7 @@ Person schema `name` is `Christopher B. Wong` with separate honorifics — do no
 duplicate `Dr.` in the name string. Do not put SEO phrases into Person **or**
 WebSite `alternateName`.
 
-Payment copy must match accepted methods (Visa, MasterCard, FSA/HSA, in-house
-plan); keep Insurance UI and the `data.ts` payment FAQ in lockstep. Keep body
+Payment copy must match accepted methods (Visa, MasterCard, FSA/HSA); keep Insurance UI and the `data.ts` payment FAQ in lockstep. Keep body
 copy free of SEO keyword stuffing. After substantive copy changes, update
 `LASTMOD_OVERRIDES` in `shared/seo.ts`. Full standing rules:
 `docs/seo-growth-plan.md` Editorial guardrails.
